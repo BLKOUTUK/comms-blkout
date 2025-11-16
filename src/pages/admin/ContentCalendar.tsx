@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { Layout } from '@/components/layout/Layout';
 import { useContent } from '@/hooks/useContent';
-import { ChevronLeft, ChevronRight, Calendar as CalendarIcon } from 'lucide-react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, isToday, addMonths, subMonths } from 'date-fns';
 import type { PlatformType } from '@/types';
 

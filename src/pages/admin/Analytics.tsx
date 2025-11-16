@@ -1,7 +1,7 @@
 
 import { Layout } from '@/components/layout/Layout';
 import { mockCommunityMetrics } from '@/lib/mockData';
-import { TrendingUp, Users, MessageSquare, Heart, Target } from 'lucide-react';
+import { Users, MessageSquare, Heart, Target } from 'lucide-react';
 
 export function Analytics() {
   const metrics = mockCommunityMetrics;
