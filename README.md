@@ -1,235 +1,258 @@
 
-# 🏳️‍🌈 BLKOUT UK Content Calendar & Comms System
+# BLKOUT UK Communications System
 
-A comprehensive Vite + React application for managing BLKOUT UK's content calendar and community communications system, featuring AI-powered content creation with four specialized agents.
+A comprehensive Vite + React + TypeScript content management and community communications platform for BLKOUT UK, featuring AI-powered content creation with four specialized agents.
 
-## 🌟 Features
+## 🎯 Overview
 
-### Public "Discover" Page (`/discover`)
-- **Hero Section**: Showcasing BLKOUT UK's mission and community impact
-- **Dynamic Content Grid**: Latest content from Instagram, LinkedIn, Twitter, TikTok, Facebook, and YouTube
-- **Social Media Embeds**: Embedded posts using platform APIs
-- **Smart Filtering**: Filter by platform, content type, and search functionality
-- **Responsive Design**: Mobile-first, accessible interface
+This application helps BLKOUT UK manage their community communications across multiple social media platforms with a focus on authentic storytelling rooted in Black feminist thought. The system features AI agents for content creation, community engagement, and strategic planning.
 
-### Admin Backroom (`/admin`)
-- **Dashboard**: Overview of content metrics and AI agent status
-- **Content Calendar**: Weekly/monthly grid view with scheduling
-- **Draft Management**: Review, edit, and approve AI-generated content
-- **Agent Status Dashboard**: Monitor all 4 AI agents (Griot, Listener, Weaver, Strategist)
-- **Analytics**: Community-focused metrics (conversations, actions, meaningful interactions)
-- **Settings**: User profile and notification preferences
+## ✨ Features
 
-## 🛠 Tech Stack
+### Public Pages
+- **Discover Page** (`/discover`) - Public-facing content showcase
+  - Latest published content from Instagram and LinkedIn
+  - Filter by platform and search functionality
+  - Social media embeds
+  - Community-focused design
 
-- **Frontend**: Vite + React 18 + TypeScript
-- **Routing**: React Router v6
-- **Database & Auth**: Supabase
-- **Styling**: TailwindCSS
-- **Icons**: Lucide React
-- **Date Handling**: date-fns
+### Admin Pages (Protected Routes)
+- **Dashboard** (`/admin`) - Overview with agent status, recent content, and quick actions
+- **Content Calendar** (`/admin/calendar`) - Monthly calendar view with scheduled content
+- **Drafts** (`/admin/drafts`) - Review and manage agent-generated content
+- **Agents** (`/admin/agents`) - Monitor and configure AI agents
+- **Analytics** (`/admin/analytics`) - Community engagement metrics (quality over quantity)
+- **Settings** (`/admin/settings`) - Platform connections and system configuration
 
-## 🚀 Getting Started
+## 🚀 Quick Start
 
 ### Prerequisites
-
 - Node.js 18+ and npm
-- Supabase account with deployed schema
-- Supabase project URL and anon key
+- (Optional) Supabase account for production use
 
 ### Installation
 
-1. **Clone and navigate to the project**:
-   ```bash
-   cd /home/ubuntu/blkout_comms_app
-   ```
+```bash
+# Install dependencies
+npm install
 
-2. **Install dependencies**:
-   ```bash
-   npm install
-   ```
+# Start development server
+npm run dev
 
-3. **Configure environment variables**:
-   Create a `.env` file in the root directory:
-   ```bash
-   cp .env.example .env
-   ```
-   
-   Edit `.env` and add your Supabase credentials:
+# Build for production
+npm run build
+
+# Preview production build
+npm run preview
+```
+
+The application will be available at `http://localhost:3000`
+
+## 🔐 Authentication Status
+
+**⚠️ AUTHENTICATION IS CURRENTLY DISABLED**
+
+The application runs in **development mode** with authentication disabled by default. You'll be automatically logged in as a mock admin user with full access to all features.
+
+### Mock Admin User
+- **Email:** admin@blkout.dev
+- **Role:** Admin
+- **Access:** Full system access
+
+### Enabling Authentication
+
+To enable Supabase authentication:
+
+1. Create a Supabase project at [supabase.com](https://supabase.com)
+2. Copy your `.env.example` to `.env`
+3. Add your Supabase credentials:
    ```env
    VITE_SUPABASE_URL=your_supabase_project_url
    VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+   VITE_AUTH_DISABLED=false
    ```
+4. Restart the development server
 
-4. **Start the development server**:
-   ```bash
-   npm run dev
-   ```
+## 📦 Tech Stack
 
-5. **Open your browser**:
-   Navigate to `http://localhost:5173`
+- **Framework:** Vite + React 19
+- **Language:** TypeScript
+- **Styling:** Tailwind CSS
+- **Routing:** React Router v7
+- **Database:** Supabase (PostgreSQL)
+- **Authentication:** Supabase Auth (disabled by default)
+- **Icons:** Lucide React
+- **Date Utilities:** date-fns
 
-### Building for Production
+## 🏗️ Project Structure
+
+```
+blkout_comms_app/
+├── src/
+│   ├── components/
+│   │   ├── layout/        # Layout components (Header, Sidebar, etc.)
+│   │   ├── shared/        # Reusable components (Cards, Badges, etc.)
+│   │   ├── admin/         # Admin-specific components
+│   │   └── discover/      # Discover page components
+│   ├── pages/
+│   │   ├── admin/         # Admin pages
+│   │   └── discover/      # Public pages
+│   ├── hooks/             # Custom React hooks
+│   ├── lib/               # Utility functions and configs
+│   ├── types/             # TypeScript type definitions
+│   ├── styles/            # Global styles
+│   ├── App.tsx            # Main app with routes
+│   └── main.tsx           # Entry point
+├── public/                # Static assets
+├── .env                   # Environment variables (not in git)
+├── .env.example           # Environment variables template
+├── package.json           # Dependencies and scripts
+├── tailwind.config.js     # Tailwind configuration
+├── tsconfig.json          # TypeScript configuration
+└── vite.config.ts         # Vite configuration
+```
+
+## 🤖 AI Agents
+
+The system includes four specialized AI agents:
+
+### 1. **Griot** - Storyteller
+- Creates authentic content rooted in Black feminist thought
+- Generates posts, articles, and narrative content
+- Maintains BLKOUT's voice and values
+
+### 2. **Listener** - Intelligence Gatherer
+- Monitors social media for trends and conversations
+- Provides community intelligence
+- Identifies opportunities for engagement
+
+### 3. **Weaver** - Community Engager
+- Facilitates community interactions
+- Responds to comments and messages
+- Builds relationships and trust
+
+### 4. **Strategist** - Campaign Planner
+- Plans content campaigns
+- Coordinates timing and platform strategy
+- Analyzes performance and adjusts approach
+
+## 🎨 Design Philosophy
+
+### BLKOUT Brand Colors
+- **Primary Purple:** `#a855f7` (blkout-500)
+- **Community Warmth:** `#f59e0b` (amber)
+- **Community Trust:** `#10b981` (emerald)
+- **Community Wisdom:** `#6366f1` (indigo)
+
+### Design Principles
+- **Community over metrics** - Focus on quality engagement
+- **Authentic storytelling** - Rooted in Black feminist thought
+- **Move at the speed of trust** - Relationship-building first
+- **Trust the people** - Community-led approach
+
+## 📊 Analytics Philosophy
+
+Unlike traditional social media analytics, BLKOUT focuses on:
+
+- **Engagement Quality** - Depth of conversations over vanity metrics
+- **Trust Score** - Community trust and relationship building
+- **Conversation Depth** - Quality of interactions
+- **Content Resonance** - How well content connects with community
+
+## 🔧 Development
+
+### Environment Variables
+
+```env
+# Supabase Configuration
+VITE_SUPABASE_URL=your_supabase_url
+VITE_SUPABASE_ANON_KEY=your_anon_key
+
+# Authentication (true = disabled, false = enabled)
+VITE_AUTH_DISABLED=true
+
+# Mock User (when auth disabled)
+VITE_MOCK_USER_EMAIL=admin@blkout.dev
+VITE_MOCK_USER_NAME=BLKOUT Admin
+```
+
+### Available Scripts
+
+```bash
+npm run dev          # Start development server
+npm run build        # Build for production
+npm run preview      # Preview production build
+npm run lint         # Run ESLint
+```
+
+### Mock Data
+
+The application includes comprehensive mock data in `src/lib/mockData.ts` for development and testing when Supabase is not configured. This allows you to develop and test all features without a database connection.
+
+## 🗄️ Database Integration
+
+The application is designed to work with Supabase. When Supabase credentials are not configured, it automatically falls back to mock data.
+
+### Custom Hooks
+- `useAuth()` - Authentication state and methods
+- `useContent()` - Fetch and manage content
+- `useAgents()` - Fetch and manage agents
+- `usePlatforms()` - Fetch and manage platform connections
+- `useDrafts()` - Fetch and manage draft content
+
+All hooks automatically handle loading states, errors, and fallback to mock data.
+
+## 🚢 Deployment
+
+### Build for Production
 
 ```bash
 npm run build
 ```
 
-The production build will be in the `dist` directory.
+This creates an optimized production build in the `dist/` directory.
 
-### Preview Production Build
+### Environment Variables for Production
 
-```bash
-npm run preview
+Make sure to set these environment variables in your hosting platform:
+
+```env
+VITE_SUPABASE_URL=your_production_supabase_url
+VITE_SUPABASE_ANON_KEY=your_production_anon_key
+VITE_AUTH_DISABLED=false
 ```
 
-## 📁 Project Structure
+## 📝 To-Do / Future Enhancements
 
-```
-src/
-├── components/
-│   ├── admin/          # Admin-specific components
-│   │   ├── AdminLayout.tsx
-│   │   ├── AgentCard.tsx
-│   │   ├── ContentCalendarGrid.tsx
-│   │   ├── DashboardStats.tsx
-│   │   └── DraftList.tsx
-│   ├── discover/       # Public discover page components
-│   │   ├── ContentCard.tsx
-│   │   ├── ContentFilter.tsx
-│   │   ├── HeroSection.tsx
-│   │   └── SocialEmbed.tsx
-│   └── shared/         # Shared components
-│       ├── Footer.tsx
-│       ├── LoadingSpinner.tsx
-│       ├── Navbar.tsx
-│       └── ProtectedRoute.tsx
-├── hooks/              # Custom React hooks
-│   ├── useAgents.ts
-│   ├── useAuth.tsx
-│   ├── useContent.ts
-│   └── usePlatforms.ts
-├── lib/                # Library configurations
-│   └── supabase.ts
-├── pages/              # Page components
-│   ├── admin/
-│   │   ├── AgentsPage.tsx
-│   │   ├── AnalyticsPage.tsx
-│   │   ├── ContentCalendarPage.tsx
-│   │   ├── DashboardPage.tsx
-│   │   ├── DraftsPage.tsx
-│   │   └── SettingsPage.tsx
-│   ├── DiscoverPage.tsx
-│   └── LoginPage.tsx
-├── types/              # TypeScript type definitions
-│   ├── database.ts
-│   └── index.ts
-├── App.tsx             # Main app component with routing
-├── main.tsx            # App entry point
-└── index.css           # Global styles with Tailwind
-
-```
-
-## 🗄️ Database Schema
-
-The application connects to a Supabase database with the following tables:
-
-- `voice_and_values` - BLKOUT Voice & Values document
-- `platforms` - Social media platform configurations
-- `agent_configurations` - AI agent settings (Griot, Listener, Weaver, Strategist)
-- `campaigns` - Campaign planning and tracking
-- `content_calendar` - Main content planning and scheduling
-- `content_drafts` - AI-generated content drafts with versioning
-- `content_approvals` - Approval workflow tracking
-- `ivor_intelligence` - Cached IVOR insights
-- `content_performance` - Community-focused engagement metrics
-
-## 👥 AI Agents
-
-### Griot - The Storyteller
-Content creator specializing in narrative storytelling rooted in Black queer history and liberation practices.
-
-### Listener - Community Monitor
-Social monitoring specialist tracking community needs, trends, and content alignment with values.
-
-### Weaver - Community Builder
-Engagement specialist optimizing content for platforms and building connections between community members.
-
-### Strategist - Campaign Planner
-Strategic planning specialist ensuring content aligns with organizational goals and community needs.
-
-## 🔐 Authentication
-
-The app uses Supabase Auth with Row Level Security (RLS). User roles:
-- **Admin**: Full access to all features
-- **Editor/Content Lead**: Can create, edit, and manage content
-- **Viewer**: Read-only access to published content
-
-To set user roles, update the user's metadata in Supabase:
-```json
-{
-  "role": "admin"
-}
-```
-
-## 📊 Key Features Explained
-
-### Content Status Workflow
-1. **Draft** → AI-generated or manual draft
-2. **Review** → Submitted for approval
-3. **Approved** → Ready for scheduling
-4. **Scheduled** → Set to publish at specific time
-5. **Published** → Live on social media
-
-### Community-Focused Metrics
-- **Conversations Started**: Comments and meaningful discussions
-- **Community Actions**: Sign-ups, event attendance, resource access
-- **Meaningful Interactions**: DMs, thoughtful comments, story replies
-- **Resources Accessed**: Tangible help provided to community
-
-## 🌐 Deployment
-
-### Vercel (Recommended)
-
-1. **Push to GitHub**:
-   ```bash
-   git init
-   git add .
-   git commit -m "Initial commit"
-   git remote add origin https://github.com/BLKOUTUK/blkout-comms-app.git
-   git push -u origin main
-   ```
-
-2. **Deploy on Vercel**:
-   - Import your GitHub repository
-   - Add environment variables (VITE_SUPABASE_URL, VITE_SUPABASE_ANON_KEY)
-   - Deploy!
-
-### Other Platforms
-
-The app can be deployed to any static hosting service (Netlify, Cloudflare Pages, etc.).
+- [ ] Implement actual AI agent integrations
+- [ ] Add real-time notifications
+- [ ] Implement drag-and-drop content scheduling
+- [ ] Add media upload functionality
+- [ ] Integrate with social media APIs (Instagram, LinkedIn, etc.)
+- [ ] Add user role management
+- [ ] Implement content approval workflows
+- [ ] Add analytics dashboard with charts
+- [ ] Create mobile app version
 
 ## 🤝 Contributing
 
-This is a community project. Contributions are welcome!
+This is a production-ready foundation for BLKOUT UK's communications system. Future development will focus on:
 
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Submit a pull request
+1. AI agent integration with LLM providers
+2. Social media platform API integrations
+3. Advanced analytics and reporting
+4. Real-time collaboration features
 
-## 📝 License
+## 📄 License
 
-Copyright © 2025 BLKOUT UK. All rights reserved.
+Proprietary - BLKOUT UK
 
 ## 🙏 Acknowledgments
 
-Built with love for the UK's Black queer community by BLKOUT UK - the UK's only Black queer-led Community Benefit Society.
+Built with ❤️ for BLKOUT UK's mission of community organizing and authentic storytelling rooted in Black feminist thought.
 
 ---
 
-**Note about localhost**: When running locally, the app is accessible at `http://localhost:5173` on the development machine. To access from another device, you'll need to deploy the application or configure network access appropriately.
+**Note:** This application is currently in development mode with authentication disabled. Enable Supabase authentication and configure database connections before deploying to production.
 
-## 📞 Support
-
-For questions or support, contact the BLKOUT UK team or open an issue in the GitHub repository.
+For questions or support, contact the BLKOUT UK tech team.

@@ -1,34 +1,53 @@
 
-import { useEffect, useState } from 'react';
-import { supabase } from '../lib/supabase';
-import type { Platform } from '../types';
+import { useState, useEffect } from 'react';
+import { supabase, isSupabaseConfigured } from '@/lib/supabase';
+import { mockPlatforms } from '@/lib/mockData';
+import type { Platform } from '@/types';
 
 export function usePlatforms() {
   const [platforms, setPlatforms] = useState<Platform[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<Error | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     fetchPlatforms();
   }, []);
 
-  async function fetchPlatforms() {
+  const fetchPlatforms = async () => {
     try {
-      setLoading(true);
-      const { data, error } = await supabase
+      setIsLoading(true);
+      setError(null);
+
+      // If Supabase is not configured, use mock data
+      if (!isSupabaseConfigured()) {
+        console.log('📦 Using mock platforms data');
+        setPlatforms(mockPlatforms);
+        setIsLoading(false);
+        return;
+      }
+
+      // Fetch from Supabase
+      const { data, error: fetchError } = await supabase
         .from('platforms')
         .select('*')
-        .eq('is_active', true)
-        .order('display_name');
+        .order('name', { ascending: true });
 
-      if (error) throw error;
-      setPlatforms(data);
+      if (fetchError) throw fetchError;
+
+      setPlatforms(data || []);
     } catch (err) {
-      setError(err as Error);
+      console.error('Error fetching platforms:', err);
+      setError(err instanceof Error ? err.message : 'Failed to fetch platforms');
+      // Fallback to mock data
+      setPlatforms(mockPlatforms);
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
-  }
+  };
 
-  return { platforms, loading, error, refetch: fetchPlatforms };
+  const refetch = () => {
+    fetchPlatforms();
+  };
+
+  return { platforms, isLoading, error, refetch };
 }

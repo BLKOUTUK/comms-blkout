@@ -1,97 +1,100 @@
 
-import { useEffect, useState } from 'react';
-import { supabase } from '../lib/supabase';
-import type { ContentWithRelations, ContentFilters } from '../types';
+import { useState, useEffect } from 'react';
+import { supabase, isSupabaseConfigured } from '@/lib/supabase';
+import { mockContent } from '@/lib/mockData';
+import type { Content } from '@/types';
 
-export function useContent(filters?: ContentFilters) {
-  const [content, setContent] = useState<ContentWithRelations[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<Error | null>(null);
+export function useContent() {
+  const [content, setContent] = useState<Content[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     fetchContent();
-  }, [filters]);
+  }, []);
 
-  async function fetchContent() {
+  const fetchContent = async () => {
     try {
-      setLoading(true);
-      let query = supabase
-        .from('content_calendar')
-        .select(`
-          *,
-          platform:platforms(*),
-          campaign:campaigns(*),
-          performance:content_performance(*)
-        `)
-        .is('deleted_at', null)
+      setIsLoading(true);
+      setError(null);
+
+      // If Supabase is not configured, use mock data
+      if (!isSupabaseConfigured()) {
+        console.log('📦 Using mock content data');
+        setContent(mockContent);
+        setIsLoading(false);
+        return;
+      }
+
+      // Fetch from Supabase
+      const { data, error: fetchError } = await supabase
+        .from('content')
+        .select('*')
         .order('created_at', { ascending: false });
 
-      // Apply filters
-      if (filters?.status?.length) {
-        query = query.in('status', filters.status);
-      }
-      if (filters?.platform?.length) {
-        query = query.in('platform_id', filters.platform);
-      }
-      if (filters?.agent?.length) {
-        query = query.in('generated_by_agent', filters.agent);
-      }
-      if (filters?.dateRange) {
-        query = query
-          .gte('created_at', filters.dateRange.start.toISOString())
-          .lte('created_at', filters.dateRange.end.toISOString());
-      }
-      if (filters?.searchQuery) {
-        query = query.or(`title.ilike.%${filters.searchQuery}%,primary_content.ilike.%${filters.searchQuery}%`);
-      }
+      if (fetchError) throw fetchError;
 
-      const { data, error } = await query;
-
-      if (error) throw error;
-      setContent(data as ContentWithRelations[]);
+      setContent(data || []);
     } catch (err) {
-      setError(err as Error);
+      console.error('Error fetching content:', err);
+      setError(err instanceof Error ? err.message : 'Failed to fetch content');
+      // Fallback to mock data on error
+      setContent(mockContent);
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
-  }
+  };
 
-  return { content, loading, error, refetch: fetchContent };
+  const refetch = () => {
+    fetchContent();
+  };
+
+  return { content, isLoading, error, refetch };
 }
 
-export function usePublishedContent(limit = 20) {
-  const [content, setContent] = useState<ContentWithRelations[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<Error | null>(null);
+// Hook for fetching published content (for Discover page)
+export function usePublishedContent() {
+  const [content, setContent] = useState<Content[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     fetchPublishedContent();
-  }, [limit]);
+  }, []);
 
-  async function fetchPublishedContent() {
+  const fetchPublishedContent = async () => {
     try {
-      setLoading(true);
-      const { data, error } = await supabase
-        .from('content_calendar')
-        .select(`
-          *,
-          platform:platforms(*),
-          campaign:campaigns(*),
-          performance:content_performance(*)
-        `)
+      setIsLoading(true);
+      setError(null);
+
+      // If Supabase is not configured, use mock data
+      if (!isSupabaseConfigured()) {
+        const publishedContent = mockContent.filter((c) => c.status === 'published');
+        setContent(publishedContent);
+        setIsLoading(false);
+        return;
+      }
+
+      // Fetch from Supabase
+      const { data, error: fetchError } = await supabase
+        .from('content')
+        .select('*')
         .eq('status', 'published')
-        .is('deleted_at', null)
-        .order('published_at', { ascending: false })
-        .limit(limit);
+        .order('published_at', { ascending: false });
 
-      if (error) throw error;
-      setContent(data as ContentWithRelations[]);
+      if (fetchError) throw fetchError;
+
+      setContent(data || []);
     } catch (err) {
-      setError(err as Error);
+      console.error('Error fetching published content:', err);
+      setError(err instanceof Error ? err.message : 'Failed to fetch content');
+      // Fallback to mock data
+      const publishedContent = mockContent.filter((c) => c.status === 'published');
+      setContent(publishedContent);
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
-  }
+  };
 
-  return { content, loading, error, refetch: fetchPublishedContent };
+  return { content, isLoading, error };
 }

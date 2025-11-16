@@ -1,59 +1,81 @@
 
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { AuthProvider } from './hooks/useAuth';
-import { Navbar } from './components/shared/Navbar';
-import { Footer } from './components/shared/Footer';
-import { ProtectedRoute } from './components/shared/ProtectedRoute';
-import { AdminLayout } from './components/admin/AdminLayout';
+import { AuthProvider } from '@/hooks/useAuth';
+import { ProtectedRoute } from '@/components/layout/ProtectedRoute';
 
 // Pages
-import { DiscoverPage } from './pages/DiscoverPage';
-import { LoginPage } from './pages/LoginPage';
-import { DashboardPage } from './pages/admin/DashboardPage';
-import { ContentCalendarPage } from './pages/admin/ContentCalendarPage';
-import { DraftsPage } from './pages/admin/DraftsPage';
-import { AgentsPage } from './pages/admin/AgentsPage';
-import { AnalyticsPage } from './pages/admin/AnalyticsPage';
-import { SettingsPage } from './pages/admin/SettingsPage';
+import { DiscoverPage } from '@/pages/discover/DiscoverPage';
+import { Dashboard } from '@/pages/admin/Dashboard';
+import { ContentCalendar } from '@/pages/admin/ContentCalendar';
+import { Drafts } from '@/pages/admin/Drafts';
+import { Agents } from '@/pages/admin/Agents';
+import { Analytics } from '@/pages/admin/Analytics';
+import { Settings } from '@/pages/admin/Settings';
 
 function App() {
   return (
-    <BrowserRouter>
-      <AuthProvider>
-        <div className="flex flex-col min-h-screen">
-          <Navbar />
-          <div className="flex-1">
-            <Routes>
-              {/* Public routes */}
-              <Route path="/" element={<Navigate to="/discover" replace />} />
-              <Route path="/discover" element={<DiscoverPage />} />
-              <Route path="/login" element={<LoginPage />} />
+    <AuthProvider>
+      <BrowserRouter>
+        <Routes>
+          {/* Public Routes */}
+          <Route path="/" element={<Navigate to="/discover" replace />} />
+          <Route path="/discover" element={<DiscoverPage />} />
 
-              {/* Protected admin routes */}
-              <Route
-                path="/admin"
-                element={
-                  <ProtectedRoute>
-                    <AdminLayout />
-                  </ProtectedRoute>
-                }
-              >
-                <Route index element={<DashboardPage />} />
-                <Route path="calendar" element={<ContentCalendarPage />} />
-                <Route path="drafts" element={<DraftsPage />} />
-                <Route path="agents" element={<AgentsPage />} />
-                <Route path="analytics" element={<AnalyticsPage />} />
-                <Route path="settings" element={<SettingsPage />} />
-              </Route>
+          {/* Protected Admin Routes */}
+          <Route
+            path="/admin"
+            element={
+              <ProtectedRoute>
+                <Dashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/calendar"
+            element={
+              <ProtectedRoute>
+                <ContentCalendar />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/drafts"
+            element={
+              <ProtectedRoute>
+                <Drafts />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/agents"
+            element={
+              <ProtectedRoute>
+                <Agents />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/analytics"
+            element={
+              <ProtectedRoute>
+                <Analytics />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/settings"
+            element={
+              <ProtectedRoute>
+                <Settings />
+              </ProtectedRoute>
+            }
+          />
 
-              {/* 404 */}
-              <Route path="*" element={<Navigate to="/discover" replace />} />
-            </Routes>
-          </div>
-          <Footer />
-        </div>
-      </AuthProvider>
-    </BrowserRouter>
+          {/* 404 - Redirect to discover */}
+          <Route path="*" element={<Navigate to="/discover" replace />} />
+        </Routes>
+      </BrowserRouter>
+    </AuthProvider>
   );
 }
 

@@ -1,0 +1,127 @@
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-gray-50 text-gray-900 font-sans antialiased;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-display font-bold;
+  }
+}
+
+@layer components {
+  /* Card styles */
+  .card {
+    @apply bg-white rounded-lg shadow-sm border border-gray-200 p-6;
+  }
+  
+  .card-hover {
+    @apply transition-all duration-200 hover:shadow-md hover:border-blkout-300;
+  }
+  
+  /* Button styles */
+  .btn {
+    @apply px-4 py-2 rounded-lg font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2;
+  }
+  
+  .btn-primary {
+    @apply bg-blkout-600 text-white hover:bg-blkout-700 focus:ring-blkout-500;
+  }
+  
+  .btn-secondary {
+    @apply bg-gray-200 text-gray-800 hover:bg-gray-300 focus:ring-gray-500;
+  }
+  
+  .btn-outline {
+    @apply border-2 border-blkout-600 text-blkout-600 hover:bg-blkout-50 focus:ring-blkout-500;
+  }
+  
+  /* Badge styles */
+  .badge {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+  }
+  
+  .badge-active {
+    @apply bg-green-100 text-green-800;
+  }
+  
+  .badge-inactive {
+    @apply bg-gray-100 text-gray-800;
+  }
+  
+  .badge-paused {
+    @apply bg-yellow-100 text-yellow-800;
+  }
+  
+  .badge-error {
+    @apply bg-red-100 text-red-800;
+  }
+  
+  /* Platform badges */
+  .badge-instagram {
+    @apply bg-pink-100 text-pink-800;
+  }
+  
+  .badge-linkedin {
+    @apply bg-blue-100 text-blue-800;
+  }
+  
+  .badge-twitter {
+    @apply bg-sky-100 text-sky-800;
+  }
+  
+  .badge-facebook {
+    @apply bg-indigo-100 text-indigo-800;
+  }
+  
+  .badge-tiktok {
+    @apply bg-purple-100 text-purple-800;
+  }
+  
+  .badge-youtube {
+    @apply bg-red-100 text-red-800;
+  }
+  
+  /* Input styles */
+  .input {
+    @apply w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blkout-500 focus:border-transparent;
+  }
+  
+  /* Navigation styles */
+  .nav-link {
+    @apply flex items-center gap-3 px-3 py-2 rounded-lg transition-colors duration-200;
+  }
+  
+  .nav-link-active {
+    @apply bg-blkout-100 text-blkout-700;
+  }
+  
+  .nav-link-inactive {
+    @apply text-gray-600 hover:bg-gray-100;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+  
+  .animate-fade-in {
+    animation: fadeIn 0.3s ease-in;
+  }
+  
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+}

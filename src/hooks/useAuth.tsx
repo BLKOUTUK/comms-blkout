@@ -1,147 +1,124 @@
 
-import { createContext, useContext, useEffect, useState } from 'react';
-import type { ReactNode } from 'react';
-import type { User, Session } from '@supabase/supabase-js';
-import { supabase } from '../lib/supabase';
+import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import { supabase, isSupabaseConfigured } from '@/lib/supabase';
+import type { AuthContextType, User } from '@/types';
 
-// ============================================================================
-// 🚨 DEVELOPMENT MODE: AUTHENTICATION DISABLED 🚨
-// ============================================================================
-// Authentication is temporarily disabled for development purposes.
-// The app will use a mock admin user instead of requiring Supabase credentials.
-// To re-enable authentication:
-// 1. Set AUTH_DISABLED to false
-// 2. Uncomment the real authentication code in useEffect
-// 3. Remove the mock user data
-// ============================================================================
-const AUTH_DISABLED = true;
+// AUTH_DISABLED flag - Set to true to bypass authentication
+const AUTH_DISABLED = import.meta.env.VITE_AUTH_DISABLED === 'true';
 
-interface AuthContextType {
-  user: User | null;
-  session: Session | null;
-  loading: boolean;
-  signIn: (email: string, password: string) => Promise<void>;
-  signUp: (email: string, password: string) => Promise<void>;
-  signOut: () => Promise<void>;
-  isAdmin: boolean;
-  isEditor: boolean;
-}
+// Mock admin user for development when AUTH_DISABLED = true
+const MOCK_USER: User = {
+  id: 'mock-admin-id',
+  email: import.meta.env.VITE_MOCK_USER_EMAIL || 'admin@blkout.dev',
+  name: import.meta.env.VITE_MOCK_USER_NAME || 'BLKOUT Admin',
+  role: 'admin',
+  createdAt: new Date(),
+};
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export function AuthProvider({ children }: { children: ReactNode }) {
+interface AuthProviderProps {
+  children: ReactNode;
+}
+
+export function AuthProvider({ children }: AuthProviderProps) {
   const [user, setUser] = useState<User | null>(null);
-  const [session, setSession] = useState<Session | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // ============================================================================
-    // DEVELOPMENT MODE: Mock authenticated admin user
-    // ============================================================================
+    // If authentication is disabled, use mock user
     if (AUTH_DISABLED) {
-      // Create a mock admin user for development
-      const mockUser = {
-        id: 'dev-admin-123',
-        email: 'admin@blkout.dev',
-        user_metadata: {
-          role: 'admin',
-          name: 'Dev Admin'
-        },
-        app_metadata: {},
-        aud: 'authenticated',
-        created_at: new Date().toISOString(),
-      } as User;
-
-      const mockSession = {
-        access_token: 'mock-token',
-        token_type: 'bearer',
-        user: mockUser,
-      } as Session;
-
-      setUser(mockUser);
-      setSession(mockSession);
-      setLoading(false);
+      console.log('🔓 Authentication is DISABLED - Using mock admin user');
+      setUser(MOCK_USER);
+      setIsLoading(false);
       return;
     }
 
-    // ============================================================================
-    // PRODUCTION MODE: Real Supabase authentication (currently disabled)
-    // ============================================================================
-    // Get initial session
+    // Check if Supabase is configured
+    if (!isSupabaseConfigured()) {
+      console.warn('⚠️ Supabase is not configured - Running in demo mode');
+      setUser(MOCK_USER);
+      setIsLoading(false);
+      return;
+    }
+
+    // Check current session
     supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      setLoading(false);
+      if (session?.user) {
+        setUser({
+          id: session.user.id,
+          email: session.user.email || '',
+          name: session.user.user_metadata?.name || 'User',
+          role: session.user.user_metadata?.role || 'viewer',
+          avatar: session.user.user_metadata?.avatar,
+          createdAt: new Date(session.user.created_at),
+        });
+      }
+      setIsLoading(false);
     });
 
     // Listen for auth changes
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      setLoading(false);
+      if (session?.user) {
+        setUser({
+          id: session.user.id,
+          email: session.user.email || '',
+          name: session.user.user_metadata?.name || 'User',
+          role: session.user.user_metadata?.role || 'viewer',
+          avatar: session.user.user_metadata?.avatar,
+          createdAt: new Date(session.user.created_at),
+        });
+      } else {
+        setUser(null);
+      }
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      subscription.unsubscribe();
+    };
   }, []);
 
   const signIn = async (email: string, password: string) => {
-    // AUTH DISABLED: Mock successful login
     if (AUTH_DISABLED) {
-      console.log('🚨 DEV MODE: Sign-in bypassed');
+      console.log('🔓 Sign in bypassed - AUTH_DISABLED is true');
       return;
     }
-    
-    // Real authentication (disabled)
+
+    if (!isSupabaseConfigured()) {
+      throw new Error('Supabase is not configured');
+    }
+
     const { error } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
-    if (error) throw error;
-  };
 
-  const signUp = async (email: string, password: string) => {
-    // AUTH DISABLED: Mock successful signup
-    if (AUTH_DISABLED) {
-      console.log('🚨 DEV MODE: Sign-up bypassed');
-      return;
-    }
-    
-    // Real authentication (disabled)
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-    });
     if (error) throw error;
   };
 
   const signOut = async () => {
-    // AUTH DISABLED: Mock successful signout
     if (AUTH_DISABLED) {
-      console.log('🚨 DEV MODE: Sign-out bypassed');
+      console.log('🔓 Sign out bypassed - AUTH_DISABLED is true');
       return;
     }
-    
-    // Real authentication (disabled)
+
+    if (!isSupabaseConfigured()) {
+      return;
+    }
+
     const { error } = await supabase.auth.signOut();
     if (error) throw error;
+    setUser(null);
   };
 
-  // Check user role from metadata
-  const userRole = user?.user_metadata?.role || '';
-  const isAdmin = AUTH_DISABLED ? true : userRole === 'admin';
-  const isEditor = AUTH_DISABLED ? true : ['admin', 'editor', 'content_lead'].includes(userRole);
-
-  const value = {
+  const value: AuthContextType = {
     user,
-    session,
-    loading,
+    isLoading,
+    isAuthenticated: !!user,
     signIn,
-    signUp,
     signOut,
-    isAdmin,
-    isEditor,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
@@ -154,3 +131,6 @@ export function useAuth() {
   }
   return context;
 }
+
+// Helper function to check if authentication is disabled
+export const isAuthDisabled = () => AUTH_DISABLED;

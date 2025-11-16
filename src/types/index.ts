@@ -1,54 +1,138 @@
 
-import type { Database } from './database';
+// Core type definitions for BLKOUT Communications System
 
-// Type aliases for easier use
-export type Platform = Database['public']['Tables']['platforms']['Row'];
-export type Agent = Database['public']['Tables']['agent_configurations']['Row'];
-export type Campaign = Database['public']['Tables']['campaigns']['Row'];
-export type Content = Database['public']['Tables']['content_calendar']['Row'];
-export type ContentDraft = Database['public']['Tables']['content_drafts']['Row'];
-export type ContentApproval = Database['public']['Tables']['content_approvals']['Row'];
-export type IvorIntelligence = Database['public']['Tables']['ivor_intelligence']['Row'];
-export type ContentPerformance = Database['public']['Tables']['content_performance']['Row'];
+export type PlatformType = 'instagram' | 'linkedin' | 'twitter' | 'facebook' | 'tiktok' | 'youtube';
 
-// Content with relations
-export interface ContentWithRelations extends Content {
-  platform?: Platform;
-  campaign?: Campaign;
-  drafts?: ContentDraft[];
-  performance?: ContentPerformance;
+export type ContentStatus = 'draft' | 'scheduled' | 'published' | 'archived';
+
+export type AgentType = 'griot' | 'listener' | 'weaver' | 'strategist';
+
+export type AgentStatus = 'active' | 'inactive' | 'paused' | 'error';
+
+export interface Platform {
+  id: string;
+  name: string;
+  type: PlatformType;
+  isConnected: boolean;
+  lastSync?: Date;
+  accountHandle?: string;
+  accountUrl?: string;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
-// Agent status
-export interface AgentStatus {
-  agent: Agent;
-  isOnline: boolean;
-  lastActivity: string;
-  contentGenerated: number;
-  successRate: number;
+export interface Agent {
+  id: string;
+  name: string;
+  type: AgentType;
+  status: AgentStatus;
+  description: string;
+  capabilities: string[];
+  configuration?: Record<string, unknown>;
+  lastActive?: Date;
+  totalContentGenerated?: number;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
-// Analytics data
-export interface AnalyticsData {
-  totalContent: number;
-  publishedContent: number;
-  scheduledContent: number;
-  draftContent: number;
-  totalReach: number;
-  totalEngagement: number;
-  averageEngagementRate: number;
-  meaningfulInteractions: number;
-  communityActions: number;
-  topPerformingContent: ContentWithRelations[];
-  platformBreakdown: { platform: string; count: number; engagement: number }[];
-  agentBreakdown: { agent: string; count: number }[];
+export interface Content {
+  id: string;
+  title: string;
+  body: string;
+  contentType: 'post' | 'story' | 'video' | 'article' | 'thread';
+  status: ContentStatus;
+  platforms: PlatformType[];
+  scheduledFor?: Date;
+  publishedAt?: Date;
+  agentId?: string;
+  agentType?: AgentType;
+  mediaUrls?: string[];
+  hashtags?: string[];
+  mentions?: string[];
+  engagementMetrics?: EngagementMetrics;
+  metadata?: Record<string, unknown>;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
-// Filters
-export interface ContentFilters {
-  status?: Content['status'][];
-  platform?: string[];
-  agent?: string[];
-  dateRange?: { start: Date; end: Date };
-  searchQuery?: string;
+export interface Draft {
+  id: string;
+  contentId?: string;
+  title: string;
+  body: string;
+  contentType: 'post' | 'story' | 'video' | 'article' | 'thread';
+  platforms: PlatformType[];
+  agentId: string;
+  agentType: AgentType;
+  status: 'pending_review' | 'approved' | 'rejected' | 'needs_revision';
+  reviewNotes?: string;
+  mediaUrls?: string[];
+  hashtags?: string[];
+  metadata?: Record<string, unknown>;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface EngagementMetrics {
+  likes?: number;
+  comments?: number;
+  shares?: number;
+  saves?: number;
+  views?: number;
+  reach?: number;
+  impressions?: number;
+  engagementRate?: number;
+  conversationDepth?: number; // BLKOUT-specific: quality of community interaction
+  relationshipScore?: number; // BLKOUT-specific: trust-building metric
+}
+
+export interface CommunityMetrics {
+  totalMembers: number;
+  activeMembers: number;
+  newMembers: number;
+  engagementQuality: number; // 0-100 scale
+  conversationDepth: number; // Average conversation threads
+  trustScore: number; // BLKOUT-specific: community trust indicator
+  contentResonance: number; // How well content connects with community
+  period: 'day' | 'week' | 'month';
+  date: Date;
+}
+
+export interface ActivityLog {
+  id: string;
+  agentId?: string;
+  agentType?: AgentType;
+  action: string;
+  description: string;
+  metadata?: Record<string, unknown>;
+  timestamp: Date;
+}
+
+export interface User {
+  id: string;
+  email: string;
+  name: string;
+  role: 'admin' | 'editor' | 'viewer';
+  avatar?: string;
+  createdAt: Date;
+}
+
+// Auth context type
+export interface AuthContextType {
+  user: User | null;
+  isLoading: boolean;
+  isAuthenticated: boolean;
+  signIn: (email: string, password: string) => Promise<void>;
+  signOut: () => Promise<void>;
+}
+
+// Calendar event type
+export interface CalendarEvent {
+  id: string;
+  contentId: string;
+  title: string;
+  date: Date;
+  platforms: PlatformType[];
+  agentType?: AgentType;
+  status: ContentStatus;
 }

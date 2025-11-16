@@ -1,53 +1,53 @@
 
 import { useState, useEffect } from 'react';
 import { supabase, isSupabaseConfigured } from '@/lib/supabase';
-import { mockAgents } from '@/lib/mockData';
-import type { Agent } from '@/types';
+import { mockDrafts } from '@/lib/mockData';
+import type { Draft } from '@/types';
 
-export function useAgents() {
-  const [agents, setAgents] = useState<Agent[]>([]);
+export function useDrafts() {
+  const [drafts, setDrafts] = useState<Draft[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetchAgents();
+    fetchDrafts();
   }, []);
 
-  const fetchAgents = async () => {
+  const fetchDrafts = async () => {
     try {
       setIsLoading(true);
       setError(null);
 
       // If Supabase is not configured, use mock data
       if (!isSupabaseConfigured()) {
-        console.log('📦 Using mock agents data');
-        setAgents(mockAgents);
+        console.log('📦 Using mock drafts data');
+        setDrafts(mockDrafts);
         setIsLoading(false);
         return;
       }
 
       // Fetch from Supabase
       const { data, error: fetchError } = await supabase
-        .from('agents')
+        .from('drafts')
         .select('*')
-        .order('created_at', { ascending: true });
+        .order('created_at', { ascending: false });
 
       if (fetchError) throw fetchError;
 
-      setAgents(data || []);
+      setDrafts(data || []);
     } catch (err) {
-      console.error('Error fetching agents:', err);
-      setError(err instanceof Error ? err.message : 'Failed to fetch agents');
+      console.error('Error fetching drafts:', err);
+      setError(err instanceof Error ? err.message : 'Failed to fetch drafts');
       // Fallback to mock data
-      setAgents(mockAgents);
+      setDrafts(mockDrafts);
     } finally {
       setIsLoading(false);
     }
   };
 
   const refetch = () => {
-    fetchAgents();
+    fetchDrafts();
   };
 
-  return { agents, isLoading, error, refetch };
+  return { drafts, isLoading, error, refetch };
 }
