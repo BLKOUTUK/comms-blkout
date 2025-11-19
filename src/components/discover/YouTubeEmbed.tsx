@@ -48,7 +48,7 @@ export function YouTubeEmbed({
       <div className="relative w-full rounded-xl overflow-hidden shadow-lg" style={{ paddingBottom: '56.25%' }}>
         <iframe
           className="absolute top-0 left-0 w-full h-full"
-          src="https://www.youtube.com/embed?listType=user_uploads&list=@blkoutuk"
+          src={embedUrl}
           title="BLKOUT UK YouTube Channel"
           frameBorder="0"
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"

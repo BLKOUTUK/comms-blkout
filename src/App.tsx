@@ -5,7 +5,6 @@ import { ProtectedRoute } from '@/components/layout/ProtectedRoute';
 
 // Pages
 import { DiscoverPage } from '@/pages/discover/DiscoverPage';
-import { MinimalTest } from '@/pages/discover/MinimalTest';
 import { Dashboard } from '@/pages/admin/Dashboard';
 import { ContentCalendar } from '@/pages/admin/ContentCalendar';
 import { Drafts } from '@/pages/admin/Drafts';
@@ -20,7 +19,7 @@ function App() {
         <Routes>
           {/* Public Routes */}
           <Route path="/" element={<Navigate to="/discover" replace />} />
-          <Route path="/discover" element={<MinimalTest />} />
+          <Route path="/discover" element={<DiscoverPage />} />
 
           {/* Protected Admin Routes */}
           <Route
