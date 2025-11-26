@@ -103,7 +103,7 @@ export const checkSystemHealth = async (): Promise<boolean> => {
     if (USE_SUPABASE) {
         try {
             // Simple health check - try to fetch one task
-            await SupabaseService.supabase.from('agent_tasks').select('id').limit(1);
+            await SupabaseService.supabase.from('socialsync_agent_tasks').select('id').limit(1);
             return true;
         } catch (error) {
             console.error('[Integration Service] Health check failed:', error);
@@ -148,6 +148,7 @@ function mapPlatform(dbPlatform: string): SocialPlatform {
         'tiktok': SocialPlatform.TIKTOK,
         'linkedin': SocialPlatform.LINKEDIN,
         'twitter': SocialPlatform.TWITTER,
+        'web': SocialPlatform.INSTAGRAM, // Web hero images use same aspect ratios
     };
     return mapping[dbPlatform] || SocialPlatform.INSTAGRAM;
 }

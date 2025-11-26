@@ -63,13 +63,14 @@ const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || process.env.VI
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 /**
- * Fetch all pending agent tasks
+ * Fetch all pending agent tasks from socialsync_agent_tasks table
  */
 export async function fetchAgentTasks(): Promise<AgentTask[]> {
     const { data, error } = await supabase
-        .from('agent_tasks')
+        .from('socialsync_agent_tasks')
         .select('*')
         .eq('status', 'pending')
+        .order('priority', { ascending: false })
         .order('created_at', { ascending: false });
 
     if (error) {
@@ -102,7 +103,7 @@ export async function updateAgentTaskStatus(
     }
 
     const { error } = await supabase
-        .from('agent_tasks')
+        .from('socialsync_agent_tasks')
         .update(updates)
         .eq('id', taskId);
 
