@@ -2,12 +2,17 @@
 import { GoogleGenAI } from "@google/genai";
 import { AspectRatio, VideoResolution, VideoStyle } from "@/types/socialsync";
 
-// Helper to check for API Key selection (required for Veo/Pro models)
+// Get API credential from Vite environment
+const getGeminiCredential = (): string => {
+  return import.meta.env.VITE_GEMINI_API || '';
+};
+
+// Helper to check for API credential (required for Veo/Pro models)
 export const checkApiKey = async (): Promise<boolean> => {
   if (typeof window !== 'undefined' && (window as any).aistudio) {
     return await (window as any).aistudio.hasSelectedApiKey();
   }
-  return !!process.env.API_KEY;
+  return !!getGeminiCredential();
 };
 
 export const promptForApiKey = async (): Promise<void> => {
@@ -53,8 +58,8 @@ export const generateImage = async (
   aspectRatio: AspectRatio,
   referenceImageBase64?: string
 ): Promise<string> => {
-  // Always instantiate fresh to pick up selected key
-  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+  // Always instantiate fresh to pick up credential
+  const ai = new GoogleGenAI({ apiKey: getGeminiCredential() });
   
   const modelName = 'gemini-3-pro-image-preview'; // Nano Banana Pro / Banana 2 equivalent
   
@@ -103,7 +108,7 @@ export const generateVideo = async (
   resolution: VideoResolution,
   referenceImageBase64?: string
 ): Promise<string> => {
-  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+  const ai = new GoogleGenAI({ apiKey: getGeminiCredential() });
   const modelName = 'veo-3.1-fast-generate-preview'; // Or 'veo-3.1-generate-preview'
 
   // Map 1:1 to something closest supported by Veo if strict 1:1 isn't supported. 
@@ -167,8 +172,8 @@ export const generateVideo = async (
     const downloadLink = operation.response?.generatedVideos?.[0]?.video?.uri;
     if (!downloadLink) throw new Error("Video generation failed to return a URI");
 
-    // Fetch the actual bytes using the key
-    const videoRes = await fetch(`${downloadLink}&key=${process.env.API_KEY}`);
+    // Fetch the actual bytes using the credential
+    const videoRes = await fetch(`${downloadLink}&key=${getGeminiCredential()}`);
     const videoBlob = await videoRes.blob();
     return URL.createObjectURL(videoBlob);
 
