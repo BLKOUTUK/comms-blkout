@@ -11,6 +11,7 @@ import { Drafts } from '@/pages/admin/Drafts';
 import { Agents } from '@/pages/admin/Agents';
 import { Analytics } from '@/pages/admin/Analytics';
 import { Settings } from '@/pages/admin/Settings';
+import { SocialSync } from '@/pages/admin/SocialSync';
 
 function App() {
   return (
@@ -67,6 +68,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <Settings />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/socialsync"
+            element={
+              <ProtectedRoute>
+                <SocialSync />
               </ProtectedRoute>
             }
           />
