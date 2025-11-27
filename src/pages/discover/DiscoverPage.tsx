@@ -1,5 +1,6 @@
 
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { Layout } from '@/components/layout/Layout';
 import { ContentCard } from '@/components/shared/ContentCard';
 import { YouTubeEmbed } from '@/components/discover/YouTubeEmbed';
@@ -8,7 +9,7 @@ import { BlkoutHubWidget } from '@/components/discover/BlkoutHubWidget';
 import { NewsletterArchive } from '@/components/discover/NewsletterArchive';
 import { AdventCalendarWidget } from '@/components/discover/AdventCalendarWidget';
 import { usePublishedContent } from '@/hooks/useContent';
-import { Filter, Search, Heart, Users, Sparkles } from 'lucide-react';
+import { Filter, Search, Heart, Users, Sparkles, ExternalLink } from 'lucide-react';
 import type { PlatformType } from '@/types';
 
 export function DiscoverPage() {
@@ -36,9 +37,11 @@ export function DiscoverPage() {
         
         <div className="relative text-center animate-fade-in py-12">
           <div className="flex justify-center mb-6">
-            <div className="w-20 h-20 bg-gradient-to-br from-blkout-600 to-pink-600 rounded-full flex items-center justify-center shadow-lg">
-              <Sparkles className="h-10 w-10 text-white" />
-            </div>
+            <img
+              src="/images/blkout_logo_roundel_colour.png"
+              alt="BLKOUT"
+              className="w-24 h-24 object-contain drop-shadow-lg"
+            />
           </div>
           
           <h1 className="text-5xl md:text-6xl font-display font-bold text-gray-900 mb-4">
@@ -218,6 +221,47 @@ export function DiscoverPage() {
           </div>
         </div>
       </div>
+
+      {/* Prominent link back to Community Platform */}
+      <div className="mt-16 pt-8 border-t border-gray-200">
+        <div className="bg-gradient-to-r from-blkout-600 via-purple-600 to-pink-600 rounded-2xl p-8 text-white text-center">
+          <h2 className="text-2xl font-display font-bold mb-3">
+            Explore the Full BLKOUT Platform
+          </h2>
+          <p className="text-white/90 mb-6 max-w-2xl mx-auto">
+            Access our complete suite of community tools, events calendar, IVOR AI assistant, and more.
+          </p>
+          <a
+            href="https://blkout.vercel.app/platform"
+            className="inline-flex items-center gap-2 bg-white text-blkout-700 hover:bg-gray-100 font-bold py-3 px-8 rounded-lg transition-colors"
+          >
+            Visit Community Platform
+            <ExternalLink size={18} />
+          </a>
+        </div>
+      </div>
+
+      {/* Footer with discreet admin link */}
+      <footer className="mt-16 pt-8 border-t border-gray-100 text-center text-sm text-gray-400">
+        <p className="mb-2">
+          BLKOUT UK - Technology for Black Queer Liberation
+        </p>
+        <div className="flex justify-center gap-4">
+          <a
+            href="mailto:contact@blkoutuk.com"
+            className="hover:text-gray-600 transition-colors"
+          >
+            Contact
+          </a>
+          <span className="text-gray-300">|</span>
+          <Link
+            to="/admin"
+            className="hover:text-gray-600 transition-colors"
+          >
+            Team Access
+          </Link>
+        </div>
+      </footer>
     </Layout>
   );
 }

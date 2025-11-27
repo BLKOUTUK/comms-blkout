@@ -121,7 +121,8 @@ export enum SocialPlatform {
   INSTAGRAM = 'Instagram',
   TIKTOK = 'TikTok',
   LINKEDIN = 'LinkedIn',
-  TWITTER = 'X (Twitter)'
+  TWITTER = 'X (Twitter)',
+  YOUTUBE = 'YouTube'
 }
 
 export interface AgentTask {

@@ -4,7 +4,7 @@
 // Inspired by traditional advent calendars where windows are hidden within an illustration
 
 import { useState } from 'react';
-import { Calendar, MessageSquare, Gift, Sparkles, Info, Star, Heart, X } from 'lucide-react';
+import { Calendar, MessageSquare, Gift, Sparkles, Info, Star, Heart, X, ExternalLink } from 'lucide-react';
 
 interface CalendarDay {
   day: number;
@@ -77,12 +77,21 @@ export function AdventCalendarWidget() {
       {/* Main container with festive border */}
       <div className="rounded-3xl border-4 border-[#F4A261] bg-white shadow-2xl overflow-hidden">
 
-        {/* Header */}
+        {/* Header with Christmas Ident Video */}
         <div className="bg-gradient-to-r from-[#264653] via-[#1D3557] to-[#264653] px-6 py-5">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
             <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-gradient-to-br from-[#F4A261] to-[#E76F51] rounded-xl flex items-center justify-center shadow-lg">
-                <Gift className="h-6 w-6 text-white" />
+              {/* Christmas Ident Video */}
+              <div className="w-16 h-16 md:w-20 md:h-20 rounded-xl overflow-hidden shadow-lg flex-shrink-0 border-2 border-[#F4A261]">
+                <video
+                  autoPlay
+                  loop
+                  muted
+                  playsInline
+                  className="w-full h-full object-cover"
+                >
+                  <source src="/branding/Blkoutchristmas.mp4" type="video/mp4" />
+                </video>
               </div>
               <div>
                 <h2 className="text-xl md:text-2xl font-bold text-white">
@@ -119,10 +128,20 @@ export function AdventCalendarWidget() {
               The festive season can feel isolating. <strong>"Let's Go OUT OUT This Christmas"</strong> encourages
               Black queer men to step out, connect, and celebrate together. Click any window to reveal what's happening!
             </p>
-            <div className="flex gap-4 mt-3 text-xs">
+            <div className="flex flex-wrap gap-4 mt-3 text-xs items-center">
               <span className="flex items-center gap-1"><span className="w-3 h-3 rounded bg-gradient-to-br from-[#FFB3DA] to-[#E76F51]"></span> Attended</span>
               <span className="flex items-center gap-1"><span className="w-3 h-3 rounded bg-gradient-to-br from-[#2A9D8F] to-[#1D6B5F]"></span> Upcoming</span>
               <span className="flex items-center gap-1"><span className="w-3 h-3 rounded bg-[#9CA3AF]"></span> Coming soon</span>
+              <span className="text-gray-300 hidden sm:inline">|</span>
+              <a
+                href="https://voices-blkout.up.railway.app"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-1 text-[#264653] hover:text-[#F4A261] transition-colors font-medium"
+              >
+                Read why we're doing this
+                <ExternalLink size={12} />
+              </a>
             </div>
           </div>
         )}

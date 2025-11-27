@@ -148,17 +148,19 @@ function mapPlatform(dbPlatform: string): SocialPlatform {
         'tiktok': SocialPlatform.TIKTOK,
         'linkedin': SocialPlatform.LINKEDIN,
         'twitter': SocialPlatform.TWITTER,
+        'youtube': SocialPlatform.YOUTUBE,
         'web': SocialPlatform.INSTAGRAM, // Web hero images use same aspect ratios
     };
     return mapping[dbPlatform] || SocialPlatform.INSTAGRAM;
 }
 
-function mapPlatformToDb(platform: SocialPlatform): 'instagram' | 'tiktok' | 'linkedin' | 'twitter' {
-    const mapping: Record<SocialPlatform, 'instagram' | 'tiktok' | 'linkedin' | 'twitter'> = {
+function mapPlatformToDb(platform: SocialPlatform): 'instagram' | 'tiktok' | 'linkedin' | 'twitter' | 'youtube' {
+    const mapping: Record<SocialPlatform, 'instagram' | 'tiktok' | 'linkedin' | 'twitter' | 'youtube'> = {
         [SocialPlatform.INSTAGRAM]: 'instagram',
         [SocialPlatform.TIKTOK]: 'tiktok',
         [SocialPlatform.LINKEDIN]: 'linkedin',
         [SocialPlatform.TWITTER]: 'twitter',
+        [SocialPlatform.YOUTUBE]: 'youtube',
     };
     return mapping[platform];
 }

@@ -5,7 +5,7 @@ export type PlatformType = 'instagram' | 'linkedin' | 'twitter' | 'facebook' | '
 
 export type ContentStatus = 'draft' | 'scheduled' | 'published' | 'archived';
 
-export type AgentType = 'griot' | 'listener' | 'weaver' | 'strategist';
+export type AgentType = 'griot' | 'listener' | 'weaver' | 'strategist' | 'herald';
 
 export type AgentStatus = 'active' | 'inactive' | 'paused' | 'error';
 

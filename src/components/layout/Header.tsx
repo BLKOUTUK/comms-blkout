@@ -1,6 +1,6 @@
 
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, User, LogOut } from 'lucide-react';
+import { Menu, User, LogOut, ExternalLink } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 
 export function Header() {
@@ -28,9 +28,11 @@ export function Header() {
               </button>
             )}
             <Link to="/discover" className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-blkout-600 to-blkout-800 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-xl">B</span>
-              </div>
+              <img
+                src="/images/blkout_logo_roundel_colour.png"
+                alt="BLKOUT"
+                className="w-10 h-10 object-contain"
+              />
               <div>
                 <h1 className="text-xl font-display font-bold text-gray-900">BLKOUT UK</h1>
                 <p className="text-xs text-gray-500">Community Communications</p>
@@ -40,6 +42,13 @@ export function Header() {
 
           {/* Navigation */}
           <nav className="hidden md:flex items-center gap-6">
+            <a
+              href="https://blkout.vercel.app/platform"
+              className="text-sm font-medium text-gray-600 hover:text-blkout-600 transition-colors flex items-center gap-1"
+            >
+              Community Platform
+              <ExternalLink size={14} />
+            </a>
             <Link
               to="/discover"
               className={`text-sm font-medium transition-colors ${

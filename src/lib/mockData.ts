@@ -85,6 +85,18 @@ export const mockAgents: Agent[] = [
     createdAt: new Date('2025-01-01'),
     updatedAt: new Date('2025-11-15'),
   },
+  {
+    id: '5',
+    name: 'Herald',
+    type: 'herald',
+    status: 'active',
+    description: 'Community communications and newsletter curation',
+    capabilities: ['Newsletter Curation', 'Weekly Updates', 'Monthly Digests', 'Community Highlights', 'SendFox Integration'],
+    lastActive: new Date('2025-11-16T15:00:00'),
+    totalContentGenerated: 12,
+    createdAt: new Date('2025-01-01'),
+    updatedAt: new Date('2025-11-16'),
+  },
 ];
 
 export const mockContent: Content[] = [

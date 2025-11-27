@@ -182,7 +182,7 @@ export async function fetchGeneratedAssets(): Promise<GeneratedAssetRow[]> {
  */
 export async function addToPublishingQueue(
     assetId: string,
-    platform: 'instagram' | 'tiktok' | 'linkedin' | 'twitter',
+    platform: 'instagram' | 'tiktok' | 'linkedin' | 'twitter' | 'youtube',
     caption?: string,
     hashtags?: string[],
     scheduledFor?: Date
@@ -249,10 +249,45 @@ export function subscribeToAgentTasks(callback: (payload: any) => void) {
             {
                 event: '*',
                 schema: 'public',
-                table: 'agent_tasks',
+                table: 'socialsync_agent_tasks',
             },
             callback
         )
         .subscribe();
+}
+
+/**
+ * Create a new agent task
+ */
+export async function createAgentTask(task: {
+    agentType: string;
+    title: string;
+    description?: string;
+    priority: 'critical' | 'high' | 'medium' | 'low';
+    targetPlatform: string;
+    suggestedConfig: Record<string, any>;
+}): Promise<AgentTask> {
+    const taskData: AgentTaskInsert = {
+        agent_type: task.agentType,
+        title: task.title,
+        description: task.description || null,
+        priority: task.priority,
+        status: 'pending',
+        target_platform: task.targetPlatform,
+        suggested_config: task.suggestedConfig,
+    };
+
+    const { data, error } = await supabase
+        .from('socialsync_agent_tasks')
+        .insert(taskData)
+        .select()
+        .single();
+
+    if (error) {
+        console.error('Error creating agent task:', error);
+        throw error;
+    }
+
+    return data;
 }
 

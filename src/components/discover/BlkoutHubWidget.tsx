@@ -1,5 +1,5 @@
 
-import { Users, ArrowRight, CheckCircle, Heart, Sparkles } from 'lucide-react';
+import { ArrowRight, CheckCircle, Heart, Sparkles } from 'lucide-react';
 
 export function BlkoutHubWidget() {
   const features = [
@@ -14,14 +14,16 @@ export function BlkoutHubWidget() {
       {/* Decorative elements */}
       <div className="absolute top-0 right-0 w-64 h-64 bg-white opacity-5 rounded-full -mr-32 -mt-32" />
       <div className="absolute bottom-0 left-0 w-48 h-48 bg-white opacity-5 rounded-full -ml-24 -mb-24" />
-      
+
       <div className="relative z-10">
         {/* Header */}
         <div className="flex items-start justify-between mb-6">
-          <div className="flex items-center gap-3">
-            <div className="w-14 h-14 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center">
-              <Users className="h-8 w-8" />
-            </div>
+          <div className="flex items-center gap-4">
+            <img
+              src="/images/blkouthub_logo.png"
+              alt="BLKOUT HUB"
+              className="w-16 h-16 object-contain rounded-xl bg-white/10 backdrop-blur-sm p-2"
+            />
             <div>
               <h2 className="text-2xl font-display font-bold mb-1">
                 BLKOUT HUB

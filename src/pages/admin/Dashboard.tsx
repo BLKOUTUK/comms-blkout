@@ -5,14 +5,16 @@ import { StatCard } from '@/components/shared/StatCard';
 import { useAgents } from '@/hooks/useAgents';
 import { useContent } from '@/hooks/useContent';
 import { useDrafts } from '@/hooks/useDrafts';
+import { useAgentActivity } from '@/hooks/useAgentActivity';
 import { Users, MessageSquare, TrendingUp, FileText, Calendar, Clock } from 'lucide-react';
-import { mockCommunityMetrics, mockActivityLogs } from '@/lib/mockData';
+import { mockCommunityMetrics } from '@/lib/mockData';
 import { formatDistanceToNow } from 'date-fns';
 
 export function Dashboard() {
   const { agents, isLoading: agentsLoading } = useAgents();
   const { content } = useContent();
   const { drafts } = useDrafts();
+  const { activities, isUsingMockData: isActivityMock } = useAgentActivity(5);
 
   const stats = {
     totalContent: content.length,
@@ -111,10 +113,17 @@ export function Dashboard() {
           <div className="card">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-xl font-semibold text-gray-900">Recent Activity</h2>
-              <Clock size={20} className="text-gray-400" />
+              <div className="flex items-center gap-2">
+                {isActivityMock && (
+                  <span className="text-xs text-amber-600 bg-amber-50 px-2 py-0.5 rounded-full">
+                    Demo
+                  </span>
+                )}
+                <Clock size={20} className="text-gray-400" />
+              </div>
             </div>
             <div className="space-y-3">
-              {mockActivityLogs.slice(0, 5).map((log) => (
+              {activities.map((log) => (
                 <div key={log.id} className="pb-3 border-b border-gray-100 last:border-0">
                   <div className="flex items-start gap-3">
                     <div className="w-2 h-2 bg-blkout-600 rounded-full mt-2"></div>
@@ -127,6 +136,9 @@ export function Dashboard() {
                   </div>
                 </div>
               ))}
+              {activities.length === 0 && (
+                <p className="text-sm text-gray-500 text-center py-4">No recent activity</p>
+              )}
             </div>
           </div>
         </div>

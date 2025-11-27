@@ -2,12 +2,17 @@
 import { Layout } from '@/components/layout/Layout';
 import { AgentCard } from '@/components/shared/AgentCard';
 import { useAgents } from '@/hooks/useAgents';
-import { mockActivityLogs } from '@/lib/mockData';
-import { Bot, Activity, Settings as SettingsIcon } from 'lucide-react';
+import { useAgentTasks } from '@/hooks/useAgentTasks';
+import { useAgentIntelligence } from '@/hooks/useAgentIntelligence';
+import { useAgentActivity } from '@/hooks/useAgentActivity';
+import { Bot, Activity, Settings as SettingsIcon, Lightbulb, ListTodo, Users, Mail } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 
 export function Agents() {
   const { agents, isLoading } = useAgents();
+  const { taskCounts } = useAgentTasks();
+  const { intelligence, dashboard, highPriorityIntel } = useAgentIntelligence();
+  const { activities, isUsingMockData: isActivityMock } = useAgentActivity(10);
 
   const handleAgentClick = (agentId: string) => {
     console.log('View agent details:', agentId);
@@ -67,22 +72,92 @@ export function Agents() {
           <div className="card">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600 mb-1">Paused</p>
-                <p className="text-3xl font-bold text-yellow-600">{agentStats.paused}</p>
+                <p className="text-sm text-gray-600 mb-1">Pending Tasks</p>
+                <p className="text-3xl font-bold text-yellow-600">{taskCounts.pending}</p>
               </div>
-              <Activity className="text-yellow-600" size={32} />
+              <ListTodo className="text-yellow-600" size={32} />
             </div>
           </div>
           <div className="card">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600 mb-1">Total Content</p>
-                <p className="text-3xl font-bold text-gray-900">{agentStats.totalContent}</p>
+                <p className="text-sm text-gray-600 mb-1">Intelligence</p>
+                <p className="text-3xl font-bold text-purple-600">{intelligence.length}</p>
               </div>
-              <Activity className="text-blkout-600" size={32} />
+              <Lightbulb className="text-purple-600" size={32} />
             </div>
           </div>
         </div>
+
+        {/* Community Dashboard Summary */}
+        {dashboard && (
+          <div className="card bg-gradient-to-r from-blkout-50 to-purple-50 border-blkout-200">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+              <Users size={20} className="text-blkout-600" />
+              Community Intelligence Dashboard
+            </h3>
+            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+              <div className="text-center">
+                <p className="text-2xl font-bold text-blkout-600">{dashboard.activeMembers}</p>
+                <p className="text-xs text-gray-600">Active Members</p>
+              </div>
+              <div className="text-center">
+                <p className="text-2xl font-bold text-green-600">{dashboard.verifiedCreators}</p>
+                <p className="text-xs text-gray-600">Verified Creators</p>
+              </div>
+              <div className="text-center">
+                <p className="text-2xl font-bold text-blue-600">{dashboard.weeklyEngagements}</p>
+                <p className="text-xs text-gray-600">Weekly Engagements</p>
+              </div>
+              <div className="text-center">
+                <p className="text-2xl font-bold text-purple-600">{dashboard.weeklyConversations}</p>
+                <p className="text-xs text-gray-600">IVOR Conversations</p>
+              </div>
+              <div className="text-center">
+                <p className="text-2xl font-bold text-orange-600">{dashboard.eventsThisWeek}</p>
+                <p className="text-xs text-gray-600">Events This Week</p>
+              </div>
+              <div className="text-center">
+                <p className="text-2xl font-bold text-pink-600">{dashboard.articlesPublishedThisWeek}</p>
+                <p className="text-xs text-gray-600">Articles Published</p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* High Priority Intelligence */}
+        {highPriorityIntel.length > 0 && (
+          <div className="card border-l-4 border-yellow-500 bg-yellow-50">
+            <h3 className="text-lg font-semibold text-gray-900 mb-3 flex items-center gap-2">
+              <Lightbulb size={20} className="text-yellow-600" />
+              Priority Intelligence for Agents
+            </h3>
+            <div className="space-y-3">
+              {highPriorityIntel.slice(0, 3).map((intel) => (
+                <div key={intel.id} className="bg-white rounded-lg p-3 border border-yellow-200">
+                  <div className="flex items-start justify-between mb-2">
+                    <span className="text-sm font-medium text-gray-900">{intel.summary}</span>
+                    <span className={`text-xs px-2 py-0.5 rounded ${
+                      intel.priority === 'critical' ? 'bg-red-100 text-red-700' :
+                      intel.priority === 'high' ? 'bg-orange-100 text-orange-700' :
+                      'bg-yellow-100 text-yellow-700'
+                    }`}>
+                      {intel.priority}
+                    </span>
+                  </div>
+                  <ul className="text-xs text-gray-600 space-y-1">
+                    {intel.actionableItems.slice(0, 2).map((item, idx) => (
+                      <li key={idx} className="flex items-start gap-1">
+                        <span className="text-blkout-600">•</span>
+                        {item}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Agent Cards */}
         <div>
@@ -93,7 +168,7 @@ export function Agents() {
               <p className="mt-4 text-gray-600">Loading agents...</p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {agents.map((agent) => (
                 <AgentCard key={agent.id} agent={agent} onClick={() => handleAgentClick(agent.id)} />
               ))}
@@ -103,9 +178,16 @@ export function Agents() {
 
         {/* Agent Activity Log */}
         <div className="card">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">Recent Agent Activity</h2>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xl font-semibold text-gray-900">Recent Agent Activity</h2>
+            {isActivityMock && (
+              <span className="text-xs text-amber-600 bg-amber-50 px-3 py-1 rounded-full">
+                Demo Mode
+              </span>
+            )}
+          </div>
           <div className="space-y-4">
-            {mockActivityLogs.map((log) => (
+            {activities.map((log) => (
               <div
                 key={log.id}
                 className="flex items-start gap-4 pb-4 border-b border-gray-200 last:border-0"
@@ -135,7 +217,7 @@ export function Agents() {
         {/* Agent Information */}
         <div className="card bg-blkout-50 border-blkout-200">
           <h3 className="text-lg font-semibold text-gray-900 mb-3">About BLKOUT Agents</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-700">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 text-sm text-gray-700">
             <div>
               <h4 className="font-medium text-blkout-900 mb-2">Griot</h4>
               <p>
@@ -161,6 +243,16 @@ export function Agents() {
               <h4 className="font-medium text-blkout-900 mb-2">Strategist</h4>
               <p>
                 Plans campaigns and coordinates content timing to maximize community impact.
+              </p>
+            </div>
+            <div className="bg-white rounded-lg p-3 border border-blkout-300">
+              <h4 className="font-medium text-blkout-900 mb-2 flex items-center gap-2">
+                <Mail size={16} />
+                Herald <span className="text-xs bg-green-100 text-green-700 px-1.5 py-0.5 rounded">NEW</span>
+              </h4>
+              <p>
+                Curates weekly newsletters for engaged members and monthly digests for the
+                wider community circle. Integrates with SendFox for email delivery.
               </p>
             </div>
           </div>

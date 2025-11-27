@@ -8,6 +8,7 @@ import {
   BarChart3,
   Settings,
   Zap,
+  Mail,
 } from 'lucide-react';
 
 const navigation = [
@@ -15,6 +16,7 @@ const navigation = [
   { name: 'Content Calendar', href: '/admin/calendar', icon: Calendar },
   { name: 'Drafts', href: '/admin/drafts', icon: FileText },
   { name: 'Agents', href: '/admin/agents', icon: Bot },
+  { name: 'Newsletters', href: '/admin/newsletters', icon: Mail },
   { name: 'SocialSync', href: '/admin/socialsync', icon: Zap },
   { name: 'Analytics', href: '/admin/analytics', icon: BarChart3 },
   { name: 'Settings', href: '/admin/settings', icon: Settings },
