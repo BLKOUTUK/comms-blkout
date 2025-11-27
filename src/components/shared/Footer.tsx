@@ -61,6 +61,9 @@ export function Footer() {
             Made with <Heart className="h-4 w-4 mx-1 text-red-500" /> by BLKOUT UK Community
           </p>
           <p className="mt-2">© {new Date().getFullYear()} BLKOUT UK. All rights reserved.</p>
+          <p className="mt-4 text-xs text-gray-500 max-w-2xl mx-auto">
+            BLKOUT Creative Ltd is registered by the Financial Conduct Authority (London) as a Community Benefit Society under the Co-operative and Community Benefit Societies Act 2014.
+          </p>
         </div>
       </div>
     </footer>

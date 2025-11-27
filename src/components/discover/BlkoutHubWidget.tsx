@@ -22,7 +22,7 @@ export function BlkoutHubWidget() {
             <img
               src="/images/blkouthub_logo.png"
               alt="BLKOUT HUB"
-              className="w-16 h-16 object-contain rounded-xl bg-white/10 backdrop-blur-sm p-2"
+              className="w-24 h-24 object-contain rounded-xl bg-white/10 backdrop-blur-sm p-2"
             />
             <div>
               <h2 className="text-2xl font-display font-bold mb-1">

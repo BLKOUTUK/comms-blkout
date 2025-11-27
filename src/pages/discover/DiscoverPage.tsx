@@ -1,33 +1,16 @@
 
-import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Layout } from '@/components/layout/Layout';
-import { ContentCard } from '@/components/shared/ContentCard';
 import { YouTubeEmbed } from '@/components/discover/YouTubeEmbed';
-import { AnnouncementsSection } from '@/components/discover/AnnouncementsSection';
+import { SocialMediaFeed } from '@/components/discover/SocialMediaFeed';
 import { BlkoutHubWidget } from '@/components/discover/BlkoutHubWidget';
 import { NewsletterArchive } from '@/components/discover/NewsletterArchive';
 import { AdventCalendarWidget } from '@/components/discover/AdventCalendarWidget';
-import { usePublishedContent } from '@/hooks/useContent';
-import { Filter, Search, Heart, Users, Sparkles, ExternalLink } from 'lucide-react';
-import type { PlatformType } from '@/types';
+import { ArchiveArticleWidget } from '@/components/discover/ArchiveArticleWidget';
+import { BlkoutVoicesWidget } from '@/components/discover/BlkoutVoicesWidget';
+import { Heart, Users, Sparkles, ExternalLink } from 'lucide-react';
 
 export function DiscoverPage() {
-  const { content, isLoading } = usePublishedContent();
-  const [selectedPlatform, setSelectedPlatform] = useState<PlatformType | 'all'>('all');
-  const [searchQuery, setSearchQuery] = useState('');
-
-  const filteredContent = (content || []).filter((item) => {
-    if (!item) return false;
-    const matchesPlatform =
-      selectedPlatform === 'all' || (item.platforms || []).includes(selectedPlatform);
-    const matchesSearch =
-      searchQuery === '' ||
-      (item.title || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (item.body || '').toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesPlatform && matchesSearch;
-  });
-
   return (
     <Layout showSidebar={false}>
       {/* Enhanced Hero Section */}
@@ -40,7 +23,7 @@ export function DiscoverPage() {
             <img
               src="/images/blkout_logo_roundel_colour.png"
               alt="BLKOUT"
-              className="w-24 h-24 object-contain drop-shadow-lg"
+              className="w-36 h-36 object-contain drop-shadow-lg"
             />
           </div>
           
@@ -84,85 +67,30 @@ export function DiscoverPage() {
         <BlkoutHubWidget />
       </div>
 
-      {/* Two-column layout for Announcements and Newsletters */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-16">
-        <div className="animate-fade-in" style={{ animationDelay: '300ms' }}>
-          <AnnouncementsSection />
-        </div>
-        <div className="animate-fade-in" style={{ animationDelay: '400ms' }}>
-          <NewsletterArchive />
-        </div>
+      {/* Social Media Feed - Full width carousel */}
+      <div className="mb-16 animate-fade-in" style={{ animationDelay: '300ms' }}>
+        <SocialMediaFeed />
+      </div>
+
+      {/* Newsletter Archive */}
+      <div className="mb-16 animate-fade-in" style={{ animationDelay: '400ms' }}>
+        <NewsletterArchive />
+      </div>
+
+      {/* BLKOUT Voices Blog */}
+      <div className="mb-16 animate-fade-in" style={{ animationDelay: '500ms' }}>
+        <BlkoutVoicesWidget />
+      </div>
+
+      {/* Archive Article */}
+      <div className="mb-16 animate-fade-in" style={{ animationDelay: '600ms' }}>
+        <ArchiveArticleWidget />
       </div>
 
       {/* YouTube Section */}
-      <div className="mb-16 animate-fade-in" style={{ animationDelay: '500ms' }}>
+      <div className="mb-16 animate-fade-in" style={{ animationDelay: '700ms' }}>
         <YouTubeEmbed />
       </div>
-
-      {/* Content Section Divider */}
-      <div className="mb-12 pt-8 border-t border-gray-200">
-        <div className="text-center mb-8">
-          <h2 className="text-3xl font-display font-bold text-gray-900 mb-3">
-            Community Stories & Action
-          </h2>
-          <p className="text-gray-600 max-w-2xl mx-auto">
-            Authentic voices, collective power. Explore our latest content rooted in Black feminist thought and community organizing.
-          </p>
-        </div>
-
-        {/* Filters and Search */}
-        <div className="flex flex-col sm:flex-row gap-4 mb-8">
-          <div className="flex-1 relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
-            <input
-              type="text"
-              placeholder="Search content..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blkout-500 focus:border-transparent outline-none transition-all"
-            />
-          </div>
-          <div className="flex items-center gap-2">
-            <Filter size={20} className="text-gray-600" />
-            <select
-              value={selectedPlatform}
-              onChange={(e) => setSelectedPlatform(e.target.value as PlatformType | 'all')}
-              className="px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blkout-500 focus:border-transparent outline-none transition-all min-w-[150px]"
-            >
-              <option value="all">All Platforms</option>
-              <option value="instagram">Instagram</option>
-              <option value="linkedin">LinkedIn</option>
-              <option value="twitter">Twitter</option>
-              <option value="facebook">Facebook</option>
-              <option value="tiktok">TikTok</option>
-              <option value="youtube">YouTube</option>
-            </select>
-          </div>
-        </div>
-      </div>
-
-      {/* Content Grid */}
-      {isLoading ? (
-        <div className="text-center py-12">
-          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blkout-600"></div>
-          <p className="mt-4 text-gray-600">Loading content...</p>
-        </div>
-      ) : filteredContent.length === 0 ? (
-        <div className="text-center py-12">
-          <p className="text-gray-600 text-lg">No content found</p>
-          <p className="text-gray-500 text-sm mt-2">
-            {searchQuery || selectedPlatform !== 'all'
-              ? 'Try adjusting your filters'
-              : 'Check back soon for new content'}
-          </p>
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-fade-in mb-16">
-          {filteredContent.map((item) => (
-            <ContentCard key={item.id} content={item} />
-          ))}
-        </div>
-      )}
 
       {/* Social Media Follow Section */}
       <div className="mt-16 pt-16 border-t border-gray-200">
@@ -232,7 +160,9 @@ export function DiscoverPage() {
             Access our complete suite of community tools, events calendar, IVOR AI assistant, and more.
           </p>
           <a
-            href="https://blkout.vercel.app/platform"
+            href="https://blkout.vercel.app"
+            target="_blank"
+            rel="noopener noreferrer"
             className="inline-flex items-center gap-2 bg-white text-blkout-700 hover:bg-gray-100 font-bold py-3 px-8 rounded-lg transition-colors"
           >
             Visit Community Platform
@@ -246,9 +176,9 @@ export function DiscoverPage() {
         <p className="mb-2">
           BLKOUT UK - Technology for Black Queer Liberation
         </p>
-        <div className="flex justify-center gap-4">
+        <div className="flex justify-center gap-4 mb-4">
           <a
-            href="mailto:contact@blkoutuk.com"
+            href="mailto:info@blkoutuk.com"
             className="hover:text-gray-600 transition-colors"
           >
             Contact
@@ -261,6 +191,9 @@ export function DiscoverPage() {
             Team Access
           </Link>
         </div>
+        <p className="text-xs text-gray-500 max-w-2xl mx-auto">
+          BLKOUT Creative Ltd is registered by the Financial Conduct Authority (London) as a Community Benefit Society under the Co-operative and Community Benefit Societies Act 2014.
+        </p>
       </footer>
     </Layout>
   );

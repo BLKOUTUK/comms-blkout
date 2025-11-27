@@ -1,23 +1,41 @@
 
+import { useState } from 'react';
 import { Layout } from '@/components/layout/Layout';
 import { AgentCard } from '@/components/shared/AgentCard';
+import { AgentPromptModal, type AgentTaskInput } from '@/components/agents/AgentPromptModal';
 import { useAgents } from '@/hooks/useAgents';
 import { useAgentTasks } from '@/hooks/useAgentTasks';
 import { useAgentIntelligence } from '@/hooks/useAgentIntelligence';
 import { useAgentActivity } from '@/hooks/useAgentActivity';
-import { Bot, Activity, Settings as SettingsIcon, Lightbulb, ListTodo, Users, Mail } from 'lucide-react';
+import { Bot, Activity, Settings as SettingsIcon, Lightbulb, ListTodo, Users, Mail, Sparkles } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
+import type { AgentType } from '@/types';
 
 export function Agents() {
   const { agents, isLoading } = useAgents();
-  const { taskCounts } = useAgentTasks();
+  const { taskCounts, createTask } = useAgentTasks();
   const { intelligence, dashboard, highPriorityIntel } = useAgentIntelligence();
   const { activities, isUsingMockData: isActivityMock } = useAgentActivity(10);
 
+  const [isPromptModalOpen, setIsPromptModalOpen] = useState(false);
+  const [preselectedAgent, setPreselectedAgent] = useState<AgentType | undefined>(undefined);
+
   const handleAgentClick = (agentId: string) => {
-    console.log('View agent details:', agentId);
-    // TODO: Implement agent detail modal or navigation
-    alert('Agent details! (This is a demo - implement detail view)');
+    // Find the agent and open prompt modal with that agent preselected
+    const agent = agents.find(a => a.id === agentId);
+    if (agent) {
+      setPreselectedAgent(agent.type);
+      setIsPromptModalOpen(true);
+    }
+  };
+
+  const handlePromptSubmit = async (task: AgentTaskInput) => {
+    return await createTask(task);
+  };
+
+  const openPromptModal = () => {
+    setPreselectedAgent(undefined);
+    setIsPromptModalOpen(true);
   };
 
   const agentStats = agents.reduce(
@@ -43,10 +61,19 @@ export function Agents() {
               Manage your AI-powered content creation and community engagement agents
             </p>
           </div>
-          <button className="btn btn-outline">
-            <SettingsIcon size={18} />
-            Configure Agents
-          </button>
+          <div className="flex gap-3">
+            <button
+              onClick={openPromptModal}
+              className="btn btn-primary flex items-center gap-2"
+            >
+              <Sparkles size={18} />
+              Prompt Agent
+            </button>
+            <button className="btn btn-outline">
+              <SettingsIcon size={18} />
+              Configure Agents
+            </button>
+          </div>
         </div>
 
         {/* Agent Stats */}
@@ -258,6 +285,14 @@ export function Agents() {
           </div>
         </div>
       </div>
+
+      {/* Agent Prompt Modal */}
+      <AgentPromptModal
+        isOpen={isPromptModalOpen}
+        onClose={() => setIsPromptModalOpen(false)}
+        onSubmit={handlePromptSubmit}
+        preselectedAgent={preselectedAgent}
+      />
     </Layout>
   );
 }
