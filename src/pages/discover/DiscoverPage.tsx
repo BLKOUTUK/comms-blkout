@@ -5,6 +5,8 @@ import { ContentCard } from '@/components/shared/ContentCard';
 import { YouTubeEmbed } from '@/components/discover/YouTubeEmbed';
 import { AnnouncementsSection } from '@/components/discover/AnnouncementsSection';
 import { BlkoutHubWidget } from '@/components/discover/BlkoutHubWidget';
+import { NewsletterArchive } from '@/components/discover/NewsletterArchive';
+import { AdventCalendarWidget } from '@/components/discover/AdventCalendarWidget';
 import { usePublishedContent } from '@/hooks/useContent';
 import { Filter, Search, Heart, Users, Sparkles } from 'lucide-react';
 import type { PlatformType } from '@/types';
@@ -40,7 +42,7 @@ export function DiscoverPage() {
           </div>
           
           <h1 className="text-5xl md:text-6xl font-display font-bold text-gray-900 mb-4">
-            BLKOUT Community Platform
+            Discover BLKOUT
           </h1>
           
           <p className="text-xl md:text-2xl text-gray-700 max-w-4xl mx-auto mb-4">
@@ -69,19 +71,29 @@ export function DiscoverPage() {
         </div>
       </div>
 
-      {/* BLKOUT HUB Widget - Prominent placement */}
+      {/* Advent Calendar - Seasonal Feature */}
       <div className="mb-16 animate-fade-in" style={{ animationDelay: '100ms' }}>
+        <AdventCalendarWidget />
+      </div>
+
+      {/* BLKOUT HUB Widget - Prominent placement */}
+      <div className="mb-16 animate-fade-in" style={{ animationDelay: '200ms' }}>
         <BlkoutHubWidget />
       </div>
 
-      {/* Two-column layout for Announcements and YouTube */}
+      {/* Two-column layout for Announcements and Newsletters */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-16">
-        <div className="animate-fade-in" style={{ animationDelay: '200ms' }}>
+        <div className="animate-fade-in" style={{ animationDelay: '300ms' }}>
           <AnnouncementsSection />
         </div>
-        <div className="animate-fade-in" style={{ animationDelay: '300ms' }}>
-          <YouTubeEmbed />
+        <div className="animate-fade-in" style={{ animationDelay: '400ms' }}>
+          <NewsletterArchive />
         </div>
+      </div>
+
+      {/* YouTube Section */}
+      <div className="mb-16 animate-fade-in" style={{ animationDelay: '500ms' }}>
+        <YouTubeEmbed />
       </div>
 
       {/* Content Section Divider */}

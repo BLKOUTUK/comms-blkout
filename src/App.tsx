@@ -12,6 +12,9 @@ import { Agents } from '@/pages/admin/Agents';
 import { Analytics } from '@/pages/admin/Analytics';
 import { Settings } from '@/pages/admin/Settings';
 import { SocialSync } from '@/pages/admin/SocialSync';
+import { SocialSyncEditorial } from '@/pages/admin/SocialSyncEditorial';
+import { Newsletters } from '@/pages/admin/Newsletters';
+import { OAuthCallback } from '@/pages/auth/OAuthCallback';
 
 function App() {
   return (
@@ -21,6 +24,9 @@ function App() {
           {/* Public Routes */}
           <Route path="/" element={<Navigate to="/discover" replace />} />
           <Route path="/discover" element={<DiscoverPage />} />
+
+          {/* OAuth Callback Routes */}
+          <Route path="/auth/callback/:platform" element={<OAuthCallback />} />
 
           {/* Protected Admin Routes */}
           <Route
@@ -76,6 +82,22 @@ function App() {
             element={
               <ProtectedRoute>
                 <SocialSync />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/editorial"
+            element={
+              <ProtectedRoute>
+                <SocialSyncEditorial />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/newsletters"
+            element={
+              <ProtectedRoute>
+                <Newsletters />
               </ProtectedRoute>
             }
           />
