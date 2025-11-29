@@ -86,9 +86,9 @@ export function SocialMediaFeed() {
 
   // Re-process embeds when index changes
   useEffect(() => {
-    if (window.instgrm) {
+    if (window.instgrm?.Embeds) {
       setTimeout(() => {
-        window.instgrm.Embeds.process();
+        window.instgrm?.Embeds.process();
       }, 100);
     }
   }, [currentIndex]);
