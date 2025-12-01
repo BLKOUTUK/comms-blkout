@@ -9,12 +9,14 @@ import {
   Settings,
   Zap,
   Mail,
+  Banknote,
 } from 'lucide-react';
 
 const navigation = [
   { name: 'Dashboard', href: '/admin', icon: LayoutDashboard },
   { name: 'Content Calendar', href: '/admin/calendar', icon: Calendar },
   { name: 'Drafts', href: '/admin/drafts', icon: FileText },
+  { name: 'Grant Funding', href: '/admin/grants', icon: Banknote },
   { name: 'Agents', href: '/admin/agents', icon: Bot },
   { name: 'Newsletters', href: '/admin/newsletters', icon: Mail },
   { name: 'SocialSync', href: '/admin/socialsync', icon: Zap },

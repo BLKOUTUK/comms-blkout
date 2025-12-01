@@ -15,6 +15,7 @@ import { SocialSync } from '@/pages/admin/SocialSync';
 import { SocialSyncEditorial } from '@/pages/admin/SocialSyncEditorial';
 import { Newsletters } from '@/pages/admin/Newsletters';
 import { OAuthCallback } from '@/pages/auth/OAuthCallback';
+import Grants from '@/pages/admin/Grants';
 
 function App() {
   return (
@@ -98,6 +99,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <Newsletters />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/grants"
+            element={
+              <ProtectedRoute>
+                <Grants />
               </ProtectedRoute>
             }
           />

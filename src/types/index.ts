@@ -1,6 +1,31 @@
 
 // Core type definitions for BLKOUT Communications System
 
+// Re-export Grant types for consistent imports
+export type {
+  Grant,
+  GrantStatus,
+  Priority,
+  FunderType,
+  ProjectCategory,
+  ScalingTier,
+  ReviewRequired,
+  GeographicScope,
+  GrantReminder,
+  GrantStatistics,
+  UpcomingDeadline,
+  CreateGrantInput,
+  UpdateGrantInput,
+  GrantOpportunity,
+  OpportunityPipeline,
+  OpportunityStatus,
+  OpportunitySource,
+  BidWritingTemplate,
+  BidDocument,
+  BidWritingSession,
+  BidWritingProgress,
+} from '../services/grants/types';
+
 export type PlatformType = 'instagram' | 'linkedin' | 'twitter' | 'facebook' | 'tiktok' | 'youtube';
 
 export type ContentStatus = 'draft' | 'scheduled' | 'published' | 'archived';
