@@ -20,7 +20,7 @@ const STATIC_POSTS: VoicePost[] = [
     excerpt: 'Members of the BLKOUT community share their perspectives on liberation, technology, and building a future that centers Black queer joy.',
     date: '2024-11-20',
     author: 'Community Contributors',
-    url: 'https://voices-blkout.up.railway.app',
+    url: 'https://blog.blkoutuk.cloud',
     readTime: '5 min read'
   },
   {
@@ -29,7 +29,7 @@ const STATIC_POSTS: VoicePost[] = [
     excerpt: 'How we approach AI development with community values at the center, ensuring technology serves liberation rather than surveillance.',
     date: '2024-11-15',
     author: 'BLKOUT Tech Team',
-    url: 'https://voices-blkout.up.railway.app',
+    url: 'https://blog.blkoutuk.cloud',
     readTime: '7 min read'
   },
   {
@@ -38,12 +38,12 @@ const STATIC_POSTS: VoicePost[] = [
     excerpt: 'Understanding the Community Benefit Society structure and how democratic governance shapes every decision we make.',
     date: '2024-11-10',
     author: 'Governance Working Group',
-    url: 'https://voices-blkout.up.railway.app',
+    url: 'https://blog.blkoutuk.cloud',
     readTime: '4 min read'
   }
 ];
 
-const VOICES_URL = 'https://voices-blkout.up.railway.app';
+const VOICES_URL = 'https://blog.blkoutuk.cloud';
 
 export function BlkoutVoicesWidget() {
   const [posts, setPosts] = useState<VoicePost[]>(STATIC_POSTS);

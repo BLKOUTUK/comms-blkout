@@ -17,7 +17,7 @@ const FEATURED_ARTICLE: ArchiveArticle = {
   excerpt: 'How a community of Black queer technologists came together to create a platform centered on sovereignty, safety, and collective power. Our journey from idea to cooperative ownership.',
   date: '2024-06-15',
   author: 'BLKOUT Collective',
-  url: 'https://blkout.vercel.app/stories',
+  url: 'https://blkoutuk.com/stories',
   category: 'Community History'
 };
 
@@ -38,7 +38,7 @@ export function ArchiveArticleWidget() {
           </p>
         </div>
         <a
-          href="https://blkout.vercel.app/stories"
+          href="https://blkoutuk.com/stories"
           target="_blank"
           rel="noopener noreferrer"
           className="text-sm text-blkout-600 hover:text-blkout-700 font-semibold flex items-center gap-1"

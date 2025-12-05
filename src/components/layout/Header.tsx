@@ -45,7 +45,7 @@ export function Header() {
             {/* Platform Links */}
             <div className="flex items-center gap-1 px-2 border-r border-yellow-500/20">
               <a
-                href="https://blkout.vercel.app"
+                href="https://blkoutuk.com"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="px-3 py-1.5 rounded-md text-sm font-semibold transition-all duration-200 text-gray-300 hover:text-yellow-500 hover:bg-white/5 flex items-center gap-1.5"
@@ -68,7 +68,7 @@ export function Header() {
             {/* External Hubs */}
             <div className="flex items-center gap-1 px-2 border-r border-yellow-500/20">
               <a
-                href="https://events-blkout.vercel.app"
+                href="https://events.blkoutuk.cloud"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="px-3 py-1.5 rounded-md text-sm font-semibold transition-all duration-200 text-gray-300 hover:text-yellow-500 hover:bg-white/5 flex items-center gap-1.5"
@@ -77,7 +77,7 @@ export function Header() {
                 Events
               </a>
               <a
-                href="https://news-blkout.vercel.app"
+                href="https://news.blkoutuk.cloud"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="px-3 py-1.5 rounded-md text-sm font-semibold transition-all duration-200 text-gray-300 hover:text-yellow-500 hover:bg-white/5 flex items-center gap-1.5"

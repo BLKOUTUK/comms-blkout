@@ -160,7 +160,7 @@ export function DiscoverPage() {
             Access our complete suite of community tools, events calendar, IVOR AI assistant, and more.
           </p>
           <a
-            href="https://blkout.vercel.app"
+            href="https://blkoutuk.com"
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-2 bg-white text-blkout-700 hover:bg-gray-100 font-bold py-3 px-8 rounded-lg transition-colors"
