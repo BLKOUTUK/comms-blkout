@@ -13,6 +13,50 @@
   </head>
   <body>
     <div id="root"></div>
+
+    <!-- Facebook SDK for JavaScript -->
+    <script>
+      window.fbAsyncInit = function() {
+        FB.init({
+          appId      : '1202643907870653',
+          cookie     : true,
+          xfbml      : true,
+          version    : 'v21.0'
+        });
+
+        FB.AppEvents.logPageView();
+      };
+
+      (function(d, s, id){
+         var js, fjs = d.getElementsByTagName(s)[0];
+         if (d.getElementById(id)) {return;}
+         js = d.createElement(s); js.id = id;
+         js.src = "https://connect.facebook.net/en_US/sdk.js";
+         fjs.parentNode.insertBefore(js, fjs);
+       }(document, 'script', 'facebook-jssdk'));
+
+      // Facebook Login status callback
+      function statusChangeCallback(response) {
+        if (response.status === 'connected') {
+          // User is logged in and authenticated
+          window.dispatchEvent(new CustomEvent('fb-login-success', {
+            detail: response.authResponse
+          }));
+        } else {
+          // User is not logged in
+          window.dispatchEvent(new CustomEvent('fb-login-failed', {
+            detail: response
+          }));
+        }
+      }
+
+      function checkLoginState() {
+        FB.getLoginStatus(function(response) {
+          statusChangeCallback(response);
+        });
+      }
+    </script>
+
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
