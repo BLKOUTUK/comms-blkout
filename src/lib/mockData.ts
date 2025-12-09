@@ -97,6 +97,18 @@ export const mockAgents: Agent[] = [
     createdAt: new Date('2025-01-01'),
     updatedAt: new Date('2025-11-16'),
   },
+  {
+    id: '6',
+    name: 'Concierge',
+    type: 'concierge',
+    status: 'active',
+    description: 'Member support and personalized onboarding assistance',
+    capabilities: ['Member Onboarding', 'Personalized Support', 'Resource Navigation', 'Community Connection', 'Benefit Guidance'],
+    lastActive: new Date('2025-12-01T12:00:00'),
+    totalContentGenerated: 0,
+    createdAt: new Date('2025-12-01'),
+    updatedAt: new Date('2025-12-01'),
+  },
 ];
 
 export const mockContent: Content[] = [

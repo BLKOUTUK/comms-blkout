@@ -1,0 +1,439 @@
+{
+  "name": "BLKOUT Social Diary Researcher",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 8 * * 1,4"
+            }
+          ]
+        }
+      },
+      "id": "schedule-trigger",
+      "name": "Run Mon & Thu 8AM",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [100, 300]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "search-queries",
+              "name": "queries",
+              "value": "[\"Black LGBTQ events London 2025\", \"Black Pride UK events\", \"Black queer events UK\", \"QTIPOC events London\", \"Black gay events Manchester Birmingham\"]",
+              "type": "string"
+            },
+            {
+              "id": "known-organizers",
+              "name": "organizers",
+              "value": "[\"UK Black Pride\", \"Black Pride\", \"House of Rainbow\", \"BBZ\", \"Pxssy Palace\", \"Bootylicious\", \"QTIPOC London\", \"Queer Black Spaces\", \"Black Out UK\", \"Noir\", \"Afro Rainbow Austria\"]",
+              "type": "string"
+            },
+            {
+              "id": "platforms",
+              "name": "platforms",
+              "value": "[\"eventbrite.co.uk\", \"outsavvy.com\", \"designmynight.com\", \"facebook.com/events\", \"dice.fm\", \"ra.co\", \"qxmagazine.co.uk\", \"lgbtconsortium.org.uk\"]",
+              "type": "string"
+            },
+            {
+              "id": "date-range",
+              "name": "date_range",
+              "value": "next 60 days",
+              "type": "string"
+            },
+            {
+              "id": "run-date",
+              "name": "run_date",
+              "value": "={{ $now.format('yyyy-MM-dd') }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "config-setup",
+      "name": "Search Configuration",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [300, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Split queries into individual items for parallel search\nconst queries = JSON.parse($input.first().json.queries);\nconst platforms = JSON.parse($input.first().json.platforms);\nconst organizers = JSON.parse($input.first().json.organizers);\nconst dateRange = $input.first().json.date_range;\n\nconst searchItems = [];\n\n// Add general queries\nfor (const query of queries) {\n  searchItems.push({\n    json: {\n      search_type: 'general',\n      query: `${query} ${dateRange}`,\n      original_query: query\n    }\n  });\n}\n\n// Add organizer-specific searches\nfor (const organizer of organizers) {\n  searchItems.push({\n    json: {\n      search_type: 'organizer',\n      query: `${organizer} events 2025`,\n      original_query: organizer\n    }\n  });\n}\n\n// Add platform-specific searches\nfor (const platform of platforms.slice(0, 3)) { // Limit to top 3 platforms\n  searchItems.push({\n    json: {\n      search_type: 'platform',\n      query: `site:${platform} Black LGBTQ events UK 2025`,\n      original_query: platform\n    }\n  });\n}\n\nreturn searchItems;"
+      },
+      "id": "split-queries",
+      "name": "Generate Search Queries",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [500, 300]
+    },
+    {
+      "parameters": {
+        "query": "={{ $json.query }}",
+        "options": {
+          "topic": "general",
+          "max_results": 10,
+          "include_domains": ["eventbrite.co.uk", "eventbrite.com", "outsavvy.com", "designmynight.com", "dice.fm", "ra.co", "timeout.com", "theguardian.com", "pinknews.co.uk", "attitude.co.uk", "qxmagazine.co.uk", "lgbtconsortium.org.uk"],
+          "time_range": "month"
+        }
+      },
+      "id": "tavily-search",
+      "name": "Tavily Event Search",
+      "type": "@tavily/n8n-nodes-tavily.tavily",
+      "typeVersion": 1,
+      "position": [700, 300],
+      "credentials": {
+        "tavilyApi": {
+          "id": "bexradqeh2QD1aPR",
+          "name": "Tavily account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Aggregate and deduplicate search results\nconst allResults = [];\nconst seenUrls = new Set();\n\nfor (const item of $input.all()) {\n  const results = item.json.results || [];\n  for (const result of results) {\n    // Deduplicate by URL\n    if (!seenUrls.has(result.url)) {\n      seenUrls.add(result.url);\n      allResults.push({\n        title: result.title,\n        url: result.url,\n        content: result.content,\n        source: result.url.split('/')[2],\n        search_type: item.json.search_type || 'unknown',\n        original_query: item.json.original_query || 'unknown'\n      });\n    }\n  }\n}\n\n// Return aggregated results\nreturn [{\n  json: {\n    total_results: allResults.length,\n    results: allResults,\n    search_date: new Date().toISOString()\n  }\n}];"
+      },
+      "id": "aggregate-results",
+      "name": "Aggregate & Deduplicate",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [900, 300]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are the BLKOUT Social Diary Researcher - a specialized agent that identifies events relevant to the Black LGBTQ+ community in the UK.\n\n## Your Task\nAnalyze the following search results and extract ONLY events that are:\n1. Specifically for or welcoming to Black LGBTQ+/Queer people\n2. In the UK (primarily London, but also Manchester, Birmingham, Bristol, Leeds)\n3. Happening in the next 60 days\n4. Not duplicates\n\n## Search Results to Analyze\n{{ JSON.stringify($json.results, null, 2) }}\n\n## Output Requirements\nReturn a JSON array of events with this exact structure:\n```json\n[\n  {\n    \"title\": \"Event Name\",\n    \"date\": \"YYYY-MM-DD\",\n    \"time\": \"HH:MM\",\n    \"location\": \"Venue Name, City\",\n    \"organizer\": \"Organizer Name\",\n    \"url\": \"https://...\",\n    \"description\": \"Brief 1-2 sentence description\",\n    \"cost\": \"Free / £X / From £X\",\n    \"relevance_score\": 85,\n    \"tags\": [\"black-led\", \"queer\", \"party\", \"community\"],\n    \"source\": \"eventbrite.co.uk\",\n    \"notes\": \"Any special notes for the team\"\n  }\n]\n```\n\n## Scoring Guidelines\n- 90-100: Explicitly Black LGBTQ+ event by known organizer\n- 80-89: Black-led or QTIPOC-focused event\n- 70-79: LGBTQ+ event that's explicitly welcoming to Black attendees\n- 60-69: General LGBTQ+ event in diverse area\n- Below 60: Don't include\n\n## Known BLKOUT-Relevant Organizers (High Trust)\n- UK Black Pride / Black Pride\n- House of Rainbow\n- BBZ / Pxssy Palace\n- Bootylicious\n- QTIPOC London\n- Queer Black Spaces\n- Noir\n- Black Out UK\n- Afrogay\n\nReturn ONLY the JSON array, no additional text.",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "You are an expert event researcher for BLKOUT UK, a community platform serving Black LGBTQ+ people. You have deep knowledge of the Black queer events scene in the UK and can identify relevant events from various sources. Always prioritize events that center Black joy, community building, and safe spaces. Be conservative - only include events you're confident are relevant."
+        }
+      },
+      "id": "ai-curator",
+      "name": "AI Event Curator",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [1100, 300]
+    },
+    {
+      "parameters": {
+        "model": "anthropic/claude-3-5-sonnet",
+        "options": {}
+      },
+      "id": "claude-model",
+      "name": "Claude 3.5 Sonnet",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [1100, 500],
+      "credentials": {
+        "openRouterApi": {
+          "id": "KqEZ24QLP2FfQCNj",
+          "name": "OpenRouter account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"type\": \"array\",\n  \"items\": {\n    \"type\": \"object\",\n    \"properties\": {\n      \"title\": { \"type\": \"string\" },\n      \"date\": { \"type\": \"string\" },\n      \"time\": { \"type\": \"string\" },\n      \"location\": { \"type\": \"string\" },\n      \"organizer\": { \"type\": \"string\" },\n      \"url\": { \"type\": \"string\" },\n      \"description\": { \"type\": \"string\" },\n      \"cost\": { \"type\": \"string\" },\n      \"relevance_score\": { \"type\": \"number\" },\n      \"tags\": { \"type\": \"array\", \"items\": { \"type\": \"string\" } },\n      \"source\": { \"type\": \"string\" },\n      \"notes\": { \"type\": \"string\" }\n    },\n    \"required\": [\"title\", \"date\", \"location\", \"url\", \"relevance_score\"]\n  }\n}"
+      },
+      "id": "output-parser",
+      "name": "Parse Event List",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [1300, 500]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Transform AI output to individual event items\nconst events = $input.first().json.output || [];\n\nif (!Array.isArray(events)) {\n  return [{ json: { error: 'No events parsed', raw: $input.first().json } }];\n}\n\n// Add metadata and return as individual items\nreturn events.map(event => ({\n  json: {\n    ...event,\n    discovered_date: new Date().toISOString().split('T')[0],\n    status: 'pending_review',\n    added_to_calendar: false\n  }\n}));"
+      },
+      "id": "transform-events",
+      "name": "Transform to Event Items",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1500, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://bgjengudzfickgomjqmz.supabase.co/rest/v1/events",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {"name": "Prefer", "value": "resolution=ignore-duplicates,return=minimal"},
+            {"name": "Authorization", "value": "=Bearer {{ $credentials.httpHeaderAuth.value }}"}
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {"name": "title", "value": "={{ $json.title }}"},
+            {"name": "description", "value": "={{ $json.description }}"},
+            {"name": "date", "value": "={{ $json.date }}"},
+            {"name": "start_time", "value": "={{ $json.time }}"},
+            {"name": "location", "value": "={{ $json.location }}"},
+            {"name": "organizer", "value": "={{ $json.organizer }}"},
+            {"name": "url", "value": "={{ $json.url }}"},
+            {"name": "cost", "value": "={{ $json.cost || 'TBC' }}"},
+            {"name": "tags", "value": "={{ $json.tags }}"},
+            {"name": "source", "value": "={{ $json.source }}"},
+            {"name": "source_platform", "value": "={{ $json.source }}"},
+            {"name": "relevance_score", "value": "={{ $json.relevance_score }}"},
+            {"name": "status", "value": "pending"},
+            {"name": "discovery_method", "value": "n8n_social_diary"},
+            {"name": "discovered_at", "value": "={{ $now.toISO() }}"}
+          ]
+        },
+        "options": {
+          "batching": {
+            "batch": {
+              "batchSize": 10,
+              "batchInterval": 1000
+            }
+          }
+        }
+      },
+      "id": "save-to-supabase",
+      "name": "Save to Supabase Events",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1700, 300],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "",
+          "name": "Supabase API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "fieldsToAggregate": {
+          "fieldToAggregate": [
+            {"fieldToAggregate": "title"},
+            {"fieldToAggregate": "relevance_score"}
+          ]
+        },
+        "options": {}
+      },
+      "id": "aggregate-summary",
+      "name": "Aggregate Summary",
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [1900, 300]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "summary",
+              "name": "summary",
+              "value": "=🎭 BLKOUT Social Diary Research Complete\n\n📅 Run Date: {{ $now.format('yyyy-MM-dd HH:mm') }}\n📊 Events Found: {{ $json.title.length }}\n\n🔝 Top Events:\n{{ $json.title.slice(0, 5).map((t, i) => `${i+1}. ${t} (Score: ${$json.relevance_score[i]})`).join('\\n') }}\n\n✅ Events saved to Supabase (status: pending) for review.\nNext step: Review and approve events via BLKOUT admin or IVOR.",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "id": "create-summary",
+      "name": "Create Summary",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [2100, 300]
+    },
+    {
+      "parameters": {
+        "resource": "draft",
+        "subject": "=🎭 BLKOUT Social Diary: {{ $json.title ? $json.title.length : 0 }} Events Found",
+        "emailType": "text",
+        "message": "={{ $json.summary }}",
+        "options": {
+          "sendTo": "berkeley@blkoutuk.com"
+        }
+      },
+      "id": "send-notification",
+      "name": "Email Summary",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [2300, 300],
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "GXWGlGOIsCMS1D5N",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ig-accounts",
+              "name": "instagram_accounts",
+              "value": "[\"ukblackpride\", \"bbaborbbz\", \"paborpxssypalace\", \"bootyliciousldn\", \"houseofrainbow_\", \"outsavvy\", \"noirlondon_\", \"qtipoclondon\"]",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "id": "ig-config",
+      "name": "Instagram Accounts Config",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [300, 600]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Generate Apify actor input for Instagram profile scraping\n// Run one request per account\nconst accounts = JSON.parse($input.first().json.instagram_accounts);\n\nreturn accounts.map(account => ({\n  json: {\n    username: account,\n    resultsLimit: 5\n  }\n}));"
+      },
+      "id": "ig-prepare",
+      "name": "Prepare Instagram Search",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [500, 600]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.apify.com/v2/acts/apify~instagram-post-scraper/runs?waitForFinish=120",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/json",
+        "body": "={\"username\":[\"{{ $json.username }}\"],\"resultsLimit\":5}",
+        "options": {
+          "timeout": 180000
+        }
+      },
+      "id": "apify-instagram",
+      "name": "Apify Instagram Scraper",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [700, 600],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "",
+          "name": "Apify Instagram Scraper"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Parse Instagram posts for event mentions\nconst posts = $input.all();\nconst eventIndicators = ['event', 'party', 'night', 'tickets', 'link in bio', 'this weekend', 'tonight', 'join us', 'doors open', 'entry', 'pride', 'coming up'];\n\nconst potentialEvents = [];\n\nfor (const item of posts) {\n  const post = item.json;\n  const caption = (post.caption || '').toLowerCase();\n  \n  // Check if post mentions an event\n  const isEventPost = eventIndicators.some(indicator => caption.includes(indicator));\n  \n  if (isEventPost) {\n    potentialEvents.push({\n      title: post.caption ? post.caption.substring(0, 100) + '...' : 'Instagram Event',\n      url: post.url || `https://instagram.com/p/${post.shortCode}`,\n      content: post.caption || '',\n      source: 'instagram.com',\n      search_type: 'instagram',\n      original_query: post.ownerUsername || 'instagram',\n      image_url: post.displayUrl,\n      likes: post.likesCount,\n      posted_date: post.timestamp\n    });\n  }\n}\n\nreturn [{\n  json: {\n    total_results: potentialEvents.length,\n    results: potentialEvents,\n    search_date: new Date().toISOString(),\n    source: 'instagram'\n  }\n}];"
+      },
+      "id": "ig-parse",
+      "name": "Parse Instagram Events",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [900, 600]
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineAll",
+        "options": {}
+      },
+      "id": "merge-sources",
+      "name": "Merge Web + Instagram",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [1000, 450]
+    },
+    {
+      "parameters": {
+        "content": "## 📸 Instagram Source\n\n**Accounts monitored:**\n- @ukblackpride\n- @bbaborbbz\n- @paborpxssypalace\n- @bootyliciousldn\n- @houseofrainbow_\n- @outsavvy\n- @noirlondon_\n- @qtipoclondon\n\n**Requires:** Apify account (~$5/mo)\n\nEdit 'Instagram Accounts Config' to add more accounts.",
+        "height": 320,
+        "width": 280,
+        "color": 5
+      },
+      "id": "ig-docs-note",
+      "name": "Instagram Docs",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [300, 750]
+    },
+    {
+      "parameters": {
+        "content": "# 🎭 BLKOUT Social Diary Researcher\n\n**Purpose**: Automatically discover Black LGBTQ+ events in the UK\n\n## Schedule\n- Runs Monday & Thursday at 8 AM\n- Searches multiple platforms and organizers\n- AI-curated for relevance to Black queer community\n\n## Sources Searched\n- **Web**: Eventbrite, OutSavvy, DesignMyNight, Dice.fm, RA, QX Magazine, LGBT Consortium\n- **Instagram**: @ukblackpride, @bbaborbbz, @paborpxssypalace, @bootyliciousldn, @houseofrainbow_, @outsavvy, @noirlondon_, @qtipoclondon\n\n## Output\n- **Supabase** `events` table (accessible by IVOR and other agents)\n- Email notification with summary\n- Events saved with `status: pending` for human review\n\n## Configuration\n- Edit 'Search Configuration' node to add/modify searches\n- Adjust relevance threshold in AI Curator prompt\n- Supabase credentials required in 'Save to Supabase Events' node",
+        "height": 480,
+        "width": 400,
+        "color": 6
+      },
+      "id": "docs-note",
+      "name": "Documentation",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [100, 520]
+    }
+  ],
+  "connections": {
+    "Run Mon & Thu 8AM": {
+      "main": [[{"node": "Search Configuration", "type": "main", "index": 0}]]
+    },
+    "Search Configuration": {
+      "main": [[{"node": "Generate Search Queries", "type": "main", "index": 0}]]
+    },
+    "Generate Search Queries": {
+      "main": [[{"node": "Tavily Event Search", "type": "main", "index": 0}]]
+    },
+    "Tavily Event Search": {
+      "main": [[{"node": "Aggregate & Deduplicate", "type": "main", "index": 0}]]
+    },
+    "Aggregate & Deduplicate": {
+      "main": [[{"node": "Merge Web + Instagram", "type": "main", "index": 0}]]
+    },
+    "Run Mon & Thu 8AM": {
+      "main": [[{"node": "Search Configuration", "type": "main", "index": 0}, {"node": "Instagram Accounts Config", "type": "main", "index": 0}]]
+    },
+    "Instagram Accounts Config": {
+      "main": [[{"node": "Prepare Instagram Search", "type": "main", "index": 0}]]
+    },
+    "Prepare Instagram Search": {
+      "main": [[{"node": "Apify Instagram Scraper", "type": "main", "index": 0}]]
+    },
+    "Apify Instagram Scraper": {
+      "main": [[{"node": "Parse Instagram Events", "type": "main", "index": 0}]]
+    },
+    "Parse Instagram Events": {
+      "main": [[{"node": "Merge Web + Instagram", "type": "main", "index": 1}]]
+    },
+    "Merge Web + Instagram": {
+      "main": [[{"node": "AI Event Curator", "type": "main", "index": 0}]]
+    },
+    "Claude 3.5 Sonnet": {
+      "ai_languageModel": [[{"node": "AI Event Curator", "type": "ai_languageModel", "index": 0}]]
+    },
+    "Parse Event List": {
+      "ai_outputParser": [[{"node": "AI Event Curator", "type": "ai_outputParser", "index": 0}]]
+    },
+    "AI Event Curator": {
+      "main": [[{"node": "Transform to Event Items", "type": "main", "index": 0}]]
+    },
+    "Transform to Event Items": {
+      "main": [[{"node": "Save to Supabase Events", "type": "main", "index": 0}]]
+    },
+    "Save to Supabase Events": {
+      "main": [[{"node": "Aggregate Summary", "type": "main", "index": 0}]]
+    },
+    "Aggregate Summary": {
+      "main": [[{"node": "Create Summary", "type": "main", "index": 0}]]
+    },
+    "Create Summary": {
+      "main": [[{"node": "Email Summary", "type": "main", "index": 0}]]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "meta": {
+    "templateCredsSetupCompleted": false
+  },
+  "pinData": {}
+}

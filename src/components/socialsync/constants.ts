@@ -1,15 +1,12 @@
 
 import { AspectRatio, ImageStyle, LogoAsset, VideoStyle, OverlayAnimation, VideoResolution, ProjectTemplate, MediaType, AgentTask, AgentType, SocialPlatform, LogoPosition } from '@/types/socialsync';
 
-// Updated with placeholders representing the user's "BLKOUT" and other assets
+// BLKOUT official logo assets
 export const LOGO_ASSETS: LogoAsset[] = [
-  { id: 'blk-rainbow', name: 'BLKOUT Rainbow', url: 'https://placehold.co/150x150/1a1a1a/FFFFFF/png?text=BLK%5CnOUT&font=montserrat' }, 
-  { id: 'blk-circle', name: 'BLK Hub Circle', url: 'https://placehold.co/150x150/FF00FF/FFFFFF/png?text=HUB&font=roboto' },
-  { id: 'blk-white', name: 'BLKOUT White', url: 'https://placehold.co/150x150/FFFFFF/000000/png?text=BLK%5CnOUT' },
-  { id: 'blk-icon', name: 'BLK Icon', url: 'https://placehold.co/150x150/000000/FFFFFF/png?text=B' },
-  { id: 'ivr-green', name: 'IVR Badge', url: 'https://placehold.co/150x150/008000/FFFFFF/png?text=IVR' },
-  { id: 'avatar-1', name: 'Avatar Graphic', url: 'https://placehold.co/150x150/00FFFF/000000/png?text=Avatar' },
-  { id: 'tech-white', name: 'TechCorp White', url: 'https://placehold.co/150x150/333333/FFFFFF/png?text=TC' },
+  { id: 'blkout-white', name: 'BLKOUT White', url: '/images/blkoutlogo_wht_transparent.png' },
+  { id: 'blkout-black', name: 'BLKOUT Black', url: '/images/blkoutlogo_blk_transparent.png' },
+  { id: 'blkout-roundel', name: 'BLKOUT Roundel', url: '/images/blkout_logo_roundel_colour.png' },
+  { id: 'blkout-hub', name: 'BLKOUT HUB', url: '/images/blkouthub_logo.png' },
 ];
 
 export const ASPECT_RATIOS = Object.values(AspectRatio);

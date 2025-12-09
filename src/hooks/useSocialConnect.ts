@@ -46,9 +46,17 @@ function checkPlatformConfiguration(): Map<SocialPlatform, boolean> {
     !!(import.meta.env.VITE_YOUTUBE_CLIENT_ID && import.meta.env.VITE_YOUTUBE_CLIENT_SECRET)
   );
 
-  // LinkedIn and Twitter - not yet implemented
-  config.set(SocialPlatform.LINKEDIN, false);
-  config.set(SocialPlatform.TWITTER, false);
+  // LinkedIn
+  config.set(
+    SocialPlatform.LINKEDIN,
+    !!(import.meta.env.VITE_LINKEDIN_CLIENT_ID && import.meta.env.VITE_LINKEDIN_CLIENT_SECRET)
+  );
+
+  // Twitter/X
+  config.set(
+    SocialPlatform.TWITTER,
+    !!(import.meta.env.VITE_TWITTER_CLIENT_ID && import.meta.env.VITE_TWITTER_CLIENT_SECRET)
+  );
 
   return config;
 }
@@ -133,9 +141,9 @@ export function useSocialConnect(): UseSocialConnectReturn {
     }
   }, []);
 
-  const initiateConnect = useCallback((platform: SocialPlatform) => {
+  const initiateConnect = useCallback(async (platform: SocialPlatform) => {
     const redirectUri = `${window.location.origin}/auth/callback/${platform.toLowerCase().replace(/[^a-z]/g, '')}`;
-    const authUrl = platformManager.getAuthUrl(platform, redirectUri);
+    const authUrl = await platformManager.getAuthUrl(platform, redirectUri);
 
     if (!authUrl) {
       setError(`Platform ${platform} is not configured. Please add API credentials to .env file.`);

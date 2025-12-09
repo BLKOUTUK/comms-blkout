@@ -272,14 +272,24 @@ export function Agents() {
                 Plans campaigns and coordinates content timing to maximize community impact.
               </p>
             </div>
-            <div className="bg-white rounded-lg p-3 border border-blkout-300">
+            <div>
               <h4 className="font-medium text-blkout-900 mb-2 flex items-center gap-2">
                 <Mail size={16} />
-                Herald <span className="text-xs bg-green-100 text-green-700 px-1.5 py-0.5 rounded">NEW</span>
+                Herald
               </h4>
               <p>
                 Curates weekly newsletters for engaged members and monthly digests for the
                 wider community circle. Integrates with SendFox for email delivery.
+              </p>
+            </div>
+            <div className="bg-white rounded-lg p-3 border border-blkout-300">
+              <h4 className="font-medium text-blkout-900 mb-2 flex items-center gap-2">
+                <Users size={16} />
+                Concierge <span className="text-xs bg-green-100 text-green-700 px-1.5 py-0.5 rounded">NEW</span>
+              </h4>
+              <p>
+                Provides personalized member support, onboarding guidance, and helps
+                members navigate community resources and opportunities.
               </p>
             </div>
           </div>
