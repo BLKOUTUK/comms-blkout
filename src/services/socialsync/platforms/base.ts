@@ -81,7 +81,7 @@ export abstract class SocialMediaPlatform {
     /**
      * Get OAuth authorization URL
      */
-    abstract getAuthUrl(redirectUri: string): string;
+    abstract getAuthUrl(redirectUri: string): string | Promise<string>;
 
     /**
      * Set credentials

@@ -5,11 +5,15 @@
 import { SocialMediaPlatform, PublishOptions, PublishResult } from './base';
 import { InstagramPlatform } from './instagram';
 import { TikTokPlatform } from './tiktok';
+import { LinkedInPlatform } from './linkedin';
+import { TwitterPlatform } from './twitter';
 import { SocialPlatform } from '@/types/socialsync';
 
 export * from './base';
 export * from './instagram';
 export * from './tiktok';
+export * from './linkedin';
+export * from './twitter';
 
 class PlatformManager {
     private platforms: Map<SocialPlatform, SocialMediaPlatform> = new Map();
@@ -21,6 +25,10 @@ class PlatformManager {
         const instagramClientSecret = import.meta.env.VITE_INSTAGRAM_CLIENT_SECRET || '';
         const tiktokClientKey = import.meta.env.VITE_TIKTOK_CLIENT_KEY || '';
         const tiktokClientSecret = import.meta.env.VITE_TIKTOK_CLIENT_SECRET || '';
+        const linkedinClientId = import.meta.env.VITE_LINKEDIN_CLIENT_ID || '';
+        const linkedinClientSecret = import.meta.env.VITE_LINKEDIN_CLIENT_SECRET || '';
+        const twitterClientId = import.meta.env.VITE_TWITTER_CLIENT_ID || '';
+        const twitterClientSecret = import.meta.env.VITE_TWITTER_CLIENT_SECRET || '';
 
         if (instagramClientId && instagramClientSecret) {
             this.platforms.set(
@@ -36,9 +44,19 @@ class PlatformManager {
             );
         }
 
-        // LinkedIn and Twitter connectors would be added here
-        // this.platforms.set(SocialPlatform.LINKEDIN, new LinkedInPlatform(...));
-        // this.platforms.set(SocialPlatform.TWITTER, new TwitterPlatform(...));
+        if (linkedinClientId && linkedinClientSecret) {
+            this.platforms.set(
+                SocialPlatform.LINKEDIN,
+                new LinkedInPlatform(linkedinClientId, linkedinClientSecret)
+            );
+        }
+
+        if (twitterClientId && twitterClientSecret) {
+            this.platforms.set(
+                SocialPlatform.TWITTER,
+                new TwitterPlatform(twitterClientId, twitterClientSecret)
+            );
+        }
     }
 
     /**
@@ -113,9 +131,11 @@ class PlatformManager {
     /**
      * Get OAuth authorization URL for a platform
      */
-    getAuthUrl(platform: SocialPlatform, redirectUri: string): string | null {
+    async getAuthUrl(platform: SocialPlatform, redirectUri: string): Promise<string | null> {
         const connector = this.platforms.get(platform);
-        return connector ? connector.getAuthUrl(redirectUri) : null;
+        if (!connector) return null;
+        const url = connector.getAuthUrl(redirectUri);
+        return url instanceof Promise ? await url : url;
     }
 
     /**

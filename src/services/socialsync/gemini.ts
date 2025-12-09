@@ -109,7 +109,7 @@ export const generateVideo = async (
   referenceImageBase64?: string
 ): Promise<string> => {
   const ai = new GoogleGenAI({ apiKey: getGeminiCredential() });
-  const modelName = 'veo-3.1-fast-generate-preview'; // Or 'veo-3.1-generate-preview'
+  const modelName = 'veo-3.0-fast-generate-001'; // Fast video generation
 
   // Map 1:1 to something closest supported by Veo if strict 1:1 isn't supported. 
   // Veo supports 16:9 or 9:16 primarily, but the docs say "aspectRatio can be 16:9 or 9:16".

@@ -29,9 +29,16 @@ export const PreviewArea: React.FC<PreviewAreaProps> = ({
 }) => {
   const [showExport, setShowExport] = useState(false);
   const [showLogoSettings, setShowLogoSettings] = useState(false);
-  const [exportFormat, setExportFormat] = useState<ExportFormat>(ExportFormat.MP4);
+  const [exportFormat, setExportFormat] = useState<ExportFormat>(
+    currentType === MediaType.IMAGE ? ExportFormat.PNG : ExportFormat.MP4
+  );
   const [filename, setFilename] = useState('social-sync-export');
   const [pushSuccess, setPushSuccess] = useState(false);
+
+  // Image and video format options
+  const imageFormats = [ExportFormat.PNG, ExportFormat.JPG, ExportFormat.WEBP];
+  const videoFormats = [ExportFormat.MP4, ExportFormat.MOV, ExportFormat.WEBM];
+  const availableFormats = currentType === MediaType.IMAGE ? imageFormats : videoFormats;
 
   // Calculate aspect ratio for inline styles
   const getAspectRatioStyle = () => {
@@ -258,10 +265,10 @@ export const PreviewArea: React.FC<PreviewAreaProps> = ({
                             </div>
                             
                             <div>
-                                <label className="text-xs text-slate-400 block mb-1">Format</label>
+                                <label className="text-xs text-slate-400 block mb-1">Format ({currentType === MediaType.IMAGE ? 'Image' : 'Video'})</label>
                                 <div className="grid grid-cols-3 gap-2">
-                                    {Object.values(ExportFormat).map(fmt => (
-                                        <button 
+                                    {availableFormats.map(fmt => (
+                                        <button
                                             key={fmt}
                                             onClick={() => setExportFormat(fmt)}
                                             className={`text-xs py-1.5 rounded border ${exportFormat === fmt ? 'bg-blue-600/20 border-blue-600 text-blue-400' : 'border-slate-700 text-slate-400 hover:border-slate-500'}`}

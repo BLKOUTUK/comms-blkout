@@ -30,7 +30,7 @@ export type PlatformType = 'instagram' | 'linkedin' | 'twitter' | 'facebook' | '
 
 export type ContentStatus = 'draft' | 'scheduled' | 'published' | 'archived';
 
-export type AgentType = 'griot' | 'listener' | 'weaver' | 'strategist' | 'herald';
+export type AgentType = 'griot' | 'listener' | 'weaver' | 'strategist' | 'herald' | 'concierge';
 
 export type AgentStatus = 'active' | 'inactive' | 'paused' | 'error';
 

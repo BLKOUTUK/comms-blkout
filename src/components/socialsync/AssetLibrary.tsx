@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { GeneratedAsset, MediaType, ProjectTemplate, AgentTask } from '@/types/socialsync';
-import { Image, Video, Clock, Star, Search, Plus, X, Filter, LayoutTemplate, History, ArrowRight, Bot, ChevronDown, ChevronUp, Zap, Target } from 'lucide-react';
+import { Image, Video, Clock, Star, Search, Plus, X, Filter, LayoutTemplate, History, ArrowRight, Bot, ChevronDown, ChevronUp, Zap, Target, XCircle } from 'lucide-react';
 
 interface AssetLibraryProps {
   assets: GeneratedAsset[];
@@ -13,19 +13,21 @@ interface AssetLibraryProps {
   onRemoveTag: (id: string, tag: string) => void;
   onApplyTemplate: (template: ProjectTemplate) => void;
   onSelectAgentTask: (task: AgentTask) => void;
+  onDismissTask?: (taskId: string) => void;
   onClose?: () => void;
 }
 
-export const AssetLibrary: React.FC<AssetLibraryProps> = ({ 
-  assets, 
+export const AssetLibrary: React.FC<AssetLibraryProps> = ({
+  assets,
   templates,
   agentTasks,
-  onSelect, 
-  onToggleFavorite, 
-  onAddTag, 
+  onSelect,
+  onToggleFavorite,
+  onAddTag,
   onRemoveTag,
   onApplyTemplate,
   onSelectAgentTask,
+  onDismissTask,
   onClose
 }) => {
   const [mainTab, setMainTab] = useState<'AGENTS' | 'TEMPLATES' | 'LIBRARY'>('AGENTS');
@@ -70,6 +72,13 @@ export const AssetLibrary: React.FC<AssetLibraryProps> = ({
   const handleLoadTask = (e: React.MouseEvent, task: AgentTask) => {
       e.stopPropagation();
       onSelectAgentTask(task);
+  };
+
+  const handleDismissTask = (e: React.MouseEvent, taskId: string) => {
+      e.stopPropagation();
+      if (onDismissTask) {
+          onDismissTask(taskId);
+      }
   };
 
   const getPriorityColor = (p: string) => {
@@ -228,14 +237,24 @@ export const AssetLibrary: React.FC<AssetLibraryProps> = ({
                                             </div>
                                         </div>
 
-                                        {/* Action Button */}
-                                        <button 
-                                            onClick={(e) => handleLoadTask(e, task)}
-                                            className="w-full py-2 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 text-white text-xs font-semibold rounded flex items-center justify-center gap-2 shadow-lg shadow-green-900/20 transition-all"
-                                        >
-                                            <Zap size={14} />
-                                            Load Configuration
-                                        </button>
+                                        {/* Action Buttons */}
+                                        <div className="flex gap-2">
+                                            <button
+                                                onClick={(e) => handleLoadTask(e, task)}
+                                                className="flex-1 py-2 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 text-white text-xs font-semibold rounded flex items-center justify-center gap-2 shadow-lg shadow-green-900/20 transition-all"
+                                            >
+                                                <Zap size={14} />
+                                                Load Configuration
+                                            </button>
+                                            <button
+                                                onClick={(e) => handleDismissTask(e, task.id)}
+                                                className="px-3 py-2 bg-slate-700 hover:bg-red-600/80 text-slate-300 hover:text-white text-xs font-medium rounded flex items-center justify-center gap-1.5 transition-all group"
+                                                title="Dismiss this task"
+                                            >
+                                                <XCircle size={14} className="group-hover:text-white" />
+                                                Dismiss
+                                            </button>
+                                        </div>
                                     </div>
                                 )}
                             </div>

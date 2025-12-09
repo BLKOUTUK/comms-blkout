@@ -1,0 +1,495 @@
+{
+  "campaign": {
+    "name": "Let's Go OUT OUT This Christmas",
+    "slug": "outout-christmas-2024",
+    "start_date": "2024-12-01",
+    "end_date": "2024-12-24",
+    "tagline": "25 days of Black queer joy across the UK",
+    "mission": "Combat seasonal isolation among Black queer men through community-curated events and liberation technology",
+    "voice": "IVOR Cummings channeled through WEAVER agent - Noël Coward with more jazz, sophisticated wit meets Black British warmth",
+    "signature_phrases": [
+      "Dear boy, let me tell you...",
+      "The ancestors and IVOR Cummings would want you to know...",
+      "Let's go OUT OUT, dear boy"
+    ]
+  },
+
+  "content_calendar": [
+    {
+      "date": "2024-12-01",
+      "day_of_campaign": 1,
+      "platforms": {
+        "twitter": [
+          {
+            "time": "09:00",
+            "type": "thread",
+            "priority": "critical",
+            "content_title": "Launch Thread",
+            "content_preview": "Let's Go OUT OUT This Christmas - A thread on joy, resistance, and 25 days of liberation technology",
+            "tweet_count": 12,
+            "first_tweet": "🧵 Let's Go OUT OUT This Christmas\n\nDear boy, let me tell you about the Christmas isolation narrative that affects Black queer men in the UK - and how we're about to obliterate it.\n\nA thread on joy, resistance, and 25 days of liberation technology 👇🏾\n\n1/12",
+            "hashtags": ["#OutOutChristmas", "#BLKOUT"],
+            "cta": "comms-blkout.vercel.app/discover",
+            "media": ["christmas_ident_video.mp4"],
+            "engagement_goal": "awareness",
+            "target_reach": 5000
+          },
+          {
+            "time": "15:00",
+            "type": "single",
+            "priority": "high",
+            "content_title": "Window 1 Reveal",
+            "content": "🎁 TODAY'S WINDOW IS OPEN 🎁\n\nDay 1: World AIDS Day Weekend\n📍 London\n🕐 8pm\n\nA moment of remembrance, celebration & community solidarity, dear boy.\n\nRSVP: comms-blkout.vercel.app/discover\n\n#OutOutChristmas #BLKOUT #WorldAIDSDay",
+            "hashtags": ["#OutOutChristmas", "#BLKOUT", "#WorldAIDSDay"],
+            "media": ["window_1_graphic.jpg"],
+            "engagement_goal": "rsvp",
+            "target_reach": 2000
+          },
+          {
+            "time": "20:00",
+            "type": "single",
+            "priority": "medium",
+            "content_title": "Evening Check-In",
+            "content": "Evening check-in, dear boy 🌙\n\nHow are you really doing this festive season?\n\nRemember:\n→ You're not alone\n→ Your joy matters\n→ Community is one click away\n\nTomorrow's window opens at noon.\nSleep well 💛\n\n#OutOutChristmas",
+            "hashtags": ["#OutOutChristmas"],
+            "engagement_goal": "connection",
+            "target_reach": 1000
+          }
+        ],
+        "instagram": [
+          {
+            "time": "11:00",
+            "type": "carousel",
+            "priority": "critical",
+            "content_title": "Hero Campaign Launch",
+            "slide_count": 5,
+            "slides": [
+              {
+                "slide_number": 1,
+                "type": "hero",
+                "visual": "christmas_ident_video_thumbnail.jpg",
+                "text": "Let's Go OUT OUT This Christmas ✨\n\nThe festive season can feel isolating, dear boy.\nBut not this year. Not for us.\n\n📅 25 days of Black queer joy\n🎄 Community gatherings across the UK\n💛 Because isolation ends when we step OUT\n\nSwipe to discover what the ancestors and IVOR Cummings would want you to know →"
+              },
+              {
+                "slide_number": 2,
+                "type": "education",
+                "visual": "why_this_matters_graphic.jpg",
+                "text": "Why This Matters 🏳️‍🌈\n\n\"The Christmas isolation narrative affects Black queer men disproportionately.\n\nWe face racism in gay spaces.\nHomophobia in Black spaces.\nAnd the myth that we don't 'do Christmas.'\n\nLet me tell you something, dear boy:\nOur joy is revolutionary.\nOur gathering is resistance.\nOur community is liberation.\n\n#OutOutChristmas\""
+              },
+              {
+                "slide_number": 3,
+                "type": "how_it_works",
+                "visual": "advent_calendar_visual.jpg",
+                "text": "Your Advent Calendar of Liberation 🎁\n\n✨ 25 windows = 25 events\n🗓️ December 1-24\n🌍 London • Manchester • Birmingham • Bristol\n💻 In-person & virtual options\n\nEach day reveals:\n→ Community gatherings\n→ Black queer celebrations\n→ Safe spaces to connect\n→ Brothers waiting to meet you\n\nClick the link in bio to open today's window"
+              },
+              {
+                "slide_number": 4,
+                "type": "events_preview",
+                "visual": "week_1_events_graphic.jpg",
+                "text": "Week 1 Highlights ⭐\n\nDec 1: World AIDS Day Weekend (8pm)\nDec 2: Memory In The Making Workshop (6pm)\nDec 3: Black Men-Talk Health (6:15pm)\nDec 5: Queer Edge Late (8pm)\nDec 6: Soft Like Us (11:30am)\n\nFull calendar → blkoutuk.com/discover\n\n#BlackQueerJoy #UKBlackPride"
+              },
+              {
+                "slide_number": 5,
+                "type": "cta",
+                "visual": "cta_graphic.jpg",
+                "text": "Step OUT with Us 🚶🏾‍♂️\n\n👉 Visit: comms-blkout.vercel.app/discover\n👉 Click ANY window on the calendar\n👉 RSVP to events that call to you\n👉 Tag a brother who needs this\n\nBecause the ancestors and IVOR Cummings didn't fight for us to spend Christmas alone.\n\nLet's go OUT OUT, dear boy.\n\n#OutOutChristmas #BLKOUT #CommunityOwned"
+              }
+            ],
+            "caption": "Let's Go OUT OUT This Christmas ✨🎄\n\nDear boy, let me tell you something the ancestors and IVOR Cummings would want you to know: the festive season doesn't have to mean isolation.\n\nThis December, we're opening 25 windows of Black queer joy across the UK. From World AIDS Day Weekend to Queer Edge Late, from wellness workshops to creative gatherings - we're creating space for connection, celebration, and community.\n\nBecause our joy is revolutionary. Our gathering is resistance. And our community is liberation.\n\n🎁 25 days of events\n🌍 London, Manchester, Birmingham, Bristol & beyond\n💛 For and by Black queer men in the UK\n🏳️‍🌈 Safe spaces, no racism, all welcome\n\nClick the link in bio to discover today's event. Tag a brother who needs to know they're not spending Christmas alone.\n\nLet's go OUT OUT, dear boy.",
+            "hashtags": ["#OutOutChristmas", "#BLKOUT", "#BlackQueerJoy", "#UKBlackPride", "#CommunityOwned", "#ForAndByUs", "#LiberationTechnology", "#ChristmasEvents", "#UKEvents", "#BlackQueerMen", "#OutOUT2024", "#AdventCalendar", "#CommunityCalendar"],
+            "cta": "Link in bio",
+            "engagement_goal": "awareness + rsvp",
+            "target_reach": 10000
+          },
+          {
+            "time": "14:00",
+            "type": "stories",
+            "priority": "high",
+            "content_title": "Advent Calendar Tutorial",
+            "story_count": 3,
+            "stories": [
+              {
+                "story_number": 1,
+                "type": "video",
+                "content": "christmas_ident_3s.mp4",
+                "duration": 3,
+                "stickers": []
+              },
+              {
+                "story_number": 2,
+                "type": "text_overlay",
+                "content": "Feeling the Christmas loneliness?",
+                "background": "blkout_red",
+                "duration": 3
+              },
+              {
+                "story_number": 3,
+                "type": "text_overlay",
+                "content": "Not this year, dear boy 💛",
+                "background": "warm_gold",
+                "duration": 3,
+                "stickers": ["link"]
+              }
+            ],
+            "engagement_goal": "discovery",
+            "target_reach": 3000
+          },
+          {
+            "time": "19:00",
+            "type": "reel",
+            "priority": "high",
+            "content_title": "Campaign Explainer Reel",
+            "duration": 60,
+            "hook": "POV: You thought you'd spend Christmas alone",
+            "audio": "uk_afrobeats_christmas_remix.mp3",
+            "hashtags": ["#OutOutChristmas", "#BLKOUT", "#BlackQueerJoy", "#UKBlackPride", "#Reels"],
+            "caption": "The ancestors said NOT ON OUR WATCH 💛\n\n25 days. 25 events. Zero loneliness.\n\nLink in bio to discover today's window, dear boy.\n\n#OutOutChristmas #BlackQueerJoy",
+            "engagement_goal": "viral awareness",
+            "target_reach": 15000
+          }
+        ],
+        "linkedin": [],
+        "tiktok": [
+          {
+            "time": "17:00",
+            "type": "video",
+            "priority": "high",
+            "content_title": "Intergenerational Bridge",
+            "duration": 60,
+            "hook": "My mum asking why I'm going out AGAIN in December",
+            "audio": "uk_afrobeats_christmas.mp3",
+            "hashtags": ["#OutOutChristmas", "#BlackQueerTikTok", "#UKBlackPride", "#IntergenerationalHealing", "#ChristmasButMakeItQueer"],
+            "caption": "Intergenerational healing through Black queer joy 💛 Link in bio for the full calendar",
+            "engagement_goal": "education + awareness",
+            "target_reach": 20000
+          }
+        ]
+      }
+    }
+  ],
+
+  "socialsync_agent_tasks": [
+    {
+      "agent_type": "weaver",
+      "title": "Daily community engagement responses",
+      "description": "Respond to comments and messages across all platforms using IVOR's voice. Prioritize building connection and addressing safety concerns.",
+      "priority": "high",
+      "status": "recurring",
+      "target_platform": "all",
+      "frequency": "3x daily (morning, afternoon, evening)",
+      "suggested_config": {
+        "response_time_sla": "2 hours",
+        "tone": "warm, inviting, IVOR voice",
+        "templates": "use engagement_response_templates",
+        "escalation": "safety concerns to moderation team immediately"
+      }
+    },
+    {
+      "agent_type": "weaver",
+      "title": "Week 1 content calendar execution",
+      "description": "Post all scheduled content for Week 1 (Dec 1-7) across Instagram, Twitter, LinkedIn, and TikTok according to optimal timing strategy.",
+      "priority": "critical",
+      "status": "pending",
+      "target_platform": "instagram,twitter,linkedin,tiktok",
+      "suggested_config": {
+        "schedule": "week_1_schedule",
+        "approval_required": true,
+        "cross_platform_amplification": true
+      }
+    },
+    {
+      "agent_type": "strategist",
+      "title": "Monitor campaign metrics and optimize posting times",
+      "description": "Track engagement metrics across all platforms and adjust posting schedule for Week 2 based on performance data.",
+      "priority": "medium",
+      "status": "pending",
+      "target_platform": "all",
+      "suggested_config": {
+        "metrics_to_track": ["reach", "engagement_rate", "rsvp_clicks", "sentiment"],
+        "optimization_frequency": "weekly",
+        "report_to": "community_governance"
+      }
+    },
+    {
+      "agent_type": "listener",
+      "title": "Monitor #OutOutChristmas sentiment and trends",
+      "description": "Track all mentions of campaign hashtag, identify trending conversations, and surface community feedback for strategic response.",
+      "priority": "medium",
+      "status": "recurring",
+      "target_platform": "twitter,instagram,tiktok",
+      "frequency": "daily",
+      "suggested_config": {
+        "sentiment_analysis": true,
+        "trend_alerts": true,
+        "competitor_monitoring": false,
+        "community_voice_amplification": true
+      }
+    }
+  ],
+
+  "hashtag_strategy": {
+    "instagram": {
+      "primary_always_use": ["#OutOutChristmas", "#BLKOUT", "#BlackQueerJoy"],
+      "secondary_rotate_5_to_7": [
+        "#UKBlackPride",
+        "#BlackQueerMen",
+        "#CommunityOwned",
+        "#LiberationTechnology",
+        "#ForAndByUs",
+        "#UKEvents",
+        "#LondonEvents",
+        "#BlackQueerUK",
+        "#QueerChristmas",
+        "#AdventCalendar2024"
+      ],
+      "niche_2_to_3_content_specific": [
+        "#WorldAIDSDay",
+        "#MentalHealthMatters",
+        "#BlackMensMentalHealth",
+        "#QueerWellness",
+        "#UKNightlife",
+        "#BlackCreatives",
+        "#QueerArt",
+        "#BlackJoy",
+        "#UKQueer"
+      ]
+    },
+    "twitter": {
+      "always_use": ["#OutOutChristmas", "#BLKOUT"],
+      "rotate": [
+        "#BlackQueerJoy",
+        "#UKBlackPride",
+        "#BlackQueerMen",
+        "#CommunityOwned",
+        "#LiberationTech",
+        "#QueerUK",
+        "#BlackUK"
+      ]
+    },
+    "linkedin": {
+      "professional_always": ["#SocialInnovation", "#CommunityOwnership", "#CooperativeTech"],
+      "impact_rotate": [
+        "#DigitalInclusion",
+        "#MentalHealth",
+        "#LGBTQInclusion",
+        "#UKTech",
+        "#SocialJustice",
+        "#LiberationTechnology",
+        "#EthicalTech",
+        "#TechForGood"
+      ]
+    },
+    "tiktok": {
+      "viral_potential": [
+        "#OutOutChristmas",
+        "#BlackQueerTikTok",
+        "#UKBlackPride",
+        "#ChristmasButMakeItQueer",
+        "#BlackQueerJoy"
+      ],
+      "community": ["#QueerUK", "#BlackTikTok", "#LGBTQUK", "#QueerCommunity", "#BlackQueerMen"]
+    }
+  },
+
+  "optimal_posting_times": {
+    "instagram": {
+      "peak_times_gmt": ["11:00", "14:00", "19:00"],
+      "best_days": ["Monday", "Wednesday", "Friday"],
+      "avoid": ["Late night after 22:00", "Early morning before 09:00"]
+    },
+    "twitter": {
+      "peak_times_gmt": ["09:00", "15:00", "20:00"],
+      "best_days": ["Monday", "Tuesday", "Thursday"],
+      "avoid": ["Weekend mornings", "After 23:00"]
+    },
+    "linkedin": {
+      "peak_times_gmt": ["08:00", "12:00", "17:00"],
+      "best_days": ["Tuesday", "Wednesday", "Thursday"],
+      "avoid": ["Weekends", "Evenings after 18:00"]
+    },
+    "tiktok": {
+      "peak_times_gmt": ["17:00", "18:00", "19:00"],
+      "best_days": ["Every day (high-frequency platform)"],
+      "avoid": ["Early morning before 10:00"]
+    }
+  },
+
+  "engagement_response_templates": {
+    "positive_comments": [
+      {
+        "template_id": "warm_inviting",
+        "content": "Dear boy, this warms our hearts! 💛 Which event are you most excited for? We'd love to see you OUT there. - IVOR",
+        "use_when": "General positive feedback"
+      },
+      {
+        "template_id": "community_building",
+        "content": "The ancestors and IVOR Cummings are smiling, brother. See you at [specific event mentioned]? Bring a friend! 🎄",
+        "use_when": "Comment mentions specific event"
+      },
+      {
+        "template_id": "informative",
+        "content": "Thank you for the love! All events are free and open to Black queer men in the UK. Link in bio has the full calendar. Welcome home, dear boy. ✨",
+        "use_when": "Positive but seems new to BLKOUT"
+      }
+    ],
+    "questions_about_access": [
+      {
+        "template_id": "accessibility",
+        "content": "Brilliant question! [Event name] is wheelchair accessible / has BSL interpretation / offers virtual option. Full accessibility details at [link]. Let us know if you need anything else, dear boy.",
+        "use_when": "Disability access question"
+      },
+      {
+        "template_id": "financial",
+        "content": "All events are completely free, brother. BLKOUT is community-owned and funded by member contributions - no one is ever turned away for lack of funds. You belong here. 💛",
+        "use_when": "Questions about cost"
+      },
+      {
+        "template_id": "geographic",
+        "content": "We have events across London, Manchester, Birmingham, and Bristol, plus virtual options for those outside these cities! Check the full calendar: [link]",
+        "use_when": "Questions about location"
+      }
+    ],
+    "concerns_about_safety": [
+      {
+        "template_id": "racism_free_commitment",
+        "content": "Safety is our foundation. All BLKOUT spaces are explicitly anti-racist and for Black queer men by Black queer men. We don't tolerate racism, and you'll never be the only Black person in the room. Promise.",
+        "use_when": "Concerns about racism in gay spaces"
+      },
+      {
+        "template_id": "homophobia_free_commitment",
+        "content": "These are explicitly Black queer spaces, dear boy. No explaining yourself, no code-switching, no homophobia. Just brothers being brothers. You're safe here. 🏳️‍🌈",
+        "use_when": "Concerns about homophobia"
+      },
+      {
+        "template_id": "first_time_nerves",
+        "content": "First time nerves are real and valid! Would it help to know that 60% of attendees at our events are also first-timers? You won't be alone. Plus, our team members wear [identifier] and are happy to welcome you personally. 💛",
+        "use_when": "Nervous about attending first event"
+      }
+    ],
+    "criticism_or_concerns": [
+      {
+        "template_id": "acknowledge_and_learn",
+        "content": "Thank you for this feedback, brother. BLKOUT is community-governed, and your voice matters. Could you DM us with more details so we can bring this to the member governance meeting? We're here to serve the community, and that means listening.",
+        "use_when": "Constructive criticism"
+      },
+      {
+        "template_id": "transparency",
+        "content": "This is an important point. Our governance structure means all decisions are made democratically by Black queer men members. We'd love to hear more about your concerns in a community forum. DM for details?",
+        "use_when": "Questions about decision-making"
+      },
+      {
+        "template_id": "accountability",
+        "content": "You're right to hold us accountable. We're not perfect, but we're committed to doing better. Can we chat more about this? Your insight could help us serve our brothers better.",
+        "use_when": "Valid complaint about service/experience"
+      }
+    ],
+    "allies_non_target_audience": [
+      {
+        "template_id": "grateful_but_boundaried",
+        "content": "We appreciate your support! BLKOUT events are specifically for Black queer men, but you can support by:\n1) Sharing this with Black queer men in your life\n2) Following and amplifying our content\n3) Donating to the platform (link in bio)\nThank you for respecting our space 🙏🏾",
+        "use_when": "Allies asking to attend events"
+      },
+      {
+        "template_id": "redirecting",
+        "content": "Thank you for the love! These events are for Black queer men, but we'd encourage you to support [relevant allied organization] doing similar work for [their community]. Solidarity means supporting specific spaces, not demanding access to all of them. 💛",
+        "use_when": "Non-Black or non-queer individuals wanting access"
+      }
+    ]
+  },
+
+  "cross_platform_amplification": {
+    "strategy": "Coordinated posting with staggered timing to maximize reach across platforms while maintaining platform-specific optimization",
+    "workflow": [
+      {
+        "step": 1,
+        "action": "Primary platform post (Instagram)",
+        "timing": "11:00 GMT",
+        "follow_up": "Share to Instagram stories within 5 minutes"
+      },
+      {
+        "step": 2,
+        "action": "Twitter thread or single tweet",
+        "timing": "Within 2 hours of Instagram post",
+        "follow_up": "Pin if high-priority content"
+      },
+      {
+        "step": 3,
+        "action": "LinkedIn professional framing",
+        "timing": "Same day or next business day",
+        "follow_up": "Engage with comments for 48 hours"
+      },
+      {
+        "step": 4,
+        "action": "TikTok video",
+        "timing": "Evening (17:00-19:00 GMT)",
+        "follow_up": "Cross-post to Instagram Reels"
+      },
+      {
+        "step": 5,
+        "action": "Repost user-generated content",
+        "timing": "Throughout day as it appears",
+        "follow_up": "Always credit original creator"
+      }
+    ],
+    "friday_event_nights": {
+      "pre_event": "Morning + afternoon hype posts across all platforms",
+      "during_event": "Live Instagram/TikTok stories",
+      "post_event": "Saturday morning recap with professional photos on LinkedIn"
+    },
+    "weekend_strategy": {
+      "saturday": "Recap posts across all platforms",
+      "sunday": "Gratitude + next week preview",
+      "ongoing": "Compile week's best moments into permanent highlight content"
+    }
+  },
+
+  "ivor_voice_guidelines": {
+    "core_personality": "Noël Coward with more jazz - sophisticated wit meets Black British warmth",
+    "signature_openings": [
+      "Dear boy, let me tell you...",
+      "The ancestors and IVOR Cummings would want you to know...",
+      "Let's be quite clear about this, dear boy..."
+    ],
+    "tone_attributes": [
+      "Warm but sophisticated",
+      "Witty without being cruel",
+      "Direct while being kind",
+      "Revolutionary while being accessible",
+      "British without being stuffy",
+      "Queer without apologizing"
+    ],
+    "language_patterns": [
+      "Uses 'dear boy' as term of endearment",
+      "References 'the ancestors' to connect past and present",
+      "UK English spelling (colour, honour, organisation)",
+      "Occasional jazz/cultural references",
+      "Direct address to build intimacy"
+    ],
+    "avoid": [
+      "Corporate jargon",
+      "Americanisms (unless culturally specific)",
+      "Overly formal language",
+      "Talking down to community",
+      "Erasure of Black queer specificity"
+    ]
+  },
+
+  "success_metrics": {
+    "week_1_targets": {
+      "total_reach": 50000,
+      "engagement_rate": "5%+",
+      "rsvp_clicks": 500,
+      "event_attendance": 100,
+      "community_sentiment": "85%+ positive",
+      "ugc_created": 20
+    },
+    "campaign_total_targets": {
+      "total_reach": 200000,
+      "new_platform_members": 500,
+      "total_event_attendees": 1000,
+      "reduced_isolation_self_reported": "75%+",
+      "media_mentions": 10,
+      "partner_organizations_engaged": 15
+    }
+  }
+}

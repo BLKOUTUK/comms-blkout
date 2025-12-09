@@ -16,16 +16,32 @@ export const fetchAgentTasks = async (): Promise<AgentTask[]> => {
             const tasks = await SupabaseService.fetchAgentTasks();
 
             // Transform Supabase tasks to match our AgentTask type
-            return tasks.map(task => ({
-                id: task.id,
-                agentName: mapAgentType(task.agent_type),
-                title: task.title,
-                description: task.description || '',
-                priority: task.priority.toUpperCase() as 'HIGH' | 'MEDIUM' | 'LOW',
-                timestamp: new Date(task.created_at).getTime(),
-                targetPlatform: mapPlatform(task.target_platform),
-                suggestedConfig: task.suggested_config as any,
-            }));
+            return tasks.map(task => {
+                const config = task.suggested_config || {};
+
+                // Normalize suggested_config to expected format
+                // Handle both new format (from AgentPromptModal) and legacy format
+                const normalizedConfig = {
+                    mediaType: config.mediaType || MediaType.IMAGE,
+                    prompt: config.prompt || config.originalPrompt || task.description || '',
+                    aspectRatio: config.aspectRatio || '1:1',
+                    style: config.style || 'No Style',
+                    videoStyle: config.videoStyle || 'Natural',
+                    overlayText: config.overlayText || '',
+                    referenceImageUrl: config.referenceImageUrl,
+                };
+
+                return {
+                    id: task.id,
+                    agentName: mapAgentType(task.agent_type),
+                    title: task.title,
+                    description: task.description || config.originalPrompt || '',
+                    priority: task.priority.toUpperCase() as 'HIGH' | 'MEDIUM' | 'LOW',
+                    timestamp: new Date(task.created_at).getTime(),
+                    targetPlatform: mapPlatform(task.target_platform),
+                    suggestedConfig: normalizedConfig,
+                };
+            });
         } catch (error) {
             console.error('[Integration Service] Error fetching from Supabase:', error);
             // Fallback to mock data
@@ -93,6 +109,47 @@ export const pushToAutomation = async (
 
     // Simulate API upload and queueing for mock mode
     await new Promise(resolve => setTimeout(resolve, 1500));
+    return true;
+};
+
+/**
+ * Dismiss/reject an agent task
+ */
+export const dismissAgentTask = async (
+    taskId: string,
+    _reason?: string
+): Promise<boolean> => {
+    console.log(`[Integration Service] Dismissing task ${taskId}...`);
+
+    if (USE_SUPABASE) {
+        try {
+            await SupabaseService.updateAgentTaskStatus(taskId, 'cancelled');
+            console.log(`[Integration Service] Task ${taskId} dismissed successfully`);
+            return true;
+        } catch (error) {
+            console.error('[Integration Service] Error dismissing task:', error);
+            throw error;
+        }
+    }
+
+    // Mock mode - just return success
+    await new Promise(resolve => setTimeout(resolve, 500));
+    return true;
+};
+
+/**
+ * Mark task as in progress
+ */
+export const markTaskInProgress = async (taskId: string): Promise<boolean> => {
+    if (USE_SUPABASE) {
+        try {
+            await SupabaseService.updateAgentTaskStatus(taskId, 'in_progress');
+            return true;
+        } catch (error) {
+            console.error('[Integration Service] Error updating task:', error);
+            throw error;
+        }
+    }
     return true;
 };
 

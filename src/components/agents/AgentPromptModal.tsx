@@ -77,6 +77,17 @@ const AGENT_DETAILS: Record<AgentType, { name: string; description: string; icon
       'Summarize this week\'s events...',
     ],
   },
+  concierge: {
+    name: 'Concierge',
+    description: 'Provides personalized member support, onboarding guidance, and helps navigate community resources.',
+    icon: '🛎️',
+    promptHints: [
+      'Welcome a new member and guide them to...',
+      'Help a member find resources about...',
+      'Create an onboarding journey for...',
+      'Connect a member with opportunities in...',
+    ],
+  },
 };
 
 const PLATFORMS: { value: PlatformType | 'email' | 'all'; label: string }[] = [

@@ -13,6 +13,8 @@ const platformConfig = {
     color: 'bg-gradient-to-r from-purple-500 to-pink-500',
     description: 'Share images and reels with your community',
     docsUrl: 'https://developers.facebook.com/docs/instagram-api',
+    pendingVerification: true,
+    verificationMessage: 'Pending Meta business verification',
   },
   [SocialPlatform.TIKTOK]: {
     icon: '🎵',
@@ -200,7 +202,22 @@ export function Settings() {
                             </a>
                           )}
 
-                          {connection?.isConfigured && (
+                          {/* Show pending verification status for platforms like Instagram */}
+                          {'pendingVerification' in config && config.pendingVerification && !connection?.isConnected ? (
+                            <div className="flex items-center gap-2">
+                              <span className="text-xs px-3 py-1.5 bg-amber-100 text-amber-800 rounded-full font-medium">
+                                {config.verificationMessage || 'Pending verification'}
+                              </span>
+                              <a
+                                href={config.docsUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-xs text-gray-500 hover:text-gray-700"
+                              >
+                                <ExternalLink size={14} />
+                              </a>
+                            </div>
+                          ) : connection?.isConfigured && (
                             <button
                               onClick={() =>
                                 connection.isConnected

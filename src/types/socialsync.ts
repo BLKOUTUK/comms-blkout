@@ -47,9 +47,14 @@ export enum VideoResolution {
 }
 
 export enum ExportFormat {
+  // Image formats
+  PNG = 'png',
+  JPG = 'jpg',
+  WEBP = 'webp',
+  // Video formats
   MP4 = 'mp4',
   MOV = 'mov',
-  AVI = 'avi'
+  WEBM = 'webm'
 }
 
 export enum OverlayAnimation {

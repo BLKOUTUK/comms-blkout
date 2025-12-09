@@ -25,7 +25,7 @@ import {
   blobToBase64,
   urlToBase64
 } from '@/services/socialsync/generation';
-import { fetchAgentTasks, pushToAutomation } from '@/services/socialsync/integration';
+import { fetchAgentTasks, pushToAutomation, dismissAgentTask } from '@/services/socialsync/integration';
 import { AlertTriangle, PanelLeft, PanelRight, Wifi, ArrowLeft } from 'lucide-react';
 import { PROJECT_TEMPLATES } from '@/components/socialsync/constants';
 import { Link } from 'react-router-dom';
@@ -135,6 +135,20 @@ export function SocialSync() {
     }
 
     setIsLibraryOpen(false);
+  };
+
+  const handleDismissTask = async (taskId: string) => {
+    try {
+      await dismissAgentTask(taskId);
+      // Remove the task from the local state
+      setAgentTasks(prev => prev.filter(task => task.id !== taskId));
+      // Clear current task if it was the dismissed one
+      if (currentTask?.id === taskId) {
+        setCurrentTask(null);
+      }
+    } catch (error) {
+      console.error('Failed to dismiss task:', error);
+    }
   };
 
   const handleLogoUpload = (file: File) => {
@@ -298,6 +312,7 @@ export function SocialSync() {
             onRemoveTag={removeTag}
             onApplyTemplate={handleApplyTemplate}
             onSelectAgentTask={handleSelectAgentTask}
+            onDismissTask={handleDismissTask}
             onClose={() => setIsLibraryOpen(false)}
           />
         </div>
