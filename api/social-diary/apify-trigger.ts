@@ -101,12 +101,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     outsavvy: { triggered: false, runId: '', error: '' }
   };
 
-  // Trigger Instagram scraper
+  // Trigger Instagram scraper (using apify~instagram-scraper - the main one)
   const instagramResult = await triggerApifyActor(
-    'apify/instagram-profile-scraper',
+    'apify~instagram-scraper',
     {
-      usernames: INSTAGRAM_ACCOUNTS,
-      resultsLimit: 10
+      directUrls: INSTAGRAM_ACCOUNTS.map(u => `https://www.instagram.com/${u}/`),
+      resultsLimit: 10,
+      resultsType: 'posts'
     },
     'Instagram'
   );
@@ -116,12 +117,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     error: instagramResult.error || ''
   };
 
-  // Trigger Eventbrite scraper
+  // Trigger Eventbrite scraper (newpo~eventbrite-scraper)
   const eventbriteResult = await triggerApifyActor(
-    'voyager/eventbrite-scraper',
+    'newpo~eventbrite-scraper',
     {
-      searchQueries: EVENTBRITE_SEARCHES,
-      location: 'United Kingdom',
+      startUrls: EVENTBRITE_SEARCHES.map(q => ({
+        url: `https://www.eventbrite.co.uk/d/united-kingdom/${encodeURIComponent(q)}/`
+      })),
       maxItems: 50
     },
     'Eventbrite'
@@ -132,9 +134,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     error: eventbriteResult.error || ''
   };
 
-  // Trigger Outsavvy scraper (web scraper)
+  // Trigger Outsavvy scraper (using cheerio-scraper)
   const outsavvyResult = await triggerApifyActor(
-    'apify/cheerio-scraper',
+    'apify~cheerio-scraper',
     {
       startUrls: [
         { url: 'https://www.outsavvy.com/search?q=black+lgbtq' },
