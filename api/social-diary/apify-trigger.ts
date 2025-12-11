@@ -117,14 +117,31 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     error: instagramResult.error || ''
   };
 
-  // Trigger Eventbrite scraper (newpo~eventbrite-scraper)
+  // Trigger Eventbrite scraper (using cheerio-scraper for Eventbrite since paid actors need rental)
   const eventbriteResult = await triggerApifyActor(
-    'newpo~eventbrite-scraper',
+    'apify~cheerio-scraper',
     {
       startUrls: EVENTBRITE_SEARCHES.map(q => ({
         url: `https://www.eventbrite.co.uk/d/united-kingdom/${encodeURIComponent(q)}/`
       })),
-      maxItems: 50
+      pageFunction: `async function pageFunction(context) {
+        const { $, request } = context;
+        const events = [];
+
+        $('[data-testid="event-card"], .search-event-card, .eds-event-card').each((i, el) => {
+          const $el = $(el);
+          events.push({
+            name: $el.find('[data-testid="event-card-title"], .eds-event-card__formatted-name, h2, h3').first().text().trim(),
+            url: $el.find('a[href*="/e/"]').first().attr('href'),
+            date: $el.find('[data-testid="event-card-date"], .eds-event-card-content__sub-title').first().text().trim(),
+            venue: $el.find('[data-testid="event-card-location"], .card-text--truncated__two').first().text().trim(),
+            price: $el.find('[data-testid="event-card-price"], .eds-event-card-content__primary-content').last().text().trim()
+          });
+        });
+
+        return events.filter(e => e.name && e.url);
+      }`,
+      maxPagesPerCrawl: 30
     },
     'Eventbrite'
   );
