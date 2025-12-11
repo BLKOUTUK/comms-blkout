@@ -6,6 +6,7 @@ const SUPABASE_URL = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL;
 const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const LINKEDIN_ACCESS_TOKEN = process.env.LINKEDIN_ACCESS_TOKEN;
 const LINKEDIN_ORGANIZATION_ID = process.env.LINKEDIN_ORGANIZATION_ID;
+const TWITTER_BEARER_TOKEN = process.env.TWITTER_BEARER_TOKEN;
 
 // Initialize Supabase
 const supabase = SUPABASE_URL && SUPABASE_SERVICE_KEY
@@ -73,6 +74,42 @@ async function publishToLinkedIn(post: QueuedPost): Promise<{ success: boolean; 
 
   } catch (error) {
     console.error('[LinkedIn] Error:', error);
+    return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
+  }
+}
+
+// Publish to Twitter/X
+async function publishToTwitter(post: QueuedPost): Promise<{ success: boolean; postId?: string; error?: string }> {
+  if (!TWITTER_BEARER_TOKEN) {
+    return { success: false, error: 'Twitter credentials not configured' };
+  }
+
+  try {
+    const tweetText = `${post.caption}\n\n${post.hashtags.map(h => `#${h}`).join(' ')}`;
+
+    // Twitter API v2 - Create tweet
+    const response = await fetch('https://api.twitter.com/2/tweets', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${TWITTER_BEARER_TOKEN}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        text: tweetText
+      })
+    });
+
+    if (!response.ok) {
+      const errorData = await response.text();
+      console.error('[Twitter] Publish failed:', errorData);
+      return { success: false, error: `Twitter API error: ${response.status}` };
+    }
+
+    const data = await response.json();
+    return { success: true, postId: data.data.id };
+
+  } catch (error) {
+    console.error('[Twitter] Error:', error);
     return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
   }
 }
@@ -185,8 +222,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           break;
 
         case 'twitter':
-          // Twitter API v2 - implement when credentials ready
-          result = { success: false, error: 'Twitter publishing not yet implemented' };
+          result = await publishToTwitter(post);
           break;
 
         default:
@@ -213,6 +249,66 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     console.log(`[Publish] Complete: ${successful} published, ${failed} failed`);
 
+    // Step 2: Collect analytics for recently published posts (last 7 days)
+    let analyticsCount = 0;
+    try {
+      const sevenDaysAgo = new Date();
+      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+
+      const { data: recentPosts } = await supabase
+        .from('social_media_queue')
+        .select('id, platform, platform_post_id')
+        .eq('status', 'published')
+        .not('platform_post_id', 'is', null)
+        .gte('published_at', sevenDaysAgo.toISOString());
+
+      if (recentPosts && recentPosts.length > 0) {
+        console.log(`[Analytics] Syncing metrics for ${recentPosts.length} recent posts`);
+
+        for (const post of recentPosts) {
+          if (post.platform === 'linkedin' && LINKEDIN_ACCESS_TOKEN && post.platform_post_id) {
+            try {
+              const metricsResponse = await fetch(
+                `https://api.linkedin.com/v2/socialActions/${post.platform_post_id}?count=true`,
+                {
+                  headers: {
+                    'Authorization': `Bearer ${LINKEDIN_ACCESS_TOKEN}`,
+                    'X-Restli-Protocol-Version': '2.0.0'
+                  }
+                }
+              );
+
+              if (metricsResponse.ok) {
+                const metrics = await metricsResponse.json();
+                const likes = metrics.likesSummary?.totalLikes || 0;
+                const comments = metrics.commentsSummary?.totalFirstLevelComments || 0;
+
+                // Calculate connection score
+                const connectionScore = Math.min(100, Math.round(((comments * 3) + (likes * 1)) / 50 * 100));
+
+                await supabase.from('content_analytics').upsert({
+                  queue_id: post.id,
+                  platform: post.platform,
+                  likes,
+                  comments,
+                  shares: 0,
+                  connection_score: connectionScore,
+                  fetched_at: new Date().toISOString()
+                }, { onConflict: 'queue_id' });
+
+                analyticsCount++;
+              }
+            } catch (metricError) {
+              console.error(`[Analytics] Error fetching metrics for ${post.id}:`, metricError);
+            }
+          }
+        }
+        console.log(`[Analytics] Updated metrics for ${analyticsCount} posts`);
+      }
+    } catch (analyticsError) {
+      console.error('[Analytics] Error in analytics sync:', analyticsError);
+    }
+
     return res.status(200).json({
       success: true,
       message: 'Publishing run complete',
@@ -220,6 +316,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         total: posts.length,
         published: successful,
         failed: failed,
+        analyticsUpdated: analyticsCount,
         runDate: new Date().toISOString()
       },
       results
