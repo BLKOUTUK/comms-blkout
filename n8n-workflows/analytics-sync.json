@@ -1,0 +1,380 @@
+{
+  "name": "BLKOUT Analytics Sync",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 6 * * *"
+            }
+          ]
+        }
+      },
+      "id": "schedule-trigger",
+      "name": "Daily 6 AM",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [100, 300]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "=https://bgjengudzfickgomjqmz.supabase.co/rest/v1/social_media_queue",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {"name": "apikey", "value": "={{ $credentials.supabaseApi.apiKey }}"},
+            {"name": "Authorization", "value": "=Bearer {{ $credentials.supabaseApi.apiKey }}"}
+          ]
+        },
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {"name": "status", "value": "eq.published"},
+            {"name": "platform_post_id", "value": "not.is.null"},
+            {"name": "select", "value": "*"},
+            {"name": "published_at", "value": "=gte.{{ $now.minus({days: 7}).toISO() }}"},
+            {"name": "limit", "value": "50"}
+          ]
+        }
+      },
+      "id": "fetch-published",
+      "name": "Fetch Recent Posts",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [300, 300],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "",
+          "name": "Supabase API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Split posts by platform for metric fetching\nconst items = $input.first().json;\n\nif (!Array.isArray(items) || items.length === 0) {\n  return [];\n}\n\nreturn items.map(item => ({\n  json: {\n    queue_id: item.id,\n    platform: item.platform,\n    platform_post_id: item.platform_post_id,\n    published_at: item.published_at,\n    asset_id: item.asset_id\n  }\n}));"
+      },
+      "id": "split-posts",
+      "name": "Split Posts",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [500, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.platform }}",
+              "operation": "equals",
+              "value2": "instagram"
+            }
+          ]
+        }
+      },
+      "id": "route-instagram",
+      "name": "Instagram?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [700, 200]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.platform }}",
+              "operation": "equals",
+              "value2": "linkedin"
+            }
+          ]
+        }
+      },
+      "id": "route-linkedin",
+      "name": "LinkedIn?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [700, 400]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "=https://graph.facebook.com/v18.0/{{ $json.platform_post_id }}/insights",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "oAuth2Api",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {"name": "metric", "value": "engagement,impressions,reach,saved,shares"},
+            {"name": "access_token", "value": "={{ $credentials.instagramBusinessAccount.accessToken }}"}
+          ]
+        }
+      },
+      "id": "ig-fetch-insights",
+      "name": "IG: Fetch Insights",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [900, 100],
+      "credentials": {
+        "oAuth2Api": {
+          "id": "",
+          "name": "Instagram Business OAuth"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "=https://graph.facebook.com/v18.0/{{ $json.platform_post_id }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "oAuth2Api",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {"name": "fields", "value": "like_count,comments_count"},
+            {"name": "access_token", "value": "={{ $credentials.instagramBusinessAccount.accessToken }}"}
+          ]
+        }
+      },
+      "id": "ig-fetch-counts",
+      "name": "IG: Fetch Counts",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [900, 200],
+      "credentials": {
+        "oAuth2Api": {
+          "id": "",
+          "name": "Instagram Business OAuth"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "=https://api.linkedin.com/v2/socialActions/urn:li:share:{{ $json.platform_post_id }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "oAuth2Api",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {"name": "X-Restli-Protocol-Version", "value": "2.0.0"}
+          ]
+        }
+      },
+      "id": "linkedin-fetch-stats",
+      "name": "LinkedIn: Fetch Stats",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [900, 400],
+      "credentials": {
+        "oAuth2Api": {
+          "id": "",
+          "name": "LinkedIn OAuth"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Transform Instagram insights to standard format\nconst insights = $input.first().json.data || [];\nconst counts = $input.last().json || {};\nconst originalData = $('Split Posts').first().json;\n\nconst metricsMap = {};\nfor (const metric of insights) {\n  metricsMap[metric.name] = metric.values?.[0]?.value || 0;\n}\n\nreturn [{\n  json: {\n    queue_id: originalData.queue_id,\n    platform: 'instagram',\n    platform_post_id: originalData.platform_post_id,\n    metrics: {\n      likes: counts.like_count || 0,\n      comments: counts.comments_count || 0,\n      engagement: metricsMap.engagement || 0,\n      impressions: metricsMap.impressions || 0,\n      reach: metricsMap.reach || 0,\n      saved: metricsMap.saved || 0,\n      shares: metricsMap.shares || 0\n    },\n    fetched_at: new Date().toISOString()\n  }\n}];"
+      },
+      "id": "transform-ig-metrics",
+      "name": "Transform IG Metrics",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1100, 150]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Transform LinkedIn stats to standard format\nconst stats = $input.first().json || {};\nconst originalData = $('Split Posts').first().json;\n\nreturn [{\n  json: {\n    queue_id: originalData.queue_id,\n    platform: 'linkedin',\n    platform_post_id: originalData.platform_post_id,\n    metrics: {\n      likes: stats.likesSummary?.totalLikes || 0,\n      comments: stats.commentsSummary?.totalFirstLevelComments || 0,\n      shares: stats.shareStatistics?.shareCount || 0,\n      impressions: stats.totalShareStatistics?.impressionCount || 0,\n      clicks: stats.totalShareStatistics?.clickCount || 0,\n      engagement: stats.totalShareStatistics?.engagementCount || 0\n    },\n    fetched_at: new Date().toISOString()\n  }\n}];"
+      },
+      "id": "transform-linkedin-metrics",
+      "name": "Transform LinkedIn Metrics",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1100, 400]
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineAll",
+        "options": {}
+      },
+      "id": "merge-metrics",
+      "name": "Merge All Metrics",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [1300, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://bgjengudzfickgomjqmz.supabase.co/rest/v1/content_analytics",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {"name": "apikey", "value": "={{ $credentials.supabaseApi.apiKey }}"},
+            {"name": "Authorization", "value": "=Bearer {{ $credentials.supabaseApi.apiKey }}"},
+            {"name": "Prefer", "value": "resolution=merge-duplicates,return=minimal"}
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {"name": "queue_item_id", "value": "={{ $json.queue_id }}"},
+            {"name": "platform", "value": "={{ $json.platform }}"},
+            {"name": "platform_post_id", "value": "={{ $json.platform_post_id }}"},
+            {"name": "likes", "value": "={{ $json.metrics.likes }}"},
+            {"name": "comments", "value": "={{ $json.metrics.comments }}"},
+            {"name": "shares", "value": "={{ $json.metrics.shares || 0 }}"},
+            {"name": "impressions", "value": "={{ $json.metrics.impressions || 0 }}"},
+            {"name": "reach", "value": "={{ $json.metrics.reach || 0 }}"},
+            {"name": "engagement", "value": "={{ $json.metrics.engagement || 0 }}"},
+            {"name": "raw_data", "value": "={{ JSON.stringify($json.metrics) }}"},
+            {"name": "fetched_at", "value": "={{ $json.fetched_at }}"}
+          ]
+        }
+      },
+      "id": "save-analytics",
+      "name": "Save to Supabase",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1500, 300],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "",
+          "name": "Supabase API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Calculate community connection score (BLKOUT methodology)\nconst items = $input.all();\n\nlet totalLikes = 0;\nlet totalComments = 0;\nlet totalShares = 0;\nlet totalImpressions = 0;\n\nfor (const item of items) {\n  const m = item.json.metrics || {};\n  totalLikes += m.likes || 0;\n  totalComments += m.comments || 0;\n  totalShares += m.shares || 0;\n  totalImpressions += m.impressions || 0;\n}\n\n// BLKOUT weighting: Comments (3x) > Shares (2x) > Likes (1x)\n// Focus on meaningful engagement over vanity metrics\nconst connectionScore = (totalComments * 3) + (totalShares * 2) + totalLikes;\nconst engagementRate = totalImpressions > 0 \n  ? ((totalLikes + totalComments + totalShares) / totalImpressions * 100).toFixed(2)\n  : 0;\n\nreturn [{\n  json: {\n    summary: {\n      posts_analyzed: items.length,\n      total_likes: totalLikes,\n      total_comments: totalComments,\n      total_shares: totalShares,\n      total_impressions: totalImpressions,\n      connection_score: connectionScore,\n      engagement_rate: engagementRate + '%',\n      analysis_date: new Date().toISOString().split('T')[0]\n    },\n    methodology: 'BLKOUT Community Connection Score: Comments (3x) + Shares (2x) + Likes (1x)'\n  }\n}];"
+      },
+      "id": "calculate-score",
+      "name": "Calculate Connection Score",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1700, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://bgjengudzfickgomjqmz.supabase.co/rest/v1/analytics_summaries",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {"name": "apikey", "value": "={{ $credentials.supabaseApi.apiKey }}"},
+            {"name": "Authorization", "value": "=Bearer {{ $credentials.supabaseApi.apiKey }}"},
+            {"name": "Prefer", "value": "return=minimal"}
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {"name": "date", "value": "={{ $json.summary.analysis_date }}"},
+            {"name": "posts_count", "value": "={{ $json.summary.posts_analyzed }}"},
+            {"name": "total_likes", "value": "={{ $json.summary.total_likes }}"},
+            {"name": "total_comments", "value": "={{ $json.summary.total_comments }}"},
+            {"name": "total_shares", "value": "={{ $json.summary.total_shares }}"},
+            {"name": "total_impressions", "value": "={{ $json.summary.total_impressions }}"},
+            {"name": "connection_score", "value": "={{ $json.summary.connection_score }}"},
+            {"name": "engagement_rate", "value": "={{ $json.summary.engagement_rate }}"}
+          ]
+        }
+      },
+      "id": "save-summary",
+      "name": "Save Daily Summary",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1900, 300],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "",
+          "name": "Supabase API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "# BLKOUT Analytics Sync\n\n**Purpose**: Fetch engagement metrics from social platforms and calculate Community Connection Score\n\n## Schedule\n- Runs daily at 6 AM\n- Fetches metrics for posts published in last 7 days\n\n## BLKOUT Methodology\n**Community Connection Score** prioritizes meaningful engagement:\n- Comments: 3x weight (conversations matter most)\n- Shares: 2x weight (amplification)\n- Likes: 1x weight (acknowledgment)\n\nThis aligns with BLKOUT's values of 'quality over quantity' and 'moving at the speed of trust'\n\n## Tables Used\n- `social_media_queue` - Published posts\n- `content_analytics` - Per-post metrics\n- `analytics_summaries` - Daily aggregates",
+        "height": 400,
+        "width": 380,
+        "color": 6
+      },
+      "id": "docs-note",
+      "name": "Documentation",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [100, 450]
+    }
+  ],
+  "connections": {
+    "Daily 6 AM": {
+      "main": [[{"node": "Fetch Recent Posts", "type": "main", "index": 0}]]
+    },
+    "Fetch Recent Posts": {
+      "main": [[{"node": "Split Posts", "type": "main", "index": 0}]]
+    },
+    "Split Posts": {
+      "main": [[
+        {"node": "Instagram?", "type": "main", "index": 0},
+        {"node": "LinkedIn?", "type": "main", "index": 0}
+      ]]
+    },
+    "Instagram?": {
+      "main": [
+        [
+          {"node": "IG: Fetch Insights", "type": "main", "index": 0},
+          {"node": "IG: Fetch Counts", "type": "main", "index": 0}
+        ],
+        []
+      ]
+    },
+    "IG: Fetch Insights": {
+      "main": [[{"node": "Transform IG Metrics", "type": "main", "index": 0}]]
+    },
+    "IG: Fetch Counts": {
+      "main": [[{"node": "Transform IG Metrics", "type": "main", "index": 1}]]
+    },
+    "LinkedIn?": {
+      "main": [
+        [{"node": "LinkedIn: Fetch Stats", "type": "main", "index": 0}],
+        []
+      ]
+    },
+    "LinkedIn: Fetch Stats": {
+      "main": [[{"node": "Transform LinkedIn Metrics", "type": "main", "index": 0}]]
+    },
+    "Transform IG Metrics": {
+      "main": [[{"node": "Merge All Metrics", "type": "main", "index": 0}]]
+    },
+    "Transform LinkedIn Metrics": {
+      "main": [[{"node": "Merge All Metrics", "type": "main", "index": 1}]]
+    },
+    "Merge All Metrics": {
+      "main": [[{"node": "Save to Supabase", "type": "main", "index": 0}]]
+    },
+    "Save to Supabase": {
+      "main": [[{"node": "Calculate Connection Score", "type": "main", "index": 0}]]
+    },
+    "Calculate Connection Score": {
+      "main": [[{"node": "Save Daily Summary", "type": "main", "index": 0}]]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "meta": {
+    "templateCredsSetupCompleted": false
+  },
+  "pinData": {}
+}

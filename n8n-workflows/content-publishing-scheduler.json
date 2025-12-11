@@ -1,0 +1,401 @@
+{
+  "name": "BLKOUT Content Publishing Scheduler",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 */2 * * *"
+            }
+          ]
+        }
+      },
+      "id": "schedule-trigger",
+      "name": "Check Every 2 Hours",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [100, 300]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "=https://bgjengudzfickgomjqmz.supabase.co/rest/v1/social_media_queue",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {"name": "apikey", "value": "={{ $credentials.supabaseApi.apiKey }}"},
+            {"name": "Authorization", "value": "=Bearer {{ $credentials.supabaseApi.apiKey }}"}
+          ]
+        },
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {"name": "status", "value": "eq.queued"},
+            {"name": "scheduled_for", "value": "=lte.{{ $now.toISO() }}"},
+            {"name": "select", "value": "*,generated_assets(*)"},
+            {"name": "order", "value": "scheduled_for.asc"},
+            {"name": "limit", "value": "10"}
+          ]
+        }
+      },
+      "id": "fetch-queue",
+      "name": "Fetch Scheduled Posts",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [300, 300],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "",
+          "name": "Supabase API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{ $json.length > 0 }}",
+              "value2": true
+            }
+          ]
+        }
+      },
+      "id": "check-has-posts",
+      "name": "Has Posts?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [500, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Split queue items into individual posts for processing\nconst items = $input.first().json;\n\nif (!Array.isArray(items) || items.length === 0) {\n  return [];\n}\n\nreturn items.map(item => ({\n  json: {\n    queue_id: item.id,\n    asset_id: item.asset_id,\n    platform: item.platform,\n    caption: item.caption,\n    hashtags: item.hashtags || [],\n    scheduled_for: item.scheduled_for,\n    asset: item.generated_assets || {},\n    media_url: item.generated_assets?.url || '',\n    media_type: item.generated_assets?.media_type || 'image'\n  }\n}));"
+      },
+      "id": "split-posts",
+      "name": "Split Posts",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [700, 200]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.platform }}",
+              "operation": "equals",
+              "value2": "instagram"
+            }
+          ]
+        }
+      },
+      "id": "route-instagram",
+      "name": "Instagram?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [900, 100]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.platform }}",
+              "operation": "equals",
+              "value2": "linkedin"
+            }
+          ]
+        }
+      },
+      "id": "route-linkedin",
+      "name": "LinkedIn?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [900, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.platform }}",
+              "operation": "equals",
+              "value2": "twitter"
+            }
+          ]
+        }
+      },
+      "id": "route-twitter",
+      "name": "Twitter?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [900, 500]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://graph.facebook.com/v18.0/{{ $credentials.instagramBusinessAccount.accountId }}/media",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "oAuth2Api",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {"name": "image_url", "value": "={{ $json.media_url }}"},
+            {"name": "caption", "value": "={{ $json.caption }}\\n\\n{{ $json.hashtags.join(' ') }}"},
+            {"name": "access_token", "value": "={{ $credentials.instagramBusinessAccount.accessToken }}"}
+          ]
+        }
+      },
+      "id": "ig-create-container",
+      "name": "IG: Create Media Container",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1100, 0],
+      "credentials": {
+        "oAuth2Api": {
+          "id": "",
+          "name": "Instagram Business OAuth"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://graph.facebook.com/v18.0/{{ $credentials.instagramBusinessAccount.accountId }}/media_publish",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "oAuth2Api",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {"name": "creation_id", "value": "={{ $json.id }}"},
+            {"name": "access_token", "value": "={{ $credentials.instagramBusinessAccount.accessToken }}"}
+          ]
+        }
+      },
+      "id": "ig-publish",
+      "name": "IG: Publish",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1300, 0],
+      "credentials": {
+        "oAuth2Api": {
+          "id": "",
+          "name": "Instagram Business OAuth"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.linkedin.com/v2/ugcPosts",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "oAuth2Api",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {"name": "X-Restli-Protocol-Version", "value": "2.0.0"}
+          ]
+        },
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/json",
+        "body": "={\n  \"author\": \"urn:li:organization:{{ $credentials.linkedinCompanyPage.organizationId }}\",\n  \"lifecycleState\": \"PUBLISHED\",\n  \"specificContent\": {\n    \"com.linkedin.ugc.ShareContent\": {\n      \"shareCommentary\": {\n        \"text\": \"{{ $json.caption }}\\n\\n{{ $json.hashtags.join(' ') }}\"\n      },\n      \"shareMediaCategory\": \"IMAGE\",\n      \"media\": [{\n        \"status\": \"READY\",\n        \"originalUrl\": \"{{ $json.media_url }}\"\n      }]\n    }\n  },\n  \"visibility\": {\n    \"com.linkedin.ugc.MemberNetworkVisibility\": \"PUBLIC\"\n  }\n}"
+      },
+      "id": "linkedin-post",
+      "name": "LinkedIn: Post",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1100, 250],
+      "credentials": {
+        "oAuth2Api": {
+          "id": "",
+          "name": "LinkedIn OAuth"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.twitter.com/2/tweets",
+        "authentication": "oAuth2",
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/json",
+        "body": "={\n  \"text\": \"{{ $json.caption }}\\n\\n{{ $json.hashtags.join(' ') }}\"\n}"
+      },
+      "id": "twitter-post",
+      "name": "Twitter: Post",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1100, 450],
+      "credentials": {
+        "oAuth2Api": {
+          "id": "",
+          "name": "Twitter OAuth"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineAll",
+        "options": {}
+      },
+      "id": "merge-results",
+      "name": "Merge Results",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [1500, 300]
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "=https://bgjengudzfickgomjqmz.supabase.co/rest/v1/social_media_queue?id=eq.{{ $json.queue_id }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {"name": "apikey", "value": "={{ $credentials.supabaseApi.apiKey }}"},
+            {"name": "Authorization", "value": "=Bearer {{ $credentials.supabaseApi.apiKey }}"},
+            {"name": "Prefer", "value": "return=minimal"}
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {"name": "status", "value": "published"},
+            {"name": "published_at", "value": "={{ $now.toISO() }}"},
+            {"name": "platform_post_id", "value": "={{ $json.id || $json.data?.id || '' }}"},
+            {"name": "publish_result", "value": "={{ JSON.stringify($json) }}"}
+          ]
+        }
+      },
+      "id": "update-status-success",
+      "name": "Update Queue: Published",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1700, 200],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "",
+          "name": "Supabase API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "summary",
+              "name": "summary",
+              "value": "=Published {{ $input.all().length }} posts successfully.",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "id": "create-summary",
+      "name": "Create Summary",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [1900, 300]
+    },
+    {
+      "parameters": {
+        "content": "# BLKOUT Content Publishing Scheduler\n\n**Purpose**: Automatically publish scheduled content from the queue\n\n## How It Works\n1. Checks Supabase queue every 2 hours\n2. Finds posts where `scheduled_for <= now` and `status = queued`\n3. Routes to appropriate platform (Instagram, LinkedIn, Twitter)\n4. Updates queue status to `published`\n\n## Required Credentials\n- **Supabase API**: For queue access\n- **Instagram Business OAuth**: For IG publishing\n- **LinkedIn OAuth**: For LinkedIn publishing\n- **Twitter OAuth**: For Twitter publishing\n\n## Platform Setup\n- Instagram requires Facebook Business Account\n- LinkedIn requires Company Page admin access\n- Twitter requires v2 API access",
+        "height": 420,
+        "width": 380,
+        "color": 6
+      },
+      "id": "docs-note",
+      "name": "Documentation",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [100, 480]
+    },
+    {
+      "parameters": {
+        "content": "## No Posts Scheduled\n\nIf no posts are due, workflow ends here.\n\nTo add posts to queue:\n1. Use SocialSync in comms-blkout\n2. Create content and click 'Schedule'\n3. Posts are added to `social_media_queue` table",
+        "height": 180,
+        "width": 280,
+        "color": 3
+      },
+      "id": "no-posts-note",
+      "name": "No Posts Info",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [500, 450]
+    }
+  ],
+  "connections": {
+    "Check Every 2 Hours": {
+      "main": [[{"node": "Fetch Scheduled Posts", "type": "main", "index": 0}]]
+    },
+    "Fetch Scheduled Posts": {
+      "main": [[{"node": "Has Posts?", "type": "main", "index": 0}]]
+    },
+    "Has Posts?": {
+      "main": [
+        [{"node": "Split Posts", "type": "main", "index": 0}],
+        []
+      ]
+    },
+    "Split Posts": {
+      "main": [[
+        {"node": "Instagram?", "type": "main", "index": 0},
+        {"node": "LinkedIn?", "type": "main", "index": 0},
+        {"node": "Twitter?", "type": "main", "index": 0}
+      ]]
+    },
+    "Instagram?": {
+      "main": [
+        [{"node": "IG: Create Media Container", "type": "main", "index": 0}],
+        []
+      ]
+    },
+    "IG: Create Media Container": {
+      "main": [[{"node": "IG: Publish", "type": "main", "index": 0}]]
+    },
+    "IG: Publish": {
+      "main": [[{"node": "Merge Results", "type": "main", "index": 0}]]
+    },
+    "LinkedIn?": {
+      "main": [
+        [{"node": "LinkedIn: Post", "type": "main", "index": 0}],
+        []
+      ]
+    },
+    "LinkedIn: Post": {
+      "main": [[{"node": "Merge Results", "type": "main", "index": 1}]]
+    },
+    "Twitter?": {
+      "main": [
+        [{"node": "Twitter: Post", "type": "main", "index": 0}],
+        []
+      ]
+    },
+    "Twitter: Post": {
+      "main": [[{"node": "Merge Results", "type": "main", "index": 2}]]
+    },
+    "Merge Results": {
+      "main": [[{"node": "Update Queue: Published", "type": "main", "index": 0}]]
+    },
+    "Update Queue: Published": {
+      "main": [[{"node": "Create Summary", "type": "main", "index": 0}]]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "meta": {
+    "templateCredsSetupCompleted": false
+  },
+  "pinData": {}
+}

@@ -1,0 +1,271 @@
+{
+  "name": "BLKOUT Community Response Generator",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "community-question",
+        "options": {
+          "rawBody": true
+        },
+        "responseMode": "responseNode"
+      },
+      "id": "webhook-trigger",
+      "name": "Community Question Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [100, 300],
+      "webhookId": "blkout-community-question"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Validate and extract webhook payload\nconst body = $input.first().json.body || $input.first().json;\n\nconst requiredFields = ['question', 'context'];\nconst missingFields = requiredFields.filter(f => !body[f]);\n\nif (missingFields.length > 0) {\n  return [{\n    json: {\n      valid: false,\n      error: `Missing required fields: ${missingFields.join(', ')}`,\n      received: body\n    }\n  }];\n}\n\nreturn [{\n  json: {\n    valid: true,\n    question: body.question,\n    context: body.context,\n    member_name: body.member_name || 'Community Member',\n    urgency: body.urgency || 'normal',\n    category: body.category || 'general',\n    platforms: body.platforms || ['instagram'],\n    received_at: new Date().toISOString()\n  }\n}];"
+      },
+      "id": "validate-input",
+      "name": "Validate Input",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [300, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{ $json.valid }}",
+              "value2": true
+            }
+          ]
+        }
+      },
+      "id": "check-valid",
+      "name": "Valid Input?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [500, 300]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ success: false, error: $json.error }) }}",
+        "options": {
+          "responseCode": 400
+        }
+      },
+      "id": "error-response",
+      "name": "Error Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [700, 450]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are a BLKOUT community engagement specialist. Your role is to generate authentic, supportive responses that center Black queer joy and community care.\n\n## Community Question\n**From:** {{ $json.member_name }}\n**Question:** {{ $json.question }}\n**Context:** {{ $json.context }}\n**Category:** {{ $json.category }}\n**Urgency:** {{ $json.urgency }}\n\n## BLKOUT Values to Embody\n- **Trust the people** - Honor the wisdom of the community\n- **Move at the speed of trust** - Prioritize relationships over metrics\n- **Black feminist thought** - Center intersectionality and care\n- **Community over individualism** - Collective liberation focus\n- **Authentic storytelling** - Real, vulnerable, powerful\n\n## Response Requirements\nGenerate content for Instagram that:\n1. Directly addresses the question with care and expertise\n2. Uses warm, affirming language\n3. Includes a clear call-to-action\n4. Maintains BLKOUT's brand voice (professional but warm, empowering, community-focused)\n5. Is formatted for Instagram (under 2200 characters with line breaks)\n\n## Output Format\nReturn a JSON object with:\n```json\n{\n  \"instagram_post\": {\n    \"caption\": \"Your response text with appropriate line breaks and emojis\",\n    \"hashtags\": [\"#BlackQueerJoy\", \"#BLKOUT\", \"...relevant tags\"],\n    \"call_to_action\": \"What you want people to do next\",\n    \"visual_suggestion\": \"Brief description of ideal accompanying image/graphic\"\n  },\n  \"response_tone\": \"warm|informative|celebratory|supportive\",\n  \"suggested_follow_up\": \"Optional: suggestion for follow-up content\",\n  \"internal_notes\": \"Any notes for the BLKOUT team\"\n}\n```\n\nReturn ONLY the JSON object.",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "You are a community engagement specialist for BLKOUT UK, a platform serving Black LGBTQ+ communities. Your responses should be rooted in Black feminist thought, prioritizing care, authenticity, and collective liberation. You write with warmth while maintaining professionalism. You understand the unique experiences of Black queer people in the UK and create content that resonates with this community."
+        }
+      },
+      "id": "ai-generator",
+      "name": "AI Response Generator",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [700, 200]
+    },
+    {
+      "parameters": {
+        "model": "anthropic/claude-3-5-sonnet",
+        "options": {}
+      },
+      "id": "claude-model",
+      "name": "Claude 3.5 Sonnet",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [700, 400],
+      "credentials": {
+        "openRouterApi": {
+          "id": "KqEZ24QLP2FfQCNj",
+          "name": "OpenRouter account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"instagram_post\": {\n      \"type\": \"object\",\n      \"properties\": {\n        \"caption\": { \"type\": \"string\" },\n        \"hashtags\": { \"type\": \"array\", \"items\": { \"type\": \"string\" } },\n        \"call_to_action\": { \"type\": \"string\" },\n        \"visual_suggestion\": { \"type\": \"string\" }\n      },\n      \"required\": [\"caption\", \"hashtags\"]\n    },\n    \"response_tone\": { \"type\": \"string\" },\n    \"suggested_follow_up\": { \"type\": \"string\" },\n    \"internal_notes\": { \"type\": \"string\" }\n  },\n  \"required\": [\"instagram_post\"]\n}"
+      },
+      "id": "output-parser",
+      "name": "Parse Response",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [900, 400]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Transform AI output for storage and queue\nconst aiOutput = $input.first().json.output || $input.first().json;\nconst originalInput = $('Validate Input').first().json;\n\nconst post = aiOutput.instagram_post || {};\n\nreturn [{\n  json: {\n    // For response\n    generated_content: {\n      platform: 'instagram',\n      caption: post.caption,\n      hashtags: post.hashtags || [],\n      call_to_action: post.call_to_action,\n      visual_suggestion: post.visual_suggestion\n    },\n    metadata: {\n      response_tone: aiOutput.response_tone,\n      suggested_follow_up: aiOutput.suggested_follow_up,\n      internal_notes: aiOutput.internal_notes\n    },\n    // For database\n    original_question: originalInput.question,\n    original_context: originalInput.context,\n    member_name: originalInput.member_name,\n    category: originalInput.category,\n    urgency: originalInput.urgency,\n    generated_at: new Date().toISOString(),\n    status: 'pending_review'\n  }\n}];"
+      },
+      "id": "transform-output",
+      "name": "Transform Output",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1100, 200]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://bgjengudzfickgomjqmz.supabase.co/rest/v1/community_responses",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {"name": "apikey", "value": "={{ $credentials.supabaseApi.apiKey }}"},
+            {"name": "Authorization", "value": "=Bearer {{ $credentials.supabaseApi.apiKey }}"},
+            {"name": "Prefer", "value": "return=representation"}
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {"name": "question", "value": "={{ $json.original_question }}"},
+            {"name": "context", "value": "={{ $json.original_context }}"},
+            {"name": "member_name", "value": "={{ $json.member_name }}"},
+            {"name": "category", "value": "={{ $json.category }}"},
+            {"name": "urgency", "value": "={{ $json.urgency }}"},
+            {"name": "generated_caption", "value": "={{ $json.generated_content.caption }}"},
+            {"name": "generated_hashtags", "value": "={{ $json.generated_content.hashtags }}"},
+            {"name": "visual_suggestion", "value": "={{ $json.generated_content.visual_suggestion }}"},
+            {"name": "response_tone", "value": "={{ $json.metadata.response_tone }}"},
+            {"name": "internal_notes", "value": "={{ $json.metadata.internal_notes }}"},
+            {"name": "status", "value": "pending_review"}
+          ]
+        }
+      },
+      "id": "save-to-supabase",
+      "name": "Save to Database",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1300, 200],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "",
+          "name": "Supabase API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ success: true, response_id: $json[0]?.id || 'generated', generated_content: $('Transform Output').first().json.generated_content, status: 'pending_review', message: 'Content generated and saved for review. Check comms-blkout drafts.' }) }}",
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "id": "success-response",
+      "name": "Success Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [1500, 200]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.urgency }}",
+              "operation": "equals",
+              "value2": "high"
+            }
+          ]
+        }
+      },
+      "id": "check-urgency",
+      "name": "High Urgency?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [1300, 400]
+    },
+    {
+      "parameters": {
+        "resource": "draft",
+        "subject": "=🚨 URGENT: Community Response Needed - {{ $json.category }}",
+        "emailType": "text",
+        "message": "=A community member needs an urgent response.\n\n📋 Question: {{ $json.original_question }}\n📝 Context: {{ $json.original_context }}\n👤 From: {{ $json.member_name }}\n\n✨ AI-Generated Response (pending review):\n{{ $json.generated_content.caption }}\n\n🏷️ Suggested hashtags: {{ $json.generated_content.hashtags.join(' ') }}\n\n📸 Visual suggestion: {{ $json.generated_content.visual_suggestion }}\n\n---\nReview and approve in comms-blkout: https://comms-blkout.vercel.app/admin/drafts",
+        "options": {
+          "sendTo": "berkeley@blkoutuk.com"
+        }
+      },
+      "id": "urgent-email",
+      "name": "Send Urgent Alert",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [1500, 400],
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "GXWGlGOIsCMS1D5N",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "# BLKOUT Community Response Generator\n\n**Purpose**: Real-time AI-powered response generation for community questions\n\n## Webhook Endpoint\n`POST /webhook/blkout-community-question`\n\n## Request Format\n```json\n{\n  \"question\": \"What resources are available for...\",\n  \"context\": \"Member asking about support groups\",\n  \"member_name\": \"Anonymous\",\n  \"urgency\": \"normal|high\",\n  \"category\": \"resources|events|support|general\",\n  \"platforms\": [\"instagram\"]\n}\n```\n\n## Response\n- AI generates Instagram-ready content\n- Saved to `community_responses` table\n- Status: `pending_review`\n- High urgency triggers email alert\n\n## Integration\nCall this webhook from:\n- IVOR chatbot\n- Community feedback forms\n- Admin quick-response tool",
+        "height": 480,
+        "width": 380,
+        "color": 6
+      },
+      "id": "docs-note",
+      "name": "Documentation",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [100, 450]
+    }
+  ],
+  "connections": {
+    "Community Question Webhook": {
+      "main": [[{"node": "Validate Input", "type": "main", "index": 0}]]
+    },
+    "Validate Input": {
+      "main": [[{"node": "Valid Input?", "type": "main", "index": 0}]]
+    },
+    "Valid Input?": {
+      "main": [
+        [{"node": "AI Response Generator", "type": "main", "index": 0}],
+        [{"node": "Error Response", "type": "main", "index": 0}]
+      ]
+    },
+    "Claude 3.5 Sonnet": {
+      "ai_languageModel": [[{"node": "AI Response Generator", "type": "ai_languageModel", "index": 0}]]
+    },
+    "Parse Response": {
+      "ai_outputParser": [[{"node": "AI Response Generator", "type": "ai_outputParser", "index": 0}]]
+    },
+    "AI Response Generator": {
+      "main": [[{"node": "Transform Output", "type": "main", "index": 0}]]
+    },
+    "Transform Output": {
+      "main": [[
+        {"node": "Save to Database", "type": "main", "index": 0},
+        {"node": "Check Urgency?", "type": "main", "index": 0}
+      ]]
+    },
+    "Save to Database": {
+      "main": [[{"node": "Success Response", "type": "main", "index": 0}]]
+    },
+    "Check Urgency?": {
+      "main": [
+        [{"node": "Send Urgent Alert", "type": "main", "index": 0}],
+        []
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "meta": {
+    "templateCredsSetupCompleted": false
+  },
+  "pinData": {}
+}
