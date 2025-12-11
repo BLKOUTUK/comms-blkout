@@ -12,10 +12,6 @@
     {
       "path": "/api/social-diary/publish",
       "schedule": "0 10 * * *"
-    },
-    {
-      "path": "/api/social-diary/analytics",
-      "schedule": "0 6 * * *"
     }
   ],
   "rewrites": [
