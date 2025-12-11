@@ -9,14 +9,24 @@ const supabase = SUPABASE_URL && SUPABASE_SERVICE_KEY
   ? createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY)
   : null;
 
+// Updated interface for newpo/eventbrite-scraper output
 interface EventbriteItem {
   name?: string;
+  title?: string;
   url?: string;
   start?: { local?: string };
+  startDate?: string;
+  startTime?: string;
   venue?: { name?: string; address?: { city?: string } };
+  location?: string;
+  venueName?: string;
   description?: { text?: string };
+  summary?: string;
   is_free?: boolean;
+  isFree?: boolean;
+  price?: string;
   ticket_availability?: { minimum_ticket_price?: { major_value?: string } };
+  organizer?: string;
 }
 
 interface OutsavvyItem {
@@ -28,11 +38,18 @@ interface OutsavvyItem {
   description?: string;
 }
 
+// Updated interface for apify/instagram-hashtag-scraper output
 interface InstagramItem {
   caption?: string;
   timestamp?: string;
   url?: string;
+  shortCode?: string;
   ownerUsername?: string;
+  likesCount?: number;
+  commentsCount?: number;
+  hashtags?: string[];
+  locationName?: string;
+  displayUrl?: string;
 }
 
 function generateUrlHash(url: string): string {
@@ -45,30 +62,43 @@ function generateUrlHash(url: string): string {
   return Math.abs(hash).toString(16);
 }
 
-// Process Eventbrite results
+// Process Eventbrite results (updated for newpo/eventbrite-scraper)
 function processEventbriteResults(items: EventbriteItem[]) {
   return items
-    .filter(item => item.name && item.url)
+    .filter(item => (item.name || item.title) && item.url)
     .map(item => {
-      const startDate = item.start?.local ? item.start.local.split('T')[0] : '';
-      const startTime = item.start?.local ? item.start.local.split('T')[1]?.substring(0, 5) : '';
+      // Handle both old and new data formats
+      const eventTitle = item.title || item.name || '';
+      const startDate = item.startDate || (item.start?.local ? item.start.local.split('T')[0] : '');
+      const startTime = item.startTime || (item.start?.local ? item.start.local.split('T')[1]?.substring(0, 5) : '');
+      const eventLocation = item.location || item.venueName ||
+        (item.venue?.name ? `${item.venue.name}, ${item.venue.address?.city || 'UK'}` : 'TBC');
+      const eventDescription = item.summary || item.description?.text || '';
+
+      // Determine cost
+      let cost = 'TBC';
+      if (item.isFree || item.is_free) {
+        cost = 'Free';
+      } else if (item.price) {
+        cost = item.price;
+      } else if (item.ticket_availability?.minimum_ticket_price?.major_value) {
+        cost = `From £${item.ticket_availability.minimum_ticket_price.major_value}`;
+      }
 
       return {
-        title: item.name!,
-        description: item.description?.text?.substring(0, 500) || '',
+        title: eventTitle,
+        description: eventDescription.substring(0, 500),
         date: startDate,
         start_time: startTime || null,
-        location: item.venue?.name
-          ? `${item.venue.name}, ${item.venue.address?.city || 'UK'}`
-          : 'TBC',
-        organizer: 'Via Eventbrite',
+        location: eventLocation,
+        organizer: item.organizer || 'Via Eventbrite',
         url: item.url!,
         url_hash: generateUrlHash(item.url!),
-        cost: item.is_free ? 'Free' : (item.ticket_availability?.minimum_ticket_price?.major_value ? `From £${item.ticket_availability.minimum_ticket_price.major_value}` : 'TBC'),
+        cost,
         tags: ['eventbrite', 'scraped'],
         source: 'eventbrite.co.uk',
         source_platform: 'eventbrite',
-        relevance_score: 75,
+        relevance_score: 80, // Higher score for dedicated scraper
         status: 'pending',
         discovery_method: 'apify_eventbrite',
         discovered_at: new Date().toISOString()
@@ -100,9 +130,9 @@ function processOutsavvyResults(items: OutsavvyItem[]) {
     }));
 }
 
-// Process Instagram results - extract event info from captions
+// Process Instagram results - extract event info from hashtag posts
 function processInstagramResults(items: InstagramItem[]) {
-  const eventKeywords = ['event', 'tickets', 'join us', 'link in bio', 'save the date', 'party', 'night'];
+  const eventKeywords = ['event', 'tickets', 'join us', 'link in bio', 'save the date', 'party', 'night', 'doors', 'entry'];
 
   return items
     .filter(item => {
@@ -110,24 +140,33 @@ function processInstagramResults(items: InstagramItem[]) {
       const caption = item.caption.toLowerCase();
       return eventKeywords.some(kw => caption.includes(kw));
     })
-    .map(item => ({
-      title: `Event from @${item.ownerUsername}`,
-      description: item.caption?.substring(0, 500) || '',
-      date: item.timestamp ? item.timestamp.split('T')[0] : '',
-      start_time: null,
-      location: 'See post for details',
-      organizer: item.ownerUsername || 'Instagram',
-      url: item.url || `https://instagram.com/${item.ownerUsername}`,
-      url_hash: generateUrlHash(item.url || `ig_${item.ownerUsername}_${Date.now()}`),
-      cost: 'TBC',
-      tags: ['instagram', 'scraped', item.ownerUsername || 'unknown'],
-      source: 'instagram.com',
-      source_platform: 'instagram',
-      relevance_score: 70,
-      status: 'pending',
-      discovery_method: 'apify_instagram',
-      discovered_at: new Date().toISOString()
-    }));
+    .map(item => {
+      // Extract title from first line of caption or use owner username
+      const captionLines = item.caption?.split('\n') || [];
+      const firstLine = captionLines[0]?.trim() || '';
+      const title = firstLine.length > 10 && firstLine.length < 100
+        ? firstLine
+        : `Event from @${item.ownerUsername}`;
+
+      return {
+        title,
+        description: item.caption?.substring(0, 500) || '',
+        date: item.timestamp ? item.timestamp.split('T')[0] : '',
+        start_time: null,
+        location: item.locationName || 'See post for details',
+        organizer: item.ownerUsername || 'Instagram',
+        url: item.url || `https://instagram.com/p/${item.shortCode}`,
+        url_hash: generateUrlHash(item.url || `ig_${item.shortCode}`),
+        cost: 'TBC',
+        tags: ['instagram', 'scraped', ...(item.hashtags?.slice(0, 3) || []), item.ownerUsername || 'unknown'],
+        source: 'instagram.com',
+        source_platform: 'instagram',
+        relevance_score: item.likesCount && item.likesCount > 100 ? 75 : 70, // Higher score for popular posts
+        status: 'pending',
+        discovery_method: 'apify_instagram_hashtag',
+        discovered_at: new Date().toISOString()
+      };
+    });
 }
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
@@ -173,12 +212,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     // Process based on actor type
     let eventsToInsert: ReturnType<typeof processEventbriteResults> = [];
 
-    if (actorId.includes('eventbrite')) {
+    if (actorId.includes('eventbrite') || actorId.includes('newpo')) {
+      console.log('[Apify Webhook] Processing Eventbrite results');
       eventsToInsert = processEventbriteResults(items);
-    } else if (actorId.includes('outsavvy') || actorId.includes('web-scraper')) {
-      eventsToInsert = processOutsavvyResults(items);
     } else if (actorId.includes('instagram')) {
+      console.log('[Apify Webhook] Processing Instagram results');
       eventsToInsert = processInstagramResults(items);
+    } else if (actorId.includes('playwright') || actorId.includes('outsavvy')) {
+      console.log('[Apify Webhook] Processing Outsavvy/Playwright results');
+      eventsToInsert = processOutsavvyResults(items);
     } else {
       console.log(`[Apify Webhook] Unknown actor type: ${actorId}`);
       return res.status(200).json({ received: true, processed: false, reason: 'Unknown actor type' });

@@ -3,16 +3,16 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
 const APIFY_API_KEY = process.env.APIFY_API_KEY;
 const WEBHOOK_URL = 'https://comms-blkout.vercel.app/api/social-diary/apify-webhook';
 
-// Instagram accounts to scrape
-const INSTAGRAM_ACCOUNTS = [
+// Instagram hashtags to scrape for events (more reliable than account scraping)
+const INSTAGRAM_HASHTAGS = [
+  'blackprideLondon',
+  'qtipocLondon',
+  'blackLGBTQ',
+  'blackqueeruk',
   'ukblackpride',
-  'bbaborbbz',
-  'pxssypalace',
-  'bootyliciousldn',
-  'houseofrainbow_',
-  'outsavvy',
-  'noirlondon_',
-  'qtipoclondon'
+  'blackprideuk',
+  'qtipocevents',
+  'blackqueerevents'
 ];
 
 // Eventbrite search terms
@@ -100,13 +100,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     outsavvy: { triggered: false, runId: '', error: '' }
   };
 
-  // Trigger Instagram scraper (using apify~instagram-scraper - the main one)
+  // Trigger Instagram Hashtag Scraper (better for event discovery)
   const instagramResult = await triggerApifyActor(
-    'apify~instagram-scraper',
+    'apify/instagram-hashtag-scraper',
     {
-      directUrls: INSTAGRAM_ACCOUNTS.map(u => `https://www.instagram.com/${u}/`),
-      resultsLimit: 10,
-      resultsType: 'posts'
+      hashtags: INSTAGRAM_HASHTAGS,
+      resultsLimit: 20, // 20 posts per hashtag
+      resultsType: 'posts', // Focus on posts rather than reels for event details
+      addParentData: true // Include hashtag context
     },
     'Instagram'
   );
@@ -116,31 +117,18 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     error: instagramResult.error || ''
   };
 
-  // Trigger Eventbrite scraper (using cheerio-scraper for Eventbrite since paid actors need rental)
+  // Trigger Eventbrite scraper (using dedicated newpo/eventbrite-scraper)
   const eventbriteResult = await triggerApifyActor(
-    'apify~cheerio-scraper',
+    'newpo/eventbrite-scraper',
     {
       startUrls: EVENTBRITE_SEARCHES.map(q => ({
-        url: `https://www.eventbrite.co.uk/d/united-kingdom/${encodeURIComponent(q)}/`
+        url: `https://www.eventbrite.co.uk/d/united-kingdom--london/${encodeURIComponent(q)}/?page=1`
       })),
-      pageFunction: `async function pageFunction(context) {
-        const { $, request } = context;
-        const events = [];
-
-        $('[data-testid="event-card"], .search-event-card, .eds-event-card').each((i, el) => {
-          const $el = $(el);
-          events.push({
-            name: $el.find('[data-testid="event-card-title"], .eds-event-card__formatted-name, h2, h3').first().text().trim(),
-            url: $el.find('a[href*="/e/"]').first().attr('href'),
-            date: $el.find('[data-testid="event-card-date"], .eds-event-card-content__sub-title').first().text().trim(),
-            venue: $el.find('[data-testid="event-card-location"], .card-text--truncated__two').first().text().trim(),
-            price: $el.find('[data-testid="event-card-price"], .eds-event-card-content__primary-content').last().text().trim()
-          });
-        });
-
-        return events.filter(e => e.name && e.url);
-      }`,
-      maxPagesPerCrawl: 30
+      proxy: {
+        useApifyProxy: true,
+        apifyProxyGroups: ['RESIDENTIAL']
+      },
+      maxItems: 100 // Limit total results across all searches
     },
     'Eventbrite'
   );
@@ -150,33 +138,44 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     error: eventbriteResult.error || ''
   };
 
-  // Trigger Outsavvy scraper (using cheerio-scraper)
+  // Trigger Outsavvy scraper (using Playwright for JS-rendered content)
   const outsavvyResult = await triggerApifyActor(
-    'apify~cheerio-scraper',
+    'apify/playwright-scraper',
     {
       startUrls: [
-        { url: 'https://www.outsavvy.com/search?q=black+lgbtq' },
-        { url: 'https://www.outsavvy.com/search?q=black+pride' },
-        { url: 'https://www.outsavvy.com/search?q=qtipoc' }
+        { url: 'https://www.outsavvy.com/search?q=black+lgbtq&location=london' },
+        { url: 'https://www.outsavvy.com/search?q=black+pride&location=london' },
+        { url: 'https://www.outsavvy.com/search?q=qtipoc&location=london' },
+        { url: 'https://www.outsavvy.com/search?q=black+queer&location=london' }
       ],
-      pageFunction: `async function pageFunction(context) {
-        const { $, request } = context;
-        const events = [];
+      pageFunction: async ({ page, request }) => {
+        // Wait for dynamic content to load
+        await page.waitForSelector('article, [class*="EventCard"], a[href*="/event/"]', { timeout: 10000 });
 
-        $('a[href*="/event/"]').each((i, el) => {
-          const $card = $(el).closest('.event-card, [class*="event"], div');
-          events.push({
-            title: $card.find('h2, h3, .title').first().text().trim() || $(el).text().trim(),
-            url: $(el).attr('href'),
-            date: $card.find('[class*="date"], time').first().text().trim(),
-            venue: $card.find('[class*="venue"], [class*="location"]').first().text().trim(),
-            price: $card.find('[class*="price"]').first().text().trim()
-          });
+        const events = await page.$$eval('article, [class*="EventCard"], div[class*="event"]', (elements) => {
+          return elements.map(el => {
+            const link = el.querySelector('a[href*="/event/"]');
+            const titleEl = el.querySelector('h2, h3, [class*="title"], [class*="Title"]');
+            const dateEl = el.querySelector('[class*="date"], [class*="Date"], time');
+            const venueEl = el.querySelector('[class*="venue"], [class*="Venue"], [class*="location"], [class*="Location"]');
+            const priceEl = el.querySelector('[class*="price"], [class*="Price"]');
+
+            return {
+              title: titleEl?.textContent?.trim() || '',
+              url: link?.href || '',
+              date: dateEl?.textContent?.trim() || '',
+              venue: venueEl?.textContent?.trim() || '',
+              price: priceEl?.textContent?.trim() || '',
+              description: el.querySelector('p')?.textContent?.trim()?.substring(0, 200) || ''
+            };
+          }).filter(e => e.title && e.url);
         });
 
-        return events.filter(e => e.title && e.url);
-      }`,
-      maxPagesPerCrawl: 20
+        return events;
+      },
+      maxRequestsPerCrawl: 20,
+      maxConcurrency: 2,
+      navigationTimeoutSecs: 30
     },
     'Outsavvy'
   );
