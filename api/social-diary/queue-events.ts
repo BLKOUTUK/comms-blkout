@@ -11,11 +11,8 @@ const supabase = SUPABASE_URL && SUPABASE_SERVICE_KEY
   ? createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY)
   : null;
 
-// Platform configurations with character limits and best practices
+// Focus on LinkedIn only for now (the platform that works)
 const PLATFORMS = [
-  { name: 'instagram', char_limit: 2200, supports_hashtags: true },
-  { name: 'twitter', char_limit: 280, supports_hashtags: true },
-  { name: 'facebook', char_limit: 63206, supports_hashtags: false },
   { name: 'linkedin', char_limit: 3000, supports_hashtags: true }
 ];
 
@@ -53,59 +50,20 @@ async function generateSocialCaptions(event: Event): Promise<SocialCaption[]> {
     day: 'numeric'
   });
 
-  const prompt = `You are the BLKOUT Social Media Manager - creating engaging social media captions for Black LGBTQ+ community events in the UK.
+  const prompt = `Create a LinkedIn post for BLKOUT UK promoting this Black LGBTQ+ community event:
 
-## Event Details
-Title: ${event.title}
-Description: ${event.description}
-Date: ${formattedDate}
-Time: ${event.start_time || 'TBC'}
+Event: ${event.title}
+Date: ${formattedDate} ${event.start_time ? `at ${event.start_time}` : ''}
 Location: ${event.location || 'TBC'}
-Organizer: ${event.organizer || 'TBC'}
 Cost: ${event.cost || 'Free'}
-Event URL: ${event.url || ''}
-Tags: ${event.tags?.join(', ') || ''}
+${event.url ? `Link: ${event.url}` : ''}
 
-## Your Task
-Create platform-specific captions for Instagram, Twitter, Facebook, and LinkedIn. Each caption should:
-- Center Black joy and community building
-- Be culturally authentic and liberatory in tone
-- Include clear event details (what, when, where)
-- Use inclusive language
-- Match platform best practices
+Write a warm, professional caption (150-250 words) that:
+- Centers Black joy and community
+- Includes key event details
+- Encourages attendance
 
-## Platform Requirements
-- Instagram (2200 char max): Longer, visual storytelling with emojis and hashtags at the end
-- Twitter (280 char max): Concise, punchy with essential details only
-- Facebook (no limit): Community-focused, detailed with call-to-action
-- LinkedIn (3000 char max): Professional but warm, emphasize community value
-
-## Output Format
-Return ONLY a JSON array with this exact structure:
-[
-  {
-    "platform": "instagram",
-    "caption": "Full caption text here...",
-    "hashtags": ["BlackLGBTQ", "BLKOUT", "QueerJoy", "LondonEvents"]
-  },
-  {
-    "platform": "twitter",
-    "caption": "Short tweet here...",
-    "hashtags": ["BlackLGBTQ", "BLKOUT"]
-  },
-  {
-    "platform": "facebook",
-    "caption": "Facebook post here...",
-    "hashtags": []
-  },
-  {
-    "platform": "linkedin",
-    "caption": "Professional post here...",
-    "hashtags": ["BlackProfessionals", "LGBTQCommunity"]
-  }
-]
-
-Return ONLY the JSON array, no additional text or markdown.`;
+Return ONLY JSON: [{"platform":"linkedin","caption":"your caption here","hashtags":["BLKOUT","BlackLGBTQ","QueerJoy"]}]`;
 
   try {
     const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
@@ -117,18 +75,14 @@ Return ONLY the JSON array, no additional text or markdown.`;
         'X-Title': 'BLKOUT Social Diary Queue'
       },
       body: JSON.stringify({
-        model: 'anthropic/claude-3.5-sonnet',
+        model: 'anthropic/claude-3-haiku',
         messages: [
-          {
-            role: 'system',
-            content: 'You are an expert social media manager for BLKOUT UK, a community platform serving Black LGBTQ+ people. Your captions celebrate Black joy, build community, and center liberation. Always return valid JSON.'
-          },
           {
             role: 'user',
             content: prompt
           }
         ],
-        max_tokens: 4000,
+        max_tokens: 1000,
         temperature: 0.7
       })
     });
