@@ -75,16 +75,8 @@ async function searchTavily(query: string): Promise<TavilyResult[]> {
       },
       body: JSON.stringify({
         api_key: TAVILY_API_KEY,
-        query: `${query} next 60 days`,
-        search_depth: 'advanced',
-        include_domains: [
-          'eventbrite.co.uk',
-          'outsavvy.com',
-          'designmynight.com',
-          'dice.fm',
-          'ra.co',
-          'qxmagazine.co.uk'
-        ],
+        query: `${query}`,
+        search_depth: 'basic',
         max_results: 10
       })
     });
