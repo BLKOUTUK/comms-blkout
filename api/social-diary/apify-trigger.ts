@@ -40,19 +40,18 @@ async function triggerApifyActor(
   }
 
   try {
+    // Webhooks must be passed as a query parameter, not in the body
+    const webhooks = encodeURIComponent(JSON.stringify([{
+      eventTypes: ['ACTOR.RUN.SUCCEEDED', 'ACTOR.RUN.FAILED'],
+      requestUrl: WEBHOOK_URL
+    }]));
+
     const response = await fetch(
-      `https://api.apify.com/v2/acts/${actorId}/runs?token=${APIFY_API_KEY}`,
+      `https://api.apify.com/v2/acts/${actorId}/runs?token=${APIFY_API_KEY}&webhooks=${webhooks}`,
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          ...input,
-          // Configure webhook to call back when done
-          webhooks: [{
-            eventTypes: ['ACTOR.RUN.SUCCEEDED', 'ACTOR.RUN.FAILED'],
-            requestUrl: WEBHOOK_URL
-          }]
-        })
+        body: JSON.stringify(input)
       }
     );
 
