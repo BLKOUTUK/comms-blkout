@@ -16,6 +16,8 @@ import { SocialSyncEditorial } from '@/pages/admin/SocialSyncEditorial';
 import { Newsletters } from '@/pages/admin/Newsletters';
 import { OAuthCallback } from '@/pages/auth/OAuthCallback';
 import Grants from '@/pages/admin/Grants';
+import { EventModeration } from '@/pages/admin/EventModeration';
+import { NewsModeration } from '@/pages/admin/NewsModeration';
 
 function App() {
   return (
@@ -107,6 +109,22 @@ function App() {
             element={
               <ProtectedRoute>
                 <Grants />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/events"
+            element={
+              <ProtectedRoute>
+                <EventModeration />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/news"
+            element={
+              <ProtectedRoute>
+                <NewsModeration />
               </ProtectedRoute>
             }
           />

@@ -430,17 +430,23 @@ export function SocialSyncEditorial() {
             {/* Agent Prompt Form */}
             {showAgentPrompt && (
               <div className="mt-3 p-3 bg-slate-800 rounded-lg space-y-3">
+                <label htmlFor="new-task-prompt" className="sr-only">Task description</label>
                 <textarea
+                  id="new-task-prompt"
                   value={newTaskPrompt}
                   onChange={(e) => setNewTaskPrompt(e.target.value)}
                   placeholder="Describe the content you want to generate..."
                   className="w-full h-20 bg-slate-900 border border-slate-700 rounded px-3 py-2 text-sm resize-none focus:outline-none focus:border-indigo-500"
+                  aria-label="Describe the content you want to generate"
                 />
                 <div className="flex gap-2">
+                  <label htmlFor="new-task-platform" className="sr-only">Target platform</label>
                   <select
+                    id="new-task-platform"
                     value={newTaskPlatform}
                     onChange={(e) => setNewTaskPlatform(e.target.value)}
                     className="flex-1 bg-slate-900 border border-slate-700 rounded px-2 py-1.5 text-xs"
+                    aria-label="Select target platform"
                   >
                     <option value="web">Web Hero</option>
                     <option value="instagram">Instagram</option>
@@ -450,6 +456,7 @@ export function SocialSyncEditorial() {
                   <button
                     onClick={handleCreateTask}
                     className="px-3 py-1.5 bg-green-600 hover:bg-green-500 rounded text-xs font-medium"
+                    aria-label="Add new task"
                   >
                     Add
                   </button>
@@ -527,25 +534,29 @@ export function SocialSyncEditorial() {
               {/* Prompt Editor */}
               <div className="p-4 border-b border-slate-800">
                 <div className="flex items-center justify-between mb-2">
-                  <label className="text-xs text-slate-400 uppercase tracking-wide font-medium">
+                  <label htmlFor="generation-prompt" className="text-xs text-slate-400 uppercase tracking-wide font-medium">
                     Generation Prompt
                   </label>
                   <button
                     onClick={() => setIsEditingPrompt(!isEditingPrompt)}
                     className="flex items-center gap-1 text-xs text-indigo-400 hover:text-indigo-300"
+                    aria-expanded={isEditingPrompt}
+                    aria-controls="generation-prompt"
                   >
-                    <Edit3 size={12} />
+                    <Edit3 size={12} aria-hidden="true" />
                     {isEditingPrompt ? 'Done' : 'Edit'}
                   </button>
                 </div>
                 {isEditingPrompt ? (
                   <textarea
+                    id="generation-prompt"
                     value={editablePrompt}
                     onChange={(e) => setEditablePrompt(e.target.value)}
                     className="w-full h-32 bg-slate-900 border border-slate-700 rounded-lg p-3 text-sm resize-none focus:outline-none focus:border-indigo-500"
+                    aria-label="Edit generation prompt"
                   />
                 ) : (
-                  <p className="text-sm text-slate-300 bg-slate-900/50 rounded-lg p-3 border border-slate-800">
+                  <p id="generation-prompt" className="text-sm text-slate-300 bg-slate-900/50 rounded-lg p-3 border border-slate-800">
                     {editablePrompt}
                   </p>
                 )}
@@ -585,7 +596,7 @@ export function SocialSyncEditorial() {
                     <div className="relative rounded-lg overflow-hidden bg-slate-900 border border-slate-800">
                       <img
                         src={generatedImage}
-                        alt="Generated"
+                        alt={`AI-generated image for ${selectedTask?.title || 'content task'}: ${editablePrompt.slice(0, 100)}`}
                         className="w-full h-auto"
                       />
 
@@ -709,15 +720,21 @@ export function SocialSyncEditorial() {
 
         {/* Schedule Modal */}
         {showScheduleModal && (
-          <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
+          <div
+            className="fixed inset-0 bg-black/70 flex items-center justify-center z-50"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="schedule-modal-title"
+            aria-describedby="schedule-modal-description"
+          >
             <div className="bg-slate-900 rounded-xl border border-slate-700 w-full max-w-md mx-4 overflow-hidden">
               {/* Modal Header */}
               <div className="p-4 border-b border-slate-800 bg-slate-900/50">
-                <h3 className="text-lg font-bold flex items-center gap-2">
-                  <Calendar size={20} className="text-indigo-400" />
+                <h3 id="schedule-modal-title" className="text-lg font-bold flex items-center gap-2">
+                  <Calendar size={20} className="text-indigo-400" aria-hidden="true" />
                   Schedule to Calendar
                 </h3>
-                <p className="text-sm text-slate-400 mt-1">
+                <p id="schedule-modal-description" className="text-sm text-slate-400 mt-1">
                   Schedule this content for publishing
                 </p>
               </div>
@@ -726,10 +743,11 @@ export function SocialSyncEditorial() {
               <div className="p-4 space-y-4">
                 {/* Platform Selection */}
                 <div>
-                  <label className="block text-xs text-slate-400 uppercase tracking-wide font-medium mb-2">
+                  <label htmlFor="schedule-platform" className="block text-xs text-slate-400 uppercase tracking-wide font-medium mb-2">
                     Platform
                   </label>
                   <select
+                    id="schedule-platform"
                     value={schedulePlatform}
                     onChange={(e) => setSchedulePlatform(e.target.value as PlatformType)}
                     className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-indigo-500"
@@ -745,10 +763,11 @@ export function SocialSyncEditorial() {
                 {/* Date & Time */}
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-xs text-slate-400 uppercase tracking-wide font-medium mb-2">
+                    <label htmlFor="schedule-date" className="block text-xs text-slate-400 uppercase tracking-wide font-medium mb-2">
                       Date
                     </label>
                     <input
+                      id="schedule-date"
                       type="date"
                       value={scheduleDate}
                       onChange={(e) => setScheduleDate(e.target.value)}
@@ -757,10 +776,11 @@ export function SocialSyncEditorial() {
                     />
                   </div>
                   <div>
-                    <label className="block text-xs text-slate-400 uppercase tracking-wide font-medium mb-2">
+                    <label htmlFor="schedule-time" className="block text-xs text-slate-400 uppercase tracking-wide font-medium mb-2">
                       Time
                     </label>
                     <input
+                      id="schedule-time"
                       type="time"
                       value={scheduleTime}
                       onChange={(e) => setScheduleTime(e.target.value)}
@@ -771,10 +791,11 @@ export function SocialSyncEditorial() {
 
                 {/* Caption */}
                 <div>
-                  <label className="block text-xs text-slate-400 uppercase tracking-wide font-medium mb-2">
+                  <label htmlFor="schedule-caption" className="block text-xs text-slate-400 uppercase tracking-wide font-medium mb-2">
                     Caption
                   </label>
                   <textarea
+                    id="schedule-caption"
                     value={scheduleCaption}
                     onChange={(e) => setScheduleCaption(e.target.value)}
                     placeholder="Write your caption..."
@@ -785,17 +806,19 @@ export function SocialSyncEditorial() {
 
                 {/* Hashtags */}
                 <div>
-                  <label className="block text-xs text-slate-400 uppercase tracking-wide font-medium mb-2">
+                  <label htmlFor="schedule-hashtags" className="block text-xs text-slate-400 uppercase tracking-wide font-medium mb-2">
                     Hashtags
                   </label>
                   <input
+                    id="schedule-hashtags"
                     type="text"
                     value={scheduleHashtags}
                     onChange={(e) => setScheduleHashtags(e.target.value)}
                     placeholder="#BLKOUT #BlackQueerJoy"
                     className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-indigo-500"
+                    aria-describedby="hashtags-hint"
                   />
-                  <p className="text-xs text-slate-500 mt-1">Separate with spaces or commas</p>
+                  <p id="hashtags-hint" className="text-xs text-slate-500 mt-1">Separate with spaces or commas</p>
                 </div>
               </div>
 

@@ -229,7 +229,7 @@ export function SocialMediaFeed() {
           <span className="text-sm font-medium text-gray-700">Instagram</span>
         </a>
         <a
-          href="https://linkedin.com/company/blkout-uk"
+          href="https://linkedin.com/company/blkoutuk"
           target="_blank"
           rel="noopener noreferrer"
           className="flex flex-col items-center gap-2 p-4 rounded-xl bg-gradient-to-br from-blue-500/10 to-blue-400/10 hover:from-blue-500/20 hover:to-blue-400/20 transition-colors group"

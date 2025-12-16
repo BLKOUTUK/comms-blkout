@@ -278,25 +278,31 @@ export const AssetLibrary: React.FC<AssetLibraryProps> = ({
                     className="group relative rounded-lg overflow-hidden border border-slate-700 bg-slate-800 hover:border-blue-500/50 transition-all flex flex-col"
                     >
                     {/* Media Preview */}
-                    <div 
+                    <div
                         className="aspect-video w-full bg-black relative cursor-pointer"
                         onClick={() => onSelect(asset)}
+                        role="button"
+                        aria-label={`Select ${asset.type === MediaType.IMAGE ? 'image' : 'video'} asset: ${asset.prompt || 'untitled'}`}
+                        tabIndex={0}
+                        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onSelect(asset); }}}
                     >
                         {asset.type === MediaType.IMAGE ? (
-                        <img src={asset.url} alt="Thumbnail" className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" />
+                        <img src={asset.url} alt={`Media asset: ${asset.prompt || 'AI-generated content'}`} className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" />
                         ) : (
-                        <video src={asset.url} className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" />
+                        <video src={asset.url} className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" aria-label={`Video asset: ${asset.prompt || 'AI-generated content'}`} />
                         )}
                         
                         <div className="absolute top-2 right-2 bg-black/60 p-1 rounded backdrop-blur-sm">
                         {asset.type === MediaType.IMAGE ? <Image size={10} className="text-white" /> : <Video size={10} className="text-white" />}
                         </div>
 
-                        <button 
+                        <button
                         onClick={(e) => { e.stopPropagation(); onToggleFavorite(asset.id); }}
-                        className="absolute top-2 left-2 p-1.5 rounded-full bg-black/40 hover:bg-black/80 backdrop-blur-sm transition-colors"
+                        className="absolute top-2 left-2 p-1.5 rounded-full bg-black/40 hover:bg-black/80 backdrop-blur-sm transition-colors focus:outline-none focus:ring-2 focus:ring-amber-400"
+                        aria-label={asset.isFavorite ? 'Remove from favorites' : 'Add to favorites'}
+                        aria-pressed={asset.isFavorite}
                         >
-                        <Star size={12} className={asset.isFavorite ? "text-amber-400 fill-amber-400" : "text-slate-300"} />
+                        <Star size={12} className={asset.isFavorite ? "text-amber-400 fill-amber-400" : "text-slate-300"} aria-hidden="true" />
                         </button>
                     </div>
 

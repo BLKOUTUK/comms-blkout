@@ -8,6 +8,7 @@ import { NewsletterArchive } from '@/components/discover/NewsletterArchive';
 import { AdventCalendarWidget } from '@/components/discover/AdventCalendarWidget';
 import { ArchiveArticleWidget } from '@/components/discover/ArchiveArticleWidget';
 import { BlkoutVoicesWidget } from '@/components/discover/BlkoutVoicesWidget';
+import { FeaturedEventsWidget } from '@/components/discover/FeaturedEventsWidget';
 import { Heart, Users, Sparkles, ExternalLink } from 'lucide-react';
 
 export function DiscoverPage() {
@@ -65,6 +66,11 @@ export function DiscoverPage() {
       {/* BLKOUT HUB Widget - Prominent placement */}
       <div className="mb-16 animate-fade-in" style={{ animationDelay: '200ms' }}>
         <BlkoutHubWidget />
+      </div>
+
+      {/* Featured Events Widget */}
+      <div className="mb-16 animate-fade-in" style={{ animationDelay: '250ms' }}>
+        <FeaturedEventsWidget />
       </div>
 
       {/* Social Media Feed - Full width carousel */}
