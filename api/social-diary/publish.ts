@@ -154,7 +154,7 @@ async function getScheduledPosts(): Promise<QueuedPost[]> {
         url
       )
     `)
-    .eq('status', 'scheduled')
+    .eq('status', 'queued')
     .lte('scheduled_for', now)
     .order('scheduled_for', { ascending: true })
     .limit(10);
