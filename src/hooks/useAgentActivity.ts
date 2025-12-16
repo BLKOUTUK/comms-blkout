@@ -23,7 +23,7 @@ export function useAgentActivity(limit: number = 10) {
         return;
       }
 
-      // Fetch recent agent tasks as activity
+      // Fetch recent agent tasks as activity (include generated_content and execution_metadata)
       const { data: taskData, error: taskError } = await supabase
         .from('socialsync_agent_tasks')
         .select('*')
@@ -41,7 +41,7 @@ export function useAgentActivity(limit: number = 10) {
           id: task.id,
           agentId: task.id, // Use task ID as agent activity ID
           agentType: task.agent_type || 'griot',
-          action: mapStatusToAction(task.status),
+          action: mapStatusToAction(task.status, task.generated_content),
           description: formatTaskDescription(task),
           timestamp: new Date(task.updated_at || task.created_at),
           metadata: {
@@ -49,6 +49,9 @@ export function useAgentActivity(limit: number = 10) {
             platform: task.target_platform,
             priority: task.priority,
             status: task.status,
+            hasGeneratedContent: !!task.generated_content,
+            contentPreview: task.generated_content ? task.generated_content.slice(0, 100) + '...' : null,
+            executionMetadata: task.execution_metadata,
           },
         }));
 
@@ -108,15 +111,18 @@ export function useAgentActivity(limit: number = 10) {
 }
 
 // Helper to map task status to action type
-function mapStatusToAction(status: string): string {
+function mapStatusToAction(status: string, generatedContent?: string): string {
+  if (status === 'completed' && generatedContent) {
+    return 'content_generated';
+  }
   switch (status) {
     case 'completed':
       return 'content_created';
     case 'in_progress':
-      return 'task_started';
+      return 'generating_content';
     case 'pending':
       return 'task_assigned';
-    case 'failed':
+    case 'cancelled':
       return 'task_failed';
     default:
       return 'task_updated';
@@ -127,15 +133,19 @@ function mapStatusToAction(status: string): string {
 function formatTaskDescription(task: any): string {
   const title = task.title || 'Untitled task';
   const platform = task.target_platform ? ` for ${task.target_platform}` : '';
+  const hasContent = !!task.generated_content;
 
   switch (task.status) {
     case 'completed':
+      if (hasContent) {
+        return `Generated content: ${title}${platform}`;
+      }
       return `Completed: ${title}${platform}`;
     case 'in_progress':
-      return `Working on: ${title}${platform}`;
+      return `Generating: ${title}${platform}`;
     case 'pending':
-      return `Assigned: ${title}${platform}`;
-    case 'failed':
+      return `Queued: ${title}${platform}`;
+    case 'cancelled':
       return `Failed: ${title}${platform}`;
     default:
       return `${title}${platform}`;

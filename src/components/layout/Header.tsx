@@ -1,12 +1,14 @@
 
+import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, User, LogOut, ExternalLink, Calendar, Newspaper } from 'lucide-react';
+import { Menu, User, LogOut, ExternalLink, Calendar, Newspaper, X } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 
 export function Header() {
   const { user, isAuthenticated, signOut } = useAuth();
   const location = useLocation();
   const isAdminRoute = location.pathname.startsWith('/admin');
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const handleSignOut = async () => {
     try {
@@ -17,17 +19,26 @@ export function Header() {
   };
 
   return (
-    <header className="bg-gray-900 border-b border-yellow-500/30 sticky top-0 z-50 shadow-lg backdrop-blur-sm">
+    <header
+      className="bg-gray-900 border-b border-yellow-500/30 sticky top-0 z-50 shadow-lg backdrop-blur-sm"
+      role="banner"
+    >
       <div className="px-6 py-4">
         <div className="flex items-center justify-between">
           {/* Logo and Title */}
           <div className="flex items-center gap-4">
             {isAdminRoute && (
-              <button className="lg:hidden text-gray-300 hover:text-yellow-500">
-                <Menu size={24} />
+              <button
+                className="lg:hidden text-gray-300 hover:text-yellow-500 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2 focus:ring-offset-gray-900 rounded-md p-1"
+                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                aria-expanded={isMobileMenuOpen}
+                aria-controls="mobile-menu"
+                aria-label={isMobileMenuOpen ? 'Close navigation menu' : 'Open navigation menu'}
+              >
+                {isMobileMenuOpen ? <X size={24} aria-hidden="true" /> : <Menu size={24} aria-hidden="true" />}
               </button>
             )}
-            <Link to="/discover" className="flex items-center gap-3">
+            <Link to="/discover" className="flex items-center gap-3" aria-label="BLKOUT Communications Hub - Go to homepage">
               <img
                 src="/images/blkout_logo_roundel_colour.png"
                 alt="BLKOUT"
@@ -41,7 +52,7 @@ export function Header() {
           </div>
 
           {/* Navigation */}
-          <nav className="hidden md:flex items-center gap-1">
+          <nav className="hidden md:flex items-center gap-1" aria-label="Main navigation">
             {/* Platform Links */}
             <div className="flex items-center gap-1 px-2 border-r border-yellow-500/20">
               <a
@@ -119,10 +130,10 @@ export function Header() {
                 </div>
                 <button
                   onClick={handleSignOut}
-                  className="p-2 text-gray-400 hover:text-yellow-500 transition-colors"
-                  title="Sign Out"
+                  className="p-2 text-gray-400 hover:text-yellow-500 transition-colors focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2 focus:ring-offset-gray-900 rounded-md"
+                  aria-label="Sign out"
                 >
-                  <LogOut size={20} />
+                  <LogOut size={20} aria-hidden="true" />
                 </button>
               </div>
             ) : (

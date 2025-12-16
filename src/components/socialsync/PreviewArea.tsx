@@ -304,18 +304,18 @@ export const PreviewArea: React.FC<PreviewAreaProps> = ({
              style={{ ...getAspectRatioStyle(), width: 'auto', height: 'auto', maxHeight: '100%', maxWidth: '100%' }}
            >
               {currentType === MediaType.IMAGE ? (
-                  <img src={currentUrl} alt="Generated" className="w-full h-full object-cover" />
+                  <img src={currentUrl} alt="AI-generated social media content preview" className="w-full h-full object-cover" />
               ) : (
-                  <video src={currentUrl} controls autoPlay loop className="w-full h-full object-cover" />
+                  <video src={currentUrl} controls autoPlay loop className="w-full h-full object-cover" aria-label="AI-generated video content preview" />
               )}
-              
+
               {/* Logo Overlay */}
               {logo && (
-                  <div 
+                  <div
                     className={`absolute w-[15%] pointer-events-none mix-blend-screen transition-all duration-300 ${getLogoPositionClass(logoPosition)}`}
                     style={{ opacity: logoOpacity }}
                   >
-                      <img src={logo.url} alt="Logo" className="w-full h-auto drop-shadow-lg" />
+                      <img src={logo.url} alt="Brand logo overlay" className="w-full h-auto drop-shadow-lg" />
                   </div>
               )}
 

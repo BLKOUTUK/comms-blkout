@@ -3,21 +3,24 @@ import { useState } from 'react';
 import { Layout } from '@/components/layout/Layout';
 import { AgentCard } from '@/components/shared/AgentCard';
 import { AgentPromptModal, type AgentTaskInput } from '@/components/agents/AgentPromptModal';
+import { AgentConfigurationModal } from '@/components/agents/AgentConfigurationModal';
+import { ApprovalQueue } from '@/components/agents/ApprovalQueue';
 import { useAgents } from '@/hooks/useAgents';
 import { useAgentTasks } from '@/hooks/useAgentTasks';
 import { useAgentIntelligence } from '@/hooks/useAgentIntelligence';
 import { useAgentActivity } from '@/hooks/useAgentActivity';
-import { Bot, Activity, Settings as SettingsIcon, Lightbulb, ListTodo, Users, Mail, Sparkles } from 'lucide-react';
+import { Bot, Activity, Settings as SettingsIcon, Lightbulb, ListTodo, Users, Mail, Sparkles, FileText, Clock, CheckCircle, XCircle, AlertCircle } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import type { AgentType } from '@/types';
 
 export function Agents() {
   const { agents, isLoading } = useAgents();
-  const { taskCounts, createTask } = useAgentTasks();
+  const { taskCounts, pendingApproval, createAndExecuteTask, approveTask, rejectTask, requestRevision, refetch: refetchTasks } = useAgentTasks();
   const { intelligence, dashboard, highPriorityIntel } = useAgentIntelligence();
-  const { activities, isUsingMockData: isActivityMock } = useAgentActivity(10);
+  const { activities, isUsingMockData: isActivityMock, refetch: refetchActivity } = useAgentActivity(10);
 
   const [isPromptModalOpen, setIsPromptModalOpen] = useState(false);
+  const [isConfigModalOpen, setIsConfigModalOpen] = useState(false);
   const [preselectedAgent, setPreselectedAgent] = useState<AgentType | undefined>(undefined);
 
   const handleAgentClick = (agentId: string) => {
@@ -30,7 +33,12 @@ export function Agents() {
   };
 
   const handlePromptSubmit = async (task: AgentTaskInput) => {
-    return await createTask(task);
+    const result = await createAndExecuteTask(task);
+    // Refetch activity log to show new execution
+    if (result.success) {
+      refetchActivity();
+    }
+    return result;
   };
 
   const openPromptModal = () => {
@@ -69,7 +77,10 @@ export function Agents() {
               <Sparkles size={18} />
               Prompt Agent
             </button>
-            <button className="btn btn-outline">
+            <button
+              onClick={() => setIsConfigModalOpen(true)}
+              className="btn btn-outline"
+            >
               <SettingsIcon size={18} />
               Configure Agents
             </button>
@@ -114,7 +125,27 @@ export function Agents() {
               <Lightbulb className="text-purple-600" size={32} />
             </div>
           </div>
+          {pendingApproval.length > 0 && (
+            <div className="card border-l-4 border-amber-500">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-gray-600 mb-1">Pending Approval</p>
+                  <p className="text-3xl font-bold text-amber-600">{pendingApproval.length}</p>
+                </div>
+                <AlertCircle className="text-amber-600" size={32} />
+              </div>
+            </div>
+          )}
         </div>
+
+        {/* Content Approval Queue */}
+        <ApprovalQueue
+          tasks={pendingApproval}
+          onApprove={approveTask}
+          onReject={rejectTask}
+          onRequestRevision={requestRevision}
+          onRefresh={() => { refetchTasks(); refetchActivity(); }}
+        />
 
         {/* Community Dashboard Summary */}
         {dashboard && (
@@ -214,30 +245,87 @@ export function Agents() {
             )}
           </div>
           <div className="space-y-4">
-            {activities.map((log) => (
-              <div
-                key={log.id}
-                className="flex items-start gap-4 pb-4 border-b border-gray-200 last:border-0"
-              >
-                <div className="w-10 h-10 bg-blkout-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                  <Bot size={20} className="text-blkout-600" />
-                </div>
-                <div className="flex-1">
-                  <div className="flex items-center justify-between mb-1">
-                    <h3 className="font-medium text-gray-900 capitalize">
-                      {log.agentType} Agent
-                    </h3>
-                    <span className="text-xs text-gray-500">
-                      {formatDistanceToNow(new Date(log.timestamp), { addSuffix: true })}
-                    </span>
+            {activities.map((log) => {
+              const metadata = log.metadata as Record<string, unknown> | undefined;
+              const hasContent = metadata?.hasGeneratedContent as boolean | undefined;
+              const contentPreview = metadata?.contentPreview as string | undefined;
+              const platform = metadata?.platform as string | undefined;
+
+              // Determine icon and color based on action
+              const getActivityIcon = () => {
+                switch (log.action) {
+                  case 'content_generated':
+                    return <Sparkles size={20} className="text-green-600" />;
+                  case 'generating_content':
+                    return <Clock size={20} className="text-blue-600 animate-pulse" />;
+                  case 'task_failed':
+                    return <XCircle size={20} className="text-red-600" />;
+                  case 'content_created':
+                    return <CheckCircle size={20} className="text-green-600" />;
+                  default:
+                    return <Bot size={20} className="text-blkout-600" />;
+                }
+              };
+
+              const getActionBadgeStyle = () => {
+                switch (log.action) {
+                  case 'content_generated':
+                    return 'bg-green-100 text-green-700';
+                  case 'generating_content':
+                    return 'bg-blue-100 text-blue-700';
+                  case 'task_failed':
+                    return 'bg-red-100 text-red-700';
+                  default:
+                    return 'bg-gray-100 text-gray-700';
+                }
+              };
+
+              return (
+                <div
+                  key={log.id}
+                  className="flex items-start gap-4 pb-4 border-b border-gray-200 last:border-0"
+                >
+                  <div className={`w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 ${
+                    hasContent ? 'bg-green-100' : 'bg-blkout-100'
+                  }`}>
+                    {getActivityIcon()}
                   </div>
-                  <p className="text-sm text-gray-600">{log.description}</p>
-                  <span className="inline-block mt-2 px-2 py-0.5 bg-gray-100 text-gray-700 text-xs rounded">
-                    {log.action.replace('_', ' ')}
-                  </span>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between mb-1">
+                      <h3 className="font-medium text-gray-900 capitalize">
+                        {log.agentType} Agent
+                      </h3>
+                      <span className="text-xs text-gray-500">
+                        {formatDistanceToNow(new Date(log.timestamp), { addSuffix: true })}
+                      </span>
+                    </div>
+                    <p className="text-sm text-gray-600">{log.description}</p>
+
+                    {/* Content Preview */}
+                    {hasContent && contentPreview && (
+                      <div className="mt-2 p-2 bg-gray-50 rounded-lg border border-gray-200">
+                        <div className="flex items-center gap-1 text-xs text-gray-500 mb-1">
+                          <FileText size={12} />
+                          <span>Generated content preview</span>
+                        </div>
+                        <p className="text-xs text-gray-600 line-clamp-2">{contentPreview}</p>
+                      </div>
+                    )}
+
+                    <div className="flex items-center gap-2 mt-2">
+                      <span className={`px-2 py-0.5 text-xs rounded ${getActionBadgeStyle()}`}>
+                        {log.action.replace(/_/g, ' ')}
+                      </span>
+                      {platform && (
+                        <span className="px-2 py-0.5 bg-purple-100 text-purple-700 text-xs rounded">
+                          {platform}
+                        </span>
+                      )}
+                    </div>
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
 
@@ -302,6 +390,16 @@ export function Agents() {
         onClose={() => setIsPromptModalOpen(false)}
         onSubmit={handlePromptSubmit}
         preselectedAgent={preselectedAgent}
+      />
+
+      {/* Agent Configuration Modal */}
+      <AgentConfigurationModal
+        isOpen={isConfigModalOpen}
+        onClose={() => setIsConfigModalOpen(false)}
+        onSave={() => {
+          // Refetch agents after config change
+          refetchActivity();
+        }}
       />
     </Layout>
   );

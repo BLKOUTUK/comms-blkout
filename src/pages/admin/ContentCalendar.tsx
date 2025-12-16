@@ -1,10 +1,28 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Layout } from '@/components/layout/Layout';
 import { useCalendarContent, type CalendarContent, deleteScheduledPost } from '@/hooks/useCalendarContent';
-import { ChevronLeft, ChevronRight, Image, Clock, Trash2, ExternalLink, Loader2 } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Image, Clock, Trash2, ExternalLink, Loader2, Send, AlertCircle } from 'lucide-react';
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, isToday, addMonths, subMonths } from 'date-fns';
+import { createClient } from '@supabase/supabase-js';
 import type { PlatformType } from '@/types';
+
+// Initialize Supabase client for social queue
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+const supabase = supabaseUrl && supabaseAnonKey
+  ? createClient(supabaseUrl, supabaseAnonKey)
+  : null;
+
+interface QueuedSocialPost {
+  id: string;
+  platform: string;
+  caption: string;
+  hashtags: string[];
+  scheduled_for: string;
+  status: string;
+  created_at: string;
+}
 
 const platformColors: Record<PlatformType, string> = {
   instagram: 'bg-pink-500',
@@ -37,6 +55,41 @@ export function ContentCalendar() {
   const [selectedPlatform, setSelectedPlatform] = useState<PlatformType | 'all'>('all');
   const [selectedContent, setSelectedContent] = useState<CalendarContent | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+
+  // Social queue state
+  const [socialQueue, setSocialQueue] = useState<QueuedSocialPost[]>([]);
+  const [queueLoading, setQueueLoading] = useState(true);
+  const [queueError, setQueueError] = useState<string | null>(null);
+
+  // Fetch social queue
+  useEffect(() => {
+    async function fetchSocialQueue() {
+      if (!supabase) {
+        setQueueLoading(false);
+        return;
+      }
+
+      try {
+        const { data, error: fetchErr } = await supabase
+          .from('social_media_queue')
+          .select('id, platform, caption, hashtags, scheduled_for, status, created_at')
+          .in('status', ['queued', 'scheduled'])
+          .gte('scheduled_for', new Date().toISOString())
+          .order('scheduled_for', { ascending: true })
+          .limit(10);
+
+        if (fetchErr) throw fetchErr;
+        setSocialQueue(data || []);
+      } catch (err) {
+        console.error('Error fetching social queue:', err);
+        setQueueError('Failed to load social queue');
+      } finally {
+        setQueueLoading(false);
+      }
+    }
+
+    fetchSocialQueue();
+  }, []);
 
   const monthStart = startOfMonth(currentMonth);
   const monthEnd = endOfMonth(currentMonth);
@@ -117,39 +170,47 @@ export function ContentCalendar() {
             <button
               onClick={() => setCurrentMonth(subMonths(currentMonth, 1))}
               className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+              aria-label="Previous month"
             >
-              <ChevronLeft size={20} />
+              <ChevronLeft size={20} aria-hidden="true" />
             </button>
-            <h2 className="text-xl font-semibold text-gray-900 min-w-[180px] text-center">
+            <h2 className="text-xl font-semibold text-gray-900 min-w-[180px] text-center" aria-live="polite">
               {format(currentMonth, 'MMMM yyyy')}
             </h2>
             <button
               onClick={() => setCurrentMonth(addMonths(currentMonth, 1))}
               className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+              aria-label="Next month"
             >
-              <ChevronRight size={20} />
+              <ChevronRight size={20} aria-hidden="true" />
             </button>
             <button
               onClick={() => setCurrentMonth(new Date())}
               className="btn btn-secondary text-sm"
+              aria-label="Go to today"
             >
               Today
             </button>
           </div>
 
-          <select
-            value={selectedPlatform}
-            onChange={(e) => setSelectedPlatform(e.target.value as PlatformType | 'all')}
-            className="input min-w-[150px]"
-          >
-            <option value="all">All Platforms</option>
-            <option value="instagram">Instagram</option>
-            <option value="linkedin">LinkedIn</option>
-            <option value="twitter">Twitter</option>
-            <option value="facebook">Facebook</option>
-            <option value="tiktok">TikTok</option>
-            <option value="youtube">YouTube</option>
-          </select>
+          <div className="flex items-center gap-2">
+            <label htmlFor="platform-filter" className="sr-only">Filter by platform</label>
+            <select
+              id="platform-filter"
+              value={selectedPlatform}
+              onChange={(e) => setSelectedPlatform(e.target.value as PlatformType | 'all')}
+              className="input min-w-[150px]"
+              aria-label="Filter content by platform"
+            >
+              <option value="all">All Platforms</option>
+              <option value="instagram">Instagram</option>
+              <option value="linkedin">LinkedIn</option>
+              <option value="twitter">Twitter</option>
+              <option value="facebook">Facebook</option>
+              <option value="tiktok">TikTok</option>
+              <option value="youtube">YouTube</option>
+            </select>
+          </div>
         </div>
 
         <div className="flex gap-6">
@@ -215,9 +276,11 @@ export function ContentCalendar() {
                                 key={platform}
                                 className={`w-2 h-2 rounded-full ${platformColors[platform]}`}
                                 title={platformLabels[platform]}
+                                role="img"
+                                aria-label={platformLabels[platform]}
                               />
                             ))}
-                            {item.assetUrl && <Image size={10} className="text-gray-400" />}
+                            {item.assetUrl && <Image size={10} className="text-gray-400" aria-label="Has attached image" />}
                           </div>
                         </div>
                       ))}
@@ -251,7 +314,7 @@ export function ContentCalendar() {
                 <div className="mb-4">
                   <img
                     src={selectedContent.assetUrl}
-                    alt="Content preview"
+                    alt={`Preview for scheduled post: ${selectedContent.title}`}
                     className="w-full rounded-lg object-cover"
                   />
                 </div>
@@ -259,7 +322,15 @@ export function ContentCalendar() {
 
               {/* Status */}
               <div className="mb-4">
-                <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${statusColors[selectedContent.status]}`}>
+                <span
+                  className={`inline-flex items-center gap-1.5 px-2 py-1 rounded-full text-xs font-medium ${statusColors[selectedContent.status]}`}
+                  role="status"
+                >
+                  {/* Status icon for color-independent indication */}
+                  {selectedContent.status === 'queued' && <span aria-hidden="true">⏳</span>}
+                  {selectedContent.status === 'scheduled' && <span aria-hidden="true">📅</span>}
+                  {selectedContent.status === 'published' && <span aria-hidden="true">✓</span>}
+                  {selectedContent.status === 'failed' && <span aria-hidden="true">✗</span>}
                   {selectedContent.status.charAt(0).toUpperCase() + selectedContent.status.slice(1)}
                 </span>
               </div>
@@ -344,13 +415,113 @@ export function ContentCalendar() {
           )}
         </div>
 
-        {/* Legend */}
+        {/* Social Queue Preview */}
         <div className="card">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-gradient-to-br from-blkout-500 to-purple-600 rounded-lg flex items-center justify-center">
+                <Send className="h-5 w-5 text-white" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-gray-900">Social Diary Queue</h3>
+                <p className="text-xs text-gray-500">AI-generated posts from events</p>
+              </div>
+            </div>
+            <span className="text-sm text-gray-500">
+              {socialQueue.length} posts queued
+            </span>
+          </div>
+
+          {queueLoading && (
+            <div className="flex items-center justify-center py-6">
+              <Loader2 className="animate-spin text-blkout-600" size={24} />
+            </div>
+          )}
+
+          {queueError && (
+            <div className="flex items-center gap-2 text-amber-700 bg-amber-50 p-3 rounded-lg text-sm">
+              <AlertCircle size={16} />
+              {queueError}
+            </div>
+          )}
+
+          {!queueLoading && !queueError && socialQueue.length === 0 && (
+            <div className="text-center py-6 text-gray-500 text-sm">
+              No posts in social queue. Events will be auto-queued when approved.
+            </div>
+          )}
+
+          {!queueLoading && !queueError && socialQueue.length > 0 && (
+            <div className="space-y-3">
+              {socialQueue.slice(0, 5).map((post) => (
+                <div
+                  key={post.id}
+                  className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+                >
+                  <div
+                    className={`w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold ${
+                      post.platform === 'linkedin' ? 'bg-blue-600' :
+                      post.platform === 'twitter' ? 'bg-sky-500' :
+                      post.platform === 'instagram' ? 'bg-pink-500' : 'bg-gray-500'
+                    }`}
+                    role="img"
+                    aria-label={`${post.platform.charAt(0).toUpperCase()}${post.platform.slice(1)} post`}
+                    title={post.platform.charAt(0).toUpperCase() + post.platform.slice(1)}
+                  >
+                    {post.platform.charAt(0).toUpperCase()}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="text-xs font-medium text-gray-700 capitalize">
+                        {post.platform}
+                      </span>
+                      <span
+                        className={`text-xs px-1.5 py-0.5 rounded inline-flex items-center gap-1 ${
+                          post.status === 'queued' ? 'bg-yellow-100 text-yellow-700' : 'bg-blue-100 text-blue-700'
+                        }`}
+                        role="status"
+                      >
+                        {post.status === 'queued' && <span aria-hidden="true">⏳</span>}
+                        {post.status === 'scheduled' && <span aria-hidden="true">📅</span>}
+                        {post.status}
+                      </span>
+                    </div>
+                    <p className="text-sm text-gray-800 line-clamp-2">{post.caption}</p>
+                    <div className="flex items-center gap-2 mt-2 text-xs text-gray-500">
+                      <Clock size={12} />
+                      {format(new Date(post.scheduled_for), 'MMM d, yyyy h:mm a')}
+                    </div>
+                    {post.hashtags && post.hashtags.length > 0 && (
+                      <div className="flex flex-wrap gap-1 mt-1">
+                        {post.hashtags.slice(0, 3).map((tag, i) => (
+                          <span key={i} className="text-xs text-blkout-600">
+                            #{tag}
+                          </span>
+                        ))}
+                        {post.hashtags.length > 3 && (
+                          <span className="text-xs text-gray-400">+{post.hashtags.length - 3}</span>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))}
+              {socialQueue.length > 5 && (
+                <div className="text-center text-sm text-gray-500 pt-2">
+                  +{socialQueue.length - 5} more posts in queue
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* Legend */}
+        <div className="card" role="region" aria-label="Platform color legend">
           <h3 className="text-sm font-semibold text-gray-900 mb-3">Platform Legend</h3>
           <div className="flex flex-wrap gap-4">
             {Object.entries(platformColors).map(([platform, color]) => (
               <div key={platform} className="flex items-center gap-2">
-                <div className={`w-3 h-3 rounded-full ${color}`}></div>
+                <div className={`w-3 h-3 rounded-full ${color}`} aria-hidden="true"></div>
                 <span className="text-sm text-gray-700">{platformLabels[platform as PlatformType]}</span>
               </div>
             ))}
