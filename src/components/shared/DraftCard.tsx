@@ -1,7 +1,10 @@
 
-import { Clock, CheckCircle, XCircle, AlertCircle } from 'lucide-react';
+import { useState } from 'react';
+import { Clock, CheckCircle, XCircle, AlertCircle, Eye, Send } from 'lucide-react';
 import type { Draft, PlatformType } from '@/types';
 import { formatDistanceToNow } from 'date-fns';
+import { InstagramPreview, FacebookPreview, LinkedInPreview } from '../previews';
+import { publishToSocial } from '@/services/socialPublisher';
 
 interface DraftCardProps {
   draft: Draft;
@@ -47,7 +50,34 @@ const statusConfig = {
 };
 
 export function DraftCard({ draft, onApprove, onReject, onEdit }: DraftCardProps) {
+  const [showPreview, setShowPreview] = useState(false);
+  const [isPublishing, setIsPublishing] = useState(false);
   const StatusIcon = statusConfig[draft.status].icon;
+
+  const handlePublishNow = async () => {
+    if (!confirm(`Publish to ${draft.platforms[0]} immediately?`)) return;
+
+    setIsPublishing(true);
+    try {
+      const result = await publishToSocial({
+        platform: draft.platforms[0] as any,
+        caption: draft.body,
+        imageUrl: undefined, // TODO: Extract from draft if exists
+        link: undefined
+      });
+
+      if (result.success) {
+        alert(`✅ Published to ${draft.platforms[0]}!`);
+        window.location.reload();
+      } else {
+        alert(`❌ Failed: ${result.error}`);
+      }
+    } catch (error) {
+      alert(`❌ Error: ${(error as Error).message}`);
+    } finally {
+      setIsPublishing(false);
+    }
+  };
 
   return (
     <div className="card card-hover">
@@ -96,25 +126,38 @@ export function DraftCard({ draft, onApprove, onReject, onEdit }: DraftCardProps
 
       {/* Actions */}
       {draft.status === 'pending_review' && (
-        <div className="flex gap-2">
-          <button
-            onClick={() => onReject?.(draft.id)}
-            className="btn btn-secondary text-sm flex-1"
-          >
-            Reject
-          </button>
-          <button
-            onClick={() => onEdit?.(draft.id)}
-            className="btn btn-outline text-sm flex-1"
-          >
-            Edit
-          </button>
-          <button
-            onClick={() => onApprove?.(draft.id)}
-            className="btn btn-primary text-sm flex-1"
-          >
-            Approve
-          </button>
+        <div className="space-y-2">
+          <div className="flex gap-2">
+            <button
+              onClick={() => setShowPreview(true)}
+              className="btn btn-outline text-sm flex-1 flex items-center justify-center gap-1"
+            >
+              <Eye size={16} />
+              Preview
+            </button>
+            <button
+              onClick={handlePublishNow}
+              disabled={isPublishing}
+              className="btn btn-primary text-sm flex-1 flex items-center justify-center gap-1"
+            >
+              <Send size={16} />
+              {isPublishing ? 'Publishing...' : 'Publish Now'}
+            </button>
+          </div>
+          <div className="flex gap-2">
+            <button
+              onClick={() => onReject?.(draft.id)}
+              className="btn btn-secondary text-sm flex-1"
+            >
+              Reject
+            </button>
+            <button
+              onClick={() => onApprove?.(draft.id)}
+              className="btn btn-primary text-sm flex-1"
+            >
+              Queue for Later
+            </button>
+          </div>
         </div>
       )}
 
@@ -125,6 +168,17 @@ export function DraftCard({ draft, onApprove, onReject, onEdit }: DraftCardProps
         >
           View Details
         </button>
+      )}
+
+      {/* Preview Modal */}
+      {showPreview && draft.platforms[0] === 'instagram' && (
+        <InstagramPreview draft={draft} onClose={() => setShowPreview(false)} />
+      )}
+      {showPreview && draft.platforms[0] === 'facebook' && (
+        <FacebookPreview draft={draft} onClose={() => setShowPreview(false)} />
+      )}
+      {showPreview && draft.platforms[0] === 'linkedin' && (
+        <LinkedInPreview draft={draft} onClose={() => setShowPreview(false)} />
       )}
     </div>
   );

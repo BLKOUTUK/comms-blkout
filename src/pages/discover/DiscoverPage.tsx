@@ -9,6 +9,7 @@ import { AdventCalendarWidget } from '@/components/discover/AdventCalendarWidget
 import { ArchiveArticleWidget } from '@/components/discover/ArchiveArticleWidget';
 import { BlkoutVoicesWidget } from '@/components/discover/BlkoutVoicesWidget';
 import { FeaturedEventsWidget } from '@/components/discover/FeaturedEventsWidget';
+import { NewsletterSignup } from '@/components/discover/NewsletterSignup';
 import { Heart, Users, Sparkles, ExternalLink } from 'lucide-react';
 
 export function DiscoverPage() {
@@ -154,6 +155,11 @@ export function DiscoverPage() {
             </a>
           </div>
         </div>
+      </div>
+
+      {/* Newsletter Signup */}
+      <div className="mt-16 animate-fade-in" style={{ animationDelay: '800ms' }}>
+        <NewsletterSignup />
       </div>
 
       {/* Prominent link back to Community Platform */}

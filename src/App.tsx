@@ -18,6 +18,8 @@ import { OAuthCallback } from '@/pages/auth/OAuthCallback';
 import Grants from '@/pages/admin/Grants';
 import { EventModeration } from '@/pages/admin/EventModeration';
 import { NewsModeration } from '@/pages/admin/NewsModeration';
+import { DesignStudio } from '@/pages/admin/DesignStudio';
+import { CampaignReview } from '@/pages/admin/CampaignReview';
 
 function App() {
   return (
@@ -125,6 +127,22 @@ function App() {
             element={
               <ProtectedRoute>
                 <NewsModeration />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/design-studio"
+            element={
+              <ProtectedRoute>
+                <DesignStudio />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/campaigns"
+            element={
+              <ProtectedRoute>
+                <CampaignReview />
               </ProtectedRoute>
             }
           />
