@@ -2,9 +2,10 @@
 import { useState, useEffect } from 'react';
 import { Layout } from '@/components/layout/Layout';
 import { useSocialConnect } from '@/hooks/useSocialConnect';
+import { useCanva } from '@/hooks/useCanva';
 import { useAuth, isAuthDisabled } from '@/hooks/useAuth';
 import { SocialPlatform } from '@/types/socialsync';
-import { CheckCircle, AlertCircle, Loader2, Settings2, ExternalLink } from 'lucide-react';
+import { CheckCircle, AlertCircle, Loader2, Settings2, ExternalLink, Palette, User, LogOut } from 'lucide-react';
 
 // Platform display configuration
 const platformConfig = {
@@ -44,8 +45,9 @@ const platformConfig = {
 
 export function Settings() {
   const { connections, isLoading, error, initiateConnect, disconnect, refreshStatus } = useSocialConnect();
+  const canva = useCanva();
   const { user } = useAuth();
-  const [activeTab, setActiveTab] = useState<'platforms' | 'agents' | 'general' | 'auth'>('platforms');
+  const [activeTab, setActiveTab] = useState<'platforms' | 'design' | 'agents' | 'general' | 'auth'>('platforms');
   const [connectingPlatform, setConnectingPlatform] = useState<SocialPlatform | null>(null);
 
   useEffect(() => {
@@ -67,6 +69,7 @@ export function Settings() {
 
   const tabs = [
     { id: 'platforms', label: 'Platform Connections' },
+    { id: 'design', label: 'Design Tools' },
     { id: 'agents', label: 'Agent Configuration' },
     { id: 'general', label: 'General Settings' },
     { id: 'auth', label: 'Authentication' },
@@ -280,6 +283,170 @@ VITE_TIKTOK_CLIENT_SECRET=your_client_secret`}
                   <p>
                     Once credentials are configured, click "Connect" to authorize BLKOUT to
                     post on your behalf. You can disconnect at any time.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Design Tools Tab */}
+        {activeTab === 'design' && (
+          <div className="space-y-6">
+            {/* Canva Integration Card */}
+            <div className="card">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 bg-gradient-to-br from-purple-500 via-pink-500 to-blue-500 rounded-lg flex items-center justify-center">
+                    <Palette className="text-white" size={24} />
+                  </div>
+                  <div>
+                    <h2 className="text-xl font-semibold text-gray-900">Canva Integration</h2>
+                    <p className="text-sm text-gray-500">Create and manage designs directly in BLKOUT</p>
+                  </div>
+                </div>
+                {canva.isConnected && (
+                  <span className="flex items-center gap-1 px-3 py-1 bg-green-100 text-green-700 text-sm rounded-full">
+                    <CheckCircle size={14} />
+                    Connected
+                  </span>
+                )}
+              </div>
+
+              {canva.error && (
+                <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+                  <div className="flex items-center gap-2 text-red-700">
+                    <AlertCircle size={16} />
+                    <span className="text-sm">{canva.error}</span>
+                  </div>
+                </div>
+              )}
+
+              {!canva.isConfigured ? (
+                <div className="p-4 bg-amber-50 border border-amber-200 rounded-lg">
+                  <div className="flex items-start gap-3">
+                    <AlertCircle className="text-amber-600 flex-shrink-0 mt-0.5" size={20} />
+                    <div>
+                      <h3 className="font-semibold text-amber-900 mb-2">Canva Not Configured</h3>
+                      <p className="text-sm text-amber-800 mb-3">
+                        To enable Canva integration, add your Canva Connect API credentials to your environment variables.
+                      </p>
+                      <a
+                        href="https://www.canva.com/developers/"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="btn btn-outline text-sm inline-flex items-center gap-1"
+                      >
+                        <Settings2 size={14} />
+                        Get Canva API Credentials
+                        <ExternalLink size={12} />
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              ) : canva.isConnected ? (
+                <div className="space-y-4">
+                  {/* Connected User Info */}
+                  <div className="p-4 bg-gray-50 rounded-lg">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 bg-blkout-100 rounded-full flex items-center justify-center">
+                          <User className="text-blkout-600" size={20} />
+                        </div>
+                        <div>
+                          <p className="font-medium text-gray-900">{canva.user?.display_name || 'Canva User'}</p>
+                          <p className="text-sm text-gray-500">Connected to Canva</p>
+                        </div>
+                      </div>
+                      <button
+                        onClick={() => canva.disconnect()}
+                        disabled={canva.isLoading}
+                        className="btn btn-outline text-sm flex items-center gap-2 text-red-600 border-red-200 hover:bg-red-50"
+                      >
+                        {canva.isLoading ? (
+                          <Loader2 className="animate-spin" size={16} />
+                        ) : (
+                          <LogOut size={16} />
+                        )}
+                        Disconnect
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Quick Actions */}
+                  <div className="grid grid-cols-2 gap-4">
+                    <a
+                      href="/admin/design-studio"
+                      className="p-4 border border-gray-200 rounded-lg hover:border-blkout-300 hover:bg-blkout-50 transition-colors group"
+                    >
+                      <h3 className="font-medium text-gray-900 group-hover:text-blkout-700">Design Studio</h3>
+                      <p className="text-sm text-gray-500 mt-1">Create and manage your Canva designs</p>
+                    </a>
+                    <a
+                      href="https://www.canva.com"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="p-4 border border-gray-200 rounded-lg hover:border-blkout-300 hover:bg-blkout-50 transition-colors group"
+                    >
+                      <div className="flex items-center justify-between">
+                        <h3 className="font-medium text-gray-900 group-hover:text-blkout-700">Open Canva</h3>
+                        <ExternalLink size={14} className="text-gray-400" />
+                      </div>
+                      <p className="text-sm text-gray-500 mt-1">Access your Canva account directly</p>
+                    </a>
+                  </div>
+                </div>
+              ) : (
+                <div className="text-center py-6">
+                  <p className="text-gray-600 mb-4">
+                    Connect your Canva account to create professional social media graphics, event materials, and branded content.
+                  </p>
+                  <button
+                    onClick={() => canva.connect()}
+                    disabled={canva.isLoading}
+                    className="btn btn-primary inline-flex items-center gap-2"
+                  >
+                    {canva.isLoading ? (
+                      <>
+                        <Loader2 className="animate-spin" size={16} />
+                        Connecting...
+                      </>
+                    ) : (
+                      <>
+                        <Palette size={16} />
+                        Connect Canva Account
+                      </>
+                    )}
+                  </button>
+                </div>
+              )}
+            </div>
+
+            {/* Setup Instructions */}
+            <div className="card bg-blkout-50 border-blkout-200">
+              <h3 className="text-lg font-semibold text-gray-900 mb-3">
+                Setting Up Canva Integration
+              </h3>
+              <div className="space-y-4 text-sm text-gray-700">
+                <div>
+                  <h4 className="font-medium text-blkout-900 mb-2">1. Create a Canva Developer App</h4>
+                  <p>
+                    Visit the <a href="https://www.canva.com/developers/" target="_blank" rel="noopener noreferrer" className="text-blkout-600 hover:underline">Canva Developers Portal</a> and create a new app to get your API credentials.
+                  </p>
+                </div>
+                <div>
+                  <h4 className="font-medium text-blkout-900 mb-2">2. Add Credentials to .env</h4>
+                  <pre className="bg-white p-3 rounded border border-blkout-200 overflow-x-auto text-xs">
+{`# Canva Connect API
+VITE_CANVA_CLIENT_ID=your_canva_client_id
+VITE_CANVA_CLIENT_SECRET=your_canva_client_secret
+VITE_CANVA_REDIRECT_URI=${window.location.origin}/auth/callback/canva`}
+                  </pre>
+                </div>
+                <div>
+                  <h4 className="font-medium text-blkout-900 mb-2">3. Connect Your Account</h4>
+                  <p>
+                    Once credentials are configured, click "Connect Canva Account" to authorize BLKOUT to access your Canva designs.
                   </p>
                 </div>
               </div>

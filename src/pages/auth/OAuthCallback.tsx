@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { useSocialConnect } from '@/hooks/useSocialConnect';
 import { SocialPlatform } from '@/types/socialsync';
+import { canvaService } from '@/services/canva';
 import { CheckCircle, XCircle, Loader2 } from 'lucide-react';
 
 export function OAuthCallback() {
@@ -31,7 +32,32 @@ export function OAuthCallback() {
         return;
       }
 
-      // Map platform string to enum
+      // Handle Canva OAuth callback
+      if (platform?.toLowerCase() === 'canva') {
+        try {
+          await canvaService.handleCallback(code);
+          setStatus('success');
+          setMessage('Successfully connected to Canva!');
+
+          // Close popup if opened as popup, otherwise redirect
+          if (window.opener) {
+            window.opener.postMessage(
+              { type: 'oauth_success', platform: 'canva' },
+              window.location.origin
+            );
+            setTimeout(() => window.close(), 2000);
+          } else {
+            setTimeout(() => navigate('/admin/settings'), 2000);
+          }
+          return;
+        } catch (err) {
+          setStatus('error');
+          setMessage(err instanceof Error ? err.message : 'Canva authentication failed');
+          return;
+        }
+      }
+
+      // Map platform string to enum for social platforms
       const platformMap: Record<string, SocialPlatform> = {
         instagram: SocialPlatform.INSTAGRAM,
         tiktok: SocialPlatform.TIKTOK,

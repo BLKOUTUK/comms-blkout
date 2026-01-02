@@ -17,6 +17,7 @@ import {
 import { fetchAgentTasks, subscribeToTaskUpdates } from '@/services/socialsync/integration';
 import * as SupabaseService from '@/services/socialsync/supabase';
 import { scheduleAssetToQueue } from '@/hooks/useCalendarContent';
+import { ValuesCheck, ValidationResult } from '@/components/shared/ValuesCheck';
 import {
   ArrowLeft,
   Sparkles,
@@ -84,6 +85,10 @@ export function SocialSyncEditorial() {
   // Approval State
   const [approvalStatus, setApprovalStatus] = useState<'pending' | 'approved' | 'rejected' | null>(null);
   const [isPushing, setIsPushing] = useState(false);
+
+  // Validation State
+  const [showValidationModal, setShowValidationModal] = useState(false);
+  const [validationResults, setValidationResults] = useState<ValidationResult[] | null>(null);
 
   // Scheduling State
   const [showScheduleModal, setShowScheduleModal] = useState(false);
@@ -195,14 +200,38 @@ export function SocialSyncEditorial() {
     }
   };
 
-  const handleApprove = async () => {
+  const handleApproveClick = () => {
+    // Show validation modal instead of approving immediately
+    setShowValidationModal(true);
+  };
+
+  const handleValidationComplete = (passed: boolean, results: ValidationResult[]) => {
+    setValidationResults(results);
+    setShowValidationModal(false);
+
+    if (passed) {
+      // All required checks passed - proceed with approval
+      handleApprove(results);
+    } else {
+      // Validation failed - show error
+      setError('Validation failed. All required checks must pass before approval.');
+      setApprovalStatus('pending');
+    }
+  };
+
+  const handleValidationCancel = () => {
+    setShowValidationModal(false);
+    setValidationResults(null);
+  };
+
+  const handleApprove = async (validationResults: ValidationResult[]) => {
     if (!generatedImage || !selectedTask) return;
 
     setApprovalStatus('approved');
     setIsPushing(true);
 
     try {
-      // Save asset to Supabase database
+      // Save asset to Supabase database with validation results
       const savedAsset = await SupabaseService.createGeneratedAsset({
         taskId: selectedTask.id,
         mediaType: 'image',
@@ -215,6 +244,8 @@ export function SocialSyncEditorial() {
         metadata: {
           provider: AIProvider.GOOGLE,
           platform: selectedTask.targetPlatform,
+          validationResults: validationResults, // Store validation for audit trail
+          validatedAt: new Date().toISOString(),
         }
       });
 
@@ -615,7 +646,7 @@ export function SocialSyncEditorial() {
                     {approvalStatus === 'pending' && (
                       <div className="flex gap-3">
                         <button
-                          onClick={handleApprove}
+                          onClick={handleApproveClick}
                           disabled={isPushing}
                           className="flex-1 flex items-center justify-center gap-2 py-3 bg-green-600 hover:bg-green-500 rounded-lg font-medium transition-colors disabled:opacity-50"
                         >
@@ -717,6 +748,24 @@ export function SocialSyncEditorial() {
             )}
           </div>
         </div>
+
+        {/* Validation Modal */}
+        {showValidationModal && (
+          <div
+            className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4 overflow-y-auto"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="validation-modal-title"
+          >
+            <div className="my-8">
+              <ValuesCheck
+                contentType="image"
+                onValidationComplete={handleValidationComplete}
+                onCancel={handleValidationCancel}
+              />
+            </div>
+          </div>
+        )}
 
         {/* Schedule Modal */}
         {showScheduleModal && (
