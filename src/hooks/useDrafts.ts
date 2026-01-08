@@ -26,9 +26,9 @@ export function useDrafts() {
         return;
       }
 
-      // Fetch from Supabase
+      // Fetch from Supabase (table name: content_drafts)
       const { data, error: fetchError } = await supabase
-        .from('drafts')
+        .from('content_drafts')
         .select('*')
         .order('created_at', { ascending: false });
 
