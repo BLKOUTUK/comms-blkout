@@ -7,8 +7,8 @@
 
 /** @type {import('tailwindcss').Config} */
 export default {
-  // Use shared BLKOUT design system
-  presets: [require('../../packages/shared/tailwind.preset')],
+  // Use shared BLKOUT design system (copied locally for standalone deployment)
+  presets: [require('./tailwind.preset')],
 
   content: [
     "./index.html",
