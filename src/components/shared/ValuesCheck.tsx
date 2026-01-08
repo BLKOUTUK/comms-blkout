@@ -104,7 +104,7 @@ const BASE_VALIDATION_CHECKLIST: ValidationCheck[] = [
   }
 ];
 
-export function ValuesCheck({ contentType, onValidationComplete, onCancel }: ValuesCheckProps) {
+export function ValuesCheck({ onValidationComplete, onCancel }: ValuesCheckProps) {
   const [checks, setChecks] = useState<ValidationCheck[]>(BASE_VALIDATION_CHECKLIST);
   const [notes, setNotes] = useState<Record<string, string>>({});
 

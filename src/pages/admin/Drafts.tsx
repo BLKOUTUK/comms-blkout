@@ -4,6 +4,7 @@ import { Layout } from '@/components/layout/Layout';
 import { DraftCard } from '@/components/shared/DraftCard';
 import { useDrafts } from '@/hooks/useDrafts';
 import { Filter } from 'lucide-react';
+import { supabase } from '@/lib/supabase';
 import type { Draft } from '@/types';
 
 export function Drafts() {
@@ -43,7 +44,7 @@ export function Drafts() {
     }
   };
 
-  const handleReject = async (id: string) => {
+  const handleReject = async (_id: string) => {
     if (!confirm('Reject this draft? It will be hidden but not deleted.')) return;
 
     try {

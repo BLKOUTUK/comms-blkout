@@ -9,7 +9,6 @@
  * - IVOR voice and BLKOUT branding
  */
 
-import React from 'react';
 
 export const Holiday2025Newsletter = () => {
   return (
