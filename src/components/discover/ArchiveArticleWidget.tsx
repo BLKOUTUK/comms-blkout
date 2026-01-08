@@ -1,5 +1,5 @@
 
-import { BookOpen, ExternalLink, Calendar } from 'lucide-react';
+import { BookOpen, Calendar } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { createClient } from '@supabase/supabase-js';
 
@@ -26,7 +26,7 @@ export function ArchiveArticleWidget() {
     async function loadFeaturedArchiveArticle() {
       try {
         // Get a random featured article from legacy_articles
-        const { data, error } = await supabase
+        const { data } = await supabase
           .from('legacy_articles')
           .select('title, excerpt, published_at, author, slug, category_id')
           .eq('status', 'published')

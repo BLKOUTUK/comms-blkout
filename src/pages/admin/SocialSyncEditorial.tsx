@@ -88,7 +88,7 @@ export function SocialSyncEditorial() {
 
   // Validation State
   const [showValidationModal, setShowValidationModal] = useState(false);
-  const [validationResults, setValidationResults] = useState<ValidationResult[] | null>(null);
+  const [_validationResults, setValidationResults] = useState<ValidationResult[] | null>(null);
 
   // Scheduling State
   const [showScheduleModal, setShowScheduleModal] = useState(false);
