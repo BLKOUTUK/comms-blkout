@@ -16,7 +16,7 @@
 
 const RESEND_API_KEY = process.env.RESEND_API_KEY || 're_HK47Qpxi_8hfuv32bYXxnb3nzFkoMLrSS';
 const TEST_RECIPIENT = process.env.TEST_EMAIL || 'rob@blkoutuk.com';
-const FROM_ADDRESS = 'BLKOUT <onboarding@resend.dev>'; // Using Resend test domain (blkoutuk.com not verified)
+const FROM_ADDRESS = 'BLKOUT <noreply@blkoutuk.com>'; // Domain verified in Resend
 
 // ANSI colors for terminal output
 const colors = {
