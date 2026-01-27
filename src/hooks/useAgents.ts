@@ -48,6 +48,7 @@ export function useAgents() {
   const [agents, setAgents] = useState<Agent[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isUsingMockData, setIsUsingMockData] = useState(false);
 
   const fetchAgents = useCallback(async () => {
     try {
@@ -58,6 +59,7 @@ export function useAgents() {
       if (!isSupabaseConfigured()) {
         console.log('📦 Using mock agents data');
         setAgents(mockAgents);
+        setIsUsingMockData(true);
         setIsLoading(false);
         return;
       }
@@ -97,16 +99,19 @@ export function useAgents() {
         }
 
         setAgents(transformedAgents);
+        setIsUsingMockData(false);
       } else {
         // Fallback to mock data if no agents configured
         console.log('📦 No agents in database, using mock data');
         setAgents(mockAgents);
+        setIsUsingMockData(true);
       }
     } catch (err) {
       console.error('Error fetching agents:', err);
       setError(err instanceof Error ? err.message : 'Failed to fetch agents');
       // Fallback to mock data on error
       setAgents(mockAgents);
+      setIsUsingMockData(true);
     } finally {
       setIsLoading(false);
     }
@@ -149,7 +154,7 @@ export function useAgents() {
     return agents.find(agent => agent.type === type);
   };
 
-  return { agents, isLoading, error, refetch, getAgentByType };
+  return { agents, isLoading, error, isUsingMockData, refetch, getAgentByType };
 }
 
 // Hook for individual agent with more details

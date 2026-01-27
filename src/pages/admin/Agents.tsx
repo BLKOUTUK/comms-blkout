@@ -5,23 +5,25 @@ import { AgentCard } from '@/components/shared/AgentCard';
 import { AgentPromptModal, type AgentTaskInput } from '@/components/agents/AgentPromptModal';
 import { AgentConfigurationModal } from '@/components/agents/AgentConfigurationModal';
 import { ApprovalQueue } from '@/components/agents/ApprovalQueue';
+import { IntelligenceFeedPanel } from '@/components/agents/IntelligenceFeedPanel';
 import { useAgents } from '@/hooks/useAgents';
 import { useAgentTasks } from '@/hooks/useAgentTasks';
 import { useAgentIntelligence } from '@/hooks/useAgentIntelligence';
 import { useAgentActivity } from '@/hooks/useAgentActivity';
-import { Bot, Activity, Settings as SettingsIcon, Lightbulb, ListTodo, Users, Mail, Sparkles, FileText, Clock, CheckCircle, XCircle, AlertCircle } from 'lucide-react';
+import { Bot, Activity, Settings as SettingsIcon, Lightbulb, ListTodo, Users, Mail, Sparkles, FileText, Clock, CheckCircle, XCircle, AlertCircle, Brain, Database } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import type { AgentType } from '@/types';
 
 export function Agents() {
-  const { agents, isLoading } = useAgents();
+  const { agents, isLoading, isUsingMockData: isAgentsMock, refetch: refetchAgents } = useAgents();
   const { taskCounts, pendingApproval, createAndExecuteTask, approveTask, rejectTask, requestRevision, refetch: refetchTasks } = useAgentTasks();
-  const { intelligence, dashboard, highPriorityIntel } = useAgentIntelligence();
+  const { intelligence, dashboard, highPriorityIntel, isLoading: isIntelLoading, error: intelError, refetch: refetchIntelligence, markAsUsed } = useAgentIntelligence();
   const { activities, isUsingMockData: isActivityMock, refetch: refetchActivity } = useAgentActivity(10);
 
   const [isPromptModalOpen, setIsPromptModalOpen] = useState(false);
   const [isConfigModalOpen, setIsConfigModalOpen] = useState(false);
   const [preselectedAgent, setPreselectedAgent] = useState<AgentType | undefined>(undefined);
+  const [showIntelligenceFeed, setShowIntelligenceFeed] = useState(false);
 
   const handleAgentClick = (agentId: string) => {
     // Find the agent and open prompt modal with that agent preselected
@@ -64,7 +66,21 @@ export function Agents() {
         {/* Page Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-display font-bold text-gray-900">AI Agents</h1>
+            <div className="flex items-center gap-3">
+              <h1 className="text-3xl font-display font-bold text-gray-900">AI Agents</h1>
+              {(isAgentsMock || isActivityMock) && (
+                <span className="text-xs bg-amber-100 text-amber-700 px-2 py-1 rounded-full flex items-center gap-1">
+                  <Database size={12} />
+                  Demo Mode
+                </span>
+              )}
+              {!isAgentsMock && !isActivityMock && (
+                <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full flex items-center gap-1">
+                  <Database size={12} />
+                  Live Data
+                </span>
+              )}
+            </div>
             <p className="text-gray-600 mt-1">
               Manage your AI-powered content creation and community engagement agents
             </p>
@@ -79,7 +95,7 @@ export function Agents() {
             </button>
             <button
               onClick={() => setIsConfigModalOpen(true)}
-              className="btn btn-outline"
+              className="btn btn-outline flex items-center gap-2"
             >
               <SettingsIcon size={18} />
               Configure Agents
@@ -183,38 +199,70 @@ export function Agents() {
           </div>
         )}
 
-        {/* High Priority Intelligence */}
-        {highPriorityIntel.length > 0 && (
-          <div className="card border-l-4 border-yellow-500 bg-yellow-50">
-            <h3 className="text-lg font-semibold text-gray-900 mb-3 flex items-center gap-2">
-              <Lightbulb size={20} className="text-yellow-600" />
-              Priority Intelligence for Agents
-            </h3>
-            <div className="space-y-3">
-              {highPriorityIntel.slice(0, 3).map((intel) => (
-                <div key={intel.id} className="bg-white rounded-lg p-3 border border-yellow-200">
-                  <div className="flex items-start justify-between mb-2">
-                    <span className="text-sm font-medium text-gray-900">{intel.summary}</span>
-                    <span className={`text-xs px-2 py-0.5 rounded ${
-                      intel.priority === 'critical' ? 'bg-red-100 text-red-700' :
-                      intel.priority === 'high' ? 'bg-orange-100 text-orange-700' :
-                      'bg-yellow-100 text-yellow-700'
-                    }`}>
-                      {intel.priority}
-                    </span>
-                  </div>
-                  <ul className="text-xs text-gray-600 space-y-1">
-                    {intel.actionableItems.slice(0, 2).map((item, idx) => (
-                      <li key={idx} className="flex items-start gap-1">
-                        <span className="text-blkout-600">•</span>
-                        {item}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              ))}
+        {/* Intelligence Feed Toggle */}
+        <div className="card border-l-4 border-purple-500 bg-gradient-to-r from-purple-50 to-blue-50">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
+                <Brain size={24} className="text-purple-600" />
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold text-gray-900">IVOR Intelligence Feed</h3>
+                <p className="text-sm text-gray-600">
+                  {intelligence.length} community insights | {highPriorityIntel.length} high priority
+                </p>
+              </div>
             </div>
+            <button
+              onClick={() => setShowIntelligenceFeed(!showIntelligenceFeed)}
+              className="btn btn-outline flex items-center gap-2"
+            >
+              <Database size={16} />
+              {showIntelligenceFeed ? 'Hide Feed' : 'View Full Feed'}
+            </button>
           </div>
+
+          {/* High Priority Preview (when collapsed) */}
+          {!showIntelligenceFeed && highPriorityIntel.length > 0 && (
+            <div className="mt-4 pt-4 border-t border-purple-200">
+              <h4 className="text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
+                <Lightbulb size={14} className="text-yellow-500" />
+                Priority Signals
+              </h4>
+              <div className="space-y-2">
+                {highPriorityIntel.slice(0, 2).map((intel) => (
+                  <div key={intel.id} className="bg-white/70 rounded-lg p-3 border border-purple-100">
+                    <div className="flex items-start justify-between mb-1">
+                      <span className="text-sm font-medium text-gray-900 line-clamp-1">{intel.summary}</span>
+                      <span className={`text-xs px-2 py-0.5 rounded flex-shrink-0 ml-2 ${
+                        intel.priority === 'critical' ? 'bg-red-100 text-red-700' :
+                        intel.priority === 'high' ? 'bg-amber-100 text-amber-700' :
+                        'bg-blue-100 text-blue-700'
+                      }`}>
+                        {intel.priority}
+                      </span>
+                    </div>
+                    <p className="text-xs text-gray-600 line-clamp-2">
+                      {intel.actionableItems[0] || intel.keyInsights[0] || 'No actionable items'}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Full Intelligence Feed Panel (when expanded) */}
+        {showIntelligenceFeed && (
+          <IntelligenceFeedPanel
+            intelligence={intelligence}
+            dashboard={dashboard}
+            isLoading={isIntelLoading}
+            error={intelError}
+            onRefresh={refetchIntelligence}
+            onMarkUsed={markAsUsed}
+            selectedAgent={preselectedAgent}
+          />
         )}
 
         {/* Agent Cards */}
@@ -397,7 +445,8 @@ export function Agents() {
         isOpen={isConfigModalOpen}
         onClose={() => setIsConfigModalOpen(false)}
         onSave={() => {
-          // Refetch agents after config change
+          // Refetch agents and activity after config change
+          refetchAgents();
           refetchActivity();
         }}
       />

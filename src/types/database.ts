@@ -57,7 +57,7 @@ export interface Database {
       agent_configurations: {
         Row: {
           id: string
-          agent_name: 'griot' | 'listener' | 'weaver' | 'strategist'
+          agent_name: 'griot' | 'listener' | 'weaver' | 'strategist' | 'herald'
           agent_display_name: string
           agent_role: string
           voice_sections_used: number[]
@@ -128,7 +128,7 @@ export interface Database {
           mentions: string[]
           media_urls: string[]
           media_metadata: Json
-          generated_by_agent: 'griot' | 'listener' | 'weaver' | 'strategist' | null
+          generated_by_agent: 'griot' | 'listener' | 'weaver' | 'strategist' | 'herald' | null
           generation_prompt: string | null
           ivor_intelligence_used: Json
           voice_sections_referenced: number[]
@@ -158,7 +158,7 @@ export interface Database {
           draft_hashtags: string[]
           draft_mentions: string[]
           draft_metadata: Json
-          generated_by_agent: 'griot' | 'listener' | 'weaver' | 'strategist'
+          generated_by_agent: 'griot' | 'listener' | 'weaver' | 'strategist' | 'herald'
           generation_method: 'full_ai' | 'ai_assisted' | 'manual' | 'template' | 'ivor_orchestrated' | null
           ai_model_used: string | null
           ai_prompt: string | null
@@ -254,6 +254,181 @@ export interface Database {
         }
         Insert: Omit<Database['public']['Tables']['content_performance']['Row'], 'id' | 'created_at' | 'updated_at'>
         Update: Partial<Database['public']['Tables']['content_performance']['Insert']>
+      }
+      // Newsletter tables for Herald agent
+      newsletter_subscribers: {
+        Row: {
+          id: string
+          email: string
+          first_name: string | null
+          last_name: string | null
+          tier: 'weekly' | 'monthly' | 'both'
+          is_active: boolean
+          source: string | null
+          source_campaign: string | null
+          source_url: string | null
+          sendfox_contact_id: number | null
+          sendfox_synced_at: string | null
+          sendfox_sync_error: string | null
+          total_emails_received: number
+          total_opens: number
+          total_clicks: number
+          last_engaged_at: string | null
+          subscribed_at: string
+          confirmed_at: string | null
+          unsubscribed_at: string | null
+          unsubscribe_reason: string | null
+          preferences: Json
+          metadata: Json
+          created_at: string
+          updated_at: string
+        }
+        Insert: Omit<Database['public']['Tables']['newsletter_subscribers']['Row'], 'id' | 'created_at' | 'updated_at'>
+        Update: Partial<Database['public']['Tables']['newsletter_subscribers']['Insert']>
+      }
+      newsletter_editions: {
+        Row: {
+          id: string
+          edition_type: 'weekly' | 'monthly' | 'special'
+          edition_number: number
+          edition_date: string
+          title: string
+          subject_line: string
+          preview_text: string | null
+          content_sections: Json
+          html_content: string | null
+          plain_text_content: string | null
+          generated_by_agent: string
+          generation_prompt: string | null
+          generation_model: string | null
+          intelligence_used: string[]
+          voice_sections_applied: number[]
+          status: 'draft' | 'review' | 'approved' | 'exported' | 'sent' | 'failed'
+          reviewed_by: string | null
+          reviewed_at: string | null
+          review_notes: string | null
+          sendfox_campaign_id: string | null
+          scheduled_for: string | null
+          sent_at: string | null
+          target_list: string | null
+          recipients_count: number
+          delivered_count: number
+          open_count: number
+          open_rate: number | null
+          unique_opens: number
+          click_count: number
+          click_rate: number | null
+          unique_clicks: number
+          unsubscribe_count: number
+          bounce_count: number
+          spam_complaints: number
+          metadata: Json
+          created_at: string
+          updated_at: string
+          created_by: string | null
+        }
+        Insert: Omit<Database['public']['Tables']['newsletter_editions']['Row'], 'id' | 'created_at' | 'updated_at'>
+        Update: Partial<Database['public']['Tables']['newsletter_editions']['Insert']>
+      }
+      newsletter_content_items: {
+        Row: {
+          id: string
+          newsletter_id: string
+          content_type: 'article' | 'event' | 'resource' | 'member_spotlight' | 'governance_update' | 'campaign' | 'announcement' | 'custom'
+          content_id: string | null
+          content_table: string | null
+          section: string
+          display_order: number
+          headline: string | null
+          summary: string | null
+          image_url: string | null
+          cta_text: string | null
+          cta_url: string | null
+          click_count: number
+          created_at: string
+        }
+        Insert: Omit<Database['public']['Tables']['newsletter_content_items']['Row'], 'id' | 'created_at'>
+        Update: Partial<Database['public']['Tables']['newsletter_content_items']['Insert']>
+      }
+    }
+    Functions: {
+      get_newsletter_content: {
+        Args: { p_edition_type: string }
+        Returns: Json
+      }
+      get_herald_intelligence: {
+        Args: Record<string, never>
+        Returns: Json
+      }
+      get_newsletter_highlights: {
+        Args: { p_edition_type?: string; p_days_back?: number }
+        Returns: {
+          id: string
+          title: string
+          excerpt: string
+          featured_image: string
+          source_url: string
+          interest_score: number
+          published_at: string
+          category: string
+        }[]
+      }
+      get_upcoming_events: {
+        Args: { p_edition_type?: string; p_days_ahead?: number }
+        Returns: {
+          id: string
+          title: string
+          description: string
+          event_date: string
+          start_time: string
+          end_time: string
+          location: string
+          event_url: string
+          image_url: string
+          relevance_score: number
+          category: string
+        }[]
+      }
+      get_community_voice: {
+        Args: { p_edition_type?: string; p_days_back?: number }
+        Returns: {
+          id: string
+          voice_type: string
+          title: string
+          summary: string
+          participant_count: number
+          created_at: string
+          status: string
+          url: string
+        }[]
+      }
+      get_trending_resources: {
+        Args: { p_edition_type?: string; p_days_back?: number }
+        Returns: {
+          id: string
+          title: string
+          description: string
+          category_name: string
+          website_url: string
+          priority: number
+          access_count: number
+          recommendation_count: number
+        }[]
+      }
+      get_active_campaigns: {
+        Args: { p_edition_type?: string }
+        Returns: {
+          id: string
+          title: string
+          description: string
+          campaign_type: string
+          priority: string
+          start_date: string
+          end_date: string
+          key_messages: string[]
+          target_audience: Json
+          cta_url: string
+        }[]
       }
     }
   }
