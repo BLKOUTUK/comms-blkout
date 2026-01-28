@@ -31,9 +31,12 @@ import {
   Image,
 } from 'lucide-react';
 import { useCampaigns, usePipelineHealth, useCampaignSummaries } from '@/hooks/useCampaign';
+import { useContentEditor } from '@/hooks/useContentEditor';
+import { ContentEditor } from '@/components/campaigns/ContentEditor';
 import type {
   HealthCheck,
   ContentItemStatus,
+  CampaignContentItem,
 } from '@/types/campaign';
 
 type TabView = 'overview' | 'content' | 'schedule' | 'pipeline' | 'automation';
@@ -103,6 +106,14 @@ export function CampaignDashboard() {
 
   // Run pipeline health checks
   const { checks, isRunning, lastRun, overallStatus, runChecks } = usePipelineHealth(campaigns);
+
+  // Content editor state
+  const contentEditor = useContentEditor();
+
+  // Handle edit content click
+  const handleEditContent = (item: CampaignContentItem & { campaignId: string }) => {
+    contentEditor.openEditor(item, item.campaignId);
+  };
 
   // Calculate aggregate stats
   const aggregateStats = useMemo(() => {
@@ -538,10 +549,18 @@ export function CampaignDashboard() {
                             <div className="flex items-center justify-between text-xs text-gray-500 pl-6">
                               <span>{item.campaignName}</span>
                               <div className="flex gap-1">
-                                <button className="p-1 hover:bg-gray-100 rounded">
+                                <button
+                                  className="p-1 hover:bg-gray-100 rounded"
+                                  onClick={() => handleEditContent(item)}
+                                  title="Preview"
+                                >
                                   <Eye size={12} />
                                 </button>
-                                <button className="p-1 hover:bg-gray-100 rounded">
+                                <button
+                                  className="p-1 hover:bg-blkout-100 rounded text-blkout-600"
+                                  onClick={() => handleEditContent(item)}
+                                  title="Edit content"
+                                >
                                   <Edit size={12} />
                                 </button>
                               </div>
@@ -935,6 +954,19 @@ export function CampaignDashboard() {
           </div>
         )}
       </div>
+
+      {/* Content Editor Modal */}
+      <ContentEditor
+        content={contentEditor.selectedContent}
+        isOpen={contentEditor.isOpen}
+        onClose={contentEditor.closeEditor}
+        onSave={async (record, variants) => {
+          // Save handled by the hook
+          console.log('Saving:', record, variants);
+          await contentEditor.saveAndClose(record);
+        }}
+        campaignId={contentEditor.contentRecord?.campaignId || ''}
+      />
     </Layout>
   );
 }
