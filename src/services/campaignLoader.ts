@@ -14,8 +14,8 @@ import type {
 } from '@/types/campaign';
 
 // Import campaign JSON files
-import boardRecruitmentJson from '../../campaign-content-board-recruitment-2026.json';
-import anniversaryJson from '../../campaign-content-10th-anniversary-2026.json';
+import boardRecruitmentJson from '@/data/campaign-content-board-recruitment-2026.json';
+import anniversaryJson from '@/data/campaign-content-10th-anniversary-2026.json';
 
 /**
  * Parse a campaign JSON file into a normalized Campaign object
