@@ -52,7 +52,115 @@ function parseCampaignJson(json: Record<string, unknown>, id: string): Campaign 
     });
   }
 
-  // Parse platform-specific content
+  // Parse social_media_content (nested platform objects)
+  const socialMediaContent = json.social_media_content as Record<string, unknown> || {};
+  Object.entries(socialMediaContent).forEach(([platform, platformData]) => {
+    if (platformData && typeof platformData === 'object') {
+      const platformObj = platformData as Record<string, unknown>;
+      Object.entries(platformObj).forEach(([postKey, postData]) => {
+        if (postData && typeof postData === 'object') {
+          const post = postData as Record<string, unknown>;
+          // Handle carousel/post items
+          if (post.type || post.content || post.caption || post.text) {
+            contentItems.push({
+              id: `${id}-${platform}-${postKey}`,
+              type: String(post.type || 'social') as CampaignContentItem['type'],
+              platform: platform as CampaignContentItem['platform'],
+              title: postKey.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
+              content: post.caption ? String(post.caption) :
+                       post.text ? String(post.text) :
+                       Array.isArray(post.content) ? post.content.map((c: unknown) =>
+                         typeof c === 'object' && c !== null ? String((c as Record<string, unknown>).text || '') : String(c)
+                       ) : String(post.content || ''),
+              timing: String(post.timing || ''),
+              status: 'ready',
+              hashtags: Array.isArray(post.hashtags) ? post.hashtags.map(String) : [],
+              metadata: { postKey, slides: post.slides },
+            });
+          }
+          // Handle thread items (twitter)
+          if (post.tweets && Array.isArray(post.tweets)) {
+            contentItems.push({
+              id: `${id}-${platform}-thread`,
+              type: 'twitter_thread',
+              platform: 'twitter',
+              title: 'Twitter Thread',
+              content: post.tweets.map(String),
+              timing: String(post.timing || ''),
+              status: 'ready',
+              hashtags: [],
+              metadata: { tweetCount: post.tweets.length },
+            });
+          }
+          // Handle single posts array
+          if (Array.isArray(post)) {
+            post.forEach((item: unknown, idx: number) => {
+              if (item && typeof item === 'object') {
+                const singlePost = item as Record<string, unknown>;
+                contentItems.push({
+                  id: `${id}-${platform}-${postKey}-${idx}`,
+                  type: 'social',
+                  platform: platform as CampaignContentItem['platform'],
+                  title: `${platform} Post ${idx + 1}`,
+                  content: String(singlePost.text || singlePost.content || ''),
+                  timing: String(singlePost.timing || ''),
+                  status: 'ready',
+                  hashtags: [],
+                  metadata: {},
+                });
+              }
+            });
+          }
+        }
+      });
+    }
+  });
+
+  // Also check for cross_platform_strategy (anniversary campaign structure)
+  const crossPlatform = json.cross_platform_strategy as Record<string, unknown> || {};
+
+  // Parse campaign phases
+  const campaignPhases = crossPlatform.campaign_phases as Record<string, unknown> || {};
+  Object.entries(campaignPhases).forEach(([phaseKey, phaseData]) => {
+    if (phaseData && typeof phaseData === 'object') {
+      const phase = phaseData as Record<string, unknown>;
+      phases.push({
+        id: `${id}-${phaseKey}`,
+        name: phaseKey.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
+        dates: String(phase.dates || ''),
+        theme: String(phase.theme || ''),
+        activities: Array.isArray(phase.content) ? phase.content.map(String) : [],
+      });
+    }
+  });
+
+  // Parse platform content from cross_platform_strategy
+  ['instagram', 'twitter', 'linkedin', 'tiktok', 'facebook'].forEach(platform => {
+    const platformData = crossPlatform[platform] as Record<string, unknown>;
+    if (platformData && typeof platformData === 'object') {
+      Object.entries(platformData).forEach(([postKey, postData]) => {
+        if (postData && typeof postData === 'object') {
+          const post = postData as Record<string, unknown>;
+          if (post.type || post.content || post.concept || post.timing) {
+            contentItems.push({
+              id: `${id}-xplat-${platform}-${postKey}`,
+              type: String(post.type || 'social') as CampaignContentItem['type'],
+              platform: platform as CampaignContentItem['platform'],
+              title: postKey.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
+              content: Array.isArray(post.content) ? post.content.map(String) :
+                       String(post.content || post.concept || ''),
+              timing: String(post.timing || ''),
+              status: 'ready',
+              hashtags: [],
+              metadata: { slides: post.slides, duration: post.duration, tweet_count: post.tweet_count },
+            });
+          }
+        }
+      });
+    }
+  });
+
+  // Also check for platform_content (alternative structure)
   const platformContent = json.platform_content as Record<string, unknown> || {};
   Object.entries(platformContent).forEach(([platform, items]) => {
     if (Array.isArray(items)) {
