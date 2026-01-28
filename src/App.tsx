@@ -20,6 +20,7 @@ import { EventModeration } from '@/pages/admin/EventModeration';
 import { NewsModeration } from '@/pages/admin/NewsModeration';
 import { DesignStudio } from '@/pages/admin/DesignStudio';
 import { CampaignReview } from '@/pages/admin/CampaignReview';
+import { CampaignDashboard } from '@/pages/admin/CampaignDashboard';
 
 function App() {
   return (
@@ -140,6 +141,14 @@ function App() {
           />
           <Route
             path="/admin/campaigns"
+            element={
+              <ProtectedRoute>
+                <CampaignDashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/campaigns/review"
             element={
               <ProtectedRoute>
                 <CampaignReview />
