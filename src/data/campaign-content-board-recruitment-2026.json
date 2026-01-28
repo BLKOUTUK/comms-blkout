@@ -1,0 +1,368 @@
+{
+  "campaign": {
+    "name": "Join the Revolution: BLKOUT Board Recruitment",
+    "slug": "board-recruitment-2026",
+    "launch_date": "2026-01-27",
+    "end_date": "2026-02-28",
+    "tagline": "Shape the future of Black queer liberation technology",
+    "mission": "Recruit diverse, skilled board members committed to BLKOUT's mission of community-owned liberation technology for Black queer men in the UK",
+    "voice": "IVOR Cummings - Professional yet warm, inviting participation in governance",
+    "signature_phrases": [
+      "Dear boy, we need leaders like you...",
+      "Building institutions requires institutional leadership...",
+      "The revolution needs governance. Come govern with us.",
+      "Your expertise could shape generations of Black queer futures"
+    ]
+  },
+
+  "organization_context": {
+    "entity": "BLKOUT",
+    "registered_company": "BLKOUT Creative Ltd",
+    "structure": "Community Benefit Society (registered)",
+    "mission": "Community-owned liberation technology platform serving Black queer men in the UK",
+    "values": [
+      "Democratic governance and member ownership",
+      "Data sovereignty and privacy protection",
+      "Creator-first economics (75% revenue to creators/community)",
+      "Intersectional liberation centered on Black queer experiences",
+      "Transparency and accountability"
+    ],
+    "current_state": {
+      "platform_components": [
+        "IVOR AI Assistant (live)",
+        "Events Calendar (live)",
+        "News Platform (live)",
+        "Communications Hub with 6 AI agents (live)",
+        "BLKOUT Shop (launching Q1 2026)",
+        "Critical Frequency social app (Q1 2026)",
+        "Down wellness app (Spring 2026)"
+      ],
+      "community_size": "10,000+ members across UK",
+      "cities_served": ["London", "Manchester", "Birmingham", "Bristol"]
+    }
+  },
+
+  "board_positions": {
+    "overview": {
+      "total_positions": 5,
+      "term_length": "3 years with option to renew",
+      "time_commitment": "4-6 hours per month (meetings, preparation, occasional events)",
+      "compensation": "Voluntary with expense reimbursement",
+      "meetings": "Quarterly board meetings + Annual General Meeting"
+    },
+    "positions": [
+      {
+        "title": "Chair",
+        "description": "Provide strategic leadership and chair board meetings",
+        "skills_required": [
+          "Governance experience (charity, social enterprise, or corporate)",
+          "Strategic planning and vision-setting",
+          "Facilitation and consensus-building",
+          "Understanding of LGBTQ+ communities (lived experience preferred)"
+        ],
+        "ideal_candidate": "Senior leader with governance experience, passionate about community empowerment"
+      },
+      {
+        "title": "Treasurer",
+        "description": "Oversee financial health and sustainability",
+        "skills_required": [
+          "Financial management or accounting background",
+          "Understanding of social enterprise/charity finance",
+          "Risk assessment and budget planning",
+          "Grant funding experience (desirable)"
+        ],
+        "ideal_candidate": "Finance professional who understands mission-driven organizations"
+      },
+      {
+        "title": "Secretary",
+        "description": "Ensure good governance and compliance",
+        "skills_required": [
+          "Administrative and organizational skills",
+          "Understanding of governance requirements",
+          "Record-keeping and documentation",
+          "Legal/compliance knowledge (desirable)"
+        ],
+        "ideal_candidate": "Detail-oriented professional with governance or legal background"
+      },
+      {
+        "title": "Technology Director",
+        "description": "Provide strategic oversight of platform development",
+        "skills_required": [
+          "Technology leadership experience",
+          "Understanding of AI, data privacy, and digital platforms",
+          "Product strategy and development",
+          "Ethical technology practices"
+        ],
+        "ideal_candidate": "Tech leader who understands both innovation and responsibility"
+      },
+      {
+        "title": "Community Director",
+        "description": "Ensure community voice in governance decisions",
+        "skills_required": [
+          "Community organizing or engagement experience",
+          "Understanding of Black queer communities (lived experience strongly preferred)",
+          "Advocacy and representation skills",
+          "Event planning or community programming"
+        ],
+        "ideal_candidate": "Community leader with deep connections to Black queer networks"
+      }
+    ]
+  },
+
+  "what_board_members_will_do": {
+    "responsibilities": [
+      "Set strategic direction and approve major decisions",
+      "Ensure financial sustainability and accountability",
+      "Oversee risk management and compliance",
+      "Represent BLKOUT in external engagements",
+      "Support fundraising and partnership development",
+      "Ensure community voice shapes organizational decisions"
+    ],
+    "benefits": [
+      "Shape the future of Black queer liberation technology",
+      "Join a pioneering community-owned platform",
+      "Build governance experience in social enterprise",
+      "Connect with passionate leaders across sectors",
+      "Contribute to lasting institutional change"
+    ],
+    "support_provided": [
+      "Comprehensive onboarding and induction",
+      "Board training and development opportunities",
+      "Clear documentation and meeting preparation",
+      "Staff support for governance activities",
+      "Directors & Officers insurance"
+    ]
+  },
+
+  "application_process": {
+    "prerequisite": {
+      "action": "Join or reactivate BLKOUTHUB membership",
+      "description": "All board candidates must be active members of BLKOUTHUB",
+      "url": "https://blkouthub.com"
+    },
+    "stages": [
+      {
+        "stage": 1,
+        "name": "Expression of Interest",
+        "action": "Complete EOI form on Governance page",
+        "deadline": "February 14th, 2026",
+        "url": "https://blkoutuk.com/governance"
+      },
+      {
+        "stage": 2,
+        "name": "Information Session",
+        "action": "Attend info session on BLKOUTHUB",
+        "platform": "BLKOUTHUB",
+        "timeline": "February 15-16, 2026"
+      },
+      {
+        "stage": 3,
+        "name": "Informal Conversation",
+        "action": "30-minute chat with current leadership",
+        "timeline": "February 17-21, 2026"
+      },
+      {
+        "stage": 4,
+        "name": "Formal Interview",
+        "action": "Meet with selection panel",
+        "timeline": "February 22-28, 2026"
+      },
+      {
+        "stage": 5,
+        "name": "Appointment",
+        "action": "Board approval and onboarding",
+        "timeline": "March 2026"
+      }
+    ],
+    "application_url": "https://blkoutuk.com/governance",
+    "hub_url": "https://blkouthub.com",
+    "contact_email": "governance@blkoutuk.com"
+  },
+
+  "social_media_content": {
+    "instagram": {
+      "post_1_announcement": {
+        "type": "carousel",
+        "slides": 6,
+        "timing": "January 28th, 11:00 AM GMT",
+        "content": [
+          {
+            "slide": 1,
+            "text": "JOIN THE BOARD\n\nBLKOUT Creative Ltd\nis recruiting directors\n\nShape the future of\nBlack queer liberation technology"
+          },
+          {
+            "slide": 2,
+            "text": "WHO WE ARE\n\nCommunity-owned platform\nserving Black queer men in the UK\n\nIVOR AI | Events | News | Shop\nCritical Frequency | Down App\n\n10,000+ community members"
+          },
+          {
+            "slide": 3,
+            "text": "POSITIONS AVAILABLE\n\nChair\nTreasurer\nSecretary\nTechnology Director\nCommunity Director\n\n3-year terms | 4-6 hours/month"
+          },
+          {
+            "slide": 4,
+            "text": "WHAT YOU'LL DO\n\nSet strategic direction\nEnsure financial sustainability\nOversee platform development\nRepresent community voice\nBuild lasting institutions"
+          },
+          {
+            "slide": 5,
+            "text": "WHO WE'RE LOOKING FOR\n\nLeaders with governance experience\nFinance & legal professionals\nTech leaders who value ethics\nCommunity organizers\n\nLived experience valued"
+          },
+          {
+            "slide": 6,
+            "text": "APPLY NOW\n\nDeadline: February 14th\n\nblkoutuk.com/board\ngovernance@blkoutuk.com\n\nThe revolution needs governance.\nCome govern with us."
+          }
+        ],
+        "caption": "Dear boy, we need leaders like you.\n\nBLKOUT Creative Ltd is recruiting board members to shape the future of community-owned liberation technology.\n\nWe've built IVOR AI, an Events Calendar, News Platform, and a Communications Hub serving 10,000+ Black queer men across the UK. Now we need governance to match our ambition.\n\nWe're looking for:\n- Chair - Strategic leadership\n- Treasurer - Financial oversight\n- Secretary - Governance & compliance\n- Technology Director - Platform strategy\n- Community Director - Community voice\n\nThis is voluntary, 4-6 hours/month, with 3-year terms. Training and support provided.\n\nThe revolution needs governance. Come govern with us.\n\nApply by February 14th: link in bio\n\n#BLKOUT #BoardRecruitment #Governance #SocialEnterprise #CommunityOwned #BlackQueerLeadership #UKCharity #TechForGood #LiberationTechnology",
+        "hashtags": ["#BLKOUT", "#BoardRecruitment", "#Governance", "#SocialEnterprise", "#CommunityOwned", "#BlackQueerLeadership", "#UKCharity", "#TechForGood", "#LiberationTechnology", "#NonprofitJobs"]
+      },
+      "stories": {
+        "day_1": [
+          "BIG NEWS: We're recruiting board members!",
+          "5 positions available - swipe to learn more",
+          "Apply by Feb 14th - link in bio"
+        ],
+        "day_7": [
+          "1 week left to apply for BLKOUT board!",
+          "Positions: Chair, Treasurer, Secretary, Tech Director, Community Director",
+          "Shape the future of Black queer tech"
+        ],
+        "day_14": [
+          "LAST DAY to apply for BLKOUT board",
+          "Don't miss your chance to lead",
+          "Apply now: blkoutuk.com/board"
+        ]
+      }
+    },
+    "twitter": {
+      "thread": {
+        "timing": "January 28th, 9:00 AM GMT",
+        "tweets": [
+          "Dear boy, we need leaders like you.\n\nBLKOUT Creative Ltd is recruiting board members to govern our community-owned liberation technology platform.\n\n5 positions. 3-year terms. Shape the future of Black queer tech in the UK.\n\nA thread on what we're looking for 🧵\n\n1/8",
+          "WHO WE ARE:\n\nBLKOUT is a community-owned platform serving 10,000+ Black queer men across the UK.\n\nWe've built IVOR AI, Events Calendar, News Platform, and more. Now we need governance to match our ambition.\n\n2/8",
+          "POSITIONS AVAILABLE:\n\n- Chair: Strategic leadership\n- Treasurer: Financial oversight\n- Secretary: Governance & compliance\n- Technology Director: Platform strategy\n- Community Director: Community voice\n\nAll voluntary, 4-6 hours/month.\n\n3/8",
+          "WHAT YOU'LL DO:\n\n- Set strategic direction\n- Ensure financial sustainability\n- Oversee platform development\n- Represent BLKOUT externally\n- Support fundraising\n- Ensure community shapes decisions\n\n4/8",
+          "WHO WE'RE LOOKING FOR:\n\n- Governance experience (charity, social enterprise, corporate)\n- Finance/legal professionals\n- Tech leaders who value ethics\n- Community organizers\n- Lived experience as Black queer person strongly valued\n\n5/8",
+          "WHAT YOU'LL GET:\n\n- Shape Black queer futures\n- Build governance experience\n- Connect with passionate leaders\n- Comprehensive onboarding\n- Training and support\n- Be part of something historic\n\n6/8",
+          "APPLICATION PROCESS:\n\n1. Expression of Interest (by Feb 14)\n2. Informal conversation (Feb 15-21)\n3. Formal interview (Feb 22-28)\n4. Appointment (March 2026)\n\nApply: blkoutuk.com/board\n\n7/8",
+          "The revolution needs governance, dear boy.\n\nWe're building institutions that will serve Black queer men for generations. We need leaders to govern them.\n\nCome govern with us.\n\nApply by February 14th: blkoutuk.com/board\nQuestions: governance@blkoutuk.com\n\n8/8"
+        ]
+      },
+      "single_posts": [
+        {
+          "timing": "January 30th",
+          "text": "Building liberation technology is only half the work. Governing it responsibly is the other half.\n\nWe're recruiting 5 board members to shape BLKOUT's future.\n\nChair | Treasurer | Secretary | Tech Director | Community Director\n\nApply by Feb 14: blkoutuk.com/board"
+        },
+        {
+          "timing": "February 7th",
+          "text": "1 week left to apply for BLKOUT's board.\n\nWe need:\n- Governance experience\n- Financial expertise\n- Tech leadership\n- Community connections\n\nVoluntary, 4-6 hours/month, massive impact.\n\nblkoutuk.com/board"
+        },
+        {
+          "timing": "February 14th",
+          "text": "LAST DAY to apply for BLKOUT's board!\n\nDon't let this opportunity pass, dear boy. The revolution needs leaders like you.\n\nApply now: blkoutuk.com/board\n\n#BLKOUT #BoardRecruitment"
+        }
+      ]
+    },
+    "linkedin": {
+      "post": {
+        "timing": "January 28th, 8:00 AM GMT",
+        "content": "Board Recruitment: BLKOUT Creative Ltd\n\nBLKOUT is recruiting non-executive directors to govern our community-owned liberation technology platform serving Black queer men in the UK.\n\nAbout Us:\nBLKOUT operates a digital ecosystem including an AI assistant (IVOR), events calendar, news platform, and communications hub. We serve 10,000+ community members across London, Manchester, Birmingham, and Bristol, with social discovery and wellness apps launching in 2026.\n\nPositions Available:\n\n1. Chair\nProvide strategic leadership and chair board meetings. Governance experience required.\n\n2. Treasurer\nOversee financial health and sustainability. Finance/accounting background required.\n\n3. Secretary\nEnsure good governance and compliance. Administrative/legal background valued.\n\n4. Technology Director\nStrategic oversight of platform development. Tech leadership experience required.\n\n5. Community Director\nEnsure community voice in governance. Community organizing experience valued.\n\nCommitment: 4-6 hours/month, quarterly meetings, 3-year terms\nCompensation: Voluntary with expenses reimbursed\nSupport: Comprehensive onboarding, training, D&O insurance\n\nWe particularly welcome applications from:\n- Black professionals\n- LGBTQ+ individuals\n- Those with lived experience in our communities\n- Finance, legal, technology, and third sector professionals\n\nThis is an opportunity to shape the future of ethical, community-owned technology.\n\nApplication deadline: February 14th, 2026\nApply: blkoutuk.com/board\nContact: governance@blkoutuk.com\n\n#BoardRecruitment #Governance #SocialEnterprise #TechForGood #Diversity #CommunityOwnership #NonprofitLeadership #UKCharity #LGBTQ #BlackProfessionals"
+      }
+    }
+  },
+
+  "newsletter_content": {
+    "subject_line": "Join the BLKOUT Board - We Need Leaders Like You",
+    "preheader": "5 board positions available - shape the future of Black queer liberation technology",
+    "body": {
+      "opening": "Dear boy, we need leaders like you.\n\nBLKOUT is entering a new chapter. We've built the technology - IVOR AI, Events Calendar, News Platform, and more. Now we need governance to match our ambition.\n\nWe're recruiting 5 board members to help lead BLKOUT Creative Ltd into its next decade.",
+      "positions_overview": "We're looking for a Chair to provide strategic leadership, a Treasurer to ensure financial sustainability, a Secretary to maintain good governance, a Technology Director to oversee our platform, and a Community Director to ensure community voice shapes every decision.",
+      "commitment": "This is a voluntary role requiring 4-6 hours per month. We meet quarterly with additional communication as needed. We provide comprehensive onboarding, training opportunities, and full support.",
+      "who_should_apply": "We're looking for people with governance experience, financial expertise, technology leadership, or community organizing backgrounds. Lived experience as a Black queer person is strongly valued but not required for all positions.",
+      "call_to_action": "The application deadline is February 14th. Apply at blkoutuk.com/board or email governance@blkoutuk.com with questions.\n\nThe revolution needs governance, dear boy. Come govern with us.",
+      "sign_off": "With revolutionary love,\nThe BLKOUT Team"
+    }
+  },
+
+  "agent_tasks": {
+    "griot": {
+      "task_id": "board-recruitment-storytelling",
+      "prompt": "Create compelling storytelling content for BLKOUT's board recruitment campaign. The content should communicate the significance of this moment - building lasting institutions for Black queer communities. Use the IVOR Cummings voice (warm, wise, encouraging). Emphasize that we're not just looking for board members, we're looking for people to help govern the revolution. Include the emotional weight of building something that will outlast us all.",
+      "target_platform": "instagram",
+      "priority": "high"
+    },
+    "strategist": {
+      "task_id": "board-recruitment-strategy",
+      "prompt": "Develop a 3-week campaign strategy for BLKOUT's board recruitment. Target audiences include: 1) Black professionals in finance/law/tech who want to give back, 2) Community organizers looking for governance experience, 3) LGBTQ+ professionals in corporate/charity sectors. Recommend optimal posting times, content sequencing, and engagement tactics to maximize qualified applications.",
+      "target_platform": "all",
+      "priority": "high"
+    },
+    "herald": {
+      "task_id": "board-recruitment-newsletter",
+      "prompt": "Create a newsletter announcing BLKOUT's board recruitment. The newsletter should clearly explain the 5 positions, the commitment required, and why this matters for the community. Include a strong call to action with the February 14th deadline. Make it feel like an invitation, not a job posting.",
+      "target_platform": "email",
+      "priority": "high"
+    },
+    "weaver": {
+      "task_id": "board-recruitment-engagement",
+      "prompt": "Prepare engagement responses for the board recruitment campaign. Anticipate questions about: time commitment, skills required, whether lived experience is necessary, the application process, and what board members actually do. Create warm, encouraging responses in the IVOR voice that make people feel capable of contributing.",
+      "target_platform": "all",
+      "priority": "medium"
+    },
+    "listener": {
+      "task_id": "board-recruitment-research",
+      "prompt": "Research and identify: 1) Similar board recruitment campaigns by LGBTQ+ organizations in the UK, 2) Best practices for diverse board recruitment, 3) Potential amplification partners (UK Black Pride, Stonewall, Black professionals networks, LGBTQ+ LinkedIn groups), 4) Relevant hashtags and communities to target.",
+      "target_platform": "research",
+      "priority": "medium"
+    }
+  },
+
+  "success_metrics": {
+    "applications": {
+      "target_total": 25,
+      "target_per_position": 5,
+      "diversity_goal": "At least 80% from underrepresented backgrounds"
+    },
+    "reach": {
+      "social_media_impressions": "50,000+",
+      "newsletter_open_rate": "35%+",
+      "application_page_visits": "500+"
+    },
+    "engagement": {
+      "social_media_engagement_rate": "5%+",
+      "email_click_rate": "8%+",
+      "direct_inquiries": "15+"
+    }
+  },
+
+  "timeline": {
+    "week_1": {
+      "dates": "January 27 - February 2",
+      "focus": "Launch announcement",
+      "activities": [
+        "Launch social media announcement (all platforms)",
+        "Send newsletter to subscribers",
+        "Activate agent engagement tasks",
+        "Partner outreach for amplification"
+      ]
+    },
+    "week_2": {
+      "dates": "February 3-9",
+      "focus": "Position deep-dives",
+      "activities": [
+        "Individual posts highlighting each position",
+        "Q&A stories/posts addressing common questions",
+        "Testimonials from current leadership",
+        "Reminder posts"
+      ]
+    },
+    "week_3": {
+      "dates": "February 10-14",
+      "focus": "Final push",
+      "activities": [
+        "Countdown posts",
+        "Last call messaging",
+        "Personal outreach to potential candidates",
+        "Deadline day intensive"
+      ]
+    }
+  }
+}
