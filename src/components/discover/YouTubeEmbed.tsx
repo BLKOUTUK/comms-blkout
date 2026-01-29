@@ -7,13 +7,13 @@ interface YouTubeEmbedProps {
   className?: string;
 }
 
-export function YouTubeEmbed({ 
-  channelId = 'UCYourChannelID', 
+export function YouTubeEmbed({
+  channelId = 'UCblkoutuk',
   playlistId,
-  className = '' 
+  className = ''
 }: YouTubeEmbedProps) {
-  // Use playlist if provided, otherwise show channel videos
-  const embedUrl = playlistId 
+  // Use playlist if provided, otherwise show latest video embed
+  const embedUrl = playlistId
     ? `https://www.youtube.com/embed/videoseries?list=${playlistId}`
     : `https://www.youtube.com/embed?listType=user_uploads&list=${channelId}`;
 

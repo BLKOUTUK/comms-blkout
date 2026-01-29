@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Calendar, MapPin, Clock, ExternalLink, Sparkles } from 'lucide-react';
-import { createClient } from '@supabase/supabase-js';
+import { supabase, isSupabaseConfigured } from '@/lib/supabase';
 
 interface FeaturedEvent {
   id: string;
@@ -13,13 +13,6 @@ interface FeaturedEvent {
   cost?: string;
   tags?: string[];
 }
-
-// Initialize Supabase client
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
-const supabase = supabaseUrl && supabaseAnonKey
-  ? createClient(supabaseUrl, supabaseAnonKey)
-  : null;
 
 // Fallback events if API fails
 const FALLBACK_EVENTS: FeaturedEvent[] = [
@@ -66,7 +59,7 @@ export function FeaturedEventsWidget() {
 
   useEffect(() => {
     async function fetchFeaturedEvents() {
-      if (!supabase) {
+      if (!isSupabaseConfigured()) {
         console.log('Supabase not configured, using fallback events');
         setIsLoading(false);
         return;

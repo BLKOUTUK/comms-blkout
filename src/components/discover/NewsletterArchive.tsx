@@ -131,10 +131,8 @@ export function NewsletterArchive() {
               </p>
             </div>
             <a
-              href="https://blkouthub.com/newsletter"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="btn btn-primary whitespace-nowrap"
+              href="/preferences"
+              className="btn btn-primary whitespace-nowrap flex items-center gap-2"
             >
               <Mail size={16} />
               Subscribe

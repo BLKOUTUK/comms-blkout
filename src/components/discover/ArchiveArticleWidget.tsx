@@ -1,13 +1,7 @@
 
 import { BookOpen, Calendar } from 'lucide-react';
 import { useState, useEffect } from 'react';
-import { createClient } from '@supabase/supabase-js';
-
-// Initialize Supabase client (using environment variables from comms-blkout)
-const supabase = createClient(
-  process.env.VITE_SUPABASE_URL || 'https://your-project.supabase.co',
-  process.env.VITE_SUPABASE_ANON_KEY || 'your-anon-key'
-);
+import { supabase, isSupabaseConfigured } from '@/lib/supabase';
 
 interface ArchiveArticle {
   title: string;
@@ -24,6 +18,11 @@ export function ArchiveArticleWidget() {
 
   useEffect(() => {
     async function loadFeaturedArchiveArticle() {
+      if (!isSupabaseConfigured()) {
+        setLoading(false);
+        return;
+      }
+
       try {
         // Get a random featured article from legacy_articles
         const { data } = await supabase
@@ -57,13 +56,14 @@ export function ArchiveArticleWidget() {
   }, []);
 
   if (loading || !featuredArticle) {
-    return null; // Or loading skeleton
+    return null;
   }
+
   return (
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center gap-3">
-        <div className="w-12 h-12 bg-gradient-to-br from-amber-500 to-orange-600 rounded-xl flex items-center justify-center">
+        <div className="w-12 h-12 bg-gradient-to-br from-amber-500 to-orange-600 rounded-xl flex items-center justify-center shadow-lg">
           <BookOpen className="h-7 w-7 text-white" />
         </div>
         <div className="flex-1">
