@@ -73,7 +73,7 @@ app.use(express.static(join(APP_ROOT, 'dist'), {
 
 // SPA fallback - serve index.html for all non-API routes
 app.get('*', (_req, res) => {
-  res.sendFile(join(__dirname, 'dist', 'index.html'));
+  res.sendFile(join(APP_ROOT, 'dist', 'index.html'));
 });
 
 app.listen(PORT, '0.0.0.0', () => {
