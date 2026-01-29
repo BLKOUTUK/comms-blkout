@@ -15,7 +15,7 @@ const CO_FOUNDER_ARTICLES: CoFounderArticle[] = [
   {
     name: 'Antoine',
     title: 'Crossing Deep Waters',
-    excerpt: 'A personal reflection on the journey that led to founding BLKOUT and the waters we crossed together as a community.',
+    excerpt: '\u201CI want us to talk to each other; as Black and Gay people who make up our vast diaspora\u201D',
     publishDate: '3 Feb 2026',
     role: 'Co-Founder',
     slug: 'crossing-deep-waters',
@@ -23,7 +23,7 @@ const CO_FOUNDER_ARTICLES: CoFounderArticle[] = [
   {
     name: 'Marc',
     title: 'If You Build It...',
-    excerpt: 'On building the infrastructure for community power and what it means to create something that belongs to everyone.',
+    excerpt: '\u201CWe want to create a dialogue between our various tribes \u2013 the daddies and the twinks, the homothug and blerd, the conscious brother and the club kid; for we are all of them.\u201D',
     publishDate: '5 Feb 2026',
     role: 'Co-Founder',
     slug: 'if-you-build-it',
@@ -31,7 +31,7 @@ const CO_FOUNDER_ARTICLES: CoFounderArticle[] = [
   {
     name: 'Rob',
     title: 'Adventures in Unchartered Territory',
-    excerpt: 'Navigating the unknown as we built a platform for Black queer liberation in the UK.',
+    excerpt: '\u201Cwe started a conversation to liberate, not constrain; to wrestle with the difficult questions, not hide from them; to challenge and support\u201D',
     publishDate: '8 Feb 2026',
     role: 'Co-Founder',
     slug: 'adventures-in-unchartered-territory',
