@@ -235,51 +235,33 @@ export function useAgentTasks(agentType?: AgentType) {
     description: string,
     targetPlatform: string
   ): Promise<AgentExecutionResult> => {
-    // For herald, use the newsletter generation endpoint
-    if (agentType === 'herald') {
-      try {
-        const response = await fetch('/api/herald/generate', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            action: 'generate',
-            edition_type: 'weekly',
-            custom_intro: description,
-          }),
-        });
-        const data = await response.json();
-        if (data.success) {
-          return {
-            success: true,
-            content: data.newsletter?.html || data.newsletter?.content || 'Newsletter generated successfully',
-          };
-        }
-        return { success: false, error: data.error || 'Failed to generate newsletter' };
-      } catch (err) {
-        return { success: false, error: err instanceof Error ? err.message : 'Network error' };
-      }
-    }
+    const apiBase = '/api/herald/generate';
 
-    // For other agents, use the unified execute_agent endpoint
     try {
-      const response = await fetch('/api/herald/generate', {
+      const body = agentType === 'herald'
+        ? { action: 'generate', edition_type: 'monthly', custom_intro: description }
+        : { action: 'execute_agent', agent_type: agentType, title, description, target_platform: targetPlatform };
+
+      const response = await fetch(apiBase, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          action: 'execute_agent',
-          agent_type: agentType,
-          title,
-          description,
-          target_platform: targetPlatform,
-        }),
+        body: JSON.stringify(body),
       });
+
+      // Check if we got HTML back (static server fallback, not the API)
+      const contentType = response.headers.get('content-type') || '';
+      if (contentType.includes('text/html')) {
+        return { success: false, error: 'API not available. This deployment does not have serverless functions. Use the Vercel deployment for agent execution.' };
+      }
 
       const data = await response.json();
 
       if (data.success) {
         return {
           success: true,
-          content: data.content,
+          content: agentType === 'herald'
+            ? (data.newsletter?.html || data.newsletter?.content || data.html_preview || 'Newsletter generated successfully')
+            : data.content,
           communityContext: data.community_context,
         };
       }
@@ -293,7 +275,7 @@ export function useAgentTasks(agentType?: AgentType) {
   const createAndExecuteTask = async (
     task: Omit<AgentTask, 'id' | 'createdAt' | 'updatedAt' | 'completedAt' | 'generatedContent' | 'executionMetadata' | 'approvalStatus' | 'approvedBy' | 'approvedAt' | 'approvalNotes'>
   ): Promise<AgentExecutionResult & { taskId?: string }> => {
-    // Save task to database as pending (agent backend will process it)
+    // Create the task in the database
     if (isSupabaseConfigured()) {
       const { data: insertedTask, error: insertError } = await supabase
         .from('socialsync_agent_tasks')
@@ -302,7 +284,7 @@ export function useAgentTasks(agentType?: AgentType) {
           title: task.title,
           description: task.description,
           priority: task.priority,
-          status: 'pending',
+          status: 'in_progress',
           target_platform: task.targetPlatform,
           suggested_config: task.suggestedConfig,
           assigned_to: task.assignedTo,
@@ -314,18 +296,45 @@ export function useAgentTasks(agentType?: AgentType) {
         return { success: false, error: insertError.message };
       }
 
-      // Task queued successfully - refresh the list
+      const taskId = insertedTask.id;
+
+      // Try to execute via the API (Vercel serverless function)
+      const result = await executeAgent(
+        task.agentType,
+        task.title,
+        task.description || '',
+        task.targetPlatform
+      );
+
+      // Update task with result
+      await supabase
+        .from('socialsync_agent_tasks')
+        .update({
+          status: result.success ? 'completed' : 'pending',
+          generated_content: result.content || null,
+          execution_metadata: {
+            executed_at: new Date().toISOString(),
+            success: result.success,
+            error: result.error,
+            community_context: result.communityContext,
+          },
+          completed_at: result.success ? new Date().toISOString() : null,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', taskId);
+
       fetchTasks();
-      return {
-        success: true,
-        content: `Task "${task.title}" queued for ${task.agentType} agent. It will be processed when the agent is available.`,
-        taskId: insertedTask.id,
-      };
+      return { ...result, taskId };
     }
 
     // Mock mode
-    console.log('Task queued (mock mode):', task);
-    return { success: true, content: `Task "${task.title}" queued (mock mode).`, taskId: 'mock-' + Date.now() };
+    const result = await executeAgent(
+      task.agentType,
+      task.title,
+      task.description || '',
+      task.targetPlatform
+    );
+    return { ...result, taskId: 'mock-' + Date.now() };
   };
 
   // Approval functions
