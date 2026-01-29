@@ -5,7 +5,7 @@ import { YouTubeEmbed } from '@/components/discover/YouTubeEmbed';
 import { SocialMediaFeed } from '@/components/discover/SocialMediaFeed';
 import { BlkoutHubWidget } from '@/components/discover/BlkoutHubWidget';
 import { NewsletterArchive } from '@/components/discover/NewsletterArchive';
-import { AdventCalendarWidget } from '@/components/discover/AdventCalendarWidget';
+import { AnniversaryWidget } from '@/components/discover/AnniversaryWidget';
 import { ArchiveArticleWidget } from '@/components/discover/ArchiveArticleWidget';
 import { BlkoutVoicesWidget } from '@/components/discover/BlkoutVoicesWidget';
 import { FeaturedEventsWidget } from '@/components/discover/FeaturedEventsWidget';
@@ -43,15 +43,15 @@ export function DiscoverPage() {
           
           {/* Values badges */}
           <div className="flex flex-wrap gap-3 justify-center text-sm mb-8">
-            <span className="px-5 py-2.5 bg-gradient-to-r from-community-warmth/10 to-community-warmth/5 text-community-warmth rounded-full font-semibold border border-community-warmth/20 flex items-center gap-2">
+            <span className="px-5 py-2.5 bg-amber-50 text-amber-700 rounded-full font-semibold border border-amber-200 flex items-center gap-2">
               <Heart size={16} />
               Creator Sovereignty
             </span>
-            <span className="px-5 py-2.5 bg-gradient-to-r from-community-trust/10 to-community-trust/5 text-community-trust rounded-full font-semibold border border-community-trust/20 flex items-center gap-2">
+            <span className="px-5 py-2.5 bg-emerald-50 text-emerald-700 rounded-full font-semibold border border-emerald-200 flex items-center gap-2">
               <Users size={16} />
               Community Power
             </span>
-            <span className="px-5 py-2.5 bg-gradient-to-r from-community-wisdom/10 to-community-wisdom/5 text-community-wisdom rounded-full font-semibold border border-community-wisdom/20 flex items-center gap-2">
+            <span className="px-5 py-2.5 bg-purple-50 text-purple-700 rounded-full font-semibold border border-purple-200 flex items-center gap-2">
               <Sparkles size={16} />
               Democratic Governance
             </span>
@@ -59,9 +59,9 @@ export function DiscoverPage() {
         </div>
       </div>
 
-      {/* Advent Calendar - Seasonal Feature */}
+      {/* 10th Anniversary - Featured Campaign */}
       <div className="mb-16 animate-fade-in" style={{ animationDelay: '100ms' }}>
-        <AdventCalendarWidget />
+        <AnniversaryWidget />
       </div>
 
       {/* BLKOUT HUB Widget - Prominent placement */}
