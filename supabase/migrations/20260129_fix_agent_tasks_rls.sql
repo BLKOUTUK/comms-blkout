@@ -1,43 +1,49 @@
 -- Fix RLS policies for socialsync_agent_tasks table
--- Allows authenticated users to create and manage agent tasks
+-- Root cause: App uses AUTH_DISABLED=true with mock user, so Supabase client
+-- operates as 'anon' role, not 'authenticated'. Policies only targeted 'authenticated'.
+-- Fix: Allow both anon and authenticated roles since this is an internal admin tool.
 
--- Enable RLS if not already enabled
-ALTER TABLE socialsync_agent_tasks ENABLE ROW LEVEL SECURITY;
+-- Drop ALL existing policies to start clean
+DO $$
+DECLARE
+  pol RECORD;
+BEGIN
+  FOR pol IN
+    SELECT policyname FROM pg_policies WHERE tablename = 'socialsync_agent_tasks'
+  LOOP
+    EXECUTE format('DROP POLICY IF EXISTS %I ON socialsync_agent_tasks', pol.policyname);
+  END LOOP;
+END $$;
 
--- Drop existing policies if they exist (to avoid conflicts)
-DROP POLICY IF EXISTS "authenticated_users_can_view_tasks" ON socialsync_agent_tasks;
-DROP POLICY IF EXISTS "authenticated_users_can_insert_tasks" ON socialsync_agent_tasks;
-DROP POLICY IF EXISTS "authenticated_users_can_update_tasks" ON socialsync_agent_tasks;
-DROP POLICY IF EXISTS "authenticated_users_can_delete_tasks" ON socialsync_agent_tasks;
-
--- SELECT: Authenticated users can view all tasks
-CREATE POLICY "authenticated_users_can_view_tasks"
+-- SELECT: Both anon and authenticated can view tasks
+CREATE POLICY "allow_all_select_tasks"
 ON socialsync_agent_tasks
 FOR SELECT
-TO authenticated
+TO anon, authenticated
 USING (true);
 
--- INSERT: Authenticated users can create tasks
-CREATE POLICY "authenticated_users_can_insert_tasks"
+-- INSERT: Both anon and authenticated can create tasks
+CREATE POLICY "allow_all_insert_tasks"
 ON socialsync_agent_tasks
 FOR INSERT
-TO authenticated
+TO anon, authenticated
 WITH CHECK (true);
 
--- UPDATE: Authenticated users can update tasks
-CREATE POLICY "authenticated_users_can_update_tasks"
+-- UPDATE: Both anon and authenticated can update tasks
+CREATE POLICY "allow_all_update_tasks"
 ON socialsync_agent_tasks
 FOR UPDATE
-TO authenticated
+TO anon, authenticated
 USING (true)
 WITH CHECK (true);
 
--- DELETE: Authenticated users can delete tasks (optional, for cleanup)
-CREATE POLICY "authenticated_users_can_delete_tasks"
+-- DELETE: Both anon and authenticated can delete tasks
+CREATE POLICY "allow_all_delete_tasks"
 ON socialsync_agent_tasks
 FOR DELETE
-TO authenticated
+TO anon, authenticated
 USING (true);
 
--- Grant necessary permissions to authenticated role
+-- Grant permissions to both roles
+GRANT SELECT, INSERT, UPDATE, DELETE ON socialsync_agent_tasks TO anon;
 GRANT SELECT, INSERT, UPDATE, DELETE ON socialsync_agent_tasks TO authenticated;
