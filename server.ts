@@ -10,6 +10,7 @@ import { dirname, join } from 'path';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
+const APP_ROOT = join(__dirname, '..');  // server-dist/ -> app root
 const app = express();
 const PORT = parseInt(process.env.PORT || '3000', 10);
 
@@ -68,7 +69,7 @@ app.all('/api/auth/callback', async (req, res) => {
 });
 
 // Static file serving (Vite build output)
-app.use(express.static(join(__dirname, 'dist'), {
+app.use(express.static(join(APP_ROOT, 'dist'), {
   maxAge: '1d',
   etag: true,
 }));
