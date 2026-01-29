@@ -293,7 +293,7 @@ export function useAgentTasks(agentType?: AgentType) {
   const createAndExecuteTask = async (
     task: Omit<AgentTask, 'id' | 'createdAt' | 'updatedAt' | 'completedAt' | 'generatedContent' | 'executionMetadata' | 'approvalStatus' | 'approvedBy' | 'approvedAt' | 'approvalNotes'>
   ): Promise<AgentExecutionResult & { taskId?: string }> => {
-    // First create the task
+    // Save task to database as pending (agent backend will process it)
     if (isSupabaseConfigured()) {
       const { data: insertedTask, error: insertError } = await supabase
         .from('socialsync_agent_tasks')
@@ -302,7 +302,7 @@ export function useAgentTasks(agentType?: AgentType) {
           title: task.title,
           description: task.description,
           priority: task.priority,
-          status: 'in_progress',
+          status: 'pending',
           target_platform: task.targetPlatform,
           suggested_config: task.suggestedConfig,
           assigned_to: task.assignedTo,
@@ -314,45 +314,18 @@ export function useAgentTasks(agentType?: AgentType) {
         return { success: false, error: insertError.message };
       }
 
-      const taskId = insertedTask.id;
-
-      // Execute the agent
-      const result = await executeAgent(
-        task.agentType,
-        task.title,
-        task.description || '',
-        task.targetPlatform
-      );
-
-      // Update task with result
-      await supabase
-        .from('socialsync_agent_tasks')
-        .update({
-          status: result.success ? 'completed' : 'cancelled',
-          generated_content: result.content || null,
-          execution_metadata: {
-            executed_at: new Date().toISOString(),
-            success: result.success,
-            error: result.error,
-            community_context: result.communityContext,
-          },
-          completed_at: result.success ? new Date().toISOString() : null,
-          updated_at: new Date().toISOString(),
-        })
-        .eq('id', taskId);
-
-      return { ...result, taskId };
+      // Task queued successfully - refresh the list
+      fetchTasks();
+      return {
+        success: true,
+        content: `Task "${task.title}" queued for ${task.agentType} agent. It will be processed when the agent is available.`,
+        taskId: insertedTask.id,
+      };
     }
 
-    // Mock mode - just execute without DB
-    console.log('📦 Mock: Creating and executing task', task);
-    const result = await executeAgent(
-      task.agentType,
-      task.title,
-      task.description || '',
-      task.targetPlatform
-    );
-    return { ...result, taskId: 'mock-' + Date.now() };
+    // Mock mode
+    console.log('Task queued (mock mode):', task);
+    return { success: true, content: `Task "${task.title}" queued (mock mode).`, taskId: 'mock-' + Date.now() };
   };
 
   // Approval functions
