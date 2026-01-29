@@ -567,5 +567,136 @@
         "Provide post-event follow-up support"
       ]
     }
+  },
+
+  "february_2026_newsletter_series": {
+    "description": "Monthly newsletter series starting February 2026 - Welcome to the New BLKOUT",
+    "newsletter": {
+      "subject": "BLKOUT Newsletter - February 2026: A New Chapter",
+      "sections": [
+        "Welcome to regular monthly newsletters",
+        "Opt-out/preferences link",
+        "Share with a friend referral",
+        "10 Year Anniversary story (Moonlight at Ritzy Brixton)",
+        "New website launch + two key features",
+        "UAL/UK Black Pride Event - Feb 18th London",
+        "Board Recruitment campaign"
+      ],
+      "preferences_link": "/preferences",
+      "referral_enabled": true
+    },
+    "blkout_voices_blog": {
+      "title": "10 Years of BLKOUT: From a Cinema Screening to a Movement",
+      "description": "Reflective blog post celebrating the decade journey",
+      "key_themes": [
+        "Origin story: Moonlight screening at Ritzy Brixton",
+        "Oscar nominee to winner - we had taste",
+        "Community building across a decade",
+        "New chapter: website, IVOR, cooperative model",
+        "UAL event invitation",
+        "Board recruitment call"
+      ],
+      "target_length": "800-1000 words"
+    }
+  },
+
+  "social_media_series_february_2026": {
+    "description": "Extended social media content for February 2026 including co-founder article resharing",
+    "co_founder_articles_reshare": {
+      "description": "Reshare original introductory articles by co-founders as part of 10th anniversary",
+      "articles": [
+        {
+          "id": "cofounder_article_1",
+          "title": "[CO-FOUNDER ARTICLE 1 - TO BE CONFIRMED]",
+          "author": "[Co-founder name]",
+          "original_date": "[Original publication date]",
+          "reshare_caption": "10 years ago, we shared our vision. Today, we celebrate how far we've come. 🎉\n\nRead the original words that started it all... #BLKOUT10 #BlackQueerJoy",
+          "platforms": ["instagram", "linkedin", "twitter"]
+        },
+        {
+          "id": "cofounder_article_2",
+          "title": "[CO-FOUNDER ARTICLE 2 - TO BE CONFIRMED]",
+          "author": "[Co-founder name]",
+          "original_date": "[Original publication date]",
+          "reshare_caption": "The foundation was built on these words. A decade later, we're still standing. 🖤\n\n#BLKOUT10 #10YearsOfLiberation",
+          "platforms": ["instagram", "linkedin", "twitter"]
+        },
+        {
+          "id": "cofounder_article_3",
+          "title": "[CO-FOUNDER ARTICLE 3 - TO BE CONFIRMED]",
+          "author": "[Co-founder name]",
+          "original_date": "[Original publication date]",
+          "reshare_caption": "Three voices, one vision. 10 years of building community together. ✊🏾\n\n#BLKOUT10 #FoundersVision",
+          "platforms": ["instagram", "linkedin", "twitter"]
+        }
+      ],
+      "schedule": {
+        "article_1": "February 3rd - Early teaser phase",
+        "article_2": "February 5th - Building momentum",
+        "article_3": "February 8th - Pre-celebration"
+      }
+    },
+    "instagram_series": {
+      "post_1_carousel": {
+        "type": "carousel",
+        "slides": 10,
+        "title": "10 Years of BLKOUT - Timeline moments",
+        "timing": "February 6th"
+      },
+      "post_2_event": {
+        "type": "single_image",
+        "title": "UAL Event announcement",
+        "content": "Feb 18th, London - Representation 365 with UK Black Pride",
+        "cta": "Sign up link in bio",
+        "timing": "February 10th"
+      },
+      "stories_series": {
+        "theme": "Behind-the-scenes of our journey",
+        "frequency": "Daily Feb 1-18"
+      }
+    },
+    "linkedin_series": {
+      "post_1_anniversary": {
+        "type": "article",
+        "title": "A Decade of Impact: BLKOUT's 10th Anniversary",
+        "focus": "Professional impact, cooperative model, community ownership",
+        "timing": "February 10th"
+      },
+      "post_2_board": {
+        "type": "single",
+        "title": "Shape the Future: Board Recruitment",
+        "focus": "Professional growth opportunity, governance participation",
+        "timing": "February 12th"
+      }
+    },
+    "twitter_series": {
+      "thread_1": {
+        "tweets": 5,
+        "title": "Anniversary thread - key moments",
+        "timing": "February 10th morning"
+      },
+      "tweet_2_event": {
+        "content": "Join us Feb 18th at UAL with @UKBlackPride for Representation 365. Link to sign up 👇",
+        "timing": "February 10th afternoon"
+      },
+      "tweet_3_board": {
+        "content": "Ready to shape the future of BLKOUT? We're recruiting Board members. Apply now 👇",
+        "timing": "February 12th"
+      }
+    },
+    "tiktok_concept": {
+      "title": "10 years of BLKOUT in 60 seconds",
+      "style": "Fast cuts, community moments, celebration",
+      "timing": "February 10th"
+    },
+    "hashtags": [
+      "#BLKOUT10",
+      "#BlackQueerJoy",
+      "#BLKOUT",
+      "#BlackQueerCommunity",
+      "#10YearAnniversary",
+      "#Representation365",
+      "#BlackQueerMen"
+    ]
   }
 }
