@@ -21,6 +21,7 @@ import { NewsModeration } from '@/pages/admin/NewsModeration';
 import { DesignStudio } from '@/pages/admin/DesignStudio';
 import { CampaignReview } from '@/pages/admin/CampaignReview';
 import { CampaignDashboard } from '@/pages/admin/CampaignDashboard';
+import { NewsletterPreferences } from '@/pages/preferences/NewsletterPreferences';
 
 function App() {
   return (
@@ -155,6 +156,11 @@ function App() {
               </ProtectedRoute>
             }
           />
+
+          {/* Public Preferences Routes */}
+          <Route path="/preferences" element={<NewsletterPreferences />} />
+          <Route path="/unsubscribe" element={<NewsletterPreferences />} />
+          <Route path="/subscribe" element={<NewsletterPreferences />} />
 
           {/* 404 - Redirect to discover */}
           <Route path="*" element={<Navigate to="/discover" replace />} />
