@@ -144,7 +144,7 @@ export function AnniversaryWidget() {
           {CO_FOUNDER_ARTICLES.map((article) => (
             <a
               key={article.slug}
-              href={`https://blog.blkoutuk.cloud/post/${article.slug}`}
+              href={`https://blkoutuk.com/stories#${article.slug}`}
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-start gap-4 p-6 hover:bg-gray-50 transition-colors group"
