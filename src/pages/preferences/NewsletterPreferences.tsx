@@ -84,8 +84,6 @@ const FREQUENCY_OPTIONS = [
 export function NewsletterPreferences() {
   const [searchParams] = useSearchParams();
   const emailParam = searchParams.get('email');
-  // Token param reserved for future secure preference access
-  const _tokenParam = searchParams.get('token');
 
   const [email, setEmail] = useState(emailParam || '');
   const [isLoading, setIsLoading] = useState(false);
