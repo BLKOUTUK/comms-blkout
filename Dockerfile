@@ -1,4 +1,5 @@
 # comms-blkout Dockerfile for Coolify
+# Serves both static frontend AND API routes via Express
 FROM node:20-alpine AS builder
 
 WORKDIR /app
@@ -6,7 +7,7 @@ WORKDIR /app
 # Copy package files
 COPY package*.json ./
 
-# Install dependencies
+# Install all dependencies (including dev for build)
 RUN npm ci
 
 # Copy source
@@ -60,7 +61,7 @@ ENV VITE_CANVA_REDIRECT_URI=$VITE_CANVA_REDIRECT_URI
 ENV VITE_HEARTBEAT_API_KEY=$VITE_HEARTBEAT_API_KEY
 ENV VITE_HEARTBEAT_NEWS_CHANNEL_ID=$VITE_HEARTBEAT_NEWS_CHANNEL_ID
 
-# Build the app
+# Build frontend (Vite) and server (Express + API)
 RUN npm run build
 
 # Production stage
@@ -70,13 +71,14 @@ WORKDIR /app
 
 # Copy built assets
 COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/server-dist ./server-dist
 COPY --from=builder /app/package*.json ./
 
-# Install serve for static hosting
-RUN npm install -g serve
+# Install production dependencies only
+RUN npm ci --omit=dev
 
 # Expose port
 EXPOSE 3000
 
-# Serve the built app
-CMD ["serve", "-s", "dist", "-l", "3000"]
+# Run the Express server (serves static + API)
+CMD ["node", "server-dist/server.js"]
