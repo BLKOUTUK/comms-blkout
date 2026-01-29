@@ -607,43 +607,43 @@
       "note": "These are the founding articles from the original WordPress site - need to confirm which author wrote which article",
       "articles": [
         {
-          "id": "cofounder_article_1",
+          "id": "cofounder_article_antoine",
           "title": "Crossing Deep Waters",
-          "author": "[Confirm: Marc, Antoine, or Rob]",
+          "author": "Antoine",
           "role": "Co-founder",
           "original_date": "October 16, 2016",
           "original_url": "https://blkoutuk.com/crossing-deep-waters/",
           "wordpress_id": "144",
-          "reshare_caption": "10 years ago, we shared our stories. Today, we celebrate how far we've come. 🎉\n\n'Crossing Deep Waters' - one of BLKOUT's founding voices.\n\nRead the original words that started it all... #BLKOUT10 #BlackQueerJoy",
+          "reshare_caption": "10 years ago, Antoine shared his story of crossing deep waters to find community. Today, we celebrate how far we've come together.\n\n'Crossing Deep Waters' - one of BLKOUT's founding voices.\n\nRead the original words that started it all... #BLKOUT10 #BlackQueerJoy",
           "platforms": ["instagram", "linkedin", "twitter"]
         },
         {
-          "id": "cofounder_article_2",
-          "title": "Adventures in unchartered territory",
-          "author": "[Confirm: Marc, Antoine, or Rob]",
-          "role": "Co-founder",
-          "original_date": "October 16, 2016",
-          "original_url": "https://blkoutuk.com/152-2/",
-          "wordpress_id": "152",
-          "reshare_caption": "Before there was a community, there was a leap of faith. 🖤\n\n'Adventures in unchartered territory' - founding words from 2016.\n\n#BLKOUT10 #10YearsOfLiberation",
-          "platforms": ["instagram", "linkedin", "twitter"]
-        },
-        {
-          "id": "cofounder_article_3",
+          "id": "cofounder_article_marc",
           "title": "If you build it...",
-          "author": "[Confirm: Marc, Antoine, or Rob]",
+          "author": "Marc",
           "role": "Co-founder",
           "original_date": "October 16, 2016",
           "original_url": "https://blkoutuk.com/if-you-build-it/",
           "wordpress_id": "158",
-          "reshare_caption": "Three voices, one vision. 10 years of building community together. ✊🏾\n\n'If you build it...' - the promise we made and kept.\n\n#BLKOUT10 #FoundersVision",
+          "reshare_caption": "Marc asked 'If you build it...' 10 years ago. We built it. And look what we've grown.\n\nThe promise we made and kept.\n\n#BLKOUT10 #10YearsOfLiberation",
+          "platforms": ["instagram", "linkedin", "twitter"]
+        },
+        {
+          "id": "cofounder_article_rob",
+          "title": "Adventures in unchartered territory",
+          "author": "Rob",
+          "role": "Co-founder",
+          "original_date": "October 16, 2016",
+          "original_url": "https://blkoutuk.com/152-2/",
+          "wordpress_id": "152",
+          "reshare_caption": "Three voices, one vision. Rob's 'Adventures in unchartered territory' - a decade on, the adventure continues.\n\n#BLKOUT10 #FoundersVision",
           "platforms": ["instagram", "linkedin", "twitter"]
         }
       ],
       "schedule": {
-        "article_1": "February 3rd - Early teaser phase",
-        "article_2": "February 5th - Building momentum",
-        "article_3": "February 8th - Pre-celebration"
+        "article_1_antoine": "February 3rd - Antoine: Crossing Deep Waters",
+        "article_2_marc": "February 5th - Marc: If you build it...",
+        "article_3_rob": "February 8th - Rob: Adventures in unchartered territory"
       }
     },
     "instagram_series": {
