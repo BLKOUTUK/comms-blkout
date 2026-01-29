@@ -603,30 +603,36 @@
   "social_media_series_february_2026": {
     "description": "Extended social media content for February 2026 including co-founder article resharing",
     "co_founder_articles_reshare": {
-      "description": "Reshare original introductory articles by co-founders as part of 10th anniversary",
+      "description": "Reshare the first three introductory articles by co-founders Marc, Antoine, and Rob as part of 10th anniversary",
       "articles": [
         {
-          "id": "cofounder_article_1",
-          "title": "[CO-FOUNDER ARTICLE 1 - TO BE CONFIRMED]",
-          "author": "[Co-founder name]",
-          "original_date": "[Original publication date]",
-          "reshare_caption": "10 years ago, we shared our vision. Today, we celebrate how far we've come. 🎉\n\nRead the original words that started it all... #BLKOUT10 #BlackQueerJoy",
+          "id": "cofounder_article_marc",
+          "title": "[ARTICLE TITLE - NEEDS URL/CONTENT]",
+          "author": "Marc",
+          "role": "Co-founder",
+          "original_date": "[First published date]",
+          "source_url": "[TO BE ADDED - where is this article?]",
+          "reshare_caption": "10 years ago, Marc shared his vision for BLKOUT. Today, we celebrate how far we've come. 🎉\n\nRead the original words that started it all... #BLKOUT10 #BlackQueerJoy",
           "platforms": ["instagram", "linkedin", "twitter"]
         },
         {
-          "id": "cofounder_article_2",
-          "title": "[CO-FOUNDER ARTICLE 2 - TO BE CONFIRMED]",
-          "author": "[Co-founder name]",
-          "original_date": "[Original publication date]",
-          "reshare_caption": "The foundation was built on these words. A decade later, we're still standing. 🖤\n\n#BLKOUT10 #10YearsOfLiberation",
+          "id": "cofounder_article_antoine",
+          "title": "[ARTICLE TITLE - NEEDS URL/CONTENT]",
+          "author": "Antoine",
+          "role": "Co-founder",
+          "original_date": "[First published date]",
+          "source_url": "[TO BE ADDED - where is this article?]",
+          "reshare_caption": "Antoine's words helped build the foundation. A decade later, we're still standing. 🖤\n\n#BLKOUT10 #10YearsOfLiberation",
           "platforms": ["instagram", "linkedin", "twitter"]
         },
         {
-          "id": "cofounder_article_3",
-          "title": "[CO-FOUNDER ARTICLE 3 - TO BE CONFIRMED]",
-          "author": "[Co-founder name]",
-          "original_date": "[Original publication date]",
-          "reshare_caption": "Three voices, one vision. 10 years of building community together. ✊🏾\n\n#BLKOUT10 #FoundersVision",
+          "id": "cofounder_article_rob",
+          "title": "[ARTICLE TITLE - NEEDS URL/CONTENT]",
+          "author": "Rob",
+          "role": "Co-founder",
+          "original_date": "[First published date]",
+          "source_url": "[TO BE ADDED - where is this article?]",
+          "reshare_caption": "Three voices, one vision. Rob's perspective on building community together. ✊🏾\n\n#BLKOUT10 #FoundersVision",
           "platforms": ["instagram", "linkedin", "twitter"]
         }
       ],
