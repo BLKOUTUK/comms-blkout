@@ -1,21 +1,23 @@
 
-import { Youtube, Play } from 'lucide-react';
+import { Youtube, Play, ExternalLink } from 'lucide-react';
 
 interface YouTubeEmbedProps {
-  channelId?: string;
+  videoId?: string;
   playlistId?: string;
   className?: string;
 }
 
 export function YouTubeEmbed({
-  channelId = 'UCblkoutuk',
+  videoId,
   playlistId,
-  className = ''
+  className = '',
 }: YouTubeEmbedProps) {
-  // Use playlist if provided, otherwise show latest video embed
-  const embedUrl = playlistId
-    ? `https://www.youtube.com/embed/videoseries?list=${playlistId}`
-    : `https://www.youtube.com/embed?listType=user_uploads&list=${channelId}`;
+  // Build embed URL from specific video or playlist
+  const embedUrl = videoId
+    ? `https://www.youtube.com/embed/${videoId}`
+    : playlistId
+      ? `https://www.youtube.com/embed/videoseries?list=${playlistId}`
+      : null;
 
   return (
     <div className={`space-y-4 ${className}`}>
@@ -44,17 +46,41 @@ export function YouTubeEmbed({
         </a>
       </div>
 
-      {/* YouTube Embed */}
-      <div className="relative w-full rounded-xl overflow-hidden shadow-lg" style={{ paddingBottom: '56.25%' }}>
-        <iframe
-          className="absolute top-0 left-0 w-full h-full"
-          src={embedUrl}
-          title="BLKOUT UK YouTube Channel"
-          frameBorder="0"
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-          allowFullScreen
-        />
-      </div>
+      {/* YouTube Embed or Channel Link */}
+      {embedUrl ? (
+        <div
+          className="relative w-full rounded-xl overflow-hidden shadow-lg"
+          style={{ paddingBottom: '56.25%' }}
+        >
+          <iframe
+            className="absolute top-0 left-0 w-full h-full"
+            src={embedUrl}
+            title="BLKOUT UK YouTube"
+            frameBorder="0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowFullScreen
+          />
+        </div>
+      ) : (
+        <a
+          href="https://www.youtube.com/@blkoutuk"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="block relative w-full rounded-xl overflow-hidden shadow-lg bg-gradient-to-br from-gray-900 to-gray-800 group"
+          style={{ paddingBottom: '56.25%' }}
+        >
+          <div className="absolute inset-0 flex flex-col items-center justify-center gap-4">
+            {/* Play button */}
+            <div className="w-20 h-20 bg-red-600 rounded-full flex items-center justify-center group-hover:bg-red-700 group-hover:scale-110 transition-all duration-300 shadow-xl">
+              <Play className="h-10 w-10 text-white ml-1" fill="white" />
+            </div>
+            <div className="text-center">
+              <p className="text-white font-bold text-lg">BLKOUT UK</p>
+              <p className="text-gray-400 text-sm">Watch on YouTube</p>
+            </div>
+          </div>
+        </a>
+      )}
 
       {/* Quick Links */}
       <div className="grid grid-cols-2 gap-3 pt-2">
@@ -62,17 +88,19 @@ export function YouTubeEmbed({
           href="https://www.youtube.com/@blkoutuk/videos"
           target="_blank"
           rel="noopener noreferrer"
-          className="text-center py-2 px-4 bg-gray-100 hover:bg-gray-200 rounded-lg text-sm font-medium text-gray-700 transition-colors"
+          className="text-center py-2 px-4 bg-gray-100 hover:bg-gray-200 rounded-lg text-sm font-medium text-gray-700 transition-colors flex items-center justify-center gap-2"
         >
           All Videos
+          <ExternalLink size={14} />
         </a>
         <a
           href="https://www.youtube.com/@blkoutuk/playlists"
           target="_blank"
           rel="noopener noreferrer"
-          className="text-center py-2 px-4 bg-gray-100 hover:bg-gray-200 rounded-lg text-sm font-medium text-gray-700 transition-colors"
+          className="text-center py-2 px-4 bg-gray-100 hover:bg-gray-200 rounded-lg text-sm font-medium text-gray-700 transition-colors flex items-center justify-center gap-2"
         >
           Playlists
+          <ExternalLink size={14} />
         </a>
       </div>
     </div>
