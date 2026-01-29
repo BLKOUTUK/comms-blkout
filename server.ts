@@ -5,12 +5,9 @@
  */
 
 import express from 'express';
-import { fileURLToPath } from 'url';
-import { dirname, join } from 'path';
+import { join } from 'path';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-const APP_ROOT = join(__dirname, '..');  // server-dist/ -> app root
+const APP_ROOT = process.cwd();  // /app in Docker (WORKDIR)
 const app = express();
 const PORT = parseInt(process.env.PORT || '3000', 10);
 
