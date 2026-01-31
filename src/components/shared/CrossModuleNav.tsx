@@ -43,7 +43,7 @@ export function CrossModuleNav({ currentModule = 'discover' }: CrossModuleNavPro
       current: currentModule === 'news'
     },
     {
-      label: "Ask IVOR",
+      label: "Ask AIvor",
       href: "https://ivor.blkoutuk.com",
       icon: <Bot className="w-4 h-4" />,
       current: currentModule === 'ivor'

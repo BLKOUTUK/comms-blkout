@@ -99,7 +99,7 @@ export const Holiday2025Newsletter = () => {
           marginBottom: '20px',
           paddingLeft: '20px'
         }}>
-          <li><strong>🤖 IVOR AI Assistant</strong> - UK's first Black queer AI companion across WhatsApp, Telegram, Instagram, and web</li>
+          <li><strong>🤖 AIvor</strong> - UK's first Black queer AI companion across WhatsApp, Telegram, Instagram, and web</li>
           <li><strong>📅 Events Calendar</strong> - Community-curated gatherings across London, Manchester, Birmingham, Bristol</li>
           <li><strong>📰 News Platform</strong> - Amplifying Black queer voices and stories</li>
           <li><strong>💬 Communications Hub</strong> - AI agents (Griot, Listener, Weaver, Strategist) managing our storytelling</li>
@@ -285,7 +285,7 @@ export const Holiday2025Newsletter = () => {
             margin: '0',
             fontWeight: '600'
           }}>
-            📅 Launching Spring 2026 | Integrates with IVOR AI for personalized wellness journeys
+            📅 Launching Spring 2026 | Integrates with AIvor for personalized wellness journeys
           </p>
         </div>
 

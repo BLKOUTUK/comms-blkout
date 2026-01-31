@@ -79,7 +79,7 @@ export const BoardRecruitment2026Newsletter: React.FC<BoardRecruitment2026Newsle
           For nearly 10 years, BLKOUT has been building something revolutionary - a
           community-owned platform where Black queer men can thrive, connect, and lead.
           We've grown to over <strong style={{ color: '#d4af37' }}>10,000 brothers</strong> across
-          the UK. We've launched IVOR AI, our Events Calendar, and our News Platform.
+          the UK. We've launched AIvor, our Events Calendar, and our News Platform.
         </p>
 
         <p style={{ fontSize: '16px', lineHeight: '1.8', marginBottom: '30px' }}>

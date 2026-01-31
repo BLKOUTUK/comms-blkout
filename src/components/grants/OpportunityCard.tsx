@@ -28,7 +28,7 @@ const sourceConfig: Record<OpportunitySource, { icon: typeof Globe; label: strin
   charity_excellence: { icon: Globe, label: 'Charity Excellence', color: 'text-blue-600 bg-blue-50' },
   '360giving': { icon: Globe, label: '360Giving', color: 'text-purple-600 bg-purple-50' },
   manual: { icon: Users, label: 'Manual Entry', color: 'text-slate-600 bg-slate-50' },
-  ivor_research: { icon: Sparkles, label: 'IVOR Research', color: 'text-teal-600 bg-teal-50' },
+  ivor_research: { icon: Sparkles, label: 'AIvor Research', color: 'text-teal-600 bg-teal-50' },
   referral: { icon: Users, label: 'Referral', color: 'text-amber-600 bg-amber-50' },
   funder_website: { icon: Building2, label: 'Funder Website', color: 'text-indigo-600 bg-indigo-50' },
 };

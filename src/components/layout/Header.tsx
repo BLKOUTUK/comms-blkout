@@ -1,14 +1,26 @@
 
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, User, LogOut, ExternalLink, Calendar, Newspaper, X } from 'lucide-react';
+import { Menu, User, LogOut, Home, Calendar, Newspaper, Brain, Info, ExternalLink, X } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
+
+// Second-row pages: Discover, AIvor intro, About (matched by route)
+const SECOND_ROW_ROUTES = ['/discover', '/about'];
+
+const secondaryNav = [
+  { id: 'discover', label: 'Discover', href: '/discover', internal: true },
+  { id: 'voices', label: 'Voices', href: 'https://voices.blkoutuk.cloud' },
+  { id: 'community', label: 'Community', href: 'https://blkouthub.com' },
+  { id: 'governance', label: 'Governance', href: 'https://blkoutuk.com/governance' },
+];
 
 export function Header() {
   const { user, isAuthenticated, signOut } = useAuth();
   const location = useLocation();
   const isAdminRoute = location.pathname.startsWith('/admin');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  const showSecondRow = SECOND_ROW_ROUTES.some(r => location.pathname.startsWith(r));
 
   const handleSignOut = async () => {
     try {
@@ -23,7 +35,7 @@ export function Header() {
       className="bg-gray-900 border-b border-yellow-500/30 sticky top-0 z-50 shadow-lg backdrop-blur-sm"
       role="banner"
     >
-      <div className="px-6 py-4">
+      <div className="px-6 py-3">
         <div className="flex items-center justify-between">
           {/* Logo and Title */}
           <div className="flex items-center gap-4">
@@ -51,52 +63,53 @@ export function Header() {
             </Link>
           </div>
 
-          {/* Navigation */}
+          {/* Desktop Navigation — Top 5 */}
           <nav className="hidden md:flex items-center gap-1" aria-label="Main navigation">
-            {/* Platform Links */}
-            <div className="flex items-center gap-1 px-2 border-r border-yellow-500/20">
-              <a
-                href="https://blkoutuk.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="px-3 py-1.5 rounded-md text-sm font-semibold transition-all duration-200 text-gray-300 hover:text-yellow-500 hover:bg-white/5 flex items-center gap-1.5"
-              >
-                Platform
-                <ExternalLink size={14} />
-              </a>
-              <Link
-                to="/discover"
-                className={`px-3 py-1.5 rounded-md text-sm font-semibold transition-all duration-200 ${
-                  !isAdminRoute
-                    ? 'bg-yellow-500/20 text-yellow-500'
-                    : 'text-gray-300 hover:text-yellow-500 hover:bg-white/5'
-                }`}
-              >
-                Discover
-              </Link>
-            </div>
-
-            {/* External Hubs */}
-            <div className="flex items-center gap-1 px-2 border-r border-yellow-500/20">
-              <a
-                href="https://events.blkoutuk.cloud"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="px-3 py-1.5 rounded-md text-sm font-semibold transition-all duration-200 text-gray-300 hover:text-yellow-500 hover:bg-white/5 flex items-center gap-1.5"
-              >
-                <Calendar size={14} />
-                Events
-              </a>
-              <a
-                href="https://news.blkoutuk.cloud"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="px-3 py-1.5 rounded-md text-sm font-semibold transition-all duration-200 text-gray-300 hover:text-yellow-500 hover:bg-white/5 flex items-center gap-1.5"
-              >
-                <Newspaper size={14} />
-                Newsroom
-              </a>
-            </div>
+            <a
+              href="https://blkoutuk.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-3 py-1.5 rounded-md text-sm font-semibold transition-all duration-200 text-gray-300 hover:text-yellow-500 hover:bg-white/5 flex items-center gap-1.5"
+            >
+              <Home size={14} />
+              Home
+            </a>
+            <a
+              href="https://events.blkoutuk.cloud"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-3 py-1.5 rounded-md text-sm font-semibold transition-all duration-200 text-gray-300 hover:text-yellow-500 hover:bg-white/5 flex items-center gap-1.5"
+            >
+              <Calendar size={14} />
+              Events
+            </a>
+            <a
+              href="https://news.blkoutuk.cloud"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-3 py-1.5 rounded-md text-sm font-semibold transition-all duration-200 text-gray-300 hover:text-yellow-500 hover:bg-white/5 flex items-center gap-1.5"
+            >
+              <Newspaper size={14} />
+              News
+            </a>
+            <a
+              href="https://ivor.blkoutuk.cloud"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-3 py-1.5 rounded-md text-sm font-semibold transition-all duration-200 text-gray-300 hover:text-yellow-500 hover:bg-white/5 flex items-center gap-1.5"
+            >
+              <Brain size={14} />
+              AIvor
+            </a>
+            <a
+              href="https://blkoutuk.com/about"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-3 py-1.5 rounded-md text-sm font-semibold transition-all duration-200 text-gray-300 hover:text-yellow-500 hover:bg-white/5 flex items-center gap-1.5"
+            >
+              <Info size={14} />
+              About
+            </a>
 
             {/* Admin */}
             {isAuthenticated && (
@@ -147,6 +160,42 @@ export function Header() {
           </div>
         </div>
       </div>
+
+      {/* Second row — only on Discover and About pages */}
+      {showSecondRow && (
+        <div className="border-t border-yellow-500/10 bg-gray-900/80">
+          <div className="px-6 py-1.5">
+            <nav className="hidden md:flex items-center gap-1 justify-center" aria-label="Secondary navigation">
+              {secondaryNav.map((item) =>
+                item.internal ? (
+                  <Link
+                    key={item.id}
+                    to={item.href}
+                    className={`px-3 py-1 rounded-md text-xs font-medium transition-all duration-200 ${
+                      location.pathname.startsWith(item.href)
+                        ? 'bg-yellow-500/15 text-yellow-500'
+                        : 'text-gray-400 hover:text-yellow-500 hover:bg-white/5'
+                    }`}
+                  >
+                    {item.label}
+                  </Link>
+                ) : (
+                  <a
+                    key={item.id}
+                    href={item.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="px-3 py-1 rounded-md text-xs font-medium transition-all duration-200 text-gray-400 hover:text-yellow-500 hover:bg-white/5 flex items-center gap-1"
+                  >
+                    {item.label}
+                    <ExternalLink size={10} className="opacity-50" />
+                  </a>
+                )
+              )}
+            </nav>
+          </div>
+        </div>
+      )}
     </header>
   );
 }

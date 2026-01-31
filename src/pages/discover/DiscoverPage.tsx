@@ -174,7 +174,7 @@ export function DiscoverPage() {
             Explore the Full BLKOUT Platform
           </h2>
           <p className="text-gray-300 mb-6 max-w-2xl mx-auto">
-            Access our complete suite of community tools, events calendar, IVOR AI assistant, and
+            Access our complete suite of community tools, events calendar, AIvor assistant, and
             more.
           </p>
           <a

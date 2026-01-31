@@ -435,7 +435,7 @@ export function AgentPromptModal({ isOpen, onClose, onSubmit, preselectedAgent }
                 {isIntelligenceExpanded && (
                   <div className="px-4 pb-4 space-y-2">
                     <p className="text-xs text-gray-600 mb-3">
-                      This content was generated using real-time IVOR intelligence from the BLKOUT community:
+                      This content was generated using real-time AIvor intelligence from the BLKOUT community:
                     </p>
                     {intelligenceExplanations.map((insight, idx) => (
                       <div

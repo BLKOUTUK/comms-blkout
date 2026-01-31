@@ -345,7 +345,7 @@ export default function Grants() {
             </div>
             <button className="flex items-center gap-2 bg-teal-600 hover:bg-teal-700 text-white px-5 py-2.5 rounded-lg transition-colors font-medium">
               <Sparkles className="w-4 h-4" />
-              Ask IVOR
+              Ask AIvor
             </button>
           </div>
         </div>

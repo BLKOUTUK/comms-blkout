@@ -196,7 +196,7 @@ export const Anniversary10th2026Newsletter: React.FC<Anniversary10th2026Newslett
           }}>
             <div style={{ fontSize: '20px', marginBottom: '8px' }}>
               <span style={{ marginRight: '10px' }}>🤖</span>
-              <strong>IVOR AI Enhanced</strong>
+              <strong>AIvor Enhanced</strong>
             </div>
             <p style={{ margin: 0, opacity: 0.9, fontSize: '14px' }}>
               Now across WhatsApp, Telegram, Instagram, and web with journey-aware memory.
