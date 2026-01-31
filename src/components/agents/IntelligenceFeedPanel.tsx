@@ -121,7 +121,7 @@ export function IntelligenceFeedPanel({
               <Brain size={24} className="text-purple-600" />
             </div>
             <div>
-              <h3 className="text-lg font-semibold text-gray-900">IVOR Intelligence Feed</h3>
+              <h3 className="text-lg font-semibold text-gray-900">AIvor Intelligence Feed</h3>
               <p className="text-sm text-gray-600">
                 {selectedAgent
                   ? `Insights relevant to ${selectedAgent}`
@@ -357,7 +357,7 @@ export function IntelligenceFeedPanel({
           <p className="text-sm text-gray-500">
             {filterPriority !== 'all' || filterType !== 'all'
               ? 'No insights match the current filters'
-              : 'IVOR intelligence data will appear here when available'
+              : 'AIvor intelligence data will appear here when available'
             }
           </p>
         </div>

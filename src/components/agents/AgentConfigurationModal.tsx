@@ -548,10 +548,10 @@ export function AgentConfigurationModal({ isOpen, onClose, onSave }: AgentConfig
                 <div>
                   <h3 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
                     <Database size={16} />
-                    IVOR Data Sources
+                    AIvor Data Sources
                   </h3>
                   <p className="text-xs text-gray-500 mb-3">
-                    Select which IVOR APIs this agent can access for intelligence
+                    Select which AIvor APIs this agent can access for intelligence
                   </p>
                   <div className="grid grid-cols-2 gap-2">
                     {AVAILABLE_IVOR_ENDPOINTS.map((endpoint) => {

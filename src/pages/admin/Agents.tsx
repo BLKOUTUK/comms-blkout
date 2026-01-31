@@ -185,7 +185,7 @@ export function Agents() {
               </div>
               <div className="text-center">
                 <p className="text-2xl font-bold text-purple-600">{dashboard.weeklyConversations}</p>
-                <p className="text-xs text-gray-600">IVOR Conversations</p>
+                <p className="text-xs text-gray-600">AIvor Conversations</p>
               </div>
               <div className="text-center">
                 <p className="text-2xl font-bold text-orange-600">{dashboard.eventsThisWeek}</p>
@@ -207,7 +207,7 @@ export function Agents() {
                 <Brain size={24} className="text-purple-600" />
               </div>
               <div>
-                <h3 className="text-lg font-semibold text-gray-900">IVOR Intelligence Feed</h3>
+                <h3 className="text-lg font-semibold text-gray-900">AIvor Intelligence Feed</h3>
                 <p className="text-sm text-gray-600">
                   {intelligence.length} community insights | {highPriorityIntel.length} high priority
                 </p>
