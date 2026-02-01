@@ -1,13 +1,26 @@
 
 import { ReactNode } from 'react';
-import { Link } from 'react-router-dom';
-import { ExternalLink } from 'lucide-react';
+import { Link, useLocation } from 'react-router-dom';
+import { Home, Calendar, Newspaper, Brain, ExternalLink } from 'lucide-react';
 
 interface PublicLayoutProps {
   children: ReactNode;
 }
 
+const SECOND_ROW_ROUTES = ['/discover', '/about'];
+
+const secondaryNav = [
+  { id: 'discover', label: 'Discover', href: '/discover', internal: true },
+  { id: 'community', label: 'Community', href: 'https://blkouthub.com' },
+  { id: 'shop', label: 'Shop', href: 'https://blkoutuk.com/shop' },
+  { id: 'membership', label: 'Membership', href: 'https://blkoutuk.com/membership' },
+  { id: 'about', label: 'About', href: 'https://blkoutuk.com/about' },
+];
+
 export function PublicLayout({ children }: PublicLayoutProps) {
+  const location = useLocation();
+  const showSecondRow = SECOND_ROW_ROUTES.some(r => location.pathname.startsWith(r));
+
   return (
     <div className="min-h-screen bg-black text-white">
       {/* Skip Link for keyboard navigation - WCAG 2.4.1 */}
@@ -18,12 +31,12 @@ export function PublicLayout({ children }: PublicLayoutProps) {
         Skip to main content
       </a>
 
-      {/* Header - matches blkoutuk.com */}
-      <nav
+      {/* Header */}
+      <header
         className="sticky top-0 z-40 bg-black border-b border-liberation-gold-divine/30 shadow-lg backdrop-blur-sm"
         role="banner"
       >
-        <div className="max-w-7xl mx-auto px-6 py-4">
+        <div className="max-w-7xl mx-auto px-6 py-3">
           <div className="flex items-center justify-between">
             {/* Logo */}
             <a
@@ -37,60 +50,61 @@ export function PublicLayout({ children }: PublicLayoutProps) {
                 className="h-10 md:h-12 w-auto hover:scale-105 transition-transform drop-shadow-lg"
               />
               <div className="hidden md:block border-l border-liberation-gold-divine/30 pl-3">
-                <div className="text-liberation-gold-divine font-bold text-sm tracking-wider">
+                <div className="text-liberation-gold-divine font-black text-lg tracking-wider">
                   BLKOUT
                 </div>
-                <div className="text-gray-400 text-xs">Liberation Platform</div>
+                <div className="text-gray-400 text-xs">Communications Hub</div>
               </div>
             </a>
 
-            {/* Desktop Navigation */}
-            <div className="hidden md:flex items-center gap-1" role="navigation" aria-label="Main navigation">
-              <div className="flex items-center gap-1 px-2 border-r border-liberation-gold-divine/20">
-                <a
-                  href="https://blkoutuk.com"
-                  className="px-3 py-1.5 rounded-md text-sm font-semibold transition-all duration-200 text-gray-300 hover:text-liberation-gold-divine hover:bg-white/5"
-                >
-                  Home
-                </a>
-                <Link
-                  to="/discover"
-                  className="px-3 py-1.5 rounded-md text-sm font-semibold transition-all duration-200 bg-liberation-gold-divine/20 text-liberation-gold-divine"
-                >
-                  Discover
-                </Link>
-              </div>
-
-              <div className="flex items-center gap-1 px-2">
-                <a
-                  href="https://events.blkoutuk.cloud"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="px-3 py-1.5 rounded-md text-sm font-semibold transition-all duration-200 text-gray-300 hover:text-liberation-gold-divine hover:bg-white/5 flex items-center gap-1.5"
-                >
-                  Events
-                  <ExternalLink size={12} />
-                </a>
-                <a
-                  href="https://news.blkoutuk.cloud"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="px-3 py-1.5 rounded-md text-sm font-semibold transition-all duration-200 text-gray-300 hover:text-liberation-gold-divine hover:bg-white/5 flex items-center gap-1.5"
-                >
-                  News
-                  <ExternalLink size={12} />
-                </a>
-                <a
-                  href="https://voices.blkoutuk.cloud"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="px-3 py-1.5 rounded-md text-sm font-semibold transition-all duration-200 text-gray-300 hover:text-liberation-gold-divine hover:bg-white/5 flex items-center gap-1.5"
-                >
-                  Voices
-                  <ExternalLink size={12} />
-                </a>
-              </div>
-            </div>
+            {/* Desktop Navigation — Top 5 */}
+            <nav className="hidden md:flex items-center gap-4" aria-label="Main navigation">
+              <a
+                href="https://blkoutuk.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-4 py-2 rounded-md text-base font-black uppercase tracking-widest transition-all duration-200 text-gray-200 hover:text-yellow-400 hover:bg-yellow-500/10 flex items-center gap-2"
+              >
+                <Home size={18} />
+                Home
+              </a>
+              <a
+                href="https://events.blkoutuk.cloud"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-4 py-2 rounded-md text-base font-black uppercase tracking-widest transition-all duration-200 text-gray-200 hover:text-yellow-400 hover:bg-yellow-500/10 flex items-center gap-2"
+              >
+                <Calendar size={18} />
+                Events
+              </a>
+              <a
+                href="https://news.blkoutuk.cloud"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-4 py-2 rounded-md text-base font-black uppercase tracking-widest transition-all duration-200 text-gray-200 hover:text-yellow-400 hover:bg-yellow-500/10 flex items-center gap-2"
+              >
+                <Newspaper size={18} />
+                News
+              </a>
+              <a
+                href="https://ivor.blkoutuk.cloud"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-4 py-2 rounded-md text-base font-black uppercase tracking-widest transition-all duration-200 text-gray-200 hover:text-yellow-400 hover:bg-yellow-500/10 flex items-center gap-2"
+              >
+                <Brain size={18} />
+                AIvor
+              </a>
+              <a
+                href="https://voices.blkoutuk.cloud"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-4 py-2 rounded-md text-base font-black uppercase tracking-widest transition-all duration-200 text-gray-200 hover:text-yellow-400 hover:bg-yellow-500/10 flex items-center gap-2"
+              >
+                <ExternalLink size={18} />
+                Voices
+              </a>
+            </nav>
 
             {/* Mobile - Platform link */}
             <a
@@ -101,7 +115,43 @@ export function PublicLayout({ children }: PublicLayoutProps) {
             </a>
           </div>
         </div>
-      </nav>
+
+        {/* Second row — only on Discover and About pages */}
+        {showSecondRow && (
+          <div className="border-t border-purple-500/30 bg-black/80">
+            <div className="max-w-7xl mx-auto px-6 py-1.5">
+              <nav className="hidden md:flex items-center gap-3 justify-end" aria-label="Secondary navigation">
+                {secondaryNav.map((item) =>
+                  item.internal ? (
+                    <Link
+                      key={item.id}
+                      to={item.href}
+                      className={`px-3 py-1 rounded-md text-sm font-bold uppercase tracking-wider transition-all duration-200 ${
+                        location.pathname.startsWith(item.href)
+                          ? 'bg-purple-500/15 text-purple-400'
+                          : 'text-gray-400 hover:text-purple-400 hover:bg-purple-500/10'
+                      }`}
+                    >
+                      {item.label}
+                    </Link>
+                  ) : (
+                    <a
+                      key={item.id}
+                      href={item.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="px-3 py-1 rounded-md text-sm font-bold uppercase tracking-wider transition-all duration-200 text-gray-400 hover:text-purple-400 hover:bg-purple-500/10 flex items-center gap-1"
+                    >
+                      {item.label}
+                      <ExternalLink size={12} className="opacity-50" />
+                    </a>
+                  )
+                )}
+              </nav>
+            </div>
+          </div>
+        )}
+      </header>
 
       {/* Main Content */}
       <main id="main-content" role="main" aria-label="Main content" tabIndex={-1}>

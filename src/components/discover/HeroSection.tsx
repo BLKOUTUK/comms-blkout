@@ -9,8 +9,8 @@ export function HeroSection() {
           <div className="flex justify-center mb-6">
             <Sparkles className="h-16 w-16" />
           </div>
-          <h1 className="text-4xl md:text-6xl font-bold mb-6">
-            Welcome to BLKOUT UK
+          <h1 className="text-4xl md:text-6xl font-black mb-6 uppercase">
+            WELCOME TO BLKOUT UK
           </h1>
           <p className="text-xl md:text-2xl mb-8 max-w-3xl mx-auto">
             Transforming "a category into a community" for Black queer men across the UK

@@ -25,7 +25,7 @@ export function DiscoverPage() {
             />
           </div>
 
-          <h1 className="text-5xl md:text-6xl font-display font-bold text-white mb-4">
+          <h1 className="text-5xl md:text-6xl font-black text-white mb-4">
             Discover BLKOUT
           </h1>
 
