@@ -1,4 +1,5 @@
 
+import { useState } from 'react';
 import { PublicLayout } from '@/components/layout/PublicLayout';
 import { YouTubeEmbed } from '@/components/discover/YouTubeEmbed';
 import { SocialMediaFeed } from '@/components/discover/SocialMediaFeed';
@@ -9,9 +10,33 @@ import { ArchiveArticleWidget } from '@/components/discover/ArchiveArticleWidget
 import { BlkoutVoicesWidget } from '@/components/discover/BlkoutVoicesWidget';
 import { FeaturedEventsWidget } from '@/components/discover/FeaturedEventsWidget';
 import { NewsletterSignup } from '@/components/discover/NewsletterSignup';
-import { Heart, Users, Sparkles } from 'lucide-react';
+import { Heart, Users, Sparkles, Search } from 'lucide-react';
+
+const SECTIONS = [
+  { id: 'anniversary', keywords: ['anniversary', '10th', 'campaign', 'celebrate'] },
+  { id: 'hub', keywords: ['hub', 'community', 'connect', 'blkouthub'] },
+  { id: 'events', keywords: ['events', 'calendar', 'upcoming', 'pride'] },
+  { id: 'social', keywords: ['social', 'media', 'instagram', 'linkedin'] },
+  { id: 'newsletter', keywords: ['newsletter', 'email', 'subscribe', 'archive'] },
+  { id: 'voices', keywords: ['voices', 'blog', 'articles', 'stories', 'writing'] },
+  { id: 'archive', keywords: ['archive', 'history', 'past', 'article'] },
+  { id: 'youtube', keywords: ['youtube', 'video', 'watch', 'channel'] },
+] as const;
+
+function matchesSearch(keywords: readonly string[], query: string): boolean {
+  if (!query) return true;
+  const q = query.toLowerCase();
+  return keywords.some(k => k.includes(q)) || q.split(/\s+/).some(word => keywords.some(k => k.includes(word)));
+}
 
 export function DiscoverPage() {
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const visible = (id: string) => {
+    const section = SECTIONS.find(s => s.id === id);
+    return section ? matchesSearch(section.keywords, searchQuery) : true;
+  };
+
   return (
     <PublicLayout>
       {/* Hero Section - dark theme */}
@@ -57,48 +82,99 @@ export function DiscoverPage() {
               Democratic Governance
             </span>
           </div>
+
+          {/* Search Bar */}
+          <div className="max-w-xl mx-auto">
+            <div className="relative">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search events, voices, newsletters, videos..."
+                className="w-full pl-12 pr-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-liberation-gold-divine/50 focus:border-liberation-gold-divine/50 transition-all"
+              />
+              {searchQuery && (
+                <button
+                  onClick={() => setSearchQuery('')}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white transition-colors text-sm"
+                >
+                  Clear
+                </button>
+              )}
+            </div>
+          </div>
         </div>
       </div>
 
       {/* 10th Anniversary - Featured Campaign */}
-      <section className="mb-12 bg-white/95 rounded-2xl p-8 shadow-lg backdrop-blur-sm">
-        <AnniversaryWidget />
-      </section>
+      {visible('anniversary') && (
+        <section className="mb-12 bg-white/95 rounded-2xl p-8 shadow-lg backdrop-blur-sm">
+          <AnniversaryWidget />
+        </section>
+      )}
 
       {/* BLKOUT HUB Widget */}
-      <section className="mb-12 bg-white/95 rounded-2xl p-8 shadow-lg backdrop-blur-sm">
-        <BlkoutHubWidget />
-      </section>
+      {visible('hub') && (
+        <section className="mb-12 bg-white/95 rounded-2xl p-8 shadow-lg backdrop-blur-sm">
+          <BlkoutHubWidget />
+        </section>
+      )}
 
       {/* Featured Events */}
-      <section className="mb-12 bg-white/95 rounded-2xl p-8 shadow-lg backdrop-blur-sm">
-        <FeaturedEventsWidget />
-      </section>
+      {visible('events') && (
+        <section className="mb-12 bg-white/95 rounded-2xl p-8 shadow-lg backdrop-blur-sm">
+          <FeaturedEventsWidget />
+        </section>
+      )}
 
       {/* Social Media Feed */}
-      <section className="mb-12 bg-white/95 rounded-2xl p-8 shadow-lg backdrop-blur-sm">
-        <SocialMediaFeed />
-      </section>
+      {visible('social') && (
+        <section className="mb-12 bg-white/95 rounded-2xl p-8 shadow-lg backdrop-blur-sm">
+          <SocialMediaFeed />
+        </section>
+      )}
 
       {/* Newsletter Archive */}
-      <section className="mb-12 bg-white/95 rounded-2xl p-8 shadow-lg backdrop-blur-sm">
-        <NewsletterArchive />
-      </section>
+      {visible('newsletter') && (
+        <section className="mb-12 bg-white/95 rounded-2xl p-8 shadow-lg backdrop-blur-sm">
+          <NewsletterArchive />
+        </section>
+      )}
 
       {/* BLKOUT Voices Blog */}
-      <section className="mb-12 bg-white/95 rounded-2xl p-8 shadow-lg backdrop-blur-sm">
-        <BlkoutVoicesWidget />
-      </section>
+      {visible('voices') && (
+        <section className="mb-12 bg-white/95 rounded-2xl p-8 shadow-lg backdrop-blur-sm">
+          <BlkoutVoicesWidget />
+        </section>
+      )}
 
       {/* Archive Article */}
-      <section className="mb-12 bg-white/95 rounded-2xl p-8 shadow-lg backdrop-blur-sm">
-        <ArchiveArticleWidget />
-      </section>
+      {visible('archive') && (
+        <section className="mb-12 bg-white/95 rounded-2xl p-8 shadow-lg backdrop-blur-sm">
+          <ArchiveArticleWidget />
+        </section>
+      )}
 
       {/* YouTube Section */}
-      <section className="mb-12 bg-white/95 rounded-2xl p-8 shadow-lg backdrop-blur-sm">
-        <YouTubeEmbed />
-      </section>
+      {visible('youtube') && (
+        <section className="mb-12 bg-white/95 rounded-2xl p-8 shadow-lg backdrop-blur-sm">
+          <YouTubeEmbed />
+        </section>
+      )}
+
+      {/* No results */}
+      {searchQuery && !SECTIONS.some(s => matchesSearch(s.keywords, searchQuery)) && (
+        <div className="text-center py-16">
+          <p className="text-gray-400 text-lg">No sections match "{searchQuery}"</p>
+          <button
+            onClick={() => setSearchQuery('')}
+            className="mt-4 text-liberation-gold-divine hover:underline"
+          >
+            Clear search
+          </button>
+        </div>
+      )}
 
       {/* Social Follow Section - dark theme */}
       <div className="mb-12 pt-8 border-t border-liberation-gold-divine/20">
