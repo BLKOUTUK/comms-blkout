@@ -84,24 +84,29 @@ export function DiscoverPage() {
           </div>
 
           {/* Search Bar */}
-          <div className="max-w-xl mx-auto">
-            <div className="relative">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search events, voices, newsletters, videos..."
-                className="w-full pl-12 pr-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-liberation-gold-divine/50 focus:border-liberation-gold-divine/50 transition-all"
-              />
-              {searchQuery && (
-                <button
-                  onClick={() => setSearchQuery('')}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white transition-colors text-sm"
-                >
-                  Clear
-                </button>
-              )}
+          <div className="max-w-2xl mx-auto mt-2">
+            <div className="bg-white/5 border-2 border-liberation-gold-divine/40 rounded-2xl p-6 backdrop-blur-sm">
+              <p className="text-center text-gray-300 text-sm mb-3">
+                Find events, articles, newsletters, and videos across the BLKOUT platform
+              </p>
+              <div className="relative">
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-liberation-gold-divine" />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Try &quot;events&quot;, &quot;newsletter&quot;, &quot;voices&quot;, &quot;video&quot;..."
+                  className="w-full pl-12 pr-4 py-4 bg-white/10 border border-white/20 rounded-xl text-white text-lg placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-liberation-gold-divine/50 focus:border-liberation-gold-divine/50 transition-all"
+                />
+                {searchQuery && (
+                  <button
+                    onClick={() => setSearchQuery('')}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white transition-colors text-sm"
+                  >
+                    Clear
+                  </button>
+                )}
+              </div>
             </div>
           </div>
         </div>
