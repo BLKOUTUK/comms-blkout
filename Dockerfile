@@ -11,7 +11,7 @@ LABEL build.date="2026-02-03"
 COPY package*.json ./
 
 # Install all dependencies (including dev for build)
-RUN npm ci
+RUN npm install
 
 # Copy source
 COPY . .
