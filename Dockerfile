@@ -4,11 +4,14 @@ FROM node:20-alpine AS builder
 
 WORKDIR /app
 
+# Cache bust - forces full rebuild when changed (fixes corrupted cached layers)
+LABEL build.date="2026-02-03"
+
 # Copy package files
 COPY package*.json ./
 
 # Install all dependencies (including dev for build)
-RUN npm install
+RUN npm ci
 
 # Copy source
 COPY . .
