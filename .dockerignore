@@ -1,0 +1,11 @@
+node_modules
+remotion-videos/node_modules
+remotion-videos/out
+.git
+.github
+.vscode
+*.md
+.env.local
+.env.development
+dist
+server-dist
