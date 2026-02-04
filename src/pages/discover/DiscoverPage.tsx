@@ -9,6 +9,7 @@ import { AnniversaryWidget } from '@/components/discover/AnniversaryWidget';
 import { ArchiveArticleWidget } from '@/components/discover/ArchiveArticleWidget';
 import { BlkoutVoicesWidget } from '@/components/discover/BlkoutVoicesWidget';
 import { FeaturedEventsWidget } from '@/components/discover/FeaturedEventsWidget';
+import { LearningWidget } from '@/components/discover/LearningWidget';
 import { NewsletterSignup } from '@/components/discover/NewsletterSignup';
 import { Heart, Users, Sparkles, Search } from 'lucide-react';
 
@@ -19,6 +20,7 @@ const SECTIONS = [
   { id: 'social', keywords: ['social', 'media', 'instagram', 'linkedin'] },
   { id: 'newsletter', keywords: ['newsletter', 'email', 'subscribe', 'archive'] },
   { id: 'voices', keywords: ['voices', 'blog', 'articles', 'stories', 'writing'] },
+  { id: 'learning', keywords: ['learning', 'courses', 'skills', 'self-improvement', 'certificates', 'mentorship', 'growth', 'development'] },
   { id: 'archive', keywords: ['archive', 'history', 'past', 'article'] },
   { id: 'youtube', keywords: ['youtube', 'video', 'watch', 'channel'] },
 ] as const;
@@ -151,6 +153,13 @@ export function DiscoverPage() {
       {visible('voices') && (
         <section className="mb-12 bg-white/95 rounded-2xl p-8 shadow-lg backdrop-blur-sm">
           <BlkoutVoicesWidget />
+        </section>
+      )}
+
+      {/* Learning & Self-Improvement */}
+      {visible('learning') && (
+        <section className="mb-12 bg-white/95 rounded-2xl p-8 shadow-lg backdrop-blur-sm">
+          <LearningWidget />
         </section>
       )}
 
