@@ -21,6 +21,7 @@ import { NewsModeration } from '@/pages/admin/NewsModeration';
 import { DesignStudio } from '@/pages/admin/DesignStudio';
 import { CampaignReview } from '@/pages/admin/CampaignReview';
 import { CampaignDashboard } from '@/pages/admin/CampaignDashboard';
+import { DigestVid } from '@/pages/admin/DigestVid';
 import { NewsletterPreferences } from '@/pages/preferences/NewsletterPreferences';
 
 function App() {
@@ -153,6 +154,15 @@ function App() {
             element={
               <ProtectedRoute>
                 <CampaignReview />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/admin/digestvid"
+            element={
+              <ProtectedRoute>
+                <DigestVid />
               </ProtectedRoute>
             }
           />

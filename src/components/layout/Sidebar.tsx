@@ -12,6 +12,7 @@ import {
   Banknote,
   CalendarCheck,
   Newspaper,
+  Video,
 } from 'lucide-react';
 
 const navigation = [
@@ -23,6 +24,7 @@ const navigation = [
   { name: 'Grant Funding', href: '/admin/grants', icon: Banknote },
   { name: 'Agents', href: '/admin/agents', icon: Bot },
   { name: 'Newsletters', href: '/admin/newsletters', icon: Mail },
+  { name: 'DigestVid', href: '/admin/digestvid', icon: Video },
   { name: 'SocialSync', href: '/admin/socialsync', icon: Zap },
   { name: 'Analytics', href: '/admin/analytics', icon: BarChart3 },
   { name: 'Settings', href: '/admin/settings', icon: Settings },
