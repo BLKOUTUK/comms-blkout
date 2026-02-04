@@ -12,8 +12,6 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import {
-  Mail,
-  Bell,
   Calendar,
   Users,
   Megaphone,
@@ -257,17 +255,15 @@ export function NewsletterPreferences() {
   // Email lookup form
   if (!isVerified) {
     return (
-      <div className="min-h-screen bg-gray-50 py-12 px-4">
+      <div className="min-h-screen bg-black py-12 px-4">
         <div className="max-w-md mx-auto">
           <div className="text-center mb-8">
-            <div className="w-16 h-16 bg-blkout-600 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Mail className="w-8 h-8 text-white" />
-            </div>
-            <h1 className="text-2xl font-bold text-gray-900">Newsletter Preferences</h1>
-            <p className="text-gray-600 mt-2">Enter your email to manage your subscription</p>
+            <img src="/images/blkoutlogo_wht_transparent.png" alt="BLKOUT" className="w-20 h-20 mx-auto mb-4" />
+            <h1 className="text-2xl font-bold text-white">Newsletter Preferences</h1>
+            <p className="text-gray-400 mt-2">Enter your email to manage your subscription</p>
           </div>
 
-          <form onSubmit={handleLookup} className="card">
+          <form onSubmit={handleLookup} className="bg-white/95 rounded-2xl p-8 shadow-lg backdrop-blur-sm">
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -277,7 +273,7 @@ export function NewsletterPreferences() {
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="input w-full"
+                  className="w-full px-4 py-3 border border-gray-200 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-amber-500/30 focus:border-amber-400"
                   placeholder="your@email.com"
                   required
                 />
@@ -292,11 +288,11 @@ export function NewsletterPreferences() {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="btn btn-primary w-full"
+                className="w-full px-6 py-3 bg-amber-500 hover:bg-amber-600 disabled:bg-gray-300 text-black font-bold rounded-lg transition-colors flex items-center justify-center gap-2"
               >
                 {isLoading ? (
                   <>
-                    <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                    <Loader2 className="w-4 h-4 animate-spin" />
                     Loading...
                   </>
                 ) : (
@@ -312,27 +308,25 @@ export function NewsletterPreferences() {
 
   // Preferences form
   return (
-    <div className="min-h-screen bg-gray-50 py-12 px-4">
+    <div className="min-h-screen bg-black py-12 px-4">
       <div className="max-w-2xl mx-auto">
         {/* Header */}
         <div className="text-center mb-8">
-          <div className="w-16 h-16 bg-blkout-600 rounded-full flex items-center justify-center mx-auto mb-4">
-            <Bell className="w-8 h-8 text-white" />
-          </div>
-          <h1 className="text-2xl font-bold text-gray-900">Your Preferences</h1>
-          <p className="text-gray-600 mt-2">{data?.email}</p>
+          <img src="/images/blkoutlogo_wht_transparent.png" alt="BLKOUT" className="w-20 h-20 mx-auto mb-4" />
+          <h1 className="text-2xl font-bold text-white">Your Preferences</h1>
+          <p className="text-gray-400 mt-2">{data?.email}</p>
         </div>
 
         {/* Alerts */}
         {error && (
-          <div className="mb-6 p-4 bg-red-50 text-red-700 rounded-lg flex items-center gap-2">
+          <div className="mb-6 p-4 bg-red-900/50 text-red-300 rounded-lg flex items-center gap-2 border border-red-700">
             <AlertTriangle className="w-5 h-5" />
             {error}
           </div>
         )}
 
         {success && (
-          <div className="mb-6 p-4 bg-green-50 text-green-700 rounded-lg flex items-center gap-2">
+          <div className="mb-6 p-4 bg-green-900/50 text-green-300 rounded-lg flex items-center gap-2 border border-green-700">
             <CheckCircle2 className="w-5 h-5" />
             {success}
           </div>
@@ -340,7 +334,7 @@ export function NewsletterPreferences() {
 
         {/* Unsubscribed State */}
         {data && !data.is_subscribed && (
-          <div className="card mb-6 border-2 border-yellow-200 bg-yellow-50">
+          <div className="bg-yellow-50/95 rounded-2xl p-6 shadow-lg backdrop-blur-sm mb-6 border-2 border-yellow-200">
             <div className="flex items-center justify-between">
               <div>
                 <h3 className="font-semibold text-yellow-800">You're currently unsubscribed</h3>
@@ -360,7 +354,7 @@ export function NewsletterPreferences() {
         )}
 
         {/* Content Preferences */}
-        <div className="card mb-6">
+        <div className="bg-white/95 rounded-2xl p-6 shadow-lg backdrop-blur-sm mb-6">
           <h2 className="text-lg font-semibold text-gray-900 mb-4">Content Preferences</h2>
           <p className="text-sm text-gray-600 mb-4">Choose what you'd like to hear about:</p>
 
@@ -397,7 +391,7 @@ export function NewsletterPreferences() {
         </div>
 
         {/* Frequency */}
-        <div className="card mb-6">
+        <div className="bg-white/95 rounded-2xl p-6 shadow-lg backdrop-blur-sm mb-6">
           <h2 className="text-lg font-semibold text-gray-900 mb-4">Email Frequency</h2>
           <div className="grid grid-cols-2 gap-3">
             {FREQUENCY_OPTIONS.map(({ value, label, description }) => (
@@ -425,7 +419,7 @@ export function NewsletterPreferences() {
         </div>
 
         {/* Interests */}
-        <div className="card mb-6">
+        <div className="bg-white/95 rounded-2xl p-6 shadow-lg backdrop-blur-sm mb-6">
           <h2 className="text-lg font-semibold text-gray-900 mb-4">Your Interests</h2>
           <p className="text-sm text-gray-600 mb-4">
             Help us send you more relevant content:
@@ -447,8 +441,37 @@ export function NewsletterPreferences() {
           </div>
         </div>
 
+        {/* Location */}
+        <div className="bg-white/95 rounded-2xl p-6 shadow-lg backdrop-blur-sm mb-6">
+          <h2 className="text-lg font-semibold text-gray-900 mb-4">Where Are You Based?</h2>
+          <p className="text-sm text-gray-600 mb-4">
+            Help us connect you with events and community near you.
+          </p>
+          <select
+            value={data?.location || ''}
+            onChange={(e) => data && setData({ ...data, location: e.target.value || null })}
+            className="w-full px-4 py-3 border border-gray-200 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-blkout-500/30 focus:border-blkout-400"
+          >
+            <option value="">Select your region...</option>
+            <option value="London">London</option>
+            <option value="Manchester">Manchester</option>
+            <option value="Birmingham">Birmingham</option>
+            <option value="Bristol">Bristol</option>
+            <option value="Leeds">Leeds</option>
+            <option value="Liverpool">Liverpool</option>
+            <option value="Sheffield">Sheffield</option>
+            <option value="Nottingham">Nottingham</option>
+            <option value="Brighton">Brighton</option>
+            <option value="Edinburgh">Edinburgh</option>
+            <option value="Glasgow">Glasgow</option>
+            <option value="Cardiff">Cardiff</option>
+            <option value="Other UK">Other UK</option>
+            <option value="International">International</option>
+          </select>
+        </div>
+
         {/* Share with a Friend */}
-        <div className="card mb-6 bg-gradient-to-r from-blkout-50 to-purple-50 border-blkout-200">
+        <div className="bg-gradient-to-r from-blkout-50 to-purple-50 rounded-2xl p-6 shadow-lg backdrop-blur-sm mb-6 border border-blkout-200">
           <div className="flex items-start gap-4">
             <div className="w-12 h-12 bg-blkout-600 rounded-full flex items-center justify-center flex-shrink-0">
               <Share2 className="w-6 h-6 text-white" />
@@ -478,7 +501,7 @@ export function NewsletterPreferences() {
         <div className="flex items-center justify-between">
           <button
             onClick={() => setShowUnsubscribe(true)}
-            className="text-sm text-gray-500 hover:text-red-600"
+            className="text-sm text-gray-400 hover:text-red-400"
           >
             Unsubscribe from all emails
           </button>
@@ -486,16 +509,16 @@ export function NewsletterPreferences() {
           <button
             onClick={savePreferences}
             disabled={isSaving}
-            className="btn btn-primary"
+            className="px-6 py-3 bg-amber-500 hover:bg-amber-600 disabled:bg-gray-600 text-black font-bold rounded-lg transition-colors flex items-center gap-2"
           >
             {isSaving ? (
               <>
-                <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                <Loader2 className="w-4 h-4 animate-spin" />
                 Saving...
               </>
             ) : (
               <>
-                <Check className="w-4 h-4 mr-2" />
+                <Check className="w-4 h-4" />
                 Save Preferences
               </>
             )}
