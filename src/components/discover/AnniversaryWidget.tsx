@@ -1,6 +1,7 @@
 
 import { useState } from 'react';
 import { Sparkles, BookOpen, Calendar, Users, Heart, ArrowRight, ChevronDown, ChevronUp, ExternalLink } from 'lucide-react';
+import { useConfetti } from '@/hooks/useConfetti';
 
 interface CoFounderArticle {
   name: string;
@@ -49,6 +50,7 @@ const MILESTONES = [
 
 export function AnniversaryWidget() {
   const [showTimeline, setShowTimeline] = useState(false);
+  useConfetti(true); // Confetti bomb when anniversary section scrolls into view
 
   return (
     <div className="space-y-6">
