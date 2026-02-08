@@ -289,7 +289,7 @@ export function CelebratePage() {
       <div className="text-center mt-8 mb-4">
         <p className="text-liberation-sovereignty-gold font-bold text-lg">#BLKOUT10Years</p>
         <p className="text-gray-500 text-sm mt-2">
-          Share on socials too. We're listening everywhere.
+          Spread the love. Tag us @blkout_uk
         </p>
       </div>
     </PublicLayout>
