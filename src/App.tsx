@@ -23,6 +23,7 @@ import { CampaignReview } from '@/pages/admin/CampaignReview';
 import { CampaignDashboard } from '@/pages/admin/CampaignDashboard';
 import { DigestVid } from '@/pages/admin/DigestVid';
 import { NewsletterPreferences } from '@/pages/preferences/NewsletterPreferences';
+import { CelebratePage } from '@/pages/celebrate/CelebratePage';
 
 function App() {
   return (
@@ -166,6 +167,9 @@ function App() {
               </ProtectedRoute>
             }
           />
+
+          {/* Public Campaign Routes */}
+          <Route path="/10years" element={<CelebratePage />} />
 
           {/* Public Preferences Routes */}
           <Route path="/preferences" element={<NewsletterPreferences />} />
