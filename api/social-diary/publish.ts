@@ -7,6 +7,7 @@ const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const LINKEDIN_ACCESS_TOKEN = process.env.LINKEDIN_ACCESS_TOKEN;
 const LINKEDIN_ORGANIZATION_ID = process.env.LINKEDIN_ORGANIZATION_ID;
 const TWITTER_BEARER_TOKEN = process.env.TWITTER_BEARER_TOKEN;
+const GRAPH_API = 'https://graph.facebook.com/v21.0';
 
 // Initialize Supabase
 const supabase = SUPABASE_URL && SUPABASE_SERVICE_KEY
@@ -74,6 +75,117 @@ async function publishToLinkedIn(post: QueuedPost): Promise<{ success: boolean; 
 
   } catch (error) {
     console.error('[LinkedIn] Error:', error);
+    return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
+  }
+}
+
+// Get stored token from Supabase platform_tokens table
+async function getPlatformToken(platform: string): Promise<{ access_token: string; account_id: string } | null> {
+  if (!supabase) return null;
+  const { data } = await supabase
+    .from('platform_tokens')
+    .select('access_token, account_id, expires_at')
+    .eq('platform', platform)
+    .single();
+
+  if (!data?.access_token) return null;
+
+  // Check if token is expired
+  if (data.expires_at && new Date(data.expires_at) < new Date()) {
+    console.warn(`[${platform}] Token expired at ${data.expires_at}`);
+    return null;
+  }
+
+  return { access_token: data.access_token, account_id: data.account_id };
+}
+
+// Publish to Facebook Page
+async function publishToFacebook(post: QueuedPost): Promise<{ success: boolean; postId?: string; error?: string }> {
+  const creds = await getPlatformToken('facebook');
+  if (!creds) {
+    return { success: false, error: 'Facebook not connected — visit /api/auth/meta/connect' };
+  }
+
+  try {
+    const caption = `${post.caption}\n\n${post.hashtags.map(h => `#${h}`).join(' ')}`;
+
+    const body: Record<string, string> = {
+      message: caption,
+      access_token: creds.access_token,
+    };
+    if (post.media_url) {
+      body.link = post.media_url;
+    }
+
+    const response = await fetch(`${GRAPH_API}/${creds.account_id}/feed`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+
+    const data = await response.json();
+    if (data.error) {
+      console.error('[Facebook] Publish failed:', data.error.message);
+      return { success: false, error: `Facebook: ${data.error.message}` };
+    }
+
+    return { success: true, postId: data.id };
+  } catch (error) {
+    console.error('[Facebook] Error:', error);
+    return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
+  }
+}
+
+// Publish to Instagram (two-step: create container → publish)
+async function publishToInstagram(post: QueuedPost): Promise<{ success: boolean; postId?: string; error?: string }> {
+  const creds = await getPlatformToken('instagram');
+  if (!creds) {
+    return { success: false, error: 'Instagram not connected — visit /api/auth/meta/connect' };
+  }
+
+  if (!post.media_url) {
+    return { success: false, error: 'Instagram requires an image URL' };
+  }
+
+  try {
+    const caption = `${post.caption}\n\n${post.hashtags.map(h => `#${h}`).join(' ')}`;
+
+    // Step 1: Create media container
+    const containerRes = await fetch(`${GRAPH_API}/${creds.account_id}/media`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        image_url: post.media_url,
+        caption,
+        access_token: creds.access_token,
+      }),
+    });
+
+    const container = await containerRes.json();
+    if (container.error) {
+      console.error('[Instagram] Container creation failed:', container.error.message);
+      return { success: false, error: `Instagram: ${container.error.message}` };
+    }
+
+    // Step 2: Publish the container
+    const publishRes = await fetch(`${GRAPH_API}/${creds.account_id}/media_publish`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        creation_id: container.id,
+        access_token: creds.access_token,
+      }),
+    });
+
+    const result = await publishRes.json();
+    if (result.error) {
+      console.error('[Instagram] Publish failed:', result.error.message);
+      return { success: false, error: `Instagram: ${result.error.message}` };
+    }
+
+    return { success: true, postId: result.id };
+  } catch (error) {
+    console.error('[Instagram] Error:', error);
     return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
   }
 }
@@ -216,9 +328,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           result = await publishToLinkedIn(post);
           break;
 
+        case 'facebook':
+          result = await publishToFacebook(post);
+          break;
+
         case 'instagram':
-          // Instagram requires different flow - skip for now
-          result = { success: false, error: 'Instagram publishing not yet implemented' };
+          result = await publishToInstagram(post);
           break;
 
         case 'twitter':
