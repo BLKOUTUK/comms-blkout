@@ -45,6 +45,37 @@ app.all('/api/social-diary/publish', async (req, res) => {
   }
 });
 
+// Meta (Facebook/Instagram) OAuth
+app.all('/api/auth/meta/connect', async (req, res) => {
+  try {
+    const handler = await import('./api/auth/meta/connect.js');
+    await handler.default(req as any, res as any);
+  } catch (error) {
+    console.error('[Server] Meta connect error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+app.all('/api/auth/meta/status', async (req, res) => {
+  try {
+    const handler = await import('./api/auth/meta/status.js');
+    await handler.default(req as any, res as any);
+  } catch (error) {
+    console.error('[Server] Meta status error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+app.all('/api/auth/meta/callback', async (req, res) => {
+  try {
+    const handler = await import('./api/auth/meta/callback.js');
+    await handler.default(req as any, res as any);
+  } catch (error) {
+    console.error('[Server] Meta callback error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 app.all('/api/auth/connect', async (req, res) => {
   try {
     const handler = await import('./api/auth/connect.js');
