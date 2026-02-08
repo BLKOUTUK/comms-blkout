@@ -78,7 +78,7 @@ COPY --from=builder /app/server-dist ./server-dist
 COPY --from=builder /app/package*.json ./
 
 # Install production dependencies only
-RUN npm install --omit=dev
+RUN npm install --omit=dev --legacy-peer-deps
 
 # Expose port
 EXPOSE 3000
