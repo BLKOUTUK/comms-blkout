@@ -19,6 +19,7 @@
     "@fal-ai/client": "^1.8.1",
     "@google/genai": "^1.30.0",
     "@supabase/supabase-js": "^2.81.1",
+    "canvas-confetti": "^1.9.4",
     "date-fns": "^4.1.0",
     "express": "^4.22.1",
     "lucide-react": "^0.553.0",
@@ -28,6 +29,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^10.0.0",
+    "@types/canvas-confetti": "^1.9.0",
     "@types/express": "^4.17.25",
     "@types/node": "^22.19.3",
     "@types/react": "^19.2.5",
