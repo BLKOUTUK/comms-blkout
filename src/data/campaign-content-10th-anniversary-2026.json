@@ -1,21 +1,394 @@
 {
   "campaign": {
-    "name": "A Decade of Liberation: BLKOUT's 10th Anniversary",
+    "name": "#BLKOUT10Years — Dual Track Campaign",
     "slug": "10th-anniversary-2026",
-    "launch_date": "2026-02-10",
+    "launch_date": "2026-02-08",
     "founding_anniversary": "2026-02-10",
-    "main_event_date": "2026-02-18",
-    "end_date": "2026-02-21",
-    "tagline": "10 years of Black queer men loving Black queer men - and building technology to prove it",
-    "mission": "Celebrate a decade of community building while introducing our revolutionary new platform features and inviting the community into the next chapter of liberation technology",
-    "voice": "IVOR Cummings - Reflective celebration meets revolutionary optimism, honoring the journey while igniting the future",
+    "end_date": "2026-02-23",
+    "tagline": "10 years cultivating Black Boy Joy. 10 years building foundations for Fiercer Fairer Futures.",
+    "mission": "Celebrate a decade of community building through a dual-track A/B campaign: 'Black Boy Joy' (memory/retrospective) vs 'Fiercer Fairer Futures' (aspiration/forward-looking). Capture voice notes, text submissions, and in-person content to build momentum for the next decade.",
+    "voice": "IVOR Cummings — Reflective celebration meets revolutionary optimism",
     "signature_phrases": [
       "Dear boy, we've come so far...",
       "10 years of Black men loving Black men as a revolutionary act...",
       "The ancestors planted seeds. Look at what we've grown...",
-      "From gatherings to governance - this is what community ownership looks like",
-      "The next decade starts now, and you're invited to build it with us"
+      "What would you build for Black queer men?",
+      "Share your memory. Shape our future."
+    ],
+    "ab_test": {
+      "track_a": {
+        "name": "Black Boy Joy",
+        "framing": "memory",
+        "question": "What's your favourite BLKOUT moment?",
+        "hashtag": "#BlackBoyJoy",
+        "cta": "Share a memory"
+      },
+      "track_b": {
+        "name": "Fiercer Fairer Futures",
+        "framing": "aspiration",
+        "question": "What would you build for Black queer men?",
+        "hashtag": "#FiercerFairerFutures",
+        "cta": "Share an aspiration"
+      },
+      "measurement": ["form_submissions_by_track", "engagement_rate_by_track", "voice_notes_by_track", "eoi_applications"],
+      "voice_note_link": "https://t.me/blkoutnxtbot",
+      "submission_page": "https://comms.blkoutuk.cloud/10years"
+    }
+  },
+
+  "content_calendar": {
+    "phases": [
+      {
+        "name": "Phase 1: Launch & Newsletter",
+        "dates": "February 8-9",
+        "theme": "Campaign launch — newsletter drops, first posts go live",
+        "activities": [
+          "Newsletter sent via SendFox",
+          "Launch post: Joy track (Black Boy Joy)",
+          "Follow-up post: Futures track (Fiercer Fairer Futures)",
+          "Voice note CTA goes live on /10years"
+        ],
+        "content": [
+          {
+            "title": "Newsletter: 10th Anniversary + Board Recruitment",
+            "type": "newsletter",
+            "platform": "email",
+            "scheduled_for": "2026-02-08",
+            "timing": "February 8th, 10:00 AM GMT",
+            "content": "February 2026 newsletter — 10th anniversary celebration, board recruitment with updated Feb 21 deadline, two real events (Queer Frequencies Feb 14, Representation 365 Feb 18). Sent via SendFox.",
+            "status": "ready",
+            "hashtags": ["#BLKOUT10Years"]
+          },
+          {
+            "title": "JOY: 10 Years of Black Boy Joy — Launch",
+            "type": "social",
+            "platform": "instagram",
+            "scheduled_for": "2026-02-08",
+            "timing": "February 8th, 12:00 PM GMT",
+            "content": "10 years ago, we dared to create spaces where Black queer men could just... be.\n\nBe joyful. Be held. Be ourselves.\n\nWhat's your favourite BLKOUT moment? A gathering that changed you. A conversation that stayed. A moment of joy.\n\nShare yours — link in bio.\n\n#BLKOUT10Years #BlackBoyJoy",
+            "status": "ready",
+            "hashtags": ["#BLKOUT10Years", "#BlackBoyJoy"],
+            "metadata": { "track": "joy", "day": 1 }
+          },
+          {
+            "title": "JOY: Launch — Twitter/X",
+            "type": "social",
+            "platform": "twitter",
+            "scheduled_for": "2026-02-08",
+            "timing": "February 8th, 12:30 PM GMT",
+            "content": "10 years of Black Boy Joy.\n\nWhat's your favourite BLKOUT moment?\n\nLeave us a voice note or write it down — the link's in our bio.\n\n#BLKOUT10Years #BlackBoyJoy",
+            "status": "ready",
+            "hashtags": ["#BLKOUT10Years", "#BlackBoyJoy"],
+            "metadata": { "track": "joy", "day": 1 }
+          },
+          {
+            "title": "FUTURES: Fiercer Fairer Futures — Day 2",
+            "type": "social",
+            "platform": "instagram",
+            "scheduled_for": "2026-02-09",
+            "timing": "February 9th, 12:00 PM GMT",
+            "content": "10 years building foundations.\n\nNow we're asking: what comes next?\n\nIf you could build one thing for Black queer men — what would it be? A service. A space. A system. A world.\n\nTell us — voice note or text. Link in bio.\n\n#BLKOUT10Years #FiercerFairerFutures",
+            "status": "ready",
+            "hashtags": ["#BLKOUT10Years", "#FiercerFairerFutures"],
+            "metadata": { "track": "futures", "day": 2 }
+          },
+          {
+            "title": "FUTURES: Day 2 — Twitter/X",
+            "type": "social",
+            "platform": "twitter",
+            "scheduled_for": "2026-02-09",
+            "timing": "February 9th, 12:30 PM GMT",
+            "content": "What would you build for Black queer men?\n\nA space. A service. A system.\n\n10 years of BLKOUT. Now shape the next decade.\n\n#BLKOUT10Years #FiercerFairerFutures",
+            "status": "ready",
+            "hashtags": ["#BLKOUT10Years", "#FiercerFairerFutures"],
+            "metadata": { "track": "futures", "day": 2 }
+          }
+        ]
+      },
+      {
+        "name": "Phase 2: Anniversary Day",
+        "dates": "February 10-11",
+        "theme": "Happy 10th birthday BLKOUT — both tracks converge",
+        "activities": [
+          "Anniversary day celebration post (both tracks)",
+          "Community response roundup",
+          "Co-founder article reshare: Rob — Adventures in unchartered territory"
+        ],
+        "content": [
+          {
+            "title": "ANNIVERSARY: Happy 10th, BLKOUT",
+            "type": "instagram_carousel",
+            "platform": "instagram",
+            "scheduled_for": "2026-02-10",
+            "timing": "February 10th, 10:00 AM GMT",
+            "content": "February 10, 2016 — February 10, 2026.\n\n10 years.\n\nFrom gatherings in London to a liberation technology platform serving thousands.\n\nFrom dreaming about spaces to building institutions.\n\nFrom 'wouldn't it be nice if...' to 'look at what we've grown.'\n\nBlack men loving Black men. That's the revolutionary act. 10 years and counting.\n\nWhat's your BLKOUT moment? What's your BLKOUT future?\n\nShare yours — link in bio.\n\n#BLKOUT10Years #BlackBoyJoy #FiercerFairerFutures",
+            "status": "ready",
+            "hashtags": ["#BLKOUT10Years", "#BlackBoyJoy", "#FiercerFairerFutures"],
+            "metadata": { "track": "both", "day": 3, "milestone": true }
+          },
+          {
+            "title": "ANNIVERSARY: LinkedIn Impact Post",
+            "type": "linkedin_post",
+            "platform": "linkedin",
+            "scheduled_for": "2026-02-10",
+            "timing": "February 10th, 8:00 AM GMT",
+            "content": "Today marks 10 years of BLKOUT — a community-owned platform serving Black queer men across the UK.\n\nWhat started as community gatherings in 2016 has grown into a liberation technology ecosystem: AI-powered companion (IVOR), events calendar, news platform, and democratic governance as a Community Benefit Society.\n\nWe're now recruiting board members to lead the next decade. If you're a professional with governance, finance, technology, or community organising experience — we'd love to hear from you.\n\nDeadline: February 21st\nblkoutuk.com/governance\n\n#BLKOUT10Years #SocialEnterprise #CommunityOwnership #TechForGood",
+            "status": "ready",
+            "hashtags": ["#BLKOUT10Years", "#SocialEnterprise", "#CommunityOwnership"],
+            "metadata": { "track": "both", "day": 3 }
+          },
+          {
+            "title": "ANNIVERSARY: Twitter/X Thread",
+            "type": "twitter_thread",
+            "platform": "twitter",
+            "scheduled_for": "2026-02-10",
+            "timing": "February 10th, 9:00 AM GMT",
+            "content": [
+              "10 years ago today, BLKOUT was born.\n\nA thread on a decade of Black queer joy, resilience, and revolution.\n\n#BLKOUT10Years 🧵",
+              "2016: Founded as safe spaces for Black queer men in London. Just brothers finding each other.",
+              "2017-2018: Grew to Manchester, Birmingham, Bristol. Parties, wellness workshops, healing circles.",
+              "2019-2020: A pandemic couldn't stop us. Virtual gatherings became lifelines. Community doesn't need proximity — just commitment.",
+              "2021-2024: Digital horizons. Website, newsletter, partnerships. Then the vision: community-owned technology.",
+              "2025: IVOR launched. Events Calendar. News Platform. Formalised as a Community Benefit Society. Democratic ownership, hardcoded.",
+              "2026: Recruiting our first board. Building the institutions that will serve generations.\n\nThe next decade starts now.\n\nblkoutuk.com/governance"
+            ],
+            "status": "ready",
+            "hashtags": ["#BLKOUT10Years"],
+            "metadata": { "track": "both", "day": 3, "milestone": true }
+          },
+          {
+            "title": "JOY: Community Responses Roundup",
+            "type": "social",
+            "platform": "instagram",
+            "scheduled_for": "2026-02-11",
+            "timing": "February 11th, 12:00 PM GMT",
+            "content": "You shared. We listened.\n\nHere's what Black Boy Joy sounds like after 10 years of BLKOUT.\n\n[Curate best submissions from /10years — text quotes with attribution]\n\nKeep them coming — link in bio.\n\n#BLKOUT10Years #BlackBoyJoy",
+            "status": "draft",
+            "hashtags": ["#BLKOUT10Years", "#BlackBoyJoy"],
+            "metadata": { "track": "joy", "day": 4, "note": "Curate from campaign_submissions table — filter track_type='memory'" }
+          }
+        ]
+      },
+      {
+        "name": "Phase 3: Community Capture",
+        "dates": "February 12-14",
+        "theme": "In-person content capture — Black Boy Joy Club + Queer Frequencies + Valentine's",
+        "activities": [
+          "Wed Feb 12: Black Boy Joy Club night — capture 2-3 voice messages",
+          "Thu Feb 13: Share BBJ Club content, Joy track post",
+          "Fri Feb 14: Queer Frequencies event — capture 4-5 messages. Valentine's tie-in"
+        ],
+        "content": [
+          {
+            "title": "FUTURES: What Would You Build?",
+            "type": "social",
+            "platform": "instagram",
+            "scheduled_for": "2026-02-12",
+            "timing": "February 12th, 12:00 PM GMT",
+            "content": "If you had the power to build one thing for Black queer men — what would it be?\n\nA health service that actually gets us. A club night that never ends. A fund that backs our dreams.\n\nTell us your vision. Voice note or text — link in bio.\n\n#BLKOUT10Years #FiercerFairerFutures",
+            "status": "ready",
+            "hashtags": ["#BLKOUT10Years", "#FiercerFairerFutures"],
+            "metadata": { "track": "futures", "day": 5, "capture_event": "Black Boy Joy Club (evening)" }
+          },
+          {
+            "title": "JOY: Black Boy Joy Club Voices",
+            "type": "social",
+            "platform": "instagram",
+            "scheduled_for": "2026-02-13",
+            "timing": "February 13th, 12:00 PM GMT",
+            "content": "Last night at Black Boy Joy Club, we asked: what's your BLKOUT moment?\n\n[Feature voice notes / quotes captured at BBJ Club on Feb 12]\n\nReal voices. Real joy. Real community.\n\nShare yours — link in bio.\n\n#BLKOUT10Years #BlackBoyJoy",
+            "status": "draft",
+            "hashtags": ["#BLKOUT10Years", "#BlackBoyJoy"],
+            "metadata": { "track": "joy", "day": 6, "note": "Requires content captured at Black Boy Joy Club Feb 12" }
+          },
+          {
+            "title": "FUTURES: Valentine's — Black Love Is Revolutionary",
+            "type": "social",
+            "platform": "instagram",
+            "scheduled_for": "2026-02-14",
+            "timing": "February 14th, 10:00 AM GMT",
+            "content": "Happy Valentine's Day.\n\nBlack men loving Black men is the revolutionary act. — Joseph Beam\n\n10 years of that revolution. Now: what future would you build for the ones you love?\n\nShare your aspiration — link in bio.\n\nTonight: Queer Frequencies at Stanley Arts, 7pm. Come through.\n\n#BLKOUT10Years #FiercerFairerFutures #BlackQueerLove",
+            "status": "ready",
+            "hashtags": ["#BLKOUT10Years", "#FiercerFairerFutures", "#BlackQueerLove"],
+            "metadata": { "track": "futures", "day": 7, "capture_event": "Queer Frequencies (evening)", "event_link": "Stanley Arts" }
+          },
+          {
+            "title": "Queer Frequencies Event Reminder",
+            "type": "social",
+            "platform": "instagram",
+            "scheduled_for": "2026-02-14",
+            "timing": "February 14th, 2:00 PM GMT",
+            "content": "TONIGHT: Queer Frequencies at Stanley Arts, Croydon.\n\nValentine's Day. Community. Music. Connection.\n\nWe'll be there capturing your voices for #BLKOUT10Years.\n\nSee you there.",
+            "status": "ready",
+            "hashtags": ["#BLKOUT10Years", "#QueerFrequencies"],
+            "metadata": { "track": "both", "day": 7, "event": true }
+          }
+        ]
+      },
+      {
+        "name": "Phase 4: Momentum & Board Crossover",
+        "dates": "February 15-18",
+        "theme": "Share captured content, cross-promote board recruitment, Representation 365 event",
+        "activities": [
+          "Share Queer Frequencies content",
+          "Board recruitment cross-promotion begins",
+          "Community voice roundup",
+          "Tue Feb 18: Representation 365 at UAL with UK Black Pride"
+        ],
+        "content": [
+          {
+            "title": "JOY: Queer Frequencies Voices",
+            "type": "social",
+            "platform": "instagram",
+            "scheduled_for": "2026-02-15",
+            "timing": "February 15th, 12:00 PM GMT",
+            "content": "Valentine's night at Queer Frequencies. We asked. You answered.\n\n[Feature voice notes / quotes captured at QF on Feb 14]\n\n10 years of moments like these.\n\n#BLKOUT10Years #BlackBoyJoy",
+            "status": "draft",
+            "hashtags": ["#BLKOUT10Years", "#BlackBoyJoy"],
+            "metadata": { "track": "joy", "day": 8, "note": "Requires content captured at Queer Frequencies Feb 14" }
+          },
+          {
+            "title": "FUTURES: Shape the Next Decade — Board CTA",
+            "type": "social",
+            "platform": "instagram",
+            "scheduled_for": "2026-02-16",
+            "timing": "February 16th, 12:00 PM GMT",
+            "content": "10 years of building. Now: who leads the next decade?\n\nWe're recruiting 5 board members to govern BLKOUT as a Community Benefit Society.\n\nChair. Treasurer. Secretary. Technology Director. Community Director.\n\nHeart for the work is essential. Formal qualifications are optional.\n\nExpress your interest by Feb 21 — blkoutuk.com/governance\n\n#BLKOUT10Years #FiercerFairerFutures #BoardRecruitment",
+            "status": "ready",
+            "hashtags": ["#BLKOUT10Years", "#FiercerFairerFutures", "#BoardRecruitment"],
+            "metadata": { "track": "futures", "day": 9, "board_crossover": true }
+          },
+          {
+            "title": "JOY: Best Community Voices So Far",
+            "type": "social",
+            "platform": "instagram",
+            "scheduled_for": "2026-02-17",
+            "timing": "February 17th, 12:00 PM GMT",
+            "content": "A week of voices. A decade of joy.\n\nHere are some of the memories you've shared this week.\n\n[Curate highlights from all submissions — voice note transcripts + text]\n\nStill time to add yours — link in bio.\n\n#BLKOUT10Years #BlackBoyJoy",
+            "status": "draft",
+            "hashtags": ["#BLKOUT10Years", "#BlackBoyJoy"],
+            "metadata": { "track": "joy", "day": 10, "note": "Mid-campaign roundup — curate best submissions" }
+          },
+          {
+            "title": "FUTURES: Representation 365 — UAL Event",
+            "type": "social",
+            "platform": "instagram",
+            "scheduled_for": "2026-02-18",
+            "timing": "February 18th, 10:00 AM GMT",
+            "content": "TONIGHT: Representation 365 at UAL with UK Black Pride.\n\nDr Rob Berkeley (BLKOUT founder) joins Dr Lady Phyll Opoku-Gyimah to discuss how Black and QTIPOC communities have pioneered approaches to organising and mutual aid.\n\n6:30pm, The London Art Bar, 300 High Holborn.\n\nFree. Step-free access.\n\nEventbrite link in bio.\n\n#BLKOUT10Years #Representation365 #LGBTHistoryMonth",
+            "status": "ready",
+            "hashtags": ["#BLKOUT10Years", "#Representation365", "#LGBTHistoryMonth"],
+            "metadata": { "track": "futures", "day": 11, "event": true, "event_link": "https://www.eventbrite.co.uk/e/ual-lgbtq-history-month-representation-365-with-uk-black-pride-tickets-1981428808906" }
+          },
+          {
+            "title": "Representation 365 — LinkedIn",
+            "type": "linkedin_post",
+            "platform": "linkedin",
+            "scheduled_for": "2026-02-18",
+            "timing": "February 18th, 8:00 AM GMT",
+            "content": "Tonight at UAL: Representation 365 with UK Black Pride.\n\nBLKOUT founder Dr Rob Berkeley joins Dr Lady Phyll Opoku-Gyimah to explore how marginalised queer communities have pioneered innovative approaches to organising and mutual aid.\n\nAs we mark our 10th anniversary, this conversation represents exactly why community-owned institutions matter.\n\nFree event. London Art Bar, 300 High Holborn, 6:30pm.\n\n#LGBTHistoryMonth #Representation365 #BLKOUT10Years",
+            "status": "ready",
+            "hashtags": ["#LGBTHistoryMonth", "#Representation365", "#BLKOUT10Years"],
+            "metadata": { "track": "futures", "day": 11 }
+          }
+        ]
+      },
+      {
+        "name": "Phase 5: Final Push & Board Deadline",
+        "dates": "February 19-23",
+        "theme": "Board EOI deadline push, campaign wrap, info session",
+        "activities": [
+          "Share Representation 365 content",
+          "Board recruitment final push",
+          "Fri Feb 21: Board EOI deadline",
+          "Sat-Sun Feb 22-23: Board info session on BLKOUTHUB",
+          "Campaign wrap and thank you"
+        ],
+        "content": [
+          {
+            "title": "JOY: Representation 365 Voices",
+            "type": "social",
+            "platform": "instagram",
+            "scheduled_for": "2026-02-19",
+            "timing": "February 19th, 12:00 PM GMT",
+            "content": "Last night at Representation 365 — BLKOUT founder Rob and Lady Phyll in conversation about a decade of organising.\n\n[Feature highlights / quotes from the event]\n\n10 years of building community. The work continues.\n\n#BLKOUT10Years #BlackBoyJoy",
+            "status": "draft",
+            "hashtags": ["#BLKOUT10Years", "#BlackBoyJoy"],
+            "metadata": { "track": "joy", "day": 12, "note": "Requires content from Representation 365 Feb 18" }
+          },
+          {
+            "title": "FUTURES: The Future Needs Leadership — Board Push",
+            "type": "social",
+            "platform": "instagram",
+            "scheduled_for": "2026-02-20",
+            "timing": "February 20th, 12:00 PM GMT",
+            "content": "Building a fiercer, fairer future takes governance.\n\nWe need a Chair. A Treasurer. A Secretary. A Technology Director. A Community Director.\n\n4-6 hours a month. 3-year terms. No formal qualifications required — heart for the work is essential.\n\nDeadline: TOMORROW (Feb 21).\n\nblkoutuk.com/governance\n\n#BLKOUT10Years #FiercerFairerFutures #BoardRecruitment",
+            "status": "ready",
+            "hashtags": ["#BLKOUT10Years", "#FiercerFairerFutures", "#BoardRecruitment"],
+            "metadata": { "track": "futures", "day": 13, "board_crossover": true }
+          },
+          {
+            "title": "BOTH: Board EOI Deadline Day",
+            "type": "social",
+            "platform": "instagram",
+            "scheduled_for": "2026-02-21",
+            "timing": "February 21st, 10:00 AM GMT",
+            "content": "TODAY: Last day to express your interest in joining the BLKOUT board.\n\n10 years of community. Now: lead the next decade.\n\nChair — lead governance with vision\nTreasurer — steward community resources\nSecretary — keep our house in order\nTechnology Director — guide our digital future\nCommunity Director — amplify grassroots voices\n\nblkoutuk.com/governance\n\n#BLKOUT10Years #BoardRecruitment",
+            "status": "ready",
+            "hashtags": ["#BLKOUT10Years", "#BoardRecruitment"],
+            "metadata": { "track": "both", "day": 14, "milestone": true, "deadline": "Board EOI" }
+          },
+          {
+            "title": "Board EOI Deadline — Twitter/X",
+            "type": "social",
+            "platform": "twitter",
+            "scheduled_for": "2026-02-21",
+            "timing": "February 21st, 10:00 AM GMT",
+            "content": "TODAY: Last day to apply for the BLKOUT board.\n\n5 positions. 4-6 hours/month. Shape Black queer futures.\n\nHeart for the work is essential. Formal qualifications optional.\n\nblkoutuk.com/governance\n\n#BLKOUT10Years #BoardRecruitment",
+            "status": "ready",
+            "hashtags": ["#BLKOUT10Years", "#BoardRecruitment"],
+            "metadata": { "track": "both", "day": 14 }
+          },
+          {
+            "title": "Info Session — BLKOUTHUB Day 1",
+            "type": "social",
+            "platform": "instagram",
+            "scheduled_for": "2026-02-22",
+            "timing": "February 22nd, 10:00 AM GMT",
+            "content": "Board Information Session — Day 1 on BLKOUTHUB.\n\nConsidering joining the board? Join today's session to learn more about responsibilities, ask questions, and meet current leadership.\n\nAll candidates encouraged to attend.\n\nblkouthub.com\n\n#BLKOUT10Years",
+            "status": "ready",
+            "hashtags": ["#BLKOUT10Years"],
+            "metadata": { "track": "both", "day": 15, "event": true }
+          },
+          {
+            "title": "Campaign Wrap & Thank You",
+            "type": "social",
+            "platform": "instagram",
+            "scheduled_for": "2026-02-23",
+            "timing": "February 23rd, 12:00 PM GMT",
+            "content": "Two weeks of voices. A decade of liberation.\n\nThank you to everyone who shared a memory, an aspiration, a voice note, a moment.\n\nYour stories are BLKOUT's story.\n\nThe next decade starts now.\n\n#BLKOUT10Years",
+            "status": "draft",
+            "hashtags": ["#BLKOUT10Years"],
+            "metadata": { "track": "both", "day": 16, "note": "Final campaign post — include stats on submissions received" }
+          }
+        ]
+      }
     ]
+  },
+
+  "co_founder_articles": {
+    "description": "Reshare the founding articles by co-founders (published October 16, 2016) during the campaign window",
+    "articles": [
+      {
+        "id": "cofounder_article_rob",
+        "title": "Adventures in unchartered territory",
+        "author": "Rob",
+        "original_url": "https://blkoutuk.com/152-2/",
+        "scheduled_reshare": "2026-02-08",
+        "caption": "10 years ago, Rob wrote about adventures in unchartered territory. A decade on, the adventure continues.\n\n#BLKOUT10Years #FoundersVision"
+      }
+    ],
+    "note": "Antoine's 'Crossing Deep Waters' and Marc's 'If you build it...' were reshared Feb 3 and Feb 5 respectively (pre-campaign)"
   },
 
   "10_year_journey": {
@@ -24,8 +397,7 @@
       "highlights": [
         "February 10th, 2016: BLKOUT founded as a safe space for Black queer men in the UK",
         "First community gatherings in London",
-        "Building connections in a world that often forgot we existed",
-        "Name inspired by Black OUT - stepping into visibility, owning our space"
+        "Building connections in a world that often forgot we existed"
       ],
       "quote": "We didn't wait for permission to exist. We created our own spaces."
     },
@@ -34,7 +406,6 @@
       "highlights": [
         "Expanded to Manchester, Birmingham, Bristol",
         "First BLKOUT parties and social events",
-        "Building a network of Black queer men across the UK",
         "Wellness workshops and community healing circles"
       ],
       "quote": "Every brother we found was a seed for the forest we're growing."
@@ -44,8 +415,7 @@
       "highlights": [
         "Pandemic pivot: Virtual gatherings kept community alive",
         "Mental health support during isolation",
-        "Online spaces became lifelines for hundreds of brothers",
-        "Proved community doesn't require physical proximity - just commitment"
+        "Online spaces became lifelines"
       ],
       "quote": "When the world locked down, we opened up to each other."
     },
@@ -54,8 +424,7 @@
       "highlights": [
         "Hybrid events: In-person + virtual",
         "First website launch",
-        "Newsletter reaching thousands",
-        "Partnership building with UK Black Pride, Stonewall, and community organizations"
+        "Partnership building with UK Black Pride and community organisations"
       ],
       "quote": "We learned that technology could amplify community, not replace it."
     },
@@ -63,7 +432,6 @@
       "title": "Building Infrastructure",
       "highlights": [
         "Vision for community-owned technology platform",
-        "Research and development phase",
         "Community consultations on what we needed",
         "Laying groundwork for democratic governance"
       ],
@@ -72,641 +440,175 @@
     "2025_revolution": {
       "title": "The Revolution, Digitized",
       "highlights": [
-        "AIvor launched - UK's first Black queer AI companion",
-        "Events Calendar connecting 10,000+ community members",
+        "AIvor launched — UK's first Black queer AI companion",
+        "Events Calendar connecting community members",
         "News Platform amplifying Black queer voices",
-        "Communications Hub with 6 specialized AI agents",
-        "Community Benefit Society formalized - democratic ownership achieved"
+        "Community Benefit Society formalised"
       ],
       "quote": "2025 was the year we proved Black queer men can build liberation technology."
     },
     "2026_and_beyond": {
       "title": "The Next Decade Begins",
       "vision": [
-        "Critical Frequency social discovery platform",
-        "Down wellness companion app",
-        "BLKOUT Shop with 75% creator revenue",
+        "First elected board of directors",
+        "BLKOUT Shop with creator-first economics",
         "Governance Portal for member voting",
-        "Learning Hub for skill building",
-        "Research Network for community-led studies"
+        "Learning Hub and Research Network"
       ],
       "quote": "The ancestors planted seeds. We've grown a forest. Now let's build a world."
     }
   },
 
-  "new_platform_features": {
-    "ivor_ai": {
-      "title": "AIvor",
-      "tagline": "Your culturally competent companion",
-      "description": "Named after IVOR Cummings, BLKOUT's AI assistant provides 24/7 support across WhatsApp, Telegram, Instagram, and web",
-      "features": [
-        "Event recommendations personalized to your interests",
-        "Wellness check-ins and mental health resources",
-        "Community news and updates",
-        "Connection to local support services",
-        "Journey-aware responses that remember your story"
-      ],
-      "platform_availability": ["WhatsApp", "Telegram", "Instagram DM", "Web Chat"]
+  "real_events": {
+    "queer_frequencies": {
+      "name": "Queer Frequencies",
+      "date": "2026-02-14",
+      "venue": "Stanley Arts, Croydon",
+      "time": "7:00 PM",
+      "expected_attendance": "4-5 people",
+      "capture_plan": "Record voice messages from attendees — both tracks"
     },
-    "events_calendar": {
-      "title": "Events Calendar",
-      "tagline": "Find your tribe across the UK",
-      "description": "Community-curated gatherings, parties, workshops, and meetups",
-      "features": [
-        "Events in London, Manchester, Birmingham, Bristol, and beyond",
-        "Filter by type: Social, Wellness, Professional, Cultural",
-        "RSVP and save to your calendar",
-        "Community ratings and reviews",
-        "Integration with IVOR for personalized recommendations"
-      ]
+    "black_boy_joy_club": {
+      "name": "Black Boy Joy Club",
+      "date": "2026-02-12",
+      "time": "Evening",
+      "expected_messages": "2-3",
+      "capture_plan": "Get quick voice notes / quotes from attendees"
     },
-    "news_platform": {
-      "title": "BLKOUT News",
-      "tagline": "We ARE the media",
-      "description": "Amplifying Black queer voices and stories that mainstream media ignores",
-      "features": [
-        "Community-submitted stories and perspectives",
-        "Curated UK and international news",
-        "Opinion pieces and analysis",
-        "Event coverage and photo galleries",
-        "Podcast integration"
-      ]
-    },
-    "communications_hub": {
-      "title": "Communications Hub",
-      "tagline": "AI-powered storytelling for our community",
-      "description": "Six specialized AI agents working to keep community connected",
-      "agents": {
-        "griot": "Storyteller - Creates authentic content rooted in Black feminist thought",
-        "listener": "Intelligence Gatherer - Monitors trends and community conversations",
-        "weaver": "Community Engager - Facilitates responses and relationship building",
-        "strategist": "Campaign Planner - Coordinates content timing and strategy",
-        "herald": "Newsletter Curator - Weekly updates for engaged members",
-        "concierge": "Member Support - Personalized onboarding and navigation"
-      }
-    },
-    "blkout_shop": {
-      "title": "BLKOUT Shop",
-      "tagline": "Economic liberation, one purchase at a time",
-      "description": "E-commerce platform with 75% revenue to creators and community",
-      "products": [
-        "Phygital Liberation Journal (physical journal + digital companion)",
-        "Black Queer Joy Zines",
-        "Sustainable BLKOUT apparel",
-        "Event tickets and memberships",
-        "Creator marketplace for Black queer vendors"
-      ],
-      "featured_product": {
-        "name": "Phygital Liberation Journal",
-        "description": "A beautiful physical journal paired with digital prompts, IVOR integration, and community reflection spaces",
-        "features": [
-          "Premium physical journal with liberation prompts",
-          "QR codes linking to digital companion content",
-          "IVOR-powered reflection guidance",
-          "Community journaling circles on BLKOUTHUB",
-          "Progress tracking and insights"
-        ]
-      },
-      "launch_date": "January 2026"
-    },
-    "governance_portal": {
-      "title": "Governance Portal",
-      "tagline": "Your voice, your vote, your community",
-      "description": "Democratic decision-making for Community Benefit Society members",
-      "features": [
-        "Member proposals and voting",
-        "Transparent budget allocation",
-        "Working group participation",
-        "Annual General Meeting coordination",
-        "Policy updates and amendments"
-      ]
-    },
-    "critical_frequency": {
-      "title": "Critical Frequency",
-      "tagline": "Mental health for our community",
-      "description": "Population health project focused on Black queer men's mental wellbeing",
-      "features": [
-        "Community mental health research and insights",
-        "Culturally competent wellness resources",
-        "Data-driven understanding of community needs",
-        "Partnership with health organizations",
-        "Evidence-based interventions for our community"
-      ],
-      "status": "Active research project"
-    },
-    "blkouthub": {
-      "title": "BLKOUTHUB",
-      "tagline": "Your community space",
-      "description": "The heart of BLKOUT's online community",
-      "features": [
-        "Member-only community spaces",
-        "Events and gatherings coordination",
-        "Peer support and connection",
-        "Working groups and governance participation",
-        "Direct access to community resources"
-      ]
+    "representation_365": {
+      "name": "UAL LGBTQ+ History Month: Representation 365 with UK Black Pride",
+      "date": "2026-02-18",
+      "time": "6:30 PM - 8:30 PM GMT",
+      "venue": "The London Art Bar, 300 High Holborn, London WC1V 7JH",
+      "speakers": ["Dr Lady Phyll Opoku-Gyimah (UK Black Pride CEO)", "Dr Rob Berkeley (BLKOUT Founder)"],
+      "tickets": "Free — https://www.eventbrite.co.uk/e/ual-lgbtq-history-month-representation-365-with-uk-black-pride-tickets-1981428808906",
+      "accessibility": "Step-free access available"
     }
   },
 
-  "anniversary_event": {
-    "name": "UAL LGBTQ+ History Month: Representation 365 with UK Black Pride",
-    "date": "2026-02-18",
-    "time": "6:30 PM - 8:30 PM GMT",
-    "format": "In-person",
-    "venue": {
-      "name": "The London Art Bar",
-      "address": "300 High Holborn, London WC1V 7JH"
+  "agent_tasks": [
+    {
+      "agent": "griot",
+      "agent_name": "Griot",
+      "task_id": "10years-joy-storytelling",
+      "prompt": "Create Joy track content: reflective, celebratory posts about BLKOUT's 10-year journey. Use 'Dear boy' voice. Feature community memories and moments of Black Boy Joy. Each post should include CTA to share at comms.blkoutuk.cloud/10years",
+      "platform": "instagram",
+      "priority": "high",
+      "tasks": [
+        "Draft Joy track daily posts for Feb 8, 11, 13, 15, 17, 19",
+        "Curate community submission highlights for roundup posts",
+        "Create anniversary day carousel copy",
+        "Write campaign wrap post"
+      ]
     },
-    "description": "A collaborative initiative between UAL and UK Black Pride exploring how marginalized queer communities have pioneered innovative approaches to organizing and mutual aid. Dr Rob Berkeley (BLKOUT UK founder) joins Dr Lady Phyll Opoku-Gyimah to discuss radical innovations forged within Black and QTIPOC queer life.",
-    "format_details": "Informal in-conversation discussion with space for audience questions and collective reflection",
-    "speakers": [
-      {
-        "name": "Dr Lady Phyll Opoku-Gyimah",
-        "role": "UK Black Pride CEO"
-      },
-      {
-        "name": "Dr Rob Berkeley",
-        "role": "BLKOUT UK Founder"
-      }
-    ],
-    "organizers": [
-      "UAL Equality, Diversity and Inclusion team",
-      "UK Black Pride"
-    ],
-    "tickets": {
-      "price": "Free",
-      "booking": "https://www.eventbrite.co.uk/e/ual-lgbtq-history-month-representation-365-with-uk-black-pride-tickets-1981428808906"
+    {
+      "agent": "griot",
+      "agent_name": "Griot",
+      "task_id": "10years-futures-storytelling",
+      "prompt": "Create Futures track content: forward-looking, aspirational posts about what BLKOUT could build next. Feature community aspirations. Cross-promote board recruitment from Feb 16 onwards. Each post should include CTA to share at comms.blkoutuk.cloud/10years",
+      "platform": "instagram",
+      "priority": "high",
+      "tasks": [
+        "Draft Futures track daily posts for Feb 9, 12, 14, 16, 18, 20",
+        "Create board recruitment crossover posts",
+        "Draft Representation 365 event promotion",
+        "Write Valentine's Day tie-in post"
+      ]
     },
-    "accessibility": "Step-free access available. Contact edi@arts.ac.uk for requirements.",
-    "blkout_anniversary_tie_in": "This event marks BLKOUT's 10th anniversary - a decade of community building, now recognized alongside UK Black Pride as pioneers of Black queer organizing in the UK."
-  },
+    {
+      "agent": "strategist",
+      "agent_name": "Strategist",
+      "task_id": "10years-ab-analysis",
+      "prompt": "Monitor A/B test results between Joy and Futures tracks. Track: form submissions by track_type in campaign_submissions table, engagement rates on alternating posts, voice note counts via Telegram bot. At end of week 1 (Feb 14), recommend whether to double down on the winning track or maintain dual approach for week 2.",
+      "platform": "all",
+      "priority": "high",
+      "tasks": [
+        "Set up tracking for Joy vs Futures submission counts",
+        "Compare engagement rates on alternating days",
+        "Prepare week 1 results summary by Feb 14",
+        "Recommend week 2 strategy based on data"
+      ]
+    },
+    {
+      "agent": "weaver",
+      "agent_name": "Weaver",
+      "task_id": "10years-engagement",
+      "prompt": "Engage with community responses to the campaign. Reply to comments on campaign posts. Encourage voice note submissions. Share and amplify community content tagged #BLKOUT10Years.",
+      "platform": "all",
+      "priority": "medium",
+      "tasks": [
+        "Monitor and respond to #BLKOUT10Years tags",
+        "Engage with campaign post comments",
+        "Amplify community-generated content",
+        "Encourage voice note submissions"
+      ]
+    },
+    {
+      "agent": "herald",
+      "agent_name": "Herald",
+      "task_id": "10years-newsletter",
+      "prompt": "Manage newsletter delivery and post-campaign follow-up email. February newsletter sent Feb 8. Prepare a follow-up email for Feb 23 summarising campaign highlights, community voices, and board recruitment next steps.",
+      "platform": "email",
+      "priority": "medium",
+      "tasks": [
+        "Confirm Feb 8 newsletter delivery",
+        "Prepare campaign wrap-up email for Feb 23",
+        "Include submission highlights and voice note excerpts",
+        "Board recruitment info session reminder"
+      ]
+    }
+  ],
 
   "newsletter_content": {
-    "subject_line": "10 Years of Liberation: BLKOUT's Anniversary Celebration + New Platform Features",
-    "preheader": "From gatherings to governance - join us for the next decade of Black queer liberation",
-    "opening": {
-      "greeting": "Dear boy, can you believe it? 10 years. 10 beautiful, revolutionary years.",
-      "tone": "Reflective, celebratory, visionary",
-      "hook": "On February 10th, 2016, BLKOUT began as a dream - a space where Black queer men could exist fully, love freely, and build boldly. Now look at what we've grown together."
-    },
-    "body_sections": [
-      {
-        "section": "A Decade of Black Men Loving Black Men",
-        "content": "Dear boy, let me take you on a journey. In 2016, we started with gatherings in London - just brothers finding each other in a world that often forgot we existed. We grew to Manchester, Birmingham, Bristol. We survived a pandemic by becoming lifelines for each other online. We built partnerships, hosted parties, ran wellness workshops, and most importantly - we showed up for each other.\n\nEvery event. Every conversation. Every hand held. Every brother found. That's 10 years of proving that Joseph Beam was right: Black men loving Black men IS a revolutionary act."
-      },
-      {
-        "section": "2025: The Year Everything Changed",
-        "content": "Last year, we transformed from a community project into a liberation technology platform. We launched IVOR, our AI companion who's helped thousands of brothers find events, access wellness support, and feel less alone. We built an Events Calendar, a News Platform, and a Communications Hub with 6 specialized AI agents.\n\nAnd we did something historic: we formalized as a Community Benefit Society. Democratic governance. Member ownership. 75% of revenue to creators and community - hardcoded, not aspirational.\n\nWe're not just a community anymore, dear boy. We're an institution that will serve Black queer men for generations."
-      },
-      {
-        "section": "Introducing Our New Platform",
-        "content": "The anniversary celebration is also a launch party. We're unveiling:\n\n🤖 **IVOR AI Enhanced** - Now across WhatsApp, Telegram, Instagram, and web with journey-aware memory\n\n📅 **Events Calendar 2.0** - Personalized recommendations and community reviews\n\n📰 **BLKOUT News** - Community stories and voices that mainstream media ignores\n\n🛍️ **BLKOUT Shop** - Liberation Journals, apparel, and a creator marketplace (75% to creators!)\n\n🎵 **Critical Frequency Preview** - Sneak peek of our social discovery platform\n\n🧘🏾 **Down App Demo** - First look at our wellness companion\n\n🗳️ **Governance Portal** - See how democratic ownership actually works"
-      },
-      {
-        "section": "Join Us: February 10th, 2026",
-        "content": "We're celebrating with a hybrid event - in-person in London and virtual worldwide.\n\n📅 **Date:** February 10th, 2026\n⏰ **Time:** 7:00 PM GMT\n📍 **Venue:** London (TBA) + Zoom\n👔 **Dress Code:** Purple, gold, and Black\n\n**What to expect:**\n- 10 Years in 10 Minutes visual timeline\n- Live platform demos\n- Community voices from founding members\n- The Next 10 Years vision presentation\n- Anniversary toast + Joseph Beam tribute\n- Music, dancing, and connection\n\n**Special perks for attendees:**\n- Priority beta access to Critical Frequency\n- Exclusive anniversary merchandise\n- Digital time capsule recording for BLKOUT's 20th anniversary"
-      }
-    ],
-    "closing": {
-      "gratitude": "10 years. Every brother who showed up to an event. Every subscriber who opened a newsletter. Every member who voted in our governance. Every person who believed that Black queer men deserve better - you built this with us.",
-      "call_to_action": [
-        "Register for the 10th Anniversary Celebration (Feb 10th)",
-        "Become a Supporter or Patron Member",
-        "Download WhatsApp and chat with IVOR",
-        "Follow @blkoutuk on all platforms",
-        "Share this with a brother who needs to know we exist"
-      ],
-      "sign_off": "10 years ago, we dared to dream. Today, we're living it. Tomorrow, we build even bigger.\n\nThe ancestors are celebrating with us.\n\nWith revolutionary love,\nIVOR Cummings & The BLKOUT Team\n\nP.S. - Joseph Beam said 'Black men loving Black men is the revolutionary act.' After 10 years, dear boy, I'd say we've started a whole revolution. See you on February 10th."
-    }
+    "subject_line": "10 Years of BLKOUT — Share Your Memory, Shape Our Future",
+    "preheader": "Our anniversary newsletter + board recruitment + two events this month",
+    "send_date": "2026-02-08",
+    "file": "february2026-newsletter.html",
+    "status": "ready"
   },
 
-  "cross_platform_strategy": {
-    "campaign_phases": {
-      "phase_1_teaser": {
-        "dates": "February 1-5",
-        "theme": "The countdown begins",
-        "content": [
-          "Historical photos and memories from 10 years",
-          "Founding member quotes and reflections",
-          "Daily countdown graphics"
-        ]
-      },
-      "phase_2_announcement": {
-        "dates": "February 6-7",
-        "theme": "A Decade of Liberation",
-        "content": [
-          "Full campaign launch",
-          "Platform features reveal",
-          "Event registration opens"
-        ]
-      },
-      "phase_3_buildup": {
-        "dates": "February 8-9",
-        "theme": "The story continues",
-        "content": [
-          "Community voices and testimonials",
-          "Behind-the-scenes platform demos",
-          "Final reminders and excitement building"
-        ]
-      },
-      "phase_4_celebration": {
-        "dates": "February 10",
-        "theme": "Happy Birthday BLKOUT",
-        "content": [
-          "Anniversary day posts",
-          "Live event coverage",
-          "Real-time social media engagement"
-        ]
-      },
-      "phase_5_afterglow": {
-        "dates": "February 11-14 (Valentine's)",
-        "theme": "Love continues",
-        "content": [
-          "Event recap and highlights",
-          "Photo galleries and thank yous",
-          "Valentine's tie-in: Love is revolutionary"
-        ]
-      }
-    },
-    "email_newsletter": {
-      "timing": "February 6th, 10:00 AM GMT",
-      "segment": "All newsletter subscribers",
-      "design": "Anniversary theme - purple, gold, celebratory",
-      "CTA_priority": ["Register for event", "Become a member", "Explore platform"]
-    },
-    "instagram": {
-      "post_1_carousel": {
-        "type": "carousel",
-        "timing": "February 6th, 11:00 AM GMT",
-        "slides": 10,
-        "content": [
-          "Slide 1: 10 Years of BLKOUT - Anniversary logo",
-          "Slide 2: 2016 - The Beginning",
-          "Slide 3: 2017-2018 - Growing Roots",
-          "Slide 4: 2019-2020 - Resilience Through Crisis",
-          "Slide 5: 2021-2022 - Digital Horizons",
-          "Slide 6: 2023-2024 - Building Infrastructure",
-          "Slide 7: 2025 - The Revolution, Digitized",
-          "Slide 8: New Platform Features Preview",
-          "Slide 9: February 10th Event Invitation",
-          "Slide 10: The Next 10 Years Starts Now"
-        ]
-      },
-      "post_2_reel": {
-        "type": "reel",
-        "timing": "February 6th, 6:00 PM GMT",
-        "duration": 90,
-        "concept": "10 years in 90 seconds - montage of memories, achievements, and vision"
-      },
-      "stories_daily": {
-        "feb_1_5": "Countdown + historical memories",
-        "feb_6_9": "Platform previews + event reminders",
-        "feb_10": "Live celebration coverage",
-        "feb_11_14": "Recap + Valentine's love messages"
-      }
-    },
-    "twitter": {
-      "thread": {
-        "timing": "February 6th, 9:00 AM GMT",
-        "tweet_count": 15,
-        "concept": "10 years, 15 tweets - one for each year + future vision"
-      },
-      "daily_engagement": "Historical moments, community quotes, countdown"
-    },
-    "linkedin": {
-      "post": {
-        "timing": "February 10th, 8:00 AM GMT",
-        "tone": "Professional impact report + invitation",
-        "focus": "Community Benefit Society model, technology innovation, social impact"
-      }
-    },
-    "tiktok": {
-      "videos": [
-        {
-          "timing": "February 6th",
-          "concept": "POV: Explaining 10 years of BLKOUT to your mum"
-        },
-        {
-          "timing": "February 10th",
-          "concept": "Get ready with me: BLKOUT 10th Anniversary edition"
-        }
-      ]
-    }
-  },
-
-  "visual_assets_needed": [
-    "10th Anniversary logo (purple, gold, celebratory)",
-    "Timeline infographic (2016-2026)",
-    "Platform features showcase graphics (7 features)",
-    "Event invitation graphic (hybrid format)",
-    "Countdown graphics (10 days)",
-    "Historical photo collage",
-    "Founding member quote cards",
-    "Critical Frequency preview mockups",
-    "Down app preview mockups",
-    "BLKOUT Shop preview",
-    "Newsletter banner image",
-    "Instagram carousel templates (10 slides)",
-    "Instagram Reel thumbnail",
-    "Twitter thread header",
-    "LinkedIn professional header",
-    "TikTok thumbnails",
-    "Photo booth props designs (digital)",
-    "Anniversary merchandise designs (exclusive items)"
+  "hashtags": [
+    "#BLKOUT10Years",
+    "#BlackBoyJoy",
+    "#FiercerFairerFutures",
+    "#BlackQueerLove",
+    "#BoardRecruitment",
+    "#LGBTHistoryMonth",
+    "#Representation365"
   ],
 
   "success_metrics": {
-    "email_newsletter": {
-      "target_open_rate": "40%+",
-      "target_click_rate": "10%+",
-      "new_subscribers": "1,000+",
-      "event_registrations": "500+"
+    "campaign_submissions": {
+      "target_total": 30,
+      "target_voice_notes": 10,
+      "target_text_submissions": 20,
+      "target_joy_track": 15,
+      "target_futures_track": 15
     },
     "social_media": {
-      "instagram_reach": "50,000+",
-      "instagram_engagement_rate": "8%+",
-      "twitter_impressions": "75,000+",
-      "tiktok_views": "100,000+",
-      "linkedin_impressions": "10,000+",
-      "new_followers_total": "1,000+"
+      "instagram_engagement_rate": "5%+",
+      "total_reach": "5,000+",
+      "new_followers": 50
     },
-    "event": {
-      "in_person_attendance": "200+",
-      "virtual_attendance": "500+",
-      "total_reach": "700+",
-      "satisfaction_score": "9/10+"
+    "board_recruitment": {
+      "target_eoi_applications": 10,
+      "target_info_session_attendance": 8
     },
-    "platform_adoption": {
-      "ivor_new_users": "2,000+",
-      "critical_frequency_beta_signups": "3,000+",
-      "down_app_beta_signups": "2,000+",
-      "new_members": "200+",
-      "shop_launch_sales": "500+ orders"
-    },
-    "community_impact": {
-      "testimonials_collected": "50+",
-      "time_capsule_recordings": "100+",
-      "founding_member_participation": "20+"
+    "events": {
+      "queer_frequencies_voice_notes": 4,
+      "bbj_club_voice_notes": 2,
+      "representation_365_attendance": "captured"
     }
   },
 
-  "partnerships_and_sponsors": {
-    "potential_partners": [
-      "UK Black Pride",
-      "Stonewall",
-      "Black Queer Travel Guide",
-      "Galop",
-      "Terrence Higgins Trust",
-      "Black Mental Health UK",
-      "Black LGBTQ+ Community Foundation"
-    ],
-    "sponsorship_tiers": {
-      "liberation_partner": {
-        "contribution": "5000+ GBP",
-        "benefits": [
-          "Logo on all materials",
-          "Speaking slot at event",
-          "VIP table at in-person celebration",
-          "Year-long partnership recognition"
-        ]
-      },
-      "community_partner": {
-        "contribution": "1000-4999 GBP",
-        "benefits": [
-          "Logo on event materials",
-          "Social media recognition",
-          "5 complimentary event tickets"
-        ]
-      },
-      "supporter": {
-        "contribution": "500-999 GBP",
-        "benefits": [
-          "Name recognition",
-          "2 complimentary event tickets"
-        ]
-      }
-    }
-  },
-
-  "merchandise_exclusive": {
-    "10th_anniversary_collection": [
-      {
-        "item": "10th Anniversary Liberation Journal",
-        "description": "Special edition with decade timeline and reflection prompts",
-        "price": "25 GBP"
-      },
-      {
-        "item": "A Decade of Liberation T-Shirt",
-        "description": "Anniversary logo, sustainable cotton, purple/gold design",
-        "price": "30 GBP"
-      },
-      {
-        "item": "Founding Member Hoodie",
-        "description": "Limited edition for pre-2020 community members",
-        "price": "50 GBP"
-      },
-      {
-        "item": "10 Years Enamel Pin Set",
-        "description": "Set of 10 pins representing each year's theme",
-        "price": "20 GBP"
-      },
-      {
-        "item": "Anniversary Tote Bag",
-        "description": "Canvas tote with full timeline graphic",
-        "price": "15 GBP"
-      }
-    ]
-  },
-
-  "agent_assignments": {
-    "griot": {
-      "tasks": [
-        "Create founding story narrative content",
-        "Write 10-year reflection pieces",
-        "Develop platform feature descriptions in IVOR voice",
-        "Craft Joseph Beam tribute content"
-      ]
-    },
-    "listener": {
-      "tasks": [
-        "Monitor community sentiment around anniversary",
-        "Track competitor/peer organization activities",
-        "Identify trending topics to incorporate",
-        "Gather founding member stories and quotes"
-      ]
-    },
-    "weaver": {
-      "tasks": [
-        "Facilitate comment engagement during campaign",
-        "Coordinate founding member outreach",
-        "Manage community response during event",
-        "Build excitement through daily interactions"
-      ]
-    },
-    "strategist": {
-      "tasks": [
-        "Coordinate 14-day posting schedule",
-        "Optimize posting times for each platform",
-        "Analyze real-time performance and adjust",
-        "Plan contingencies for technical issues"
-      ]
-    },
-    "herald": {
-      "tasks": [
-        "Create main newsletter campaign",
-        "Develop subscriber-exclusive pre-event content",
-        "Coordinate post-event thank you communications",
-        "Manage RSVP and reminder sequences"
-      ]
-    },
-    "concierge": {
-      "tasks": [
-        "Support new member onboarding during campaign",
-        "Answer platform feature questions",
-        "Guide event registration process",
-        "Provide post-event follow-up support"
-      ]
-    }
-  },
-
-  "february_2026_newsletter_series": {
-    "description": "Monthly newsletter series starting February 2026 - Welcome to the New BLKOUT",
-    "newsletter": {
-      "subject": "BLKOUT Newsletter - February 2026: A New Chapter",
-      "sections": [
-        "Welcome to regular monthly newsletters",
-        "Opt-out/preferences link",
-        "Share with a friend referral",
-        "10 Year Anniversary story (Moonlight at Ritzy Brixton)",
-        "New website launch + two key features",
-        "UAL/UK Black Pride Event - Feb 18th London",
-        "Board Recruitment campaign"
-      ],
-      "preferences_link": "/preferences",
-      "referral_enabled": true
-    },
-    "blkout_voices_blog": {
-      "title": "10 Years of BLKOUT: From a Cinema Screening to a Movement",
-      "description": "Reflective blog post celebrating the decade journey",
-      "key_themes": [
-        "Origin story: Moonlight screening at Ritzy Brixton",
-        "Oscar nominee to winner - we had taste",
-        "Community building across a decade",
-        "New chapter: website, IVOR, cooperative model",
-        "UAL event invitation",
-        "Board recruitment call"
-      ],
-      "target_length": "800-1000 words"
-    }
-  },
-
-  "social_media_series_february_2026": {
-    "description": "Extended social media content for February 2026 including co-founder article resharing",
-    "co_founder_articles_reshare": {
-      "description": "Reshare the first three introductory articles by co-founders Marc, Antoine, and Rob published October 16, 2016",
-      "note": "These are the founding articles from the original WordPress site - need to confirm which author wrote which article",
-      "articles": [
-        {
-          "id": "cofounder_article_antoine",
-          "title": "Crossing Deep Waters",
-          "author": "Antoine",
-          "role": "Co-founder",
-          "original_date": "October 16, 2016",
-          "original_url": "https://blkoutuk.com/crossing-deep-waters/",
-          "wordpress_id": "144",
-          "reshare_caption": "10 years ago, Antoine shared his story of crossing deep waters to find community. Today, we celebrate how far we've come together.\n\n'Crossing Deep Waters' - one of BLKOUT's founding voices.\n\nRead the original words that started it all... #BLKOUT10 #BlackQueerJoy",
-          "platforms": ["instagram", "linkedin", "twitter"]
-        },
-        {
-          "id": "cofounder_article_marc",
-          "title": "If you build it...",
-          "author": "Marc",
-          "role": "Co-founder",
-          "original_date": "October 16, 2016",
-          "original_url": "https://blkoutuk.com/if-you-build-it/",
-          "wordpress_id": "158",
-          "reshare_caption": "Marc asked 'If you build it...' 10 years ago. We built it. And look what we've grown.\n\nThe promise we made and kept.\n\n#BLKOUT10 #10YearsOfLiberation",
-          "platforms": ["instagram", "linkedin", "twitter"]
-        },
-        {
-          "id": "cofounder_article_rob",
-          "title": "Adventures in unchartered territory",
-          "author": "Rob",
-          "role": "Co-founder",
-          "original_date": "October 16, 2016",
-          "original_url": "https://blkoutuk.com/152-2/",
-          "wordpress_id": "152",
-          "reshare_caption": "Three voices, one vision. Rob's 'Adventures in unchartered territory' - a decade on, the adventure continues.\n\n#BLKOUT10 #FoundersVision",
-          "platforms": ["instagram", "linkedin", "twitter"]
-        }
-      ],
-      "schedule": {
-        "article_1_antoine": "February 3rd - Antoine: Crossing Deep Waters",
-        "article_2_marc": "February 5th - Marc: If you build it...",
-        "article_3_rob": "February 8th - Rob: Adventures in unchartered territory"
-      }
-    },
-    "instagram_series": {
-      "post_1_carousel": {
-        "type": "carousel",
-        "slides": 10,
-        "title": "10 Years of BLKOUT - Timeline moments",
-        "timing": "February 6th"
-      },
-      "post_2_event": {
-        "type": "single_image",
-        "title": "UAL Event announcement",
-        "content": "Feb 18th, London - Representation 365 with UK Black Pride",
-        "cta": "Sign up link in bio",
-        "timing": "February 10th"
-      },
-      "stories_series": {
-        "theme": "Behind-the-scenes of our journey",
-        "frequency": "Daily Feb 1-18"
-      }
-    },
-    "linkedin_series": {
-      "post_1_anniversary": {
-        "type": "article",
-        "title": "A Decade of Impact: BLKOUT's 10th Anniversary",
-        "focus": "Professional impact, cooperative model, community ownership",
-        "timing": "February 10th"
-      },
-      "post_2_board": {
-        "type": "single",
-        "title": "Shape the Future: Board Recruitment",
-        "focus": "Professional growth opportunity, governance participation",
-        "timing": "February 12th"
-      }
-    },
-    "twitter_series": {
-      "thread_1": {
-        "tweets": 5,
-        "title": "Anniversary thread - key moments",
-        "timing": "February 10th morning"
-      },
-      "tweet_2_event": {
-        "content": "Join us Feb 18th at UAL with @UKBlackPride for Representation 365. Link to sign up 👇",
-        "timing": "February 10th afternoon"
-      },
-      "tweet_3_board": {
-        "content": "Ready to shape the future of BLKOUT? We're recruiting Board members. Apply now 👇",
-        "timing": "February 12th"
-      }
-    },
-    "tiktok_concept": {
-      "title": "10 years of BLKOUT in 60 seconds",
-      "style": "Fast cuts, community moments, celebration",
-      "timing": "February 10th"
-    },
-    "hashtags": [
-      "#BLKOUT10",
-      "#BlackQueerJoy",
-      "#BLKOUT",
-      "#BlackQueerCommunity",
-      "#10YearAnniversary",
-      "#Representation365",
-      "#BlackQueerMen"
-    ]
+  "key_dates": {
+    "feb_8": "Newsletter sends. Campaign launches. Joy track Day 1.",
+    "feb_10": "ANNIVERSARY DAY. Both tracks converge.",
+    "feb_12": "Black Boy Joy Club night — capture content.",
+    "feb_14": "Valentine's Day + Queer Frequencies — capture content. A/B week 1 review.",
+    "feb_18": "Representation 365 at UAL with UK Black Pride.",
+    "feb_21": "Board EOI deadline.",
+    "feb_22_23": "Board info session on BLKOUTHUB.",
+    "feb_23": "Campaign wrap."
   }
 }
