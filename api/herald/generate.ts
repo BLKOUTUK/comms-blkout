@@ -24,7 +24,8 @@ import {
   handleExport,
   handleSendFoxLists,
   handleSendFoxSend,
-  handleAggregateIntelligence
+  handleAggregateIntelligence,
+  handleMetricsSync
 } from './handlers/index.js';
 import { handleAgentExecution } from './agents/index.js';
 import { handleCronJob } from './cron/index.js';
@@ -72,6 +73,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   // Intelligence aggregation
   if (action === 'aggregate_intelligence') {
     return handleAggregateIntelligence(req, res);
+  }
+
+  // Metrics sync — pulls SendFox campaign data into feedback loop
+  if (action === 'sync_metrics') {
+    return handleMetricsSync(req, res);
   }
 
   // Agent execution - all agents use intelligence
