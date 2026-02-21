@@ -279,7 +279,7 @@ export function CelebratePage() {
               Apply to Join the Board
             </a>
             <p className="text-gray-500 text-xs mt-4">
-              Applications close February 21, 2026
+              Applications close February 23, 2026
             </p>
           </div>
         </div>
