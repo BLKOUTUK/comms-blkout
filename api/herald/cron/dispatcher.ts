@@ -5,6 +5,7 @@
 
 import type { VercelResponse } from '@vercel/node';
 import { runHeraldWeekly, runHeraldMonthly, runListenerResearch } from './jobs.js';
+import { runMetricsSync } from '../handlers/metrics-sync.js';
 
 /**
  * Handle scheduled cron jobs - single dispatcher handles all schedules
@@ -20,6 +21,12 @@ export async function handleCronJob(jobType: string, res: VercelResponse) {
     const hour = now.getUTCHours();
 
     const results: { job: string; success: boolean; preview?: string }[] = [];
+
+    // Metrics sync runs every day at 8am UTC
+    if (hour >= 8 && hour < 12) {
+      const syncResult = await runMetricsSync();
+      results.push({ job: 'metrics-sync', success: true, preview: syncResult.slice(0, 100) });
+    }
 
     // Listener research runs every day at 7am UTC
     if (hour >= 7 && hour < 12) {
@@ -64,6 +71,11 @@ export async function handleCronJob(jobType: string, res: VercelResponse) {
   if (jobType === 'listener-research') {
     const content = await runListenerResearch();
     return res.status(200).json({ success: true, type: 'listener-research', preview: content.slice(0, 200) });
+  }
+
+  if (jobType === 'metrics-sync' || jobType === 'metrics_sync') {
+    const result = await runMetricsSync();
+    return res.status(200).json({ success: true, type: 'metrics-sync', result });
   }
 
   return res.status(400).json({ error: 'Unknown cron job type' });
