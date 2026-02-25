@@ -107,49 +107,7 @@ export interface MemberActivityDashboard {
   generatedAt: Date;
 }
 
-// Mock intelligence data
-const mockIntelligence: AgentIntelligence[] = [
-  {
-    id: 'mock-1',
-    intelligenceType: 'trends',
-    ivorService: 'blkouthub',
-    summary: 'Weekly member activity showing steady engagement',
-    keyInsights: [
-      'Governance participation strong with 5 votes this week',
-      'Two new members joined from event referrals',
-      'Mental health resources accessed 40% more',
-    ],
-    actionableItems: [
-      'Herald: Highlight governance in weekly update',
-      'Griot: Feature new member stories',
-    ],
-    relevanceScore: 0.85,
-    priority: 'high',
-    urgency: 'normal',
-    dataTimestamp: new Date(),
-    expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
-    timesUsed: 0,
-    tags: ['member-activity', 'governance'],
-    isExpired: false,
-  },
-];
-
-const mockDashboard: MemberActivityDashboard = {
-  activeMembers: 10,
-  verifiedCreators: 3,
-  pendingMembers: 2,
-  activeVoters: 5,
-  activeProposers: 2,
-  activeFacilitators: 1,
-  weeklyEngagements: 24,
-  weeklyRatings: 8,
-  weeklyConversations: 15,
-  articlesPublishedThisWeek: 3,
-  eventsThisWeek: 2,
-  weeklySubscribers: 0,
-  monthlySubscribers: 0,
-  generatedAt: new Date(),
-};
+// No mock data — show real state or empty
 
 export function useAgentIntelligence(agentType?: AgentType) {
   const [intelligence, setIntelligence] = useState<AgentIntelligence[]>([]);
@@ -163,17 +121,10 @@ export function useAgentIntelligence(agentType?: AgentType) {
       setError(null);
 
       if (!isSupabaseConfigured()) {
-        console.log('📦 Using mock intelligence data');
-        // Filter by agent if specified
-        const filtered = agentType
-          ? mockIntelligence.filter(i =>
-              i.actionableItems.some(item =>
-                item.toLowerCase().includes(agentType)
-              )
-            )
-          : mockIntelligence;
-        setIntelligence(filtered);
-        setDashboard(mockDashboard);
+        console.warn('[Intelligence] Supabase not configured');
+        setIntelligence([]);
+        setDashboard(null);
+        setError('Database not configured');
         setIsLoading(false);
         return;
       }
@@ -241,14 +192,14 @@ export function useAgentIntelligence(agentType?: AgentType) {
           generatedAt: new Date(dashData.generated_at),
         });
       } else {
-        setDashboard(mockDashboard);
+        setDashboard(null);
       }
 
     } catch (err) {
       console.error('Error fetching intelligence:', err);
       setError(err instanceof Error ? err.message : 'Failed to fetch intelligence');
-      setIntelligence(mockIntelligence);
-      setDashboard(mockDashboard);
+      setIntelligence([]);
+      setDashboard(null);
     } finally {
       setIsLoading(false);
     }
@@ -319,79 +270,7 @@ function transformIntelligenceRows(rows: any[]): AgentIntelligence[] {
 // Uses the SQL functions created in migration 005
 // ============================================================================
 
-// Mock data for Herald when Supabase not configured
-const mockHeraldContent: HeraldNewsletterContent = {
-  editionType: 'weekly',
-  generatedAt: new Date(),
-  sections: {
-    highlights: [
-      { id: '1', title: 'Community Launch Success', summary: 'BLKOUT platform officially launched', relevanceScore: 95 },
-      { id: '2', title: 'New Governance Features', summary: 'Democratic voting now available', relevanceScore: 88 },
-    ],
-    events: [
-      { id: '1', title: 'Community Gathering', summary: 'Monthly meetup in London', date: new Date().toISOString() },
-    ],
-    communityVoice: [
-      { id: '1', title: 'New Community Facilitator', summary: 'Celebrating our newest facilitator' },
-    ],
-    resources: [
-      { id: '1', title: 'Mental Health Support', summary: 'Updated resource directory', category: 'Support' },
-    ],
-    callToAction: [
-      { id: '1', title: 'Join the Coop', summary: 'Become a founding member', url: 'https://blkout.community/coop' },
-    ],
-  },
-  intelligence: {
-    activeMembers: 10,
-    verifiedCreators: 3,
-    weeklySubscribers: 93,
-    monthlySubscribers: 1223,
-    totalEventsUpcoming: 5,
-  },
-  contentCounts: {
-    highlights: 2,
-    events: 1,
-    communityVoice: 1,
-    resources: 1,
-    callToAction: 1,
-  },
-};
-
-const mockHeraldIntelligence: HeraldIntelligence = {
-  memberActivity: {
-    totalActive: 10,
-    newThisWeek: 2,
-    newThisMonth: 5,
-    verifiedCreators: 3,
-    facilitators: 1,
-    proposers: 2,
-  },
-  contentPerformance: {
-    articlesThisWeek: 3,
-    avgInterestScore: 75,
-    topCategory: 'Community',
-  },
-  governanceActivity: {
-    activeProposals: 2,
-    passedThisMonth: 1,
-    totalVotesThisMonth: 15,
-  },
-  resourceTrends: {
-    totalActiveResources: 50,
-    topCategories: [
-      { name: 'Support Groups', count: 20 },
-      { name: 'Mental Health', count: 15 },
-      { name: 'Legal Aid', count: 10 },
-    ],
-  },
-  subscriberStats: {
-    weeklyTier: 93,
-    monthlyTier: 1223,
-    newThisWeek: 5,
-    unsubscribedThisMonth: 2,
-  },
-  generatedAt: new Date(),
-};
+// No mock Herald data — use real Supabase data or show empty state
 
 export function useHeraldIntelligence() {
   const [newsletterContent, setNewsletterContent] = useState<HeraldNewsletterContent | null>(null);
@@ -401,9 +280,9 @@ export function useHeraldIntelligence() {
 
   const fetchNewsletterContent = useCallback(async (editionType: 'weekly' | 'monthly' = 'weekly') => {
     if (!isSupabaseConfigured()) {
-      console.log('[Herald] Using mock newsletter content');
-      setNewsletterContent({ ...mockHeraldContent, editionType });
-      return mockHeraldContent;
+      console.warn('[Herald] Supabase not configured');
+      setNewsletterContent(null);
+      return null;
     }
 
     try {
@@ -448,16 +327,16 @@ export function useHeraldIntelligence() {
     } catch (err) {
       console.error('[Herald] Error in fetchNewsletterContent:', err);
       setError(err instanceof Error ? err.message : 'Failed to fetch newsletter content');
-      setNewsletterContent(mockHeraldContent);
-      return mockHeraldContent;
+      setNewsletterContent(null);
+      return null;
     }
   }, []);
 
   const fetchHeraldIntelligence = useCallback(async () => {
     if (!isSupabaseConfigured()) {
-      console.log('[Herald] Using mock Herald intelligence');
-      setHeraldIntelligence(mockHeraldIntelligence);
-      return mockHeraldIntelligence;
+      console.warn('[Herald] Supabase not configured');
+      setHeraldIntelligence(null);
+      return null;
     }
 
     try {
@@ -506,8 +385,8 @@ export function useHeraldIntelligence() {
     } catch (err) {
       console.error('[Herald] Error in fetchHeraldIntelligence:', err);
       setError(err instanceof Error ? err.message : 'Failed to fetch Herald intelligence');
-      setHeraldIntelligence(mockHeraldIntelligence);
-      return mockHeraldIntelligence;
+      setHeraldIntelligence(null);
+      return null;
     }
   }, []);
 

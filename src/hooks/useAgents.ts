@@ -1,7 +1,6 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { supabase, isSupabaseConfigured } from '@/lib/supabase';
-import { mockAgents } from '@/lib/mockData';
 import type { Agent, AgentType, AgentStatus } from '@/types';
 
 // Database row type from agent_configurations
@@ -55,11 +54,11 @@ export function useAgents() {
       setIsLoading(true);
       setError(null);
 
-      // If Supabase is not configured, use mock data
+      // If Supabase is not configured, show empty state
       if (!isSupabaseConfigured()) {
-        console.log('📦 Using mock agents data');
-        setAgents(mockAgents);
-        setIsUsingMockData(true);
+        console.warn('[Agents] Supabase not configured — no agents available');
+        setAgents([]);
+        setError('Database not configured');
         setIsLoading(false);
         return;
       }
@@ -101,17 +100,15 @@ export function useAgents() {
         setAgents(transformedAgents);
         setIsUsingMockData(false);
       } else {
-        // Fallback to mock data if no agents configured
-        console.log('📦 No agents in database, using mock data');
-        setAgents(mockAgents);
-        setIsUsingMockData(true);
+        console.warn('[Agents] No agents configured in database');
+        setAgents([]);
+        setIsUsingMockData(false);
       }
     } catch (err) {
       console.error('Error fetching agents:', err);
       setError(err instanceof Error ? err.message : 'Failed to fetch agents');
-      // Fallback to mock data on error
-      setAgents(mockAgents);
-      setIsUsingMockData(true);
+      setAgents([]);
+      setIsUsingMockData(false);
     } finally {
       setIsLoading(false);
     }
@@ -168,8 +165,8 @@ export function useAgent(agentType: AgentType) {
   useEffect(() => {
     const fetchAgentDetails = async () => {
       if (!isSupabaseConfigured()) {
-        const mockAgent = mockAgents.find(a => a.type === agentType);
-        setAgent(mockAgent || null);
+        setAgent(null);
+        setError('Database not configured');
         setIsLoading(false);
         return;
       }
@@ -224,8 +221,7 @@ export function useAgent(agentType: AgentType) {
       } catch (err) {
         console.error(`Error fetching ${agentType} details:`, err);
         setError(err instanceof Error ? err.message : 'Failed to fetch agent details');
-        const mockAgent = mockAgents.find(a => a.type === agentType);
-        setAgent(mockAgent || null);
+        setAgent(null);
       } finally {
         setIsLoading(false);
       }

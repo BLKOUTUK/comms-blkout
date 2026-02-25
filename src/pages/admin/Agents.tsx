@@ -68,13 +68,12 @@ export function Agents() {
           <div>
             <div className="flex items-center gap-3">
               <h1 className="text-3xl font-display font-bold text-gray-900">AI Agents</h1>
-              {(isAgentsMock || isActivityMock) && (
-                <span className="text-xs bg-amber-100 text-amber-700 px-2 py-1 rounded-full flex items-center gap-1">
+              {isAgentsMock ? (
+                <span className="text-xs bg-red-100 text-red-700 px-2 py-1 rounded-full flex items-center gap-1">
                   <Database size={12} />
-                  Demo Mode
+                  Not Connected
                 </span>
-              )}
-              {!isAgentsMock && !isActivityMock && (
+              ) : (
                 <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full flex items-center gap-1">
                   <Database size={12} />
                   Live Data
@@ -287,8 +286,8 @@ export function Agents() {
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-xl font-semibold text-gray-900">Recent Agent Activity</h2>
             {isActivityMock && (
-              <span className="text-xs text-amber-600 bg-amber-50 px-3 py-1 rounded-full">
-                Demo Mode
+              <span className="text-xs text-red-600 bg-red-50 px-3 py-1 rounded-full">
+                No connection
               </span>
             )}
           </div>
