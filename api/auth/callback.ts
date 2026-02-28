@@ -1,4 +1,12 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
+import { createClient } from '@supabase/supabase-js';
+
+const SUPABASE_URL = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL;
+const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+const supabase = SUPABASE_URL && SUPABASE_SERVICE_KEY
+  ? createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY)
+  : null;
 
 // OAuth platform configurations
 const PLATFORMS = {
@@ -162,6 +170,27 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     console.log(`${platform} connected:`, profile);
+
+    // Store token in Supabase for the publish handler to use
+    if (supabase) {
+      const accountId = profile.sub || profile.id || profile.user_id || profile.open_id || '';
+      const accountName = profile.name || profile.username || platform;
+      const expiresAt = tokenData.expires_in
+        ? new Date(Date.now() + tokenData.expires_in * 1000).toISOString()
+        : null;
+
+      await supabase.from('platform_tokens').upsert({
+        platform,
+        access_token: accessToken,
+        refresh_token: tokenData.refresh_token || null,
+        account_id: accountId,
+        account_name: accountName,
+        expires_at: expiresAt,
+        updated_at: new Date().toISOString(),
+      }, { onConflict: 'platform' });
+
+      console.log(`[Auth] Stored ${platform} token for ${accountName}`);
+    }
 
     // Build success params
     const successParams = new URLSearchParams({
