@@ -26,8 +26,20 @@ interface QueuedPost {
 
 // Publish to LinkedIn
 async function publishToLinkedIn(post: QueuedPost): Promise<{ success: boolean; postId?: string; error?: string }> {
-  if (!LINKEDIN_ACCESS_TOKEN || !LINKEDIN_ORGANIZATION_ID) {
-    return { success: false, error: 'LinkedIn credentials not configured' };
+  // Try env vars first, then fall back to stored OAuth token
+  let accessToken = LINKEDIN_ACCESS_TOKEN;
+  let authorUrn = LINKEDIN_ORGANIZATION_ID ? `urn:li:organization:${LINKEDIN_ORGANIZATION_ID}` : '';
+
+  if (!accessToken) {
+    const stored = await getPlatformToken('linkedin');
+    if (stored) {
+      accessToken = stored.access_token;
+      authorUrn = `urn:li:person:${stored.account_id}`;
+    }
+  }
+
+  if (!accessToken) {
+    return { success: false, error: 'LinkedIn not connected — visit /api/auth/connect?platform=linkedin' };
   }
 
   try {
@@ -37,12 +49,12 @@ async function publishToLinkedIn(post: QueuedPost): Promise<{ success: boolean; 
     const response = await fetch('https://api.linkedin.com/v2/ugcPosts', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${LINKEDIN_ACCESS_TOKEN}`,
+        'Authorization': `Bearer ${accessToken}`,
         'Content-Type': 'application/json',
         'X-Restli-Protocol-Version': '2.0.0'
       },
       body: JSON.stringify({
-        author: `urn:li:organization:${LINKEDIN_ORGANIZATION_ID}`,
+        author: authorUrn,
         lifecycleState: 'PUBLISHED',
         specificContent: {
           'com.linkedin.ugc.ShareContent': {
