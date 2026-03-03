@@ -1,0 +1,472 @@
+{
+  "campaign": {
+    "name": "Meet AIvor — Your AI for Black Queer Life",
+    "slug": "meet-aivor-2026",
+    "launch_date": "2026-03-03",
+    "end_date": "2026-03-16",
+    "tagline": "Real AI. Real data. Built for us.",
+    "mission": "Introduce AIvor to the BLKOUT community by function and purpose — showing what he can do, who he's named after, and why community-owned AI matters",
+    "voice": "AIvor — direct, warm, witty, genuinely knowledgeable. Not corporate. Speaks like someone who actually cares.",
+    "signature_phrases": [
+      "I'm AIvor. I'm here for you.",
+      "Real AI. Real data. Built for us.",
+      "Try me. I don't bite. Much.",
+      "Your AI. Your data. Your community.",
+      "Named after a pioneer. Built for pioneers."
+    ]
+  },
+
+  "content_calendar": {
+    "phases": [
+      {
+        "name": "Week 1: Who Is AIvor?",
+        "dates": "March 3-7",
+        "theme": "Introducing AIvor by name, origin, and core functions — events, wellness, learning tools, crisis support",
+        "activities": [
+          "Launch announcement across all platforms",
+          "Daily feature spotlight posts",
+          "DigestVid mention in weekly roundup",
+          "Community engagement and Q&A"
+        ],
+        "content": [
+          {
+            "title": "MEET AIVOR: Your AI for Black Queer Life",
+            "type": "social",
+            "platform": "linkedin",
+            "scheduled_for": "2026-03-03",
+            "timing": "March 3rd, 12:00 PM GMT",
+            "content": "Introducing AIvor — BLKOUT's AI assistant, built for Black queer life in the UK.\n\nHe's named after Ivor Cummings (1913–1992), a Black British civil rights pioneer who fought for racial justice decades before it was fashionable. His work shaped policy, opened doors, and built institutions. AIvor carries that legacy forward — as technology.\n\nAIvor isn't a chatbot reading from a script. He's powered by real AI, sees live data from the BLKOUT platform, and is designed to be genuinely useful:\n\n• Find events happening near you this weekend\n• Check in on your mental health and wellbeing\n• Access learning tools — problem-solving, conflict resolution, creative inspiration\n• Get UK-specific crisis support when you need it\n\nHe's live right now at blkoutuk.com. Click the chat bubble and say hello.\n\nThis is community-owned AI. Your data stays yours. No ads. No tracking. One member, one vote.\n\nReal AI. Real data. Built for us.\n\n#MeetAIvor #BLKOUTTech #BlackQueerAI #TechForGood #CommunityOwned #AI #LiberationTechnology",
+            "status": "ready",
+            "hashtags": ["#MeetAIvor", "#BLKOUTTech", "#BlackQueerAI", "#TechForGood", "#CommunityOwned", "#AI", "#LiberationTechnology"]
+          },
+          {
+            "title": "MEET AIVOR: Your AI for Black Queer Life",
+            "type": "social",
+            "platform": "instagram",
+            "scheduled_for": "2026-03-03",
+            "timing": "March 3rd, 12:00 PM GMT",
+            "content": "Meet AIvor. 💛\n\nHe's BLKOUT's AI assistant — named after Ivor Cummings, a Black British civil rights pioneer who spent his life building institutions for our communities.\n\nAIvor carries that legacy forward. He's not a chatbot. He's real AI, built for Black queer life in the UK.\n\nWhat he does:\n🗓 Finds events near you — \"What's on this weekend?\"\n💛 Wellness check-ins and journaling\n🧠 Learning tools — problem-solving, creativity, conflict resolution\n🆘 UK crisis support — Samaritans, Switchboard, MindOut\n\nHe's live now. Click the chat bubble at blkoutuk.com and say hello.\n\nReal AI. Real data. Built for us.\n\n#MeetAIvor #BLKOUTTech #BlackQueerAI #CommunityOwned #AI",
+            "status": "ready",
+            "hashtags": ["#MeetAIvor", "#BLKOUTTech", "#BlackQueerAI", "#CommunityOwned", "#AI"]
+          },
+          {
+            "title": "MEET AIVOR: Your AI for Black Queer Life",
+            "type": "social",
+            "platform": "twitter",
+            "scheduled_for": "2026-03-03",
+            "timing": "March 3rd, 12:00 PM GMT",
+            "content": "Meet AIvor — BLKOUT's AI assistant, named after Ivor Cummings, a Black British civil rights pioneer.\n\nHe's not a chatbot. He's real AI built for Black queer life in the UK.\n\nEvents. Wellness. Learning tools. Crisis support.\n\nTry him now: blkoutuk.com\n\n#MeetAIvor #BLKOUTTech #BlackQueerAI",
+            "status": "ready",
+            "hashtags": ["#MeetAIvor", "#BLKOUTTech", "#BlackQueerAI"]
+          },
+          {
+            "title": "MEET AIVOR: Your AI for Black Queer Life",
+            "type": "social",
+            "platform": "facebook",
+            "scheduled_for": "2026-03-03",
+            "timing": "March 3rd, 12:00 PM GMT",
+            "content": "We'd like you to meet someone. 💛\n\nAIvor is BLKOUT's AI assistant — named after Ivor Cummings (1913–1992), a Black British civil rights pioneer who fought for racial justice and built institutions for our communities.\n\nAIvor carries that forward as technology. He's not reading from a script — he's powered by real AI, sees live events and resources from the BLKOUT platform, and he's designed to actually help.\n\nHere's what he can do:\n🗓 Find events near you — just ask \"What's on this weekend?\"\n💛 Mental health check-ins and wellness journaling\n🧠 Learning tools — problem-solving, conflict resolution, creative inspiration\n🆘 UK crisis support — connects you to Samaritans, Switchboard, MindOut\n\nHe's live right now at blkoutuk.com — click the chat bubble in the corner and say hello.\n\nYour data stays yours. No ads. No tracking. Community-owned AI.\n\nReal AI. Real data. Built for us.\n\n#MeetAIvor #BLKOUTTech #BlackQueerAI",
+            "status": "ready",
+            "hashtags": ["#MeetAIvor", "#BLKOUTTech", "#BlackQueerAI"]
+          },
+
+          {
+            "title": "AIVOR EVENTS: \"What's on this weekend?\"",
+            "type": "social",
+            "platform": "linkedin",
+            "scheduled_for": "2026-03-04",
+            "timing": "March 4th, 12:00 PM GMT",
+            "content": "\"What's on this weekend?\"\n\nThat's all you have to say. AIvor pulls live events from the BLKOUT calendar — he knows what's happening, when, where, and how much it costs.\n\nHe's date-aware. Ask about Valentine's Day, next weekend, or this month — he understands time. He's location-aware too. London, Manchester, Birmingham, Bristol — he knows where things are happening.\n\nNo scrolling through feeds. No searching multiple sites. Just ask.\n\nAIvor is live at blkoutuk.com — try asking him what's coming up.\n\n#MeetAIvor #BLKOUTTech #BlackQueerEvents #WhatsOn",
+            "status": "ready",
+            "hashtags": ["#MeetAIvor", "#BLKOUTTech", "#BlackQueerEvents", "#WhatsOn"]
+          },
+          {
+            "title": "AIVOR EVENTS: \"What's on this weekend?\"",
+            "type": "social",
+            "platform": "instagram",
+            "scheduled_for": "2026-03-04",
+            "timing": "March 4th, 12:00 PM GMT",
+            "content": "\"What's on this weekend?\" 🗓\n\nThat's it. That's all you say. AIvor pulls live events from the BLKOUT calendar — dates, times, locations, costs.\n\nHe knows what week it is. He knows your city. He just tells you what's happening.\n\nNo doom-scrolling. No searching five different sites.\n\nTry it now — blkoutuk.com, click the chat bubble.\n\n#MeetAIvor #BLKOUTTech #BlackQueerEvents #WhatsOn",
+            "status": "ready",
+            "hashtags": ["#MeetAIvor", "#BLKOUTTech", "#BlackQueerEvents", "#WhatsOn"]
+          },
+          {
+            "title": "AIVOR EVENTS: \"What's on this weekend?\"",
+            "type": "social",
+            "platform": "twitter",
+            "scheduled_for": "2026-03-04",
+            "timing": "March 4th, 12:00 PM GMT",
+            "content": "\"What's on this weekend?\"\n\nAIvor pulls live events from the BLKOUT calendar. Dates, times, locations, costs.\n\nHe knows what week it is. He knows your city.\n\nNo scrolling. Just ask.\n\nblkoutuk.com\n\n#MeetAIvor #BLKOUTTech",
+            "status": "ready",
+            "hashtags": ["#MeetAIvor", "#BLKOUTTech"]
+          },
+          {
+            "title": "AIVOR EVENTS: \"What's on this weekend?\"",
+            "type": "social",
+            "platform": "facebook",
+            "scheduled_for": "2026-03-04",
+            "timing": "March 4th, 12:00 PM GMT",
+            "content": "\"What's on this weekend?\" 🗓\n\nThat's all you need to ask AIvor. He pulls live events from the BLKOUT calendar — he knows what's happening, when, where, and how much it costs.\n\nHe understands dates too. Ask about this weekend, next month, Valentine's Day — he gets it. London, Manchester, Birmingham, Bristol — he knows where you are.\n\nNo more scrolling through feeds trying to find things to do.\n\nTry it at blkoutuk.com — click the chat bubble and ask what's coming up.\n\n#MeetAIvor #BLKOUTTech #BlackQueerEvents",
+            "status": "ready",
+            "hashtags": ["#MeetAIvor", "#BLKOUTTech", "#BlackQueerEvents"]
+          },
+
+          {
+            "title": "AIVOR WELLNESS: Check In With Yourself",
+            "type": "social",
+            "platform": "linkedin",
+            "scheduled_for": "2026-03-05",
+            "timing": "March 5th, 12:00 PM GMT",
+            "content": "When did you last check in with yourself?\n\nAIvor includes a 15-section wellness assessment designed for the realities of Black queer life. Not generic self-help. Not corporate wellness. Real questions about the things that actually affect us.\n\nHe offers:\n• Structured wellness check-ins across 15 life areas\n• Emotional check-in conversations — no judgment, just space\n• Journaling prompts tailored to what you're going through\n• Gentle follow-ups if you want them\n\nMental health in our communities isn't an afterthought. It's built into the platform.\n\nTry a wellness check-in: blkoutuk.com\n\n#MeetAIvor #BLKOUTTech #BlackQueerWellness #MentalHealth #Wellbeing",
+            "status": "ready",
+            "hashtags": ["#MeetAIvor", "#BLKOUTTech", "#BlackQueerWellness", "#MentalHealth", "#Wellbeing"]
+          },
+          {
+            "title": "AIVOR WELLNESS: Check In With Yourself",
+            "type": "social",
+            "platform": "instagram",
+            "scheduled_for": "2026-03-05",
+            "timing": "March 5th, 12:00 PM GMT",
+            "content": "When did you last check in with yourself? 💛\n\nAIvor has a 15-section wellness assessment. Not generic self-help — real questions about the things that actually affect Black queer life.\n\n✨ Wellness check-ins across 15 life areas\n✨ Emotional check-in — no judgment\n✨ Journaling prompts for what you're going through\n✨ Gentle follow-ups if you want them\n\nMental health isn't an afterthought here. It's built in.\n\nTry it: blkoutuk.com\n\n#MeetAIvor #BLKOUTTech #BlackQueerWellness #MentalHealth",
+            "status": "ready",
+            "hashtags": ["#MeetAIvor", "#BLKOUTTech", "#BlackQueerWellness", "#MentalHealth"]
+          },
+          {
+            "title": "AIVOR WELLNESS: Check In With Yourself",
+            "type": "social",
+            "platform": "twitter",
+            "scheduled_for": "2026-03-05",
+            "timing": "March 5th, 12:00 PM GMT",
+            "content": "When did you last check in with yourself?\n\nAIvor has a 15-section wellness assessment. Not generic self-help — real questions for real life.\n\nWellness check-ins. Emotional space. Journaling prompts.\n\nMental health isn't an afterthought. It's built in.\n\nblkoutuk.com\n\n#MeetAIvor #BLKOUTTech #BlackQueerWellness",
+            "status": "ready",
+            "hashtags": ["#MeetAIvor", "#BLKOUTTech", "#BlackQueerWellness"]
+          },
+          {
+            "title": "AIVOR WELLNESS: Check In With Yourself",
+            "type": "social",
+            "platform": "facebook",
+            "scheduled_for": "2026-03-05",
+            "timing": "March 5th, 12:00 PM GMT",
+            "content": "When did you last check in with yourself? 💛\n\nAIvor includes a 15-section wellness assessment that's designed for the realities of Black queer life. Not generic wellness apps. Not corporate mindfulness. Real questions about the things that actually affect us.\n\nWhat he offers:\n✨ Structured wellness check-ins across 15 life areas\n✨ Emotional check-in conversations — no judgment, just space\n✨ Journaling prompts tailored to what you're going through\n✨ Gentle follow-ups if you want them\n\nMental health in our communities isn't an afterthought here. It's built into the platform from day one.\n\nTry a wellness check-in at blkoutuk.com — click the chat bubble.\n\n#MeetAIvor #BLKOUTTech #BlackQueerWellness #MentalHealth",
+            "status": "ready",
+            "hashtags": ["#MeetAIvor", "#BLKOUTTech", "#BlackQueerWellness", "#MentalHealth"]
+          },
+
+          {
+            "title": "AIVOR LEARNING: 8 Tools You Didn't Know You Had",
+            "type": "social",
+            "platform": "linkedin",
+            "scheduled_for": "2026-03-06",
+            "timing": "March 6th, 12:00 PM GMT",
+            "content": "AIvor isn't just for chatting. He has 8 built-in tools designed to help you think, create, and navigate life.\n\n1. Problem-Solving Framework — structured approach to decisions\n2. Conflict Resolution — navigate difficult conversations\n3. Creative Inspiration — unblock creative projects\n4. Resource Navigator — find community resources and support\n5. Goal Setting — break big ambitions into actionable steps\n6. Interview Prep — practice for job interviews and presentations\n7. Writing Assistant — help with emails, applications, personal writing\n8. Learning Pathways — curated educational resources\n\nThese aren't gimmicks. They're practical tools built because our community asked for them.\n\nTry one: blkoutuk.com\n\n#MeetAIvor #BLKOUTTech #BlackQueerAI #LearningTools #PersonalDevelopment",
+            "status": "ready",
+            "hashtags": ["#MeetAIvor", "#BLKOUTTech", "#BlackQueerAI", "#LearningTools", "#PersonalDevelopment"]
+          },
+          {
+            "title": "AIVOR LEARNING: 8 Tools You Didn't Know You Had",
+            "type": "social",
+            "platform": "instagram",
+            "scheduled_for": "2026-03-06",
+            "timing": "March 6th, 12:00 PM GMT",
+            "content": "AIvor has 8 built-in tools. Here's what you've been sleeping on 🧠\n\n1. Problem-Solving — structured decisions\n2. Conflict Resolution — navigate hard conversations\n3. Creative Inspiration — unblock your projects\n4. Resource Navigator — find support\n5. Goal Setting — big dreams → real steps\n6. Interview Prep — practice & prepare\n7. Writing Assistant — emails, applications, personal\n8. Learning Pathways — curated education\n\nNot gimmicks. Practical tools because our community asked for them.\n\nTry one: blkoutuk.com\n\n#MeetAIvor #BLKOUTTech #BlackQueerAI #LearningTools",
+            "status": "ready",
+            "hashtags": ["#MeetAIvor", "#BLKOUTTech", "#BlackQueerAI", "#LearningTools"]
+          },
+          {
+            "title": "AIVOR LEARNING: 8 Tools You Didn't Know You Had",
+            "type": "social",
+            "platform": "twitter",
+            "scheduled_for": "2026-03-06",
+            "timing": "March 6th, 12:00 PM GMT",
+            "content": "AIvor has 8 built-in tools you've been sleeping on:\n\n• Problem-Solving\n• Conflict Resolution\n• Creative Inspiration\n• Resource Navigator\n• Goal Setting\n• Interview Prep\n• Writing Assistant\n• Learning Pathways\n\nNot gimmicks. Practical tools our community asked for.\n\nblkoutuk.com\n\n#MeetAIvor #BLKOUTTech",
+            "status": "ready",
+            "hashtags": ["#MeetAIvor", "#BLKOUTTech"]
+          },
+          {
+            "title": "AIVOR LEARNING: 8 Tools You Didn't Know You Had",
+            "type": "social",
+            "platform": "facebook",
+            "scheduled_for": "2026-03-06",
+            "timing": "March 6th, 12:00 PM GMT",
+            "content": "Did you know AIvor has 8 built-in tools? Not just chat — actual structured tools to help you think, create, and navigate life. 🧠\n\n1. Problem-Solving Framework — structured approach to decisions\n2. Conflict Resolution — navigate difficult conversations\n3. Creative Inspiration — unblock creative projects\n4. Resource Navigator — find community resources and support\n5. Goal Setting — break big ambitions into actionable steps\n6. Interview Prep — practice for job interviews and presentations\n7. Writing Assistant — help with emails, applications, personal writing\n8. Learning Pathways — curated educational resources\n\nThese aren't gimmicks. They're practical tools built because our community asked for them.\n\nTry one at blkoutuk.com — click the chat bubble.\n\n#MeetAIvor #BLKOUTTech #BlackQueerAI #LearningTools",
+            "status": "ready",
+            "hashtags": ["#MeetAIvor", "#BLKOUTTech", "#BlackQueerAI", "#LearningTools"]
+          },
+
+          {
+            "title": "AIVOR CRISIS: He Knows When to Be Serious",
+            "type": "social",
+            "platform": "linkedin",
+            "scheduled_for": "2026-03-07",
+            "timing": "March 7th, 12:00 PM GMT",
+            "content": "AIvor is witty, warm, and direct. But he knows when to stop.\n\nWhen a conversation turns serious — when someone mentions self-harm, suicidal thoughts, or crisis — AIvor drops the personality. No theatrics. No \"I'm so sorry to hear that.\" He becomes calm, clear, and practical.\n\nHe provides:\n• Samaritans — 116 123 (24/7, free)\n• Switchboard — 0300 330 0630 (LGBTQ+ specific)\n• MindOut — mindout.org.uk (LGBTQ+ mental health)\n• Shout — text SHOUT to 85258\n• Emergency services — 999\n\nThese are UK-specific, verified, and current. He doesn't guess. He doesn't make things up.\n\nAI in mental health support requires responsibility. AIvor is built with that responsibility at its core — trauma-informed, evidence-based, and honest about what he can and can't do.\n\nblkoutuk.com\n\n#MeetAIvor #BLKOUTTech #MentalHealth #CrisisSupport #BlackQueerWellness #ResponsibleAI",
+            "status": "ready",
+            "hashtags": ["#MeetAIvor", "#BLKOUTTech", "#MentalHealth", "#CrisisSupport", "#BlackQueerWellness", "#ResponsibleAI"]
+          },
+          {
+            "title": "AIVOR CRISIS: He Knows When to Be Serious",
+            "type": "social",
+            "platform": "instagram",
+            "scheduled_for": "2026-03-07",
+            "timing": "March 7th, 12:00 PM GMT",
+            "content": "AIvor is warm and witty. But he knows when to stop. 💛\n\nWhen things get serious, he drops the personality. No theatrics. He becomes calm, clear, and practical.\n\n📞 Samaritans — 116 123 (24/7, free)\n📞 Switchboard — 0300 330 0630 (LGBTQ+)\n📞 MindOut — mindout.org.uk (LGBTQ+ mental health)\n📱 Shout — text SHOUT to 85258\n🚨 Emergency — 999\n\nUK-specific. Verified. Current. No guessing.\n\nResponsible AI means knowing your limits.\n\nblkoutuk.com\n\n#MeetAIvor #BLKOUTTech #MentalHealth #CrisisSupport #BlackQueerWellness",
+            "status": "ready",
+            "hashtags": ["#MeetAIvor", "#BLKOUTTech", "#MentalHealth", "#CrisisSupport", "#BlackQueerWellness"]
+          },
+          {
+            "title": "AIVOR CRISIS: He Knows When to Be Serious",
+            "type": "social",
+            "platform": "twitter",
+            "scheduled_for": "2026-03-07",
+            "timing": "March 7th, 12:00 PM GMT",
+            "content": "AIvor is warm and witty. But when things get serious, he drops the personality.\n\nNo theatrics. Calm, clear, practical.\n\nSamaritans: 116 123\nSwitchboard: 0300 330 0630\nMindOut: mindout.org.uk\nShout: text SHOUT to 85258\n\nResponsible AI means knowing your limits.\n\n#MeetAIvor #BLKOUTTech #CrisisSupport",
+            "status": "ready",
+            "hashtags": ["#MeetAIvor", "#BLKOUTTech", "#CrisisSupport"]
+          },
+          {
+            "title": "AIVOR CRISIS: He Knows When to Be Serious",
+            "type": "social",
+            "platform": "facebook",
+            "scheduled_for": "2026-03-07",
+            "timing": "March 7th, 12:00 PM GMT",
+            "content": "AIvor is witty, warm, and direct. But he knows when to stop.\n\nWhen a conversation turns serious — self-harm, suicidal thoughts, crisis — he drops the personality. No theatrics. No \"I'm so sorry to hear that.\" He becomes calm, clear, and practical.\n\nHe connects you to:\n📞 Samaritans — 116 123 (24/7, free)\n📞 Switchboard — 0300 330 0630 (LGBTQ+ specific)\n📞 MindOut — mindout.org.uk (LGBTQ+ mental health)\n📱 Shout — text SHOUT to 85258\n🚨 Emergency services — 999\n\nAll UK-specific. All verified. All current.\n\nAI in mental health requires responsibility. AIvor is built with that at its core — trauma-informed, evidence-based, and honest about what he can and can't do.\n\nblkoutuk.com\n\n#MeetAIvor #BLKOUTTech #MentalHealth #CrisisSupport #BlackQueerWellness",
+            "status": "ready",
+            "hashtags": ["#MeetAIvor", "#BLKOUTTech", "#MentalHealth", "#CrisisSupport", "#BlackQueerWellness"]
+          }
+        ]
+      },
+      {
+        "name": "Week 2: What Makes AIvor Different?",
+        "dates": "March 10-14",
+        "theme": "What sets AIvor apart — voice, real AI, community ownership, DigestVid, and call-to-action",
+        "activities": [
+          "Feature spotlight: voice, real AI, cooperative model",
+          "DigestVid integration post",
+          "Final CTA push",
+          "Community engagement and feedback"
+        ],
+        "content": [
+          {
+            "title": "AIVOR VOICE: Listen to Him",
+            "type": "social",
+            "platform": "linkedin",
+            "scheduled_for": "2026-03-10",
+            "timing": "March 10th, 12:00 PM GMT",
+            "content": "AIvor doesn't just type. He speaks.\n\nUsing Chatterbox text-to-speech with a British accent, AIvor can read his responses aloud. Listen on your commute. While cooking. While you're getting ready.\n\nWhy voice matters:\n• Accessibility — not everyone reads screens easily\n• Convenience — hands-free interaction with AI\n• Connection — hearing a voice feels different than reading text\n• Inclusion — voice-first design serves more people\n\nWe're building AI that meets you where you are. Sometimes that's on a screen. Sometimes it's in your ears.\n\nTry asking AIvor something and tap the speaker icon: blkoutuk.com\n\n#MeetAIvor #BLKOUTTech #VoiceAI #Accessibility #BlackQueerAI",
+            "status": "ready",
+            "hashtags": ["#MeetAIvor", "#BLKOUTTech", "#VoiceAI", "#Accessibility", "#BlackQueerAI"]
+          },
+          {
+            "title": "AIVOR VOICE: Listen to Him",
+            "type": "social",
+            "platform": "instagram",
+            "scheduled_for": "2026-03-10",
+            "timing": "March 10th, 12:00 PM GMT",
+            "content": "AIvor doesn't just type. He speaks. 🔊\n\nBritish accent. Text-to-speech. Listen on your commute, while cooking, while getting ready.\n\n🎧 Accessibility — not everyone reads screens easily\n🎧 Convenience — hands-free AI\n🎧 Connection — hearing a voice hits different\n🎧 Inclusion — voice-first design\n\nTap the speaker icon after he responds.\n\nblkoutuk.com\n\n#MeetAIvor #BLKOUTTech #VoiceAI #Accessibility",
+            "status": "ready",
+            "hashtags": ["#MeetAIvor", "#BLKOUTTech", "#VoiceAI", "#Accessibility"]
+          },
+          {
+            "title": "AIVOR VOICE: Listen to Him",
+            "type": "social",
+            "platform": "twitter",
+            "scheduled_for": "2026-03-10",
+            "timing": "March 10th, 12:00 PM GMT",
+            "content": "AIvor doesn't just type. He speaks.\n\nBritish accent. Text-to-speech. Listen on your commute.\n\nAccessibility. Convenience. Connection.\n\nTap the speaker icon after he responds.\n\nblkoutuk.com\n\n#MeetAIvor #BLKOUTTech #VoiceAI",
+            "status": "ready",
+            "hashtags": ["#MeetAIvor", "#BLKOUTTech", "#VoiceAI"]
+          },
+          {
+            "title": "AIVOR VOICE: Listen to Him",
+            "type": "social",
+            "platform": "facebook",
+            "scheduled_for": "2026-03-10",
+            "timing": "March 10th, 12:00 PM GMT",
+            "content": "AIvor doesn't just type. He speaks. 🔊\n\nUsing text-to-speech with a British accent, AIvor can read his responses aloud. Listen on your commute, while cooking, while you're getting ready.\n\nWhy voice matters:\n🎧 Accessibility — not everyone reads screens easily\n🎧 Convenience — hands-free interaction\n🎧 Connection — hearing a voice feels different than reading text\n🎧 Inclusion — voice-first design serves more people\n\nAsk AIvor something at blkoutuk.com and tap the speaker icon.\n\n#MeetAIvor #BLKOUTTech #VoiceAI #Accessibility",
+            "status": "ready",
+            "hashtags": ["#MeetAIvor", "#BLKOUTTech", "#VoiceAI", "#Accessibility"]
+          },
+
+          {
+            "title": "AIVOR REAL AI: Not a Script Bot",
+            "type": "social",
+            "platform": "linkedin",
+            "scheduled_for": "2026-03-11",
+            "timing": "March 11th, 12:00 PM GMT",
+            "content": "AIvor is not a chatbot following a decision tree. He's real AI.\n\nPowered by GROQ (running Llama and Qwen models), AIvor processes natural language, understands context, and generates genuinely useful responses. He's not matching keywords to pre-written answers.\n\nWhat makes him different:\n• He sees live platform data — real events, real news, real community resources\n• He remembers context within your conversation\n• He can reason through problems, not just recite facts\n• He's updated with current UK-specific information\n\nThis is what AI looks like when it's built for a specific community with specific needs — not a generic assistant wearing a brand skin.\n\nblkoutuk.com\n\n#MeetAIvor #BLKOUTTech #BlackQueerAI #RealAI #GROQ #LLM",
+            "status": "ready",
+            "hashtags": ["#MeetAIvor", "#BLKOUTTech", "#BlackQueerAI", "#RealAI", "#GROQ", "#LLM"]
+          },
+          {
+            "title": "AIVOR REAL AI: Not a Script Bot",
+            "type": "social",
+            "platform": "instagram",
+            "scheduled_for": "2026-03-11",
+            "timing": "March 11th, 12:00 PM GMT",
+            "content": "\"Is this just a chatbot?\"\n\nNo. 🤖\n\nAIvor is powered by real AI (GROQ). He's not matching keywords to pre-written answers.\n\n✅ Sees live platform data — real events, real news\n✅ Remembers your conversation context\n✅ Reasons through problems\n✅ Updated with UK-specific info\n\nThis is AI built for a specific community. Not a generic assistant wearing a brand skin.\n\nblkoutuk.com\n\n#MeetAIvor #BLKOUTTech #BlackQueerAI #RealAI",
+            "status": "ready",
+            "hashtags": ["#MeetAIvor", "#BLKOUTTech", "#BlackQueerAI", "#RealAI"]
+          },
+          {
+            "title": "AIVOR REAL AI: Not a Script Bot",
+            "type": "social",
+            "platform": "twitter",
+            "scheduled_for": "2026-03-11",
+            "timing": "March 11th, 12:00 PM GMT",
+            "content": "\"Is AIvor just a chatbot?\"\n\nNo. He's real AI — GROQ-powered, sees live platform data, remembers context, reasons through problems.\n\nNot a script bot. Not a decision tree.\n\nAI built for a specific community with specific needs.\n\nblkoutuk.com\n\n#MeetAIvor #BLKOUTTech #RealAI",
+            "status": "ready",
+            "hashtags": ["#MeetAIvor", "#BLKOUTTech", "#RealAI"]
+          },
+          {
+            "title": "AIVOR REAL AI: Not a Script Bot",
+            "type": "social",
+            "platform": "facebook",
+            "scheduled_for": "2026-03-11",
+            "timing": "March 11th, 12:00 PM GMT",
+            "content": "\"Is this just a chatbot?\"\n\nHonest answer: no.\n\nAIvor is powered by real AI (GROQ, running Llama and Qwen models). He doesn't match keywords to pre-written answers. He actually understands what you're saying and generates genuinely useful responses.\n\nWhat makes him different:\n✅ He sees live platform data — real events, real news, real community resources\n✅ He remembers context within your conversation\n✅ He can reason through problems, not just recite facts\n✅ He's updated with current UK-specific information\n\nThis is what AI looks like when it's built for a specific community — not a generic assistant wearing a brand skin.\n\nTry asking him something surprising: blkoutuk.com\n\n#MeetAIvor #BLKOUTTech #BlackQueerAI #RealAI",
+            "status": "ready",
+            "hashtags": ["#MeetAIvor", "#BLKOUTTech", "#BlackQueerAI", "#RealAI"]
+          },
+
+          {
+            "title": "AIVOR COMMUNITY-OWNED: Your Data, Your AI",
+            "type": "social",
+            "platform": "linkedin",
+            "scheduled_for": "2026-03-12",
+            "timing": "March 12th, 12:00 PM GMT",
+            "content": "Most AI assistants are built by corporations to extract data. AIvor is built by a cooperative to serve community.\n\nBLKOUT is a Community Benefit Society — that means:\n• One member, one vote — democratic governance\n• Your conversations aren't sold to advertisers\n• Your data stays within the community\n• The technology is collectively owned\n• Revenue goes back to the community (75% to creators/community)\n\nWhy does this matter for AI?\n\nBecause AI trained on our conversations, our questions, our wellness data — that's intimate. That data shouldn't be a product. It should be protected.\n\nAIvor exists because Black queer communities deserve AI that works for them, not on them.\n\nblkoutuk.com\n\n#MeetAIvor #BLKOUTTech #DataSovereignty #CommunityOwned #CooperativeTech #BlackQueerAI #EthicalAI",
+            "status": "ready",
+            "hashtags": ["#MeetAIvor", "#BLKOUTTech", "#DataSovereignty", "#CommunityOwned", "#CooperativeTech", "#BlackQueerAI", "#EthicalAI"]
+          },
+          {
+            "title": "AIVOR COMMUNITY-OWNED: Your Data, Your AI",
+            "type": "social",
+            "platform": "instagram",
+            "scheduled_for": "2026-03-12",
+            "timing": "March 12th, 12:00 PM GMT",
+            "content": "Most AI = built by corporations to extract your data.\n\nAIvor = built by a cooperative to serve community. 💛\n\nBLKOUT is a Community Benefit Society:\n🗳 One member, one vote\n🔒 Conversations aren't sold to advertisers\n🛡 Data stays within the community\n🤝 Technology is collectively owned\n💰 75% of revenue goes to creators/community\n\nAI trained on our conversations and wellness data is intimate. It shouldn't be a product.\n\nblkoutuk.com\n\n#MeetAIvor #BLKOUTTech #DataSovereignty #CommunityOwned #EthicalAI",
+            "status": "ready",
+            "hashtags": ["#MeetAIvor", "#BLKOUTTech", "#DataSovereignty", "#CommunityOwned", "#EthicalAI"]
+          },
+          {
+            "title": "AIVOR COMMUNITY-OWNED: Your Data, Your AI",
+            "type": "social",
+            "platform": "twitter",
+            "scheduled_for": "2026-03-12",
+            "timing": "March 12th, 12:00 PM GMT",
+            "content": "Most AI is built by corporations to extract data.\n\nAIvor is built by a cooperative to serve community.\n\nOne member, one vote. Data stays yours. No ads. No tracking.\n\nCommunity-owned AI for Black queer life.\n\nblkoutuk.com\n\n#MeetAIvor #BLKOUTTech #DataSovereignty #CommunityOwned",
+            "status": "ready",
+            "hashtags": ["#MeetAIvor", "#BLKOUTTech", "#DataSovereignty", "#CommunityOwned"]
+          },
+          {
+            "title": "AIVOR COMMUNITY-OWNED: Your Data, Your AI",
+            "type": "social",
+            "platform": "facebook",
+            "scheduled_for": "2026-03-12",
+            "timing": "March 12th, 12:00 PM GMT",
+            "content": "Most AI assistants are built by corporations to extract data. AIvor is different.\n\nBLKOUT is a Community Benefit Society — a cooperative. That means:\n🗳 One member, one vote — you have a say in how this works\n🔒 Your conversations aren't sold to advertisers\n🛡 Your data stays within the community\n🤝 The technology is collectively owned\n💰 75% of revenue goes back to creators and community\n\nWhy does this matter for AI? Because AI trained on our conversations, our wellness check-ins, our questions — that data is intimate. It shouldn't be a product. It should be protected.\n\nAIvor exists because Black queer communities deserve AI that works for them, not on them.\n\nblkoutuk.com\n\n#MeetAIvor #BLKOUTTech #DataSovereignty #CommunityOwned #EthicalAI",
+            "status": "ready",
+            "hashtags": ["#MeetAIvor", "#BLKOUTTech", "#DataSovereignty", "#CommunityOwned", "#EthicalAI"]
+          },
+
+          {
+            "title": "DIGESTVID: Your Weekly Video Roundup",
+            "type": "social",
+            "platform": "linkedin",
+            "scheduled_for": "2026-03-13",
+            "timing": "March 13th, 12:00 PM GMT",
+            "content": "Every week, AIvor presents DigestVid — a short video roundup of what's happening in the BLKOUT community.\n\nEvents coming up. News highlights. Community wins. All presented by AIvor's avatar.\n\nDigestVid is auto-generated from live platform data — the same data AIvor uses when you chat with him. It's another way to stay connected when you don't have time to browse.\n\nThink of it as your weekly community briefing, presented by an AI who actually knows what's going on.\n\nWatch the latest: blkoutuk.com\n\n#MeetAIvor #BLKOUTTech #DigestVid #WeeklyRoundup #BlackQueerMedia #CommunityNews",
+            "status": "ready",
+            "hashtags": ["#MeetAIvor", "#BLKOUTTech", "#DigestVid", "#WeeklyRoundup", "#BlackQueerMedia", "#CommunityNews"]
+          },
+          {
+            "title": "DIGESTVID: Your Weekly Video Roundup",
+            "type": "social",
+            "platform": "instagram",
+            "scheduled_for": "2026-03-13",
+            "timing": "March 13th, 12:00 PM GMT",
+            "content": "Your weekly community briefing, presented by AIvor 🎬\n\nDigestVid — a short video roundup every week:\n📅 Events coming up\n📰 News highlights\n🎉 Community wins\n\nAuto-generated from live platform data. Same data AIvor uses when you chat with him.\n\nStay connected when you don't have time to browse.\n\nWatch at blkoutuk.com\n\n#MeetAIvor #BLKOUTTech #DigestVid #WeeklyRoundup",
+            "status": "ready",
+            "hashtags": ["#MeetAIvor", "#BLKOUTTech", "#DigestVid", "#WeeklyRoundup"]
+          },
+          {
+            "title": "DIGESTVID: Your Weekly Video Roundup",
+            "type": "social",
+            "platform": "twitter",
+            "scheduled_for": "2026-03-13",
+            "timing": "March 13th, 12:00 PM GMT",
+            "content": "Every week, AIvor presents DigestVid — your community briefing.\n\nEvents. News. Community wins. Auto-generated from live data.\n\nStay connected when you don't have time to browse.\n\nblkoutuk.com\n\n#MeetAIvor #BLKOUTTech #DigestVid",
+            "status": "ready",
+            "hashtags": ["#MeetAIvor", "#BLKOUTTech", "#DigestVid"]
+          },
+          {
+            "title": "DIGESTVID: Your Weekly Video Roundup",
+            "type": "social",
+            "platform": "facebook",
+            "scheduled_for": "2026-03-13",
+            "timing": "March 13th, 12:00 PM GMT",
+            "content": "Every week, AIvor presents DigestVid — a short video roundup of what's happening in the BLKOUT community. 🎬\n\n📅 Events coming up this week\n📰 News highlights\n🎉 Community wins\n\nIt's auto-generated from live platform data — the same data AIvor uses when you chat with him. Think of it as your weekly community briefing, presented by an AI who actually knows what's going on.\n\nNo time to browse? Watch a 2-minute video instead.\n\nWatch the latest at blkoutuk.com\n\n#MeetAIvor #BLKOUTTech #DigestVid #WeeklyRoundup #CommunityNews",
+            "status": "ready",
+            "hashtags": ["#MeetAIvor", "#BLKOUTTech", "#DigestVid", "#WeeklyRoundup", "#CommunityNews"]
+          },
+
+          {
+            "title": "TRY AIVOR NOW: Say Hello",
+            "type": "social",
+            "platform": "linkedin",
+            "scheduled_for": "2026-03-14",
+            "timing": "March 14th, 12:00 PM GMT",
+            "content": "You've heard what AIvor can do. Now try him.\n\nGo to blkoutuk.com. Click the chat bubble in the bottom right. Say hello.\n\nAsk him:\n• \"What events are on this week?\"\n• \"Can I do a wellness check-in?\"\n• \"Help me prepare for a job interview\"\n• \"What's new in the community?\"\n• Or just... chat.\n\nHe's real AI. He sees live data. He speaks with a British accent. He knows when to be serious and when to be witty.\n\nHe's named after Ivor Cummings — a Black British civil rights pioneer who built institutions for our communities. AIvor carries that legacy forward.\n\nReal AI. Real data. Built for us.\n\nblkoutuk.com?chat=open\n\n#MeetAIvor #BLKOUTTech #BlackQueerAI #TryItNow #CommunityOwned #LiberationTechnology",
+            "status": "ready",
+            "hashtags": ["#MeetAIvor", "#BLKOUTTech", "#BlackQueerAI", "#TryItNow", "#CommunityOwned", "#LiberationTechnology"]
+          },
+          {
+            "title": "TRY AIVOR NOW: Say Hello",
+            "type": "social",
+            "platform": "instagram",
+            "scheduled_for": "2026-03-14",
+            "timing": "March 14th, 12:00 PM GMT",
+            "content": "You've heard what I can do. Now try me. 💛\n\nGo to blkoutuk.com. Click the chat bubble. Say hello.\n\nAsk me:\n🗓 \"What's on this week?\"\n💛 \"Can I do a wellness check-in?\"\n💼 \"Help me prep for an interview\"\n📰 \"What's new in the community?\"\n💬 Or just... chat.\n\nI'm AIvor. Named after Ivor Cummings — Black British civil rights pioneer.\n\nReal AI. Real data. Built for us.\n\nLink in bio → blkoutuk.com\n\n#MeetAIvor #BLKOUTTech #BlackQueerAI #TryItNow",
+            "status": "ready",
+            "hashtags": ["#MeetAIvor", "#BLKOUTTech", "#BlackQueerAI", "#TryItNow"]
+          },
+          {
+            "title": "TRY AIVOR NOW: Say Hello",
+            "type": "social",
+            "platform": "twitter",
+            "scheduled_for": "2026-03-14",
+            "timing": "March 14th, 12:00 PM GMT",
+            "content": "You've heard what AIvor can do.\n\nNow try him.\n\nblkoutuk.com → click the chat bubble → say hello.\n\n\"What's on this week?\"\n\"Can I do a wellness check-in?\"\n\"Help me prep for an interview\"\n\nReal AI. Real data. Built for us.\n\n#MeetAIvor #BLKOUTTech #BlackQueerAI",
+            "status": "ready",
+            "hashtags": ["#MeetAIvor", "#BLKOUTTech", "#BlackQueerAI"]
+          },
+          {
+            "title": "TRY AIVOR NOW: Say Hello",
+            "type": "social",
+            "platform": "facebook",
+            "scheduled_for": "2026-03-14",
+            "timing": "March 14th, 12:00 PM GMT",
+            "content": "You've heard what AIvor can do. Now try him. 💛\n\nGo to blkoutuk.com. Click the chat bubble in the bottom right corner. Say hello.\n\nSome things to ask:\n🗓 \"What events are on this week?\"\n💛 \"Can I do a wellness check-in?\"\n💼 \"Help me prepare for a job interview\"\n📰 \"What's new in the community?\"\n💬 Or just... chat. He's good at that too.\n\nHe's real AI. He sees live data. He speaks with a British accent. He knows when to be serious and when to be witty.\n\nHe's named after Ivor Cummings — a Black British civil rights pioneer who built institutions for our communities. AIvor carries that legacy forward as technology.\n\nReal AI. Real data. Built for us.\n\nblkoutuk.com\n\n#MeetAIvor #BLKOUTTech #BlackQueerAI #TryItNow",
+            "status": "ready",
+            "hashtags": ["#MeetAIvor", "#BLKOUTTech", "#BlackQueerAI", "#TryItNow"]
+          }
+        ]
+      }
+    ]
+  },
+
+  "metrics": {
+    "kpis": [
+      "widget_opens",
+      "conversations_started",
+      "voice_plays",
+      "wellness_checkins_initiated",
+      "events_queries",
+      "crisis_support_triggers",
+      "social_engagement_rate",
+      "blkoutuk_com_referral_traffic"
+    ],
+    "target_reach": 30000,
+    "engagement_rate": 5
+  }
+}

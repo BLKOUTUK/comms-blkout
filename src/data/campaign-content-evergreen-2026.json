@@ -1,0 +1,397 @@
+{
+  "campaign": {
+    "name": "BLKOUT Evergreen Content Calendar 2026",
+    "slug": "evergreen-2026",
+    "launch_date": "2026-03-01",
+    "end_date": "2026-12-31",
+    "tagline": "Year-round content celebrating Black queer joy, heritage, and community power.",
+    "mission": "Maintain a consistent content presence across platforms with heritage dates, community spotlights, governance updates, and AIvor-produced content. Recurring weekly slots ensure a steady pipeline of engaging, values-driven posts.",
+    "voice": "IVOR Cummings — Warm, empowering, community-centred. Balances celebration with advocacy.",
+    "signature_phrases": [
+      "Community is our superpower.",
+      "Black queer joy is resistance.",
+      "By us, for us, always.",
+      "Building the world we deserve."
+    ]
+  },
+
+  "content_calendar": {
+    "phases": [
+      {
+        "name": "March 2026 — Women's History & Trans Visibility",
+        "dates": "March 1-31",
+        "theme": "Centering Black trans women, intersectional feminism, and community care",
+        "activities": [
+          "International Women's Day content",
+          "Trans Day of Visibility content",
+          "Monthly newsletter",
+          "Community spotlight features"
+        ],
+        "content": [
+          {
+            "title": "March Newsletter: Women's History & Trans Visibility",
+            "type": "newsletter",
+            "platform": "email",
+            "scheduled_for": "2026-03-02",
+            "timing": "March 2nd, 10:00 AM GMT",
+            "content": "Monthly newsletter covering Women's History Month, upcoming Trans Day of Visibility events, community updates, and BLKOUT governance news.",
+            "status": "draft",
+            "hashtags": ["#BLKOUT", "#WomensHistoryMonth"]
+          },
+          {
+            "title": "International Women's Day — Black Trans Women Who Changed the World",
+            "type": "instagram_carousel",
+            "platform": "instagram",
+            "scheduled_for": "2026-03-08",
+            "timing": "March 8th, 12:00 PM GMT",
+            "content": "Carousel celebrating Black trans women pioneers: Marsha P. Johnson, Miss Major Griffin-Gracy, Janet Mock, Laverne Cox. Each slide features a quote and key contribution.",
+            "status": "draft",
+            "hashtags": ["#IWD2026", "#BlackTransWomen", "#BLKOUT"],
+            "metadata": { "format": "heritage", "slides": 6 }
+          },
+          {
+            "title": "IWD Cross-post — Twitter Thread",
+            "type": "twitter_thread",
+            "platform": "twitter",
+            "scheduled_for": "2026-03-08",
+            "timing": "March 8th, 12:30 PM GMT",
+            "content": "Thread version of IWD carousel for Twitter/X audience. Key stats on Black trans women in leadership.",
+            "status": "draft",
+            "hashtags": ["#IWD2026", "#BLKOUT"]
+          },
+          {
+            "title": "Community Spotlight: Member Feature #1",
+            "type": "social",
+            "platform": "instagram",
+            "scheduled_for": "2026-03-12",
+            "timing": "March 12th, 6:00 PM GMT",
+            "content": "Monthly community spotlight — interview-style post featuring a BLKOUT community member. Quote card format with photo (with consent).",
+            "status": "draft",
+            "hashtags": ["#BLKOUTCommunity", "#BlackQueerJoy"],
+            "metadata": { "format": "spotlight", "recurring": true }
+          },
+          {
+            "title": "Governance Update: CBS Q1 Report",
+            "type": "social",
+            "platform": "linkedin",
+            "scheduled_for": "2026-03-15",
+            "timing": "March 15th, 10:00 AM GMT",
+            "content": "Quarterly governance update for LinkedIn. CBS membership numbers, board activities, financial transparency summary. Professional tone.",
+            "status": "draft",
+            "hashtags": ["#BLKOUT", "#CommunityGovernance", "#CBS"],
+            "metadata": { "format": "governance" }
+          },
+          {
+            "title": "AIvor Says: Weekly Wisdom #1",
+            "type": "social",
+            "platform": "instagram",
+            "scheduled_for": "2026-03-17",
+            "timing": "March 17th, 11:00 AM GMT",
+            "content": "AI-generated quote card from AIvor. Weekly series sharing wisdom, affirmations, or historical facts relevant to Black queer communities.",
+            "status": "draft",
+            "hashtags": ["#AIvorSays", "#BLKOUT"],
+            "metadata": { "format": "aivor", "recurring": true }
+          },
+          {
+            "title": "Trans Day of Visibility — Heritage Post",
+            "type": "instagram_carousel",
+            "platform": "instagram",
+            "scheduled_for": "2026-03-31",
+            "timing": "March 31st, 10:00 AM GMT",
+            "content": "Carousel celebrating Trans Day of Visibility. Focus on Black trans joy and resilience. Feature verified UK organisations: Gendered Intelligence, CliniQ, BLKOUT's own trans members (with consent).",
+            "status": "draft",
+            "hashtags": ["#TDOV", "#TransDayOfVisibility", "#BlackTransJoy", "#BLKOUT"],
+            "metadata": { "format": "heritage", "slides": 5 }
+          },
+          {
+            "title": "TDOV LinkedIn — Allyship in Action",
+            "type": "social",
+            "platform": "linkedin",
+            "scheduled_for": "2026-03-31",
+            "timing": "March 31st, 10:30 AM GMT",
+            "content": "Professional allyship post for Trans Day of Visibility. How organisations can support trans colleagues and communities. Link to resources.",
+            "status": "draft",
+            "hashtags": ["#TDOV", "#TransAllyship", "#BLKOUT"]
+          }
+        ]
+      },
+      {
+        "name": "April 2026 — Daisy Nook Gathering & Community Building",
+        "dates": "April 1-30",
+        "theme": "Spring renewal, community gatherings, and relationship building",
+        "activities": [
+          "Daisy Nook Gathering promotion",
+          "Monthly newsletter",
+          "Community spotlight",
+          "AIvor content series"
+        ],
+        "content": [
+          {
+            "title": "April Newsletter: Spring Events & Community Updates",
+            "type": "newsletter",
+            "platform": "email",
+            "scheduled_for": "2026-04-01",
+            "timing": "April 1st, 10:00 AM GMT",
+            "content": "Monthly newsletter: spring events roundup, Daisy Nook Gathering preview, community spotlight, AIvor updates.",
+            "status": "draft",
+            "hashtags": ["#BLKOUT"]
+          },
+          {
+            "title": "Community Spotlight: Member Feature #2",
+            "type": "social",
+            "platform": "instagram",
+            "scheduled_for": "2026-04-09",
+            "timing": "April 9th, 6:00 PM GMT",
+            "content": "Monthly community spotlight — second in the series. Member interview quote card.",
+            "status": "draft",
+            "hashtags": ["#BLKOUTCommunity", "#BlackQueerJoy"],
+            "metadata": { "format": "spotlight", "recurring": true }
+          },
+          {
+            "title": "Stephen Lawrence Day — Heritage Post",
+            "type": "social",
+            "platform": "all",
+            "scheduled_for": "2026-04-22",
+            "timing": "April 22nd, 9:00 AM GMT",
+            "content": "Stephen Lawrence Day remembrance. Reflection on racial justice progress in the UK, link to Stephen Lawrence Trust. Cross-posted to all platforms.",
+            "status": "draft",
+            "hashtags": ["#StephenLawrenceDay", "#BLKOUT", "#RacialJustice"],
+            "metadata": { "format": "heritage" }
+          },
+          {
+            "title": "AIvor Says: Weekly Wisdom #5",
+            "type": "social",
+            "platform": "instagram",
+            "scheduled_for": "2026-04-14",
+            "timing": "April 14th, 11:00 AM GMT",
+            "content": "AI-generated wisdom card. Theme: resilience and spring renewal.",
+            "status": "draft",
+            "hashtags": ["#AIvorSays", "#BLKOUT"],
+            "metadata": { "format": "aivor", "recurring": true }
+          },
+          {
+            "title": "AIvor Says: Weekly Wisdom #6",
+            "type": "social",
+            "platform": "instagram",
+            "scheduled_for": "2026-04-21",
+            "timing": "April 21st, 11:00 AM GMT",
+            "content": "AI-generated wisdom card. Theme: community power and collective care.",
+            "status": "draft",
+            "hashtags": ["#AIvorSays", "#BLKOUT"],
+            "metadata": { "format": "aivor", "recurring": true }
+          },
+          {
+            "title": "Governance Update: Board Minutes Summary",
+            "type": "social",
+            "platform": "linkedin",
+            "scheduled_for": "2026-04-20",
+            "timing": "April 20th, 10:00 AM GMT",
+            "content": "Monthly board update — summary of key decisions, upcoming votes, CBS member participation opportunities.",
+            "status": "draft",
+            "hashtags": ["#BLKOUT", "#CommunityGovernance"],
+            "metadata": { "format": "governance" }
+          },
+          {
+            "title": "Daisy Nook Gathering — Save the Date",
+            "type": "social",
+            "platform": "instagram",
+            "scheduled_for": "2026-04-25",
+            "timing": "April 25th, 12:00 PM GMT",
+            "content": "Daisy Nook Gathering promotion — community picnic/walk in nature. Save the date graphic with event details.",
+            "status": "draft",
+            "hashtags": ["#DaisyNook", "#BLKOUT", "#BlackQueerJoy"],
+            "metadata": { "format": "event" }
+          }
+        ]
+      },
+      {
+        "name": "May 2026 — Mental Health & Pride Season Prep",
+        "dates": "May 1-31",
+        "theme": "Mental Health Awareness Month, Pride season preparation, community wellbeing",
+        "activities": [
+          "Mental Health Awareness Week content",
+          "Pride season announcement",
+          "Monthly newsletter",
+          "BMHWA cross-promotion"
+        ],
+        "content": [
+          {
+            "title": "May Newsletter: Mental Health & Pride Prep",
+            "type": "newsletter",
+            "platform": "email",
+            "scheduled_for": "2026-05-01",
+            "timing": "May 1st, 10:00 AM GMT",
+            "content": "Monthly newsletter: Mental Health Awareness Month, BMHWA partnership, Pride season preview, community spotlight.",
+            "status": "draft",
+            "hashtags": ["#BLKOUT", "#MentalHealthAwareness"]
+          },
+          {
+            "title": "Mental Health Awareness Week — Black Queer Mental Health",
+            "type": "instagram_carousel",
+            "platform": "instagram",
+            "scheduled_for": "2026-05-11",
+            "timing": "May 11th, 10:00 AM GMT",
+            "content": "Carousel series on Black queer mental health. Statistics, resources, self-care tips. Feature BMHWA Assess & Align tool. Cross-reference with Queer Britain resources.",
+            "status": "draft",
+            "hashtags": ["#MentalHealthAwarenessWeek", "#BLKOUT", "#BlackQueerMentalHealth"],
+            "metadata": { "format": "heritage", "slides": 6, "bmhwa_crossover": true }
+          },
+          {
+            "title": "MHAW — Professional Resources Thread",
+            "type": "twitter_thread",
+            "platform": "twitter",
+            "scheduled_for": "2026-05-11",
+            "timing": "May 11th, 11:00 AM GMT",
+            "content": "Thread with professional mental health resources for Black queer men in the UK. Link to Assess & Align, Mind, Switchboard, Black Minds Matter.",
+            "status": "draft",
+            "hashtags": ["#MHAW", "#BlackMentalHealth", "#BLKOUT"]
+          },
+          {
+            "title": "Community Spotlight: Member Feature #3",
+            "type": "social",
+            "platform": "instagram",
+            "scheduled_for": "2026-05-14",
+            "timing": "May 14th, 6:00 PM GMT",
+            "content": "Monthly community spotlight — third in the series. Focus on wellbeing and joy.",
+            "status": "draft",
+            "hashtags": ["#BLKOUTCommunity", "#BlackQueerJoy"],
+            "metadata": { "format": "spotlight", "recurring": true }
+          },
+          {
+            "title": "IDAHOBIT — International Day Against Homophobia, Biphobia & Transphobia",
+            "type": "social",
+            "platform": "all",
+            "scheduled_for": "2026-05-17",
+            "timing": "May 17th, 9:00 AM GMT",
+            "content": "IDAHOBIT 2026 — sharing the realities of discrimination faced by Black LGBTQ+ communities in the UK and globally. Hope-centred messaging with action points.",
+            "status": "draft",
+            "hashtags": ["#IDAHOBIT", "#BLKOUT", "#BlackLGBTQ"],
+            "metadata": { "format": "heritage" }
+          },
+          {
+            "title": "AIvor Says: Weekly Wisdom #9",
+            "type": "social",
+            "platform": "instagram",
+            "scheduled_for": "2026-05-12",
+            "timing": "May 12th, 11:00 AM GMT",
+            "content": "AI-generated wisdom card. Theme: mental health and self-compassion.",
+            "status": "draft",
+            "hashtags": ["#AIvorSays", "#BLKOUT"],
+            "metadata": { "format": "aivor", "recurring": true }
+          },
+          {
+            "title": "AIvor Says: Weekly Wisdom #10",
+            "type": "social",
+            "platform": "instagram",
+            "scheduled_for": "2026-05-19",
+            "timing": "May 19th, 11:00 AM GMT",
+            "content": "AI-generated wisdom card. Theme: pride in identity.",
+            "status": "draft",
+            "hashtags": ["#AIvorSays", "#BLKOUT"],
+            "metadata": { "format": "aivor", "recurring": true }
+          },
+          {
+            "title": "Pride Season Announcement — Where to Find BLKOUT",
+            "type": "social",
+            "platform": "all",
+            "scheduled_for": "2026-05-25",
+            "timing": "May 25th, 12:00 PM GMT",
+            "content": "Pride season announcement post: which Prides BLKOUT will attend, what to expect, how to get involved. UK Black Pride, London Pride, Manchester Pride dates.",
+            "status": "draft",
+            "hashtags": ["#Pride2026", "#BLKOUT", "#UKBlackPride"],
+            "metadata": { "format": "event" }
+          },
+          {
+            "title": "Governance Update: AGM Preview",
+            "type": "social",
+            "platform": "linkedin",
+            "scheduled_for": "2026-05-18",
+            "timing": "May 18th, 10:00 AM GMT",
+            "content": "AGM preview for CBS members. Agenda highlights, how to submit motions, voting procedures.",
+            "status": "draft",
+            "hashtags": ["#BLKOUT", "#CommunityGovernance", "#CBS"],
+            "metadata": { "format": "governance" }
+          }
+        ]
+      },
+      {
+        "name": "June 2026 — Pride Month",
+        "dates": "June 1-30",
+        "theme": "Pride Month celebrations, UK Black Pride, community visibility",
+        "activities": [
+          "Pride Month daily/weekly content",
+          "UK Black Pride promotion",
+          "Monthly newsletter",
+          "Event coverage"
+        ],
+        "content": [
+          {
+            "title": "June Newsletter: Pride Month Special",
+            "type": "newsletter",
+            "platform": "email",
+            "scheduled_for": "2026-06-01",
+            "timing": "June 1st, 10:00 AM GMT",
+            "content": "Special Pride Month newsletter: full event listings, BLKOUT at Pride, community stories, merchandise, volunteer opportunities.",
+            "status": "draft",
+            "hashtags": ["#Pride2026", "#BLKOUT"]
+          },
+          {
+            "title": "Pride Month — 30 Days of Black Queer History",
+            "type": "social",
+            "platform": "instagram",
+            "scheduled_for": "2026-06-01",
+            "timing": "June 1st, 10:00 AM GMT",
+            "content": "Launch of daily Black queer history series for Pride Month. Day 1: Bayard Rustin — the architect of the March on Washington.",
+            "status": "draft",
+            "hashtags": ["#Pride2026", "#BlackQueerHistory", "#BLKOUT"],
+            "metadata": { "format": "heritage", "series_length": 30 }
+          },
+          {
+            "title": "AIvor Says: Pride Affirmations Series",
+            "type": "social",
+            "platform": "instagram",
+            "scheduled_for": "2026-06-07",
+            "timing": "Weekly during June",
+            "content": "Weekly AIvor pride affirmation cards. Celebrating Black queer identity with generated artwork and quotes.",
+            "status": "draft",
+            "hashtags": ["#AIvorSays", "#Pride2026", "#BLKOUT"],
+            "metadata": { "format": "aivor", "recurring": true }
+          },
+          {
+            "title": "Community Spotlight: Pride Feature",
+            "type": "social",
+            "platform": "instagram",
+            "scheduled_for": "2026-06-11",
+            "timing": "June 11th, 6:00 PM GMT",
+            "content": "Special Pride Month community spotlight — what Pride means to BLKOUT members.",
+            "status": "draft",
+            "hashtags": ["#BLKOUTCommunity", "#Pride2026"],
+            "metadata": { "format": "spotlight", "recurring": true }
+          },
+          {
+            "title": "Windrush Day — Heritage Post",
+            "type": "instagram_carousel",
+            "platform": "instagram",
+            "scheduled_for": "2026-06-22",
+            "timing": "June 22nd, 10:00 AM GMT",
+            "content": "Windrush Day celebration. Honouring the Windrush generation and their contribution to Black British LGBTQ+ communities. Historical photos, quotes, community reflections.",
+            "status": "draft",
+            "hashtags": ["#WindrushDay", "#BLKOUT", "#BlackBritish"],
+            "metadata": { "format": "heritage", "slides": 5 }
+          },
+          {
+            "title": "Governance Update: Mid-Year Review",
+            "type": "social",
+            "platform": "linkedin",
+            "scheduled_for": "2026-06-15",
+            "timing": "June 15th, 10:00 AM GMT",
+            "content": "CBS mid-year governance review. Financial transparency, membership growth, impact metrics, board activities.",
+            "status": "draft",
+            "hashtags": ["#BLKOUT", "#CommunityGovernance"],
+            "metadata": { "format": "governance" }
+          }
+        ]
+      }
+    ]
+  }
+}

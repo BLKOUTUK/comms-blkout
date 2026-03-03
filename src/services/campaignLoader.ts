@@ -16,6 +16,8 @@ import type {
 // Import campaign JSON files
 import boardRecruitmentJson from '@/data/campaign-content-board-recruitment-2026.json';
 import anniversaryJson from '@/data/campaign-content-10th-anniversary-2026.json';
+import evergreenJson from '@/data/campaign-content-evergreen-2026.json';
+import meetAivorJson from '@/data/campaign-content-meet-aivor-2026.json';
 
 /**
  * Parse a campaign JSON file into a normalized Campaign object
@@ -308,6 +310,24 @@ export async function loadAllCampaigns(): Promise<Campaign[]> {
     ));
   } catch (e) {
     console.error('Failed to load anniversary campaign:', e);
+  }
+
+  try {
+    campaigns.push(parseCampaignJson(
+      evergreenJson as Record<string, unknown>,
+      'evergreen-2026'
+    ));
+  } catch (e) {
+    console.error('Failed to load evergreen campaign:', e);
+  }
+
+  try {
+    campaigns.push(parseCampaignJson(
+      meetAivorJson as Record<string, unknown>,
+      'meet-aivor-2026'
+    ));
+  } catch (e) {
+    console.error('Failed to load Meet AIvor campaign:', e);
   }
 
   return campaigns;
