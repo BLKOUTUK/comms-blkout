@@ -173,7 +173,7 @@ export function DiscoverPage() {
       {/* YouTube Section */}
       {visible('youtube') && (
         <section className="mb-12 bg-white/95 rounded-2xl p-8 shadow-lg backdrop-blur-sm">
-          <YouTubeEmbed />
+          <YouTubeEmbed playlistId="UU7g_Es50958bYJauxym0n1A" />
         </section>
       )}
 
