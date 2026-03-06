@@ -5,7 +5,6 @@ import { YouTubeEmbed } from '@/components/discover/YouTubeEmbed';
 import { SocialMediaFeed } from '@/components/discover/SocialMediaFeed';
 import { BlkoutHubWidget } from '@/components/discover/BlkoutHubWidget';
 import { NewsletterArchive } from '@/components/discover/NewsletterArchive';
-import { AnniversaryWidget } from '@/components/discover/AnniversaryWidget';
 import { ArchiveArticleWidget } from '@/components/discover/ArchiveArticleWidget';
 import { BlkoutVoicesWidget } from '@/components/discover/BlkoutVoicesWidget';
 import { FeaturedEventsWidget } from '@/components/discover/FeaturedEventsWidget';
@@ -14,8 +13,7 @@ import { NewsletterSignup } from '@/components/discover/NewsletterSignup';
 import { Heart, Users, Sparkles, Search } from 'lucide-react';
 
 const SECTIONS = [
-  { id: 'anniversary', keywords: ['anniversary', '10th', 'campaign', 'celebrate'] },
-  { id: 'hub', keywords: ['hub', 'community', 'connect', 'blkouthub'] },
+{ id: 'hub', keywords: ['hub', 'community', 'connect', 'blkouthub'] },
   { id: 'events', keywords: ['events', 'calendar', 'upcoming', 'pride'] },
   { id: 'social', keywords: ['social', 'media', 'instagram', 'linkedin'] },
   { id: 'newsletter', keywords: ['newsletter', 'email', 'subscribe', 'archive'] },
@@ -113,13 +111,6 @@ export function DiscoverPage() {
           </div>
         </div>
       </div>
-
-      {/* 10th Anniversary - Featured Campaign */}
-      {visible('anniversary') && (
-        <section className="mb-12 bg-white/95 rounded-2xl p-8 shadow-lg backdrop-blur-sm">
-          <AnniversaryWidget />
-        </section>
-      )}
 
       {/* BLKOUT HUB Widget */}
       {visible('hub') && (

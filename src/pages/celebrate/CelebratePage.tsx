@@ -9,7 +9,6 @@ import { useState } from 'react';
 import { Mic, Send, CheckCircle2, Heart, Sparkles, Crown } from 'lucide-react';
 import { PublicLayout } from '@/components/layout/PublicLayout';
 import { supabase } from '@/lib/supabase';
-import { useConfetti } from '@/hooks/useConfetti';
 
 type TrackType = 'memory' | 'aspiration';
 
@@ -61,9 +60,6 @@ export function CelebratePage() {
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
-  // Confetti on page load
-  const { celebration } = useConfetti(true);
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitting(true);
@@ -80,7 +76,6 @@ export function CelebratePage() {
     }
     setSubmitted(true);
     setSubmitting(false);
-    celebration();
   };
 
   const telegramLink = track === 'memory'
