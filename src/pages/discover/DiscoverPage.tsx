@@ -112,6 +112,43 @@ export function DiscoverPage() {
         </div>
       </div>
 
+      {/* Featured Event: BMHWA Brown Bag Lunch */}
+      <section className="mb-12">
+        <a
+          href="https://events.teams.microsoft.com/event/5214601e-e40d-4f09-aadc-d06712e7cac1@38543a29-5839-4060-90c6-b1aac6064ddf"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="block bg-gradient-to-r from-gray-900 via-black to-gray-900 rounded-2xl p-8 border-2 border-liberation-gold-divine/40 shadow-lg hover:border-liberation-gold-divine/70 hover:shadow-2xl transition-all duration-300 group"
+        >
+          <div className="flex flex-col md:flex-row md:items-center gap-6">
+            <div className="flex-shrink-0 text-center">
+              <div className="bg-liberation-gold-divine/10 border border-liberation-gold-divine/30 rounded-xl px-5 py-3">
+                <p className="text-liberation-gold-divine text-xs font-bold uppercase tracking-widest">Wed 25 March</p>
+                <p className="text-white text-lg font-bold">12:00 – 13:00</p>
+                <p className="text-gray-400 text-xs">GMT · Online · Free</p>
+              </div>
+            </div>
+            <div className="flex-1">
+              <p className="text-liberation-gold-divine text-xs font-bold uppercase tracking-widest mb-2">BMHWA Brown Bag Lunch</p>
+              <h3 className="text-2xl md:text-3xl font-bold text-white group-hover:text-liberation-gold-divine transition-colors mb-3">
+                Can Good Mental Health 'Go Viral'?
+              </h3>
+              <p className="text-gray-300 text-sm leading-relaxed mb-3">
+                BLKOUT UK's Critical Frequency project — machine learning, network science, and behavioural economics for mental health intervention with Black queer men. Dr Rob Berkeley presents, Dr Ariel Breaux Torres in conversation.
+              </p>
+              <p className="text-gray-500 text-xs">
+                More info: <span className="text-liberation-gold-divine underline">critical.blkoutuk.com</span>
+              </p>
+            </div>
+            <div className="flex-shrink-0 text-center">
+              <span className="inline-flex items-center gap-2 bg-liberation-gold-divine text-black font-bold py-3 px-6 rounded-lg text-sm group-hover:bg-white group-hover:text-black transition-colors shadow-md">
+                Register Free →
+              </span>
+            </div>
+          </div>
+        </a>
+      </section>
+
       {/* BLKOUT HUB Widget */}
       {visible('hub') && (
         <section className="mb-12 bg-white/95 rounded-2xl p-8 shadow-lg backdrop-blur-sm">
@@ -161,10 +198,75 @@ export function DiscoverPage() {
         </section>
       )}
 
-      {/* YouTube Section */}
+      {/* Ivor's Compass — Heritage project feature */}
+      <section className="mb-12">
+        <a
+          href="https://compass.blkoutuk.cloud"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="block bg-gradient-to-br from-yellow-900/30 via-black to-black border-2 border-liberation-gold-divine/40 rounded-2xl p-8 hover:border-liberation-gold-divine hover:shadow-2xl transition-all duration-300 group"
+        >
+          <div className="flex flex-col md:flex-row items-start gap-6">
+            <div className="flex-shrink-0 w-20 h-20 rounded-full bg-liberation-gold-divine/10 border-2 border-liberation-gold-divine/40 flex items-center justify-center group-hover:bg-liberation-gold-divine/20 transition-colors">
+              <svg className="w-10 h-10 text-liberation-gold-divine" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+                <circle cx="12" cy="12" r="10" />
+                <polygon points="16.24,7.76 14.12,14.12 7.76,16.24 9.88,9.88" />
+              </svg>
+            </div>
+            <div className="flex-1">
+              <div className="text-xs uppercase tracking-widest text-liberation-gold-divine font-bold mb-2">Heritage Project</div>
+              <h2 className="text-3xl md:text-4xl font-black text-white mb-3">
+                Ivor's Compass
+              </h2>
+              <p className="text-gray-300 text-base md:text-lg mb-4 leading-relaxed">
+                A life hidden for a generation. Ivor Cummings was the first Black official in the Colonial Office, welcomed the Windrush generation, and was gay. His story disappeared for thirty years. We brought it back. Explore the digital companion — meditations, a community graphic novel, and a wellness journal grounded in his life.
+              </p>
+              <span className="inline-flex items-center gap-2 text-liberation-gold-divine font-bold uppercase text-sm group-hover:gap-3 transition-all">
+                Open the Compass
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7" /></svg>
+              </span>
+            </div>
+          </div>
+        </a>
+      </section>
+
+      {/* Meet the Board */}
+      <section className="mb-12">
+        <a
+          href="https://blkoutuk.com/our-board/"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="block bg-gradient-to-br from-gray-900 to-black border-2 border-liberation-gold-divine/30 rounded-2xl p-8 hover:border-liberation-gold-divine hover:shadow-2xl transition-all duration-300 group"
+        >
+          <div className="flex flex-col md:flex-row items-start gap-6">
+            <div className="flex-shrink-0 w-20 h-20 rounded-full bg-liberation-gold-divine/10 border-2 border-liberation-gold-divine/40 flex items-center justify-center group-hover:bg-liberation-gold-divine/20 transition-colors">
+              <Users className="w-10 h-10 text-liberation-gold-divine" />
+            </div>
+            <div className="flex-1">
+              <div className="text-xs uppercase tracking-widest text-liberation-gold-divine font-bold mb-2">Community Benefit Society</div>
+              <h2 className="text-3xl md:text-4xl font-black text-white mb-3">
+                Meet the Board
+              </h2>
+              <p className="text-gray-300 text-base md:text-lg mb-4 leading-relaxed">
+                BLKOUT is owned by its members and governed by Black queer men who volunteer their time to steer this cooperative. Paired leadership, community advisory groups, and full transparency.
+              </p>
+              <span className="inline-flex items-center gap-2 text-liberation-gold-divine font-bold uppercase text-sm group-hover:gap-3 transition-all">
+                See Who We Are
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7" /></svg>
+              </span>
+            </div>
+          </div>
+        </a>
+      </section>
+
+      {/* Watch: Critical Frequency */}
       {visible('youtube') && (
         <section className="mb-12 bg-white/95 rounded-2xl p-8 shadow-lg backdrop-blur-sm">
-          <YouTubeEmbed playlistId="PLQIvk5RMvEWy_txhnjCRJrdxFrS-fDMwp" />
+          <YouTubeEmbed
+            videoId="BcBwsjtP86Q"
+            title="Critical Frequency"
+            description="Data invisibility is a political problem, not a comms challenge. Content note: discusses suicide and systemic failure."
+          />
         </section>
       )}
 

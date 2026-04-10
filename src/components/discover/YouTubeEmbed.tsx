@@ -5,12 +5,16 @@ interface YouTubeEmbedProps {
   videoId?: string;
   playlistId?: string;
   className?: string;
+  title?: string;
+  description?: string;
 }
 
 export function YouTubeEmbed({
   videoId,
   playlistId,
   className = '',
+  title = 'BLKOUT UK Channel',
+  description = 'Watch our latest videos and community conversations',
 }: YouTubeEmbedProps) {
   // Build embed URL from specific video or playlist
   const embedUrl = videoId
@@ -28,10 +32,10 @@ export function YouTubeEmbed({
           </div>
           <div>
             <h3 className="text-2xl font-display font-bold text-gray-900">
-              BLKOUT UK Channel
+              {title}
             </h3>
             <p className="text-sm text-gray-600">
-              Watch our latest videos and community conversations
+              {description}
             </p>
           </div>
         </div>
