@@ -8,77 +8,72 @@ interface VoicePost {
   excerpt: string;
   date: string;
   author: string;
+  category: string;
+  slug: string;
+  heroImage?: string | null;
   url: string;
-  readTime?: string;
 }
 
-// Static posts for when API is not available - update with real content
-const STATIC_POSTS: VoicePost[] = [
-  {
-    id: '1',
-    title: 'Community Voices: What Liberation Means to Us',
-    excerpt: 'Members of the BLKOUT community share their perspectives on liberation, technology, and building a future that centers Black queer joy.',
-    date: '2024-11-20',
-    author: 'Community Contributors',
-    url: 'https://blog.blkoutuk.cloud',
-    readTime: '5 min read'
-  },
-  {
-    id: '2',
-    title: 'Tech for the People: Building Ethical AI',
-    excerpt: 'How we approach AI development with community values at the center, ensuring technology serves liberation rather than surveillance.',
-    date: '2024-11-15',
-    author: 'BLKOUT Tech Team',
-    url: 'https://blog.blkoutuk.cloud',
-    readTime: '7 min read'
-  },
-  {
-    id: '3',
-    title: 'Cooperative Ownership: A New Model',
-    excerpt: 'Understanding the Community Benefit Society structure and how democratic governance shapes every decision we make.',
-    date: '2024-11-10',
-    author: 'Governance Working Group',
-    url: 'https://blog.blkoutuk.cloud',
-    readTime: '4 min read'
-  }
-];
+// Real API — repo: BLKOUTUK/blkout-blog, deployed at voices.blkoutuk.cloud
+const VOICES_URL = 'https://voices.blkoutuk.cloud';
 
-const VOICES_URL = 'https://blog.blkoutuk.cloud';
+interface RawVoicesArticle {
+  id: string;
+  title: string;
+  slug: string;
+  excerpt?: string | null;
+  content?: string | null;
+  author?: string | null;
+  category?: string | null;
+  published_at?: string | null;
+  hero_image?: string | null;
+}
 
 export function BlkoutVoicesWidget() {
-  const [posts, setPosts] = useState<VoicePost[]>(STATIC_POSTS);
-  const [isLoading, setIsLoading] = useState(false);
+  const [posts, setPosts] = useState<VoicePost[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  // Attempt to fetch latest posts from Voices API
   useEffect(() => {
+    let cancelled = false;
     const fetchPosts = async () => {
       setIsLoading(true);
+      setError(null);
       try {
-        // Try to fetch from Voices API - adjust endpoint as needed
-        const response = await fetch(`${VOICES_URL}/api/posts?limit=3`);
-        if (response.ok) {
-          const data = await response.json();
-          if (data.posts && data.posts.length > 0) {
-            setPosts(data.posts.map((post: any) => ({
-              id: post.id || post._id,
-              title: post.title,
-              excerpt: post.excerpt || post.content?.substring(0, 150) + '...',
-              date: post.date || post.createdAt,
-              author: post.author || 'BLKOUT Community',
-              url: `${VOICES_URL}/post/${post.slug || post.id}`,
-              readTime: post.readTime || '5 min read'
-            })));
-          }
+        const response = await fetch(`${VOICES_URL}/api/articles`);
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const data = await response.json();
+        if (cancelled) return;
+        if (data.success && Array.isArray(data.data)) {
+          const mapped: VoicePost[] = data.data
+            .slice(0, 3)
+            .map((a: RawVoicesArticle) => ({
+              id: a.id,
+              title: a.title,
+              excerpt: a.excerpt ?? (a.content ? a.content.substring(0, 160) + '…' : ''),
+              date: a.published_at ?? '',
+              author: a.author ?? 'BLKOUT',
+              category: a.category ?? 'Voices',
+              slug: a.slug,
+              heroImage: a.hero_image ?? null,
+              url: `${VOICES_URL}/articles/${a.slug}`,
+            }));
+          setPosts(mapped);
+        } else {
+          setPosts([]);
         }
-      } catch (error) {
-        // Use static posts on error
-        console.log('Using static Voices content');
+      } catch (err) {
+        if (cancelled) return;
+        console.error('Voices fetch failed:', err);
+        setError('Could not load latest articles. Visit Voices directly.');
+        setPosts([]);
       } finally {
-        setIsLoading(false);
+        if (!cancelled) setIsLoading(false);
       }
     };
 
     fetchPosts();
+    return () => { cancelled = true; };
   }, []);
 
   return (
@@ -112,6 +107,22 @@ export function BlkoutVoicesWidget() {
         <div className="flex items-center justify-center py-12">
           <Loader2 className="h-8 w-8 animate-spin text-purple-600" />
         </div>
+      ) : error ? (
+        <div className="p-6 rounded-xl bg-amber-50 border border-amber-200 text-center">
+          <p className="text-amber-900 text-sm mb-3">{error}</p>
+          <a
+            href={VOICES_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 text-purple-700 font-semibold text-sm"
+          >
+            Visit Voices <ExternalLink size={14} />
+          </a>
+        </div>
+      ) : posts.length === 0 ? (
+        <div className="p-6 rounded-xl bg-gray-50 border border-gray-200 text-center text-gray-600 text-sm">
+          No articles published yet. Check back soon.
+        </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {posts.map((post) => (
@@ -120,33 +131,48 @@ export function BlkoutVoicesWidget() {
               href={post.url}
               target="_blank"
               rel="noopener noreferrer"
-              className="bg-white rounded-xl border border-gray-200 p-5 hover:shadow-lg hover:border-purple-300 transition-all group"
+              className="bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-lg hover:border-purple-300 transition-all group flex flex-col"
             >
-              <div className="flex items-center gap-2 mb-3 text-xs text-gray-500">
-                <Clock size={12} />
-                <span>{post.readTime}</span>
-                <span className="text-gray-300">|</span>
-                <span>
-                  {new Date(post.date).toLocaleDateString('en-GB', {
-                    day: 'numeric',
-                    month: 'short'
-                  })}
-                </span>
-              </div>
+              {post.heroImage && (
+                <div className="aspect-video bg-gray-100 overflow-hidden">
+                  <img
+                    src={post.heroImage}
+                    alt={post.title}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  />
+                </div>
+              )}
+              <div className="p-5 flex flex-col flex-1">
+                <div className="flex items-center gap-2 mb-3 text-xs">
+                  <span className="px-2 py-0.5 bg-purple-100 text-purple-700 rounded-full font-semibold uppercase tracking-wide">
+                    {post.category}
+                  </span>
+                  {post.date && (
+                    <span className="flex items-center gap-1 text-gray-500">
+                      <Clock size={12} />
+                      {new Date(post.date).toLocaleDateString('en-GB', {
+                        day: 'numeric',
+                        month: 'short',
+                        year: 'numeric',
+                      })}
+                    </span>
+                  )}
+                </div>
 
-              <h3 className="font-bold text-gray-900 mb-2 group-hover:text-purple-700 transition-colors line-clamp-2">
-                {post.title}
-              </h3>
+                <h3 className="font-bold text-gray-900 mb-2 group-hover:text-purple-700 transition-colors line-clamp-2">
+                  {post.title}
+                </h3>
 
-              <p className="text-sm text-gray-600 mb-3 line-clamp-2">
-                {post.excerpt}
-              </p>
+                <p className="text-sm text-gray-600 mb-3 line-clamp-3 flex-1">
+                  {post.excerpt}
+                </p>
 
-              <div className="flex items-center justify-between">
-                <span className="text-xs text-gray-500">
-                  {post.author}
-                </span>
-                <ExternalLink size={14} className="text-purple-500 opacity-0 group-hover:opacity-100 transition-opacity" />
+                <div className="flex items-center justify-between pt-2 border-t border-gray-100">
+                  <span className="text-xs text-gray-500">
+                    By {post.author}
+                  </span>
+                  <ExternalLink size={14} className="text-purple-500 opacity-0 group-hover:opacity-100 transition-opacity" />
+                </div>
               </div>
             </a>
           ))}
@@ -163,12 +189,12 @@ export function BlkoutVoicesWidget() {
             </p>
           </div>
           <a
-            href={`${VOICES_URL}/submit`}
+            href={VOICES_URL}
             target="_blank"
             rel="noopener noreferrer"
             className="whitespace-nowrap px-6 py-2.5 bg-white text-purple-700 hover:bg-gray-100 rounded-lg font-semibold text-sm transition-colors flex items-center gap-2"
           >
-            Submit a Post
+            Read & Pitch
             <ExternalLink size={14} />
           </a>
         </div>
