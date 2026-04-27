@@ -30,6 +30,8 @@ export const IVORMessage: React.FC<
   durationSeconds,
   showName,
   weekLabel,
+  dateRangeFrom,
+  dateRangeTo,
   tickerText,
   backdropImage,
   backdropVideo,
@@ -63,10 +65,15 @@ export const IVORMessage: React.FC<
     { extrapolateLeft: "clamp", extrapolateRight: "clamp" }
   );
 
-  const titleSize = aspect === "9:16" ? 44 : aspect === "1:1" ? 38 : 34;
+  const titleSize = aspect === "9:16" ? 64 : aspect === "1:1" ? 52 : 44;
+  const dateSize = aspect === "9:16" ? 24 : aspect === "1:1" ? 20 : 18;
   const watermarkSize =
     aspect === "9:16" ? "55%" : aspect === "1:1" ? "60%" : "42%";
   const showLabel = weekLabel ? `${showName} · ${weekLabel}` : showName;
+  const dateRange =
+    dateRangeFrom && dateRangeTo
+      ? `${dateRangeFrom} – ${dateRangeTo}`
+      : dateRangeFrom || dateRangeTo || null;
 
   return (
     <AbsoluteFill style={{ background: bgGradient }}>
@@ -107,7 +114,7 @@ export const IVORMessage: React.FC<
       <div
         style={{
           position: "absolute",
-          top: aspect === "9:16" ? "4.5%" : "4%",
+          top: aspect === "9:16" ? "3%" : "2.5%",
           left: "6%",
           right: "6%",
           textAlign: "center",
@@ -123,15 +130,32 @@ export const IVORMessage: React.FC<
           style={{
             fontFamily: FONTS.display,
             fontSize: titleSize,
-            fontWeight: 700,
+            fontWeight: 800,
             color: COLORS.goldDivine,
-            letterSpacing: 0,
-            lineHeight: 1.05,
+            letterSpacing: 1,
+            lineHeight: 1.0,
+            textTransform: "uppercase",
             textShadow: `0 4px 24px rgba(0, 0, 0, 0.7)`,
           }}
         >
           {title}
         </div>
+        {dateRange && (
+          <div
+            style={{
+              fontFamily: FONTS.ui,
+              fontSize: dateSize,
+              fontWeight: 600,
+              color: COLORS.white,
+              opacity: 0.85,
+              letterSpacing: 3,
+              textTransform: "uppercase",
+              marginTop: 8,
+            }}
+          >
+            {dateRange}
+          </div>
+        )}
       </div>
 
       <NewsroomSet

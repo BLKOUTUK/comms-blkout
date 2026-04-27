@@ -1,22 +1,25 @@
 {
   "property": "ivor-events",
-  "title": "Where the community is gathering",
+  "title": "What's on this week",
   "intro": "Brothers, three gatherings worth clearing your diary for.",
   "teases": [
     {
       "title": "Representation 365 — UAL × UK Black Pride",
       "hook": "Saturday afternoon. The room you've been waiting for.",
-      "url": "https://blkoutuk.com/events/representation-365?utm_source=video&utm_medium=reel&utm_campaign=weekly-events"
+      "url": "https://blkoutuk.com/events/representation-365?utm_source=video&utm_medium=reel&utm_campaign=weekly-events",
+      "rank": 1
     },
     {
       "title": "Wellbeing circle — first Tuesday",
       "hook": "Asking for help isn't weakness. It's strategy.",
-      "url": "https://blkoutuk.com/events/wellbeing-circle?utm_source=video&utm_medium=reel&utm_campaign=weekly-events"
+      "url": "https://blkoutuk.com/events/wellbeing-circle?utm_source=video&utm_medium=reel&utm_campaign=weekly-events",
+      "rank": 2
     },
     {
       "title": "Co-op governance briefing",
       "hook": "What member-ownership actually means for the year ahead.",
-      "url": "https://blkoutuk.com/events/governance-briefing?utm_source=video&utm_medium=reel&utm_campaign=weekly-events"
+      "url": "https://blkoutuk.com/events/governance-briefing?utm_source=video&utm_medium=reel&utm_campaign=weekly-events",
+      "rank": 3
     }
   ],
   "cta": {
@@ -24,11 +27,13 @@
     "url": "https://blkoutuk.com/events?utm_source=video&utm_medium=reel&utm_campaign=weekly-events",
     "spokenUrl": "blkoutuk.com/events"
   },
-  "avatarVideo": "assets/ivor-avatar.mp4",
+  "avatarVideo": "assets/aivor-events.jpg",
+  "backdropVideo": "assets/hero-newsroom.mp4",
   "bgMusic": false,
   "durationSeconds": 35,
   "showName": "BLKOUT Events",
   "weekLabel": "Week 17",
-  "backdropVideo": "assets/hero-newsroom.mp4",
+  "dateRangeFrom": "21 April",
+  "dateRangeTo": "27 April 2026",
   "tickerText": "Events chosen by community members across the UK · Submit your own at blkoutuk.com/events/submit · Open to all Black queer brothers · RSVP and see who's coming"
 }

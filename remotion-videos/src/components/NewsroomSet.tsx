@@ -5,6 +5,7 @@ import {
   interpolate,
   staticFile,
   useCurrentFrame,
+  useVideoConfig,
 } from "remotion";
 import { COLORS, FONTS } from "../brand";
 import type { PropertyKey } from "../brand";
@@ -66,7 +67,13 @@ const AvatarPortrait: React.FC<{
   backdropVideo?: string;
   backdropImage?: string;
   layout: { top: string; left: string; width: string; height: string };
-}> = ({ avatarSrc, backdropVideo, backdropImage, layout }) => {
+  frame: number;
+  fps: number;
+}> = ({ avatarSrc, backdropVideo, backdropImage, layout, frame, fps }) => {
+  const isStill = /\.(jpe?g|png|webp|avif)$/i.test(avatarSrc);
+  const seconds = frame / fps;
+  const zoom = 1 + 0.03 * (Math.sin(seconds * 0.18) + 1) * 0.5;
+  const sway = Math.sin(seconds * 0.12) * 0.6;
   return (
     <div
       style={{
@@ -131,23 +138,44 @@ const AvatarPortrait: React.FC<{
       <div
         style={{
           position: "absolute",
-          left: "8%",
-          right: "8%",
-          top: "6%",
-          bottom: "6%",
-          filter: `url(#${FILTER_ID})`,
+          inset: 0,
+          transform: `scale(${zoom}) translateX(${sway}%)`,
+          transformOrigin: "center 35%",
         }}
       >
-        <OffthreadVideo
-          src={staticFile(avatarSrc)}
-          muted
-          style={{
-            width: "100%",
-            height: "100%",
-            objectFit: "cover",
-            objectPosition: "center 30%",
-          }}
-        />
+        {isStill ? (
+          <Img
+            src={staticFile(avatarSrc)}
+            style={{
+              width: "100%",
+              height: "100%",
+              objectFit: "cover",
+              objectPosition: "center 25%",
+            }}
+          />
+        ) : (
+          <div
+            style={{
+              position: "absolute",
+              left: "8%",
+              right: "8%",
+              top: "6%",
+              bottom: "6%",
+              filter: `url(#${FILTER_ID})`,
+            }}
+          >
+            <OffthreadVideo
+              src={staticFile(avatarSrc)}
+              muted
+              style={{
+                width: "100%",
+                height: "100%",
+                objectFit: "cover",
+                objectPosition: "center 30%",
+              }}
+            />
+          </div>
+        )}
       </div>
       <svg
         style={{
@@ -542,6 +570,7 @@ export const NewsroomSet: React.FC<{
   ctaStart,
 }) => {
   const frame = useCurrentFrame();
+  const { fps } = useVideoConfig();
 
   const portraitLayout =
     aspect === "9:16"
@@ -585,6 +614,8 @@ export const NewsroomSet: React.FC<{
         backdropVideo={backdropVideo}
         backdropImage={backdropImage}
         layout={portraitLayout}
+        frame={frame}
+        fps={fps}
       />
       <SidePanel phase={phase} frame={frame} layout={sideLayout} />
       <Chyron
