@@ -1,34 +1,40 @@
+import { loadFont as loadWorkSans } from "@remotion/google-fonts/WorkSans";
 import { loadFont as loadFraunces } from "@remotion/google-fonts/Fraunces";
-import { loadFont as loadNewsreader } from "@remotion/google-fonts/Newsreader";
-import { loadFont as loadInter } from "@remotion/google-fonts/Inter";
+import { loadFont as loadIBMPlexMono } from "@remotion/google-fonts/IBMPlexMono";
 
-const fraunces = loadFraunces("normal", {
-  weights: ["500", "600", "700", "800"],
+const workSans = loadWorkSans("normal", {
+  weights: ["400", "500", "600", "700", "900"],
   subsets: ["latin"],
 });
-const newsreader = loadNewsreader("normal", {
+const frauncesItalic = loadFraunces("italic", {
   weights: ["400", "500", "600"],
   subsets: ["latin"],
 });
-const inter = loadInter("normal", {
-  weights: ["400", "500", "600", "700"],
+const plexMono = loadIBMPlexMono("normal", {
+  weights: ["400", "500", "600"],
   subsets: ["latin"],
 });
 
 export const COLORS = {
   black: "#000000",
+  obsidian: "#0a0a14",
+  abyss: "#14141f",
   goldDivine: "#FFD700",
   goldRich: "#D4AF37",
   pridePurple: "#7C3AED",
   pridePurpleDeep: "#5B21B6",
+  cream: "#F5F1E8",
+  creamMuted: "#A8A195",
   white: "#FFFFFF",
-  textMuted: "rgba(255, 255, 255, 0.78)",
+  textMuted: "rgba(245, 241, 232, 0.78)",
 } as const;
 
 export const FONTS = {
-  display: `${fraunces.fontFamily}, "Times New Roman", serif`,
-  body: `${newsreader.fontFamily}, "Times New Roman", serif`,
-  ui: `${inter.fontFamily}, system-ui, -apple-system, sans-serif`,
+  display: `${workSans.fontFamily}, "Helvetica Neue", Arial, sans-serif`,
+  body: `${workSans.fontFamily}, "Helvetica Neue", Arial, sans-serif`,
+  ui: `${workSans.fontFamily}, "Helvetica Neue", Arial, sans-serif`,
+  italic: `${frauncesItalic.fontFamily}, "Times New Roman", serif`,
+  mono: `${plexMono.fontFamily}, "Courier New", monospace`,
 } as const;
 
 export const PROPERTY_GRADIENTS = {
