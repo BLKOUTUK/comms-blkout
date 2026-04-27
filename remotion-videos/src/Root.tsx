@@ -7,7 +7,7 @@ const FPS = 30;
 
 const sampleNewsDigest = {
   property: "news-digest" as const,
-  title: "Your news of the week, 26 April 2026",
+  title: "Your news of the week",
   intro: "My dear friends, three stories worth your time.",
   teases: [
     {
@@ -37,12 +37,14 @@ const sampleNewsDigest = {
     url: "https://blkoutuk.com/news?utm_source=video&utm_medium=reel",
     spokenUrl: "blkoutuk.com/news",
   },
-  avatarVideo: "assets/ivor-avatar.mp4",
+  avatarVideo: "assets/aivor-news.jpg",
   backdropVideo: "assets/hero-newsroom.mp4",
   bgMusic: false,
   durationSeconds: 35,
   showName: "BLKOUT News",
   weekLabel: "Week 17",
+  dateRangeFrom: "21 April",
+  dateRangeTo: "27 April 2026",
   tickerText:
     "Community-owned journalism · Upvote the stories that matter · No login needed · We tally votes every week · Vote at blkoutuk.com/news",
 };

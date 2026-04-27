@@ -42,6 +42,11 @@ export const PROPERTY_GRADIENTS = {
     "rgb(17, 24, 39)",
     "rgb(23, 37, 84)",
   ],
+  "social-seen": [
+    "rgb(59, 7, 100)",
+    "rgb(76, 5, 82)",
+    "rgb(67, 56, 202)",
+  ],
 } as const;
 
 export type PropertyKey = keyof typeof PROPERTY_GRADIENTS;

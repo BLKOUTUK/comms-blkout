@@ -16,7 +16,7 @@ export const ctaSchema = z.object({
 });
 
 export const ivorMessagePropsSchema = z.object({
-  property: z.enum(["ivor-events", "news-digest"]),
+  property: z.enum(["ivor-events", "news-digest", "social-seen"]),
   title: z.string().min(1).max(60),
   intro: z.string().max(280).optional(),
   teases: z.array(teaseSchema).min(1).max(4),
@@ -27,6 +27,8 @@ export const ivorMessagePropsSchema = z.object({
   durationSeconds: z.number().min(8).max(90).default(35),
   showName: z.string().min(1).max(40).default("BLKOUT News"),
   weekLabel: z.string().max(40).optional(),
+  dateRangeFrom: z.string().max(40).optional(),
+  dateRangeTo: z.string().max(40).optional(),
   tickerText: z.string().min(1).max(400),
   backdropImage: z.string().optional(),
   backdropVideo: z.string().optional(),
