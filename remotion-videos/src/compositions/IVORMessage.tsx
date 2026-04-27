@@ -130,10 +130,10 @@ export const IVORMessage: React.FC<
           style={{
             fontFamily: FONTS.display,
             fontSize: titleSize,
-            fontWeight: 800,
+            fontWeight: 900,
             color: COLORS.goldDivine,
-            letterSpacing: 1,
-            lineHeight: 1.0,
+            letterSpacing: -1.5,
+            lineHeight: 0.95,
             textTransform: "uppercase",
             textShadow: `0 4px 24px rgba(0, 0, 0, 0.7)`,
           }}
@@ -143,17 +143,17 @@ export const IVORMessage: React.FC<
         {dateRange && (
           <div
             style={{
-              fontFamily: FONTS.ui,
+              fontFamily: FONTS.italic,
+              fontStyle: "italic",
               fontSize: dateSize,
-              fontWeight: 600,
-              color: COLORS.white,
-              opacity: 0.85,
-              letterSpacing: 3,
-              textTransform: "uppercase",
-              marginTop: 8,
+              fontWeight: 500,
+              color: COLORS.cream,
+              opacity: 0.9,
+              letterSpacing: 0,
+              marginTop: 10,
             }}
           >
-            {dateRange}
+            {dateRange.toLowerCase()}
           </div>
         )}
       </div>

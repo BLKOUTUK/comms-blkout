@@ -139,7 +139,9 @@ const AvatarPortrait: React.FC<{
         style={{
           position: "absolute",
           inset: 0,
-          transform: `scale(${zoom}) translateX(${sway}%)`,
+          transform: isStill
+            ? `scale(${zoom}) translateX(${sway}%)`
+            : "none",
           transformOrigin: "center 35%",
         }}
       >
@@ -154,27 +156,15 @@ const AvatarPortrait: React.FC<{
             }}
           />
         ) : (
-          <div
+          <OffthreadVideo
+            src={staticFile(avatarSrc)}
             style={{
-              position: "absolute",
-              left: "8%",
-              right: "8%",
-              top: "6%",
-              bottom: "6%",
-              filter: `url(#${FILTER_ID})`,
+              width: "100%",
+              height: "100%",
+              objectFit: "cover",
+              objectPosition: "center 25%",
             }}
-          >
-            <OffthreadVideo
-              src={staticFile(avatarSrc)}
-              muted
-              style={{
-                width: "100%",
-                height: "100%",
-                objectFit: "cover",
-                objectPosition: "center 30%",
-              }}
-            />
-          </div>
+          />
         )}
       </div>
       <svg
