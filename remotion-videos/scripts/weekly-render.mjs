@@ -75,8 +75,55 @@ const talkingHeadPath = resolve(
   ROOT,
   `public/assets/aivor-news-${weekTag}-talking.mp4`
 );
-const introScript =
-  "My dear friends, three stories worth your time this week.";
+
+const OPENERS = [
+  "My dear friends",
+  "Brothers",
+  "Beloved community",
+  "Now then",
+];
+const CONNECTORS_FIRST = ["First", "To begin"];
+const CONNECTORS_SECOND = ["Then", "Next", "Also this week"];
+const CONNECTORS_THIRD = ["And finally", "And to close"];
+const SIGNATURE_BEATS = [
+  "Quite extraordinary.",
+  "Marvellous.",
+  "Worth your attention.",
+  "A story I shan't soon forget.",
+];
+
+function pick(arr, seed) {
+  return arr[seed % arr.length];
+}
+
+function trimSentence(s, maxWords) {
+  const words = s.replace(/\s+/g, " ").trim().split(" ");
+  if (words.length <= maxWords) return words.join(" ").replace(/[.,;:]+$/, "");
+  return words.slice(0, maxWords).join(" ").replace(/[.,;:]+$/, "") + "…";
+}
+
+function buildScript(props) {
+  const seed = Math.floor(
+    Date.parse(new Date().toISOString().slice(0, 10)) / 86400000
+  );
+  const opener = pick(OPENERS, seed);
+  const connectors = [
+    pick(CONNECTORS_FIRST, seed),
+    pick(CONNECTORS_SECOND, seed + 1),
+    pick(CONNECTORS_THIRD, seed + 2),
+  ];
+
+  const lines = [`${opener}, here's what mattered this week.`];
+  props.teases.forEach((t, i) => {
+    const headline = trimSentence(t.title, 12);
+    const beat = pick(SIGNATURE_BEATS, seed + i);
+    lines.push(`${connectors[i]} — ${headline}. ${beat}`);
+  });
+  lines.push(
+    `All three at ${props.cta?.spokenUrl || "blkoutuk.com/news"}. Tell us which mattered most.`
+  );
+  return lines.join(" ");
+}
 
 async function curate() {
   await run("node", [
@@ -93,18 +140,28 @@ async function lipsync() {
     console.error("REPLICATE_API_TOKEN not set; skipping lipsync stage.");
     return;
   }
+  const props = JSON.parse(await readFile(propsPath, "utf8"));
+  const script = buildScript(props);
+  const wordCount = script.split(/\s+/).length;
+  console.log(`\n— Script (${wordCount} words, ~${(wordCount / 2.5).toFixed(0)}s) —`);
+  console.log(script);
+  console.log(`—`);
+
+  const scriptPath = resolve(ROOT, `out/weekly-${weekTag}-script.txt`);
+  await mkdir(dirname(scriptPath), { recursive: true });
+  await writeFile(scriptPath, script, "utf8");
+
   await run("node", [
     resolve(ROOT, "scripts/lipsync.mjs"),
     "--script",
-    introScript,
+    `@${scriptPath}`,
     "--image",
     resolve(ROOT, "public/assets/aivor-news.jpg"),
     "--out",
     talkingHeadPath,
-    ...(args["no-enhancer"] ? [] : []),
+    ...(args["no-enhancer"] ? ["--enhancer", "false"] : []),
   ]);
 
-  const props = JSON.parse(await readFile(propsPath, "utf8"));
   props.avatarVideo = `assets/aivor-news-${weekTag}-talking.mp4`;
   await writeFile(propsPath, JSON.stringify(props, null, 2) + "\n", "utf8");
   console.log(`  patched props.avatarVideo → ${props.avatarVideo}`);
