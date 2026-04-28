@@ -141,8 +141,8 @@ const AvatarPortrait: React.FC<{
           inset: 0,
           transform: isStill
             ? `scale(${zoom}) translateX(${sway}%)`
-            : "none",
-          transformOrigin: "center 35%",
+            : `scale(${1 + 0.06 * (frame / (fps * 35))}) translateX(${sway * 0.4}%)`,
+          transformOrigin: "center 38%",
         }}
       >
         {isStill ? (
