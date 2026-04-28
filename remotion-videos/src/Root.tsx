@@ -33,9 +33,10 @@ const sampleNewsDigest = {
     },
   ],
   cta: {
-    text: "Read & vote — no login —",
-    url: "https://blkoutuk.com/news?utm_source=video&utm_medium=reel",
-    spokenUrl: "blkoutuk.com/news",
+    text: "You're the editor — vote at",
+    url: "https://news.blkoutuk.com?utm_source=video&utm_medium=reel",
+    spokenUrl: "news dot Blackout UK dot com",
+    displayUrl: "news.blkoutuk.com",
   },
   avatarVideo: "assets/aivor-news.jpg",
   backdropVideo: "assets/hero-newsroom.mp4",

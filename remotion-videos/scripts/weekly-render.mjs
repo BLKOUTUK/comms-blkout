@@ -113,14 +113,16 @@ function buildScript(props) {
     pick(CONNECTORS_THIRD, seed + 2),
   ];
 
-  const lines = [`${opener}, here's what mattered this week.`];
+  const lines = [
+    `${opener}, here's what you told us mattered this week.`,
+  ];
   props.teases.forEach((t, i) => {
     const headline = trimSentence(t.title, 12);
     const beat = pick(SIGNATURE_BEATS, seed + i);
     lines.push(`${connectors[i]} — ${headline}. ${beat}`);
   });
   lines.push(
-    `All three at ${props.cta?.spokenUrl || "blkoutuk.com/news"}. Tell us which mattered most.`
+    `All three at ${props.cta?.spokenUrl || "news.blkoutuk.com"}, where you're the editor. Tell us which stories matter most to you.`
   );
   return lines.join(" ");
 }

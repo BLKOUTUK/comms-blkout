@@ -59,7 +59,7 @@ export const CTA: React.FC<{
           letterSpacing: 1,
         }}
       >
-        {cta.spokenUrl}
+        {cta.displayUrl ?? cta.spokenUrl}
       </div>
     </div>
   );
