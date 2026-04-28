@@ -12,7 +12,8 @@ export const teaseSchema = z.object({
 export const ctaSchema = z.object({
   text: z.string().min(1).max(60),
   url: z.string().url(),
-  spokenUrl: z.string().min(1).max(60),
+  spokenUrl: z.string().min(1).max(80),
+  displayUrl: z.string().min(1).max(60).optional(),
 });
 
 export const ivorMessagePropsSchema = z.object({

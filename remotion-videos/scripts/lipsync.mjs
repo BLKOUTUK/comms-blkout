@@ -1,7 +1,16 @@
 #!/usr/bin/env node
-import { writeFile, readFile, mkdir } from "node:fs/promises";
+import { writeFile, readFile, mkdir, copyFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { parseArgs } from "node:util";
+import { Agent, setGlobalDispatcher } from "undici";
+
+setGlobalDispatcher(
+  new Agent({
+    headersTimeout: 15 * 60 * 1000,
+    bodyTimeout: 15 * 60 * 1000,
+    connectTimeout: 30 * 1000,
+  })
+);
 
 async function loadEnv(envPath) {
   try {
@@ -22,7 +31,7 @@ const CHATTERBOX_URL =
   process.env.CHATTERBOX_URL || "https://chatterbox.blkoutuk.cloud";
 const VOICE_REFERENCE =
   process.env.AIVOR_VOICE_REFERENCE ||
-  "/home/robbe/blkout-platform/apps/ivor-core/public/gielgud30.mp3";
+  "/home/robbe/blkout-platform/apps/ivor-core/public/gielgud4AIvor.mp3";
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const SUPABASE_BUCKET = process.env.SUPABASE_BUCKET || "aivor-pipeline";
@@ -30,6 +39,7 @@ const SUPABASE_BUCKET = process.env.SUPABASE_BUCKET || "aivor-pipeline";
 const { values: args } = parseArgs({
   options: {
     script: { type: "string" },
+    audio: { type: "string" },
     image: { type: "string" },
     "image-url": { type: "string" },
     out: { type: "string" },
@@ -51,9 +61,9 @@ if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
   );
   process.exit(1);
 }
-if (!args.script || !args.out || (!args.image && !args["image-url"])) {
+if ((!args.script && !args.audio) || !args.out || (!args.image && !args["image-url"])) {
   console.error(
-    "Usage: lipsync.mjs --script <text or @file> --image <path> | --image-url <url> --out <mp4>"
+    "Usage: lipsync.mjs (--script <text or @file> | --audio <wav>) --image <path> | --image-url <url> --out <mp4>"
   );
   process.exit(1);
 }
@@ -112,12 +122,23 @@ async function tts(text, outPath) {
     new Blob([voiceBuf]),
     VOICE_REFERENCE.split("/").pop()
   );
-  const res = await fetch(`${CHATTERBOX_URL}/v1/audio/speech/upload`, {
-    method: "POST",
-    body: form,
-  });
+  const controller = new AbortController();
+  const ttsTimeoutMs = 15 * 60 * 1000;
+  const t = setTimeout(() => controller.abort(), ttsTimeoutMs);
+  let res;
+  try {
+    res = await fetch(`${CHATTERBOX_URL}/v1/audio/speech/upload`, {
+      method: "POST",
+      body: form,
+      signal: controller.signal,
+    });
+  } finally {
+    clearTimeout(t);
+  }
   if (!res.ok) {
-    throw new Error(`Chatterbox TTS failed: HTTP ${res.status}`);
+    throw new Error(
+      `Chatterbox TTS failed: HTTP ${res.status} ${(await res.text()).slice(0, 200)}`
+    );
   }
   const wav = Buffer.from(await res.arrayBuffer());
   await mkdir(dirname(outPath), { recursive: true });
@@ -188,13 +209,19 @@ async function downloadFile(url, outPath) {
 }
 
 async function main() {
-  const scriptText = await fetchScriptText(args.script);
   const outVideo = resolve(args.out);
   const outDir = dirname(outVideo);
   const audioPath = resolve(outDir, "voice.wav");
   const stamp = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 
-  await tts(scriptText, audioPath);
+  if (args.audio) {
+    console.log(`→ Using existing audio: ${args.audio}`);
+    await mkdir(dirname(audioPath), { recursive: true });
+    await copyFile(resolve(args.audio), audioPath);
+  } else {
+    const scriptText = await fetchScriptText(args.script);
+    await tts(scriptText, audioPath);
+  }
   console.log("→ Uploading audio to Supabase storage");
   const audioUrl = await uploadFile(audioPath, `runs/${stamp}/voice.wav`);
   console.log(`  audio_url: ${audioUrl}`);

@@ -26,9 +26,10 @@
     }
   ],
   "cta": {
-    "text": "Read & vote — no login —",
-    "url": "https://blkoutuk.com/news?utm_source=video&utm_medium=reel&utm_campaign=weekly-digest",
-    "spokenUrl": "blkoutuk.com/news"
+    "text": "You're the editor — vote at",
+    "url": "https://news.blkoutuk.com?utm_source=video&utm_medium=reel&utm_campaign=weekly-digest",
+    "spokenUrl": "news dot Blackout UK dot com",
+    "displayUrl": "news.blkoutuk.com"
   },
   "avatarVideo": "assets/aivor-news-talking.mp4",
   "backdropVideo": "assets/hero-newsroom.mp4",
