@@ -1,5 +1,6 @@
 import React from "react";
 import {
+  Easing,
   Img,
   OffthreadVideo,
   interpolate,
@@ -64,16 +65,105 @@ const Defs: React.FC = () => (
 
 const AvatarPortrait: React.FC<{
   avatarSrc: string;
+  avatarSideStill?: string;
+  avatarCloseupStill?: string;
+  hasExternalAudio: boolean;
   backdropVideo?: string;
   backdropImage?: string;
   layout: { top: string; left: string; width: string; height: string };
   frame: number;
   fps: number;
-}> = ({ avatarSrc, backdropVideo, backdropImage, layout, frame, fps }) => {
-  const isStill = /\.(jpe?g|png|webp|avif)$/i.test(avatarSrc);
-  const seconds = frame / fps;
-  const zoom = 1 + 0.03 * (Math.sin(seconds * 0.18) + 1) * 0.5;
-  const sway = Math.sin(seconds * 0.12) * 0.6;
+  introFrames: number;
+  teaseFrames: number;
+  teaseStartFrames: number[];
+  ctaStart: number;
+  totalFrames: number;
+  displayUrl?: string;
+}> = ({
+  avatarSrc,
+  avatarSideStill,
+  avatarCloseupStill,
+  hasExternalAudio,
+  backdropVideo,
+  backdropImage,
+  layout,
+  frame,
+  fps,
+  introFrames,
+  teaseFrames,
+  teaseStartFrames,
+  ctaStart,
+  totalFrames,
+  displayUrl,
+}) => {
+  const sideFlashFrames = Math.floor(fps * 0.6);
+  const sideFlashWindows = teaseStartFrames.map((s) => ({
+    from: Math.max(0, s - Math.floor(fps * 0.2)),
+    to: s + sideFlashFrames - Math.floor(fps * 0.2),
+  }));
+  const inSideFlash = avatarSideStill
+    ? sideFlashWindows.some((w) => frame >= w.from && frame < w.to)
+    : false;
+  const inClosePhase = !!avatarCloseupStill && frame >= ctaStart;
+
+  const activeSrc = inClosePhase
+    ? avatarCloseupStill!
+    : inSideFlash
+    ? avatarSideStill!
+    : avatarSrc;
+  const isStill = /\.(jpe?g|png|webp|avif)$/i.test(activeSrc);
+
+  const introEnd = introFrames;
+  const t1End = introFrames + teaseFrames;
+  const t2End = introFrames + 2 * teaseFrames;
+  const t3End = ctaStart;
+  const urlEnd = Math.min(ctaStart + Math.floor(fps * 1.8), totalFrames);
+  const finalEnd = totalFrames;
+
+  const keyframes = [0, introEnd, t1End, t2End, t3End, urlEnd, finalEnd];
+  const easeOpts = {
+    extrapolateLeft: "clamp" as const,
+    extrapolateRight: "clamp" as const,
+    easing: Easing.bezier(0.65, 0, 0.35, 1),
+  };
+  const scale = interpolate(
+    frame,
+    keyframes,
+    [1.0, 1.05, 1.6, 1.5, 1.55, 1.8, 2.3],
+    easeOpts
+  );
+  const tx = interpolate(
+    frame,
+    keyframes,
+    [0, 0, 0, 22, -22, 0, 0],
+    easeOpts
+  );
+  const ty = interpolate(
+    frame,
+    keyframes,
+    [0, 0, -3, -3, -3, -6, -12],
+    easeOpts
+  );
+  const microKenBurns = Math.sin((frame / fps) * 0.35) * 1.2;
+
+  const urlOpacity = interpolate(
+    frame,
+    [ctaStart - 6, ctaStart, urlEnd - 6, urlEnd],
+    [0, 1, 1, 0],
+    { extrapolateLeft: "clamp", extrapolateRight: "clamp" }
+  );
+
+  const finalPhase = frame > urlEnd;
+  const twinkleProgress = (frame - urlEnd) / Math.max(1, finalEnd - urlEnd);
+  const twinkleOpacity = finalPhase
+    ? Math.max(
+        0,
+        Math.sin(twinkleProgress * Math.PI * 2) * 0.7 +
+          Math.sin(twinkleProgress * Math.PI * 5) * 0.3
+      )
+    : 0;
+  const twinkleScale = 0.8 + (finalPhase ? Math.sin(twinkleProgress * Math.PI * 4) * 0.4 : 0);
+
   return (
     <div
       style={{
@@ -139,15 +229,13 @@ const AvatarPortrait: React.FC<{
         style={{
           position: "absolute",
           inset: 0,
-          transform: isStill
-            ? `scale(${zoom}) translateX(${sway}%)`
-            : `scale(${1 + 0.06 * (frame / (fps * 35))}) translateX(${sway * 0.4}%)`,
-          transformOrigin: "center 38%",
+          transform: `scale(${scale}) translate(${tx + microKenBurns}%, ${ty}%)`,
+          transformOrigin: "50% 28%",
         }}
       >
         {isStill ? (
           <Img
-            src={staticFile(avatarSrc)}
+            src={staticFile(activeSrc)}
             style={{
               width: "100%",
               height: "100%",
@@ -157,7 +245,8 @@ const AvatarPortrait: React.FC<{
           />
         ) : (
           <OffthreadVideo
-            src={staticFile(avatarSrc)}
+            src={staticFile(activeSrc)}
+            muted={hasExternalAudio}
             style={{
               width: "100%",
               height: "100%",
@@ -188,6 +277,55 @@ const AvatarPortrait: React.FC<{
           pointerEvents: "none",
         }}
       />
+      {displayUrl && urlOpacity > 0.01 && (
+        <div
+          style={{
+            position: "absolute",
+            left: 0,
+            right: 0,
+            bottom: "8%",
+            textAlign: "center",
+            opacity: urlOpacity,
+            padding: "16px 8%",
+            background: "rgba(0,0,0,0.7)",
+            backdropFilter: "blur(4px)",
+            borderTop: `2px solid ${COLORS.goldDivine}`,
+            borderBottom: `2px solid ${COLORS.goldDivine}`,
+            fontFamily: FONTS.display,
+            fontWeight: 900,
+            fontSize: 44,
+            letterSpacing: -0.5,
+            textTransform: "uppercase",
+            color: COLORS.goldDivine,
+            textShadow: "0 2px 16px rgba(0,0,0,0.9)",
+          }}
+        >
+          {displayUrl}
+        </div>
+      )}
+      {twinkleOpacity > 0.05 && (
+        <svg
+          style={{
+            position: "absolute",
+            left: "60%",
+            top: "26%",
+            width: 50,
+            height: 50,
+            opacity: twinkleOpacity,
+            transform: `scale(${twinkleScale})`,
+            transformOrigin: "center",
+            pointerEvents: "none",
+          }}
+          viewBox="0 0 50 50"
+        >
+          <path
+            d="M25 5 L27 22 L44 25 L27 28 L25 45 L23 28 L6 25 L23 22 Z"
+            fill={COLORS.goldDivine}
+            opacity="0.95"
+          />
+          <circle cx="25" cy="25" r="2.5" fill="#fff" />
+        </svg>
+      )}
     </div>
   );
 };
@@ -537,6 +675,9 @@ const SidePanel: React.FC<{
 
 export const NewsroomSet: React.FC<{
   avatarSrc: string;
+  avatarSideStill?: string;
+  avatarCloseupStill?: string;
+  hasExternalAudio: boolean;
   aspect: "9:16" | "1:1" | "16:9";
   propertyKey: PropertyKey;
   presenterName?: string;
@@ -546,9 +687,14 @@ export const NewsroomSet: React.FC<{
   teases: Tease[];
   introFrames: number;
   teaseFrames: number;
+  teaseStartFrames: number[];
   ctaStart: number;
+  displayUrl?: string;
 }> = ({
   avatarSrc,
+  avatarSideStill,
+  avatarCloseupStill,
+  hasExternalAudio,
   aspect,
   presenterName = "AIvor",
   showName = "BLKOUT News",
@@ -557,10 +703,12 @@ export const NewsroomSet: React.FC<{
   teases,
   introFrames,
   teaseFrames,
+  teaseStartFrames,
   ctaStart,
+  displayUrl,
 }) => {
   const frame = useCurrentFrame();
-  const { fps } = useVideoConfig();
+  const { fps, durationInFrames } = useVideoConfig();
 
   const portraitLayout =
     aspect === "9:16"
@@ -601,11 +749,20 @@ export const NewsroomSet: React.FC<{
       <Defs />
       <AvatarPortrait
         avatarSrc={avatarSrc}
+        avatarSideStill={avatarSideStill}
+        avatarCloseupStill={avatarCloseupStill}
+        hasExternalAudio={hasExternalAudio}
         backdropVideo={backdropVideo}
         backdropImage={backdropImage}
         layout={portraitLayout}
         frame={frame}
         fps={fps}
+        introFrames={introFrames}
+        teaseFrames={teaseFrames}
+        teaseStartFrames={teaseStartFrames}
+        ctaStart={ctaStart}
+        totalFrames={durationInFrames}
+        displayUrl={displayUrl}
       />
       <SidePanel phase={phase} frame={frame} layout={sideLayout} />
       <Chyron

@@ -2,6 +2,7 @@ import React from "react";
 import {
   AbsoluteFill,
   Audio,
+  Sequence,
   interpolate,
   spring,
   staticFile,
@@ -25,6 +26,8 @@ export const IVORMessage: React.FC<
   teases,
   cta,
   avatarVideo,
+  avatarSideStill,
+  avatarCloseupStill,
   voiceTrack,
   bgMusic,
   durationSeconds,
@@ -41,11 +44,27 @@ export const IVORMessage: React.FC<
   const { durationInFrames } = useVideoConfig();
 
   const totalSec = durationSeconds;
-  const introSec = 2;
-  const outroSec = 3;
+  const introSec = 3.5;
+  const outroSec = 7;
   const teaseTotalSec = Math.max(totalSec - introSec - outroSec, 6);
-  const teaseSec = teaseTotalSec / teases.length;
-  const teaseFrames = Math.floor(teaseSec * FPS);
+  const wordsPerSec = 2.5;
+  const teaseDurations = teases.map((t) => {
+    const headlineWords = (t.title || "").trim().split(/\s+/).length;
+    const connectorOverhead = 1.6;
+    const beatOverhead = 1.0;
+    return (headlineWords + connectorOverhead + beatOverhead) / wordsPerSec;
+  });
+  const teaseSecTotal = teaseDurations.reduce((a, b) => a + b, 0) || 1;
+  const teaseScale = teaseTotalSec / teaseSecTotal;
+  const teaseStartFrames = teases.map((_, i) => {
+    const offset = teaseDurations
+      .slice(0, i)
+      .reduce((a, b) => a + b, 0) * teaseScale;
+    return Math.floor((introSec + offset) * FPS);
+  });
+  const teaseFrames = Math.floor(
+    (teaseTotalSec / teases.length) * FPS
+  );
   const introFrames = Math.floor(introSec * FPS);
   const ctaStart = durationInFrames - Math.floor(outroSec * FPS);
 
@@ -160,6 +179,9 @@ export const IVORMessage: React.FC<
 
       <NewsroomSet
         avatarSrc={avatarVideo}
+        avatarSideStill={avatarSideStill}
+        avatarCloseupStill={avatarCloseupStill}
+        hasExternalAudio={!!voiceTrack}
         aspect={aspect}
         propertyKey={property}
         presenterName="AIvor"
@@ -169,8 +191,49 @@ export const IVORMessage: React.FC<
         teases={teases}
         introFrames={introFrames}
         teaseFrames={teaseFrames}
+        teaseStartFrames={teaseStartFrames}
         ctaStart={ctaStart}
+        displayUrl={cta.displayUrl}
       />
+
+      <Audio
+        src={staticFile("assets/news-bed.mp3")}
+        volume={(f) =>
+          interpolate(
+            f,
+            [
+              0,
+              FPS * 1.5,
+              ctaStart - FPS * 1,
+              ctaStart + FPS * 0.5,
+              durationInFrames - FPS * 1.5,
+              durationInFrames,
+            ],
+            [0, 0.55, 0.55, 0.85, 0.85, 0],
+            { extrapolateLeft: "clamp", extrapolateRight: "clamp" }
+          )
+        }
+      />
+      {teaseStartFrames.map((start, i) => (
+        <Sequence
+          key={i}
+          from={Math.max(0, start - Math.floor(FPS * 0.85))}
+          durationInFrames={Math.floor(FPS * 0.85)}
+        >
+          <Audio
+            src={staticFile("assets/tease-sting.mp3")}
+            volume={(f) => {
+              const peak = i === 2 ? 0.75 : 0.65;
+              return interpolate(
+                f,
+                [0, 3, Math.floor(FPS * 0.5), Math.floor(FPS * 0.85)],
+                [0, peak, 0.2, 0],
+                { extrapolateLeft: "clamp", extrapolateRight: "clamp" }
+              );
+            }}
+          />
+        </Sequence>
+      ))}
 
       {teases.map((tease, i) => (
         <TeaseCard
