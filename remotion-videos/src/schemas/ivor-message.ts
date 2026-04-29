@@ -23,6 +23,8 @@ export const ivorMessagePropsSchema = z.object({
   teases: z.array(teaseSchema).min(1).max(4),
   cta: ctaSchema,
   avatarVideo: z.string().default("assets/ivor-avatar.mp4"),
+  avatarSideStill: z.string().optional(),
+  avatarCloseupStill: z.string().optional(),
   voiceTrack: z.string().optional(),
   bgMusic: z.boolean().default(false),
   durationSeconds: z.number().min(8).max(90).default(35),
