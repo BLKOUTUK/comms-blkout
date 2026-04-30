@@ -41,25 +41,39 @@ export const CTA: React.FC<{
     >
       <div
         style={{
-          fontFamily: FONTS.body,
-          fontSize: labelSize,
-          color: COLORS.textMuted,
-          letterSpacing: 1,
-          marginBottom: 10,
+          display: "inline-block",
+          background: "rgba(0, 0, 0, 0.78)",
+          border: `2px solid ${COLORS.goldRich}`,
+          borderRadius: 14,
+          padding: aspect === "9:16" ? "18px 40px" : "14px 26px",
+          boxShadow: "0 12px 36px rgba(0,0,0,0.55)",
+          textAlign: "center",
         }}
       >
-        {cta.text}
-      </div>
-      <div
-        style={{
-          fontFamily: FONTS.display,
-          fontSize: urlSize,
-          fontWeight: 700,
-          color: COLORS.goldDivine,
-          letterSpacing: 1,
-        }}
-      >
-        {cta.displayUrl ?? cta.spokenUrl}
+        <div
+          style={{
+            fontFamily: FONTS.body,
+            fontSize: labelSize,
+            color: COLORS.cream,
+            letterSpacing: 1,
+            marginBottom: 10,
+          }}
+        >
+          {cta.text}
+        </div>
+        <div
+          style={{
+            fontFamily: FONTS.display,
+            fontSize: urlSize,
+            fontWeight: 800,
+            color: COLORS.goldDivine,
+            letterSpacing: 0.3,
+            whiteSpace: "nowrap",
+            textShadow: "0 2px 12px rgba(0, 0, 0, 0.85)",
+          }}
+        >
+          {cta.displayUrl ?? cta.spokenUrl}
+        </div>
       </div>
     </div>
   );
