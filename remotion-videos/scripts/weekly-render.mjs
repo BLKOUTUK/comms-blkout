@@ -5,9 +5,9 @@ import { dirname, resolve } from "node:path";
 import { parseArgs } from "node:util";
 
 const ROOT = resolve(import.meta.dirname, "..");
-const CURATOR_SCRIPT =
-  "/home/robbe/.claude/skills/news-curator/scripts/curate.mjs";
-const PLATFORM_ENV = "/home/robbe/blkout-platform/.env";
+const CURATOR_SCRIPT = resolve(import.meta.dirname, "curate.mjs");
+const PLATFORM_ENV =
+  process.env.BLKOUT_PLATFORM_ENV || "/home/robbe/blkout-platform/.env";
 
 async function loadEnv(envPath) {
   try {
@@ -181,7 +181,7 @@ async function render() {
       compId,
       `--output=${out}`,
       "--concurrency=1",
-      "--gl=angle",
+      "--gl=swiftshader",
       `--props=${propsPath}`,
     ]);
   }
