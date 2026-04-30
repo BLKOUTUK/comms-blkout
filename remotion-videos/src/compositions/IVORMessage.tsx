@@ -198,6 +198,7 @@ export const IVORMessage: React.FC<
 
       <Audio
         src={staticFile("assets/news-bed.mp3")}
+        startFrom={Math.floor(FPS * 6)}
         volume={(f) =>
           interpolate(
             f,
@@ -209,32 +210,11 @@ export const IVORMessage: React.FC<
               durationInFrames - FPS * 1.5,
               durationInFrames,
             ],
-            [0, 0.55, 0.55, 0.85, 0.85, 0],
+            [0, 0.4, 0.4, 0.6, 0.6, 0],
             { extrapolateLeft: "clamp", extrapolateRight: "clamp" }
           )
         }
       />
-      {teaseStartFrames.map((start, i) => (
-        <Sequence
-          key={i}
-          from={Math.max(0, start - Math.floor(FPS * 0.85))}
-          durationInFrames={Math.floor(FPS * 0.85)}
-        >
-          <Audio
-            src={staticFile("assets/tease-sting.mp3")}
-            volume={(f) => {
-              const peak = i === 2 ? 0.75 : 0.65;
-              return interpolate(
-                f,
-                [0, 3, Math.floor(FPS * 0.5), Math.floor(FPS * 0.85)],
-                [0, peak, 0.2, 0],
-                { extrapolateLeft: "clamp", extrapolateRight: "clamp" }
-              );
-            }}
-          />
-        </Sequence>
-      ))}
-
       {teases.map((tease, i) => (
         <TeaseCard
           key={i}
@@ -245,6 +225,50 @@ export const IVORMessage: React.FC<
           aspect={aspect}
         />
       ))}
+
+      {aspect === "9:16" && frame >= ctaStart - FPS * 0.5 && (
+        <div
+          style={{
+            position: "absolute",
+            left: "10%",
+            right: "10%",
+            top: "65%",
+            textAlign: "center",
+            opacity: interpolate(
+              frame,
+              [ctaStart - FPS * 0.5, ctaStart],
+              [0, 1],
+              { extrapolateLeft: "clamp", extrapolateRight: "clamp" }
+            ),
+          }}
+        >
+          <div
+            style={{
+              display: "inline-block",
+              background: "rgba(0,0,0,0.72)",
+              border: `2px solid ${COLORS.goldRich}`,
+              borderRadius: 14,
+              padding: "20px 28px",
+              boxShadow: "0 12px 36px rgba(0,0,0,0.55)",
+              maxWidth: "100%",
+            }}
+          >
+            <div
+              style={{
+                fontFamily: FONTS.italic,
+                fontStyle: "italic",
+                fontSize: 30,
+                fontWeight: 500,
+                color: COLORS.cream,
+                lineHeight: 1.3,
+                letterSpacing: 0.2,
+              }}
+            >
+              Look out for AIvor's weekly round-up of UK Black Queer Events and Social media
+            </div>
+          </div>
+        </div>
+      )}
 
       <CTA cta={cta} startFrame={ctaStart} aspect={aspect} />
       <NewsTicker text={tickerText} aspect={aspect} />

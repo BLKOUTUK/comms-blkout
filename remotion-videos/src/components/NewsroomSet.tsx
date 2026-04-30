@@ -96,11 +96,14 @@ const AvatarPortrait: React.FC<{
   totalFrames,
   displayUrl,
 }) => {
-  const sideFlashFrames = Math.floor(fps * 0.6);
-  const sideFlashWindows = teaseStartFrames.map((s) => ({
-    from: Math.max(0, s - Math.floor(fps * 0.2)),
-    to: s + sideFlashFrames - Math.floor(fps * 0.2),
-  }));
+  const sideFlashFrames = Math.floor(fps * 2.5);
+  const sideFlashWindows = teaseStartFrames.map((s) => {
+    const cutawayCenter = s + Math.floor(teaseFrames / 2);
+    return {
+      from: Math.max(0, cutawayCenter - Math.floor(sideFlashFrames / 2)),
+      to: cutawayCenter + Math.floor(sideFlashFrames / 2),
+    };
+  });
   const inSideFlash = avatarSideStill
     ? sideFlashWindows.some((w) => frame >= w.from && frame < w.to)
     : false;
@@ -129,29 +132,12 @@ const AvatarPortrait: React.FC<{
   const scale = interpolate(
     frame,
     keyframes,
-    [1.0, 1.05, 1.6, 1.5, 1.55, 1.8, 2.3],
+    [1.0, 1.05, 1.12, 1.05, 1.12, 1.05, 1.0],
     easeOpts
   );
-  const tx = interpolate(
-    frame,
-    keyframes,
-    [0, 0, 0, 22, -22, 0, 0],
-    easeOpts
-  );
-  const ty = interpolate(
-    frame,
-    keyframes,
-    [0, 0, -3, -3, -3, -6, -12],
-    easeOpts
-  );
-  const microKenBurns = Math.sin((frame / fps) * 0.35) * 1.2;
-
-  const urlOpacity = interpolate(
-    frame,
-    [ctaStart - 6, ctaStart, urlEnd - 6, urlEnd],
-    [0, 1, 1, 0],
-    { extrapolateLeft: "clamp", extrapolateRight: "clamp" }
-  );
+  const tx = 0;
+  const ty = 0;
+  const microScale = Math.sin((frame / fps) * 0.6) * 0.025;
 
   const finalPhase = frame > urlEnd;
   const twinkleProgress = (frame - urlEnd) / Math.max(1, finalEnd - urlEnd);
@@ -229,7 +215,7 @@ const AvatarPortrait: React.FC<{
         style={{
           position: "absolute",
           inset: 0,
-          transform: `scale(${scale}) translate(${tx + microKenBurns}%, ${ty}%)`,
+          transform: `scale(${scale + microScale}) translate(${tx}%, ${ty}%)`,
           transformOrigin: "50% 28%",
         }}
       >
@@ -277,32 +263,6 @@ const AvatarPortrait: React.FC<{
           pointerEvents: "none",
         }}
       />
-      {displayUrl && urlOpacity > 0.01 && (
-        <div
-          style={{
-            position: "absolute",
-            left: 0,
-            right: 0,
-            bottom: "8%",
-            textAlign: "center",
-            opacity: urlOpacity,
-            padding: "16px 8%",
-            background: "rgba(0,0,0,0.7)",
-            backdropFilter: "blur(4px)",
-            borderTop: `2px solid ${COLORS.goldDivine}`,
-            borderBottom: `2px solid ${COLORS.goldDivine}`,
-            fontFamily: FONTS.display,
-            fontWeight: 900,
-            fontSize: 44,
-            letterSpacing: -0.5,
-            textTransform: "uppercase",
-            color: COLORS.goldDivine,
-            textShadow: "0 2px 16px rgba(0,0,0,0.9)",
-          }}
-        >
-          {displayUrl}
-        </div>
-      )}
       {twinkleOpacity > 0.05 && (
         <svg
           style={{
@@ -604,43 +564,44 @@ const SidePanel: React.FC<{
           alignItems: "center",
           justifyContent: "center",
           padding: "10% 8%",
-          gap: 12,
+          gap: 14,
           textAlign: "center",
         }}
       >
+        <Img
+          src={staticFile("assets/blkouthub_logo.png")}
+          style={{
+            width: "88%",
+            maxHeight: "44%",
+            objectFit: "contain",
+          }}
+        />
         <div
           style={{
-            fontSize: 52,
-            lineHeight: 1,
+            fontFamily: FONTS.body,
+            fontSize: 14,
+            fontWeight: 500,
+            color: COLORS.cream,
+            lineHeight: 1.25,
+            letterSpacing: 0.3,
           }}
         >
-          👍
+          where the UK's Black Queer Men Meet
         </div>
         <div
           style={{
-            padding: "6px 12px",
+            marginTop: 4,
+            padding: "6px 14px",
             background: COLORS.pridePurple,
             color: COLORS.white,
             borderRadius: 999,
             fontFamily: FONTS.ui,
-            fontSize: 11,
+            fontSize: 12,
             fontWeight: 700,
-            letterSpacing: 3,
-            textTransform: "uppercase",
+            letterSpacing: 1.5,
           }}
         >
-          No login needed
-        </div>
-        <div
-          style={{
-            fontFamily: FONTS.display,
-            fontSize: 26,
-            fontWeight: 700,
-            color: COLORS.white,
-            lineHeight: 1.05,
-          }}
-        >
-          Upvote the stories that matter
+          blkouthub.com
         </div>
       </div>
     );
