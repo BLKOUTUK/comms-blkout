@@ -1,0 +1,118 @@
+name: Weekly News Video
+
+# Sunday 02:00 UTC = 03:00 BST. Pipeline runs ~25 min, uploads to YouTube as
+# unlisted by default. By 09:00 BST you have a YT link ready to cross-post.
+
+on:
+  schedule:
+    - cron: "0 2 * * 0"
+  workflow_dispatch:
+    inputs:
+      week_label:
+        description: "ISO week tag override (e.g. 2026-W18). Empty = current."
+        required: false
+        type: string
+      privacy:
+        description: "YouTube privacy"
+        required: false
+        type: choice
+        default: unlisted
+        options: [unlisted, public, private]
+      skip_curator:
+        description: "Skip news curation (use existing props/weekly-*.json)"
+        required: false
+        type: boolean
+        default: false
+      skip_lipsync:
+        description: "Skip lipsync (use existing aivor-news-*-talking.mp4)"
+        required: false
+        type: boolean
+        default: false
+      skip_upload:
+        description: "Skip YouTube upload"
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: weekly-news-video
+  cancel-in-progress: false
+
+jobs:
+  render-and-upload:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    defaults:
+      run:
+        working-directory: remotion-videos
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: remotion-videos/package-lock.json
+
+      - name: Install ffmpeg
+        run: sudo apt-get update && sudo apt-get install -y ffmpeg
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run weekly pipeline (curate → lipsync → render)
+        env:
+          REPLICATE_API_TOKEN: ${{ secrets.REPLICATE_API_TOKEN }}
+          CHATTERBOX_URL: ${{ secrets.CHATTERBOX_URL }}
+          AIVOR_VOICE_REFERENCE: ${{ secrets.AIVOR_VOICE_REFERENCE_URL }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          SUPABASE_BUCKET: ${{ secrets.SUPABASE_BUCKET }}
+          BLKOUT_PLATFORM_ENV: /dev/null
+          WEEK_LABEL: ${{ inputs.week_label }}
+          SKIP_CURATOR: ${{ inputs.skip_curator }}
+          SKIP_LIPSYNC: ${{ inputs.skip_lipsync }}
+        run: |
+          set -e
+          ARGS=(--aspects 9x16)
+          [ -n "$WEEK_LABEL" ] && ARGS+=(--week-label "$WEEK_LABEL")
+          [ "$SKIP_CURATOR" = "true" ] && ARGS+=(--skip-curator)
+          [ "$SKIP_LIPSYNC"  = "true" ] && ARGS+=(--skip-lipsync)
+          node scripts/weekly-render.mjs "${ARGS[@]}"
+
+      - name: Upload mp4 artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: weekly-news-video-${{ github.run_number }}
+          path: |
+            remotion-videos/out/weekly-*-9x16.mp4
+            remotion-videos/out/weekly-*-script.txt
+          if-no-files-found: warn
+          retention-days: 30
+
+      - name: Upload to YouTube
+        if: ${{ !inputs.skip_upload }}
+        env:
+          YT_CLIENT_ID: ${{ secrets.YT_CLIENT_ID }}
+          YT_CLIENT_SECRET: ${{ secrets.YT_CLIENT_SECRET }}
+          YT_REFRESH_TOKEN: ${{ secrets.YT_REFRESH_TOKEN }}
+          YT_PRIVACY: ${{ inputs.privacy || 'unlisted' }}
+          WEEK_LABEL: ${{ inputs.week_label }}
+        run: |
+          set -e
+          ARGS=(--aspect 9x16 --privacy "$YT_PRIVACY")
+          [ -n "$WEEK_LABEL" ] && ARGS+=(--week-label "$WEEK_LABEL")
+          node scripts/upload-youtube.mjs "${ARGS[@]}"
+
+      - name: Failure summary
+        if: failure()
+        run: |
+          echo "::error::Weekly news video pipeline failed."
+          echo "Inspect the artifact for partial outputs."
