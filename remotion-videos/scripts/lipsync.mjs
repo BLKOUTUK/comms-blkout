@@ -178,7 +178,7 @@ async function sadtalker({ imageUrl, audioUrl, useEnhancer }) {
   }
   console.log(`  prediction id: ${id}`);
 
-  for (let i = 0; i < 60; i++) {
+  for (let i = 0; i < 180; i++) {
     await new Promise((r) => setTimeout(r, 10000));
     const poll = await fetch(
       `https://api.replicate.com/v1/predictions/${id}`,
@@ -196,7 +196,7 @@ async function sadtalker({ imageUrl, audioUrl, useEnhancer }) {
       throw new Error(`Replicate ${pollJson.status}: ${pollJson.error}`);
     }
   }
-  throw new Error("Replicate poll timed out after 10 min");
+  throw new Error("Replicate poll timed out after 30 min");
 }
 
 async function downloadFile(url, outPath) {
