@@ -1,0 +1,8 @@
+node_modules/
+out/
+*.log
+.DS_Store
+props/weekly-*.json
+public/assets/aivor-news-*-talking.mp4
+public/assets/aivor-news-*-voice.wav
+public/assets/voice.wav

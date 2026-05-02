@@ -1,0 +1,43 @@
+{
+  "property": "news-digest",
+  "title": "Your news of the week",
+  "intro": "My dear friends, three stories worth your time.",
+  "teases": [
+    {
+      "title": "What the budget means for our community",
+      "hook": "Three numbers that should change how we organise this autumn.",
+      "url": "https://blkoutuk.com/news/budget-2026?utm_source=video&utm_medium=reel&utm_campaign=weekly-digest",
+      "rank": 1,
+      "voteCount": 247
+    },
+    {
+      "title": "A new kind of housing co-op",
+      "hook": "Brothers in Manchester have done something quite extraordinary.",
+      "url": "https://blkoutuk.com/news/manchester-housing-coop?utm_source=video&utm_medium=reel&utm_campaign=weekly-digest",
+      "rank": 2,
+      "voteCount": 189
+    },
+    {
+      "title": "Joseph Beam, forty years on",
+      "hook": "Why his words still cut through everything else this week.",
+      "url": "https://blkoutuk.com/news/beam-forty-years?utm_source=video&utm_medium=reel&utm_campaign=weekly-digest",
+      "rank": 3,
+      "voteCount": 156
+    }
+  ],
+  "cta": {
+    "text": "You're the editor — vote at",
+    "url": "https://news.blkoutuk.com?utm_source=video&utm_medium=reel&utm_campaign=weekly-digest",
+    "spokenUrl": "news dot Blackout UK dot com",
+    "displayUrl": "news.blkoutuk.com"
+  },
+  "avatarVideo": "assets/aivor-news-talking.mp4",
+  "backdropVideo": "assets/hero-newsroom.mp4",
+  "bgMusic": false,
+  "durationSeconds": 35,
+  "showName": "BLKOUT News",
+  "weekLabel": "Week 17",
+  "dateRangeFrom": "21 April",
+  "dateRangeTo": "27 April 2026",
+  "tickerText": "Community-owned journalism · Upvote the stories that matter · No login needed · We tally votes every week · Vote at blkoutuk.com/news"
+}
