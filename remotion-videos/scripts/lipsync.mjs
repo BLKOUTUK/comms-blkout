@@ -29,7 +29,7 @@ const SADTALKER_VERSION =
   "a519cc0cfebaaeade068b23899165a11ec76aaa1d2b313d40d214f204ec957a3";
 const CHATTERBOX_URL =
   process.env.CHATTERBOX_URL || "https://chatterbox.blkoutuk.cloud";
-const VOICE_REFERENCE =
+let VOICE_REFERENCE =
   process.env.AIVOR_VOICE_REFERENCE ||
   "/home/robbe/blkout-platform/apps/ivor-core/public/gielgud4AIvor.mp3";
 const SUPABASE_URL = process.env.SUPABASE_URL;
@@ -208,6 +208,26 @@ async function downloadFile(url, outPath) {
   console.log(`  wrote ${outPath} (${buf.length} bytes)`);
 }
 
+async function resolveVoiceReference() {
+  if (!/^https?:\/\//i.test(VOICE_REFERENCE)) return;
+  const url = VOICE_REFERENCE;
+  const filename = (url.split("/").pop() || "voice-ref.mp3").split("?")[0];
+  const tmpDir = "/tmp/aivor-lipsync";
+  await mkdir(tmpDir, { recursive: true });
+  const tmpPath = resolve(tmpDir, filename);
+  console.log(`→ Fetching voice reference: ${url}`);
+  const res = await fetch(url);
+  if (!res.ok) {
+    throw new Error(
+      `Voice reference fetch failed: HTTP ${res.status} ${(await res.text()).slice(0, 200)}`
+    );
+  }
+  const buf = Buffer.from(await res.arrayBuffer());
+  await writeFile(tmpPath, buf);
+  VOICE_REFERENCE = tmpPath;
+  console.log(`  cached to ${tmpPath} (${buf.length} bytes)`);
+}
+
 async function main() {
   const outVideo = resolve(args.out);
   const outDir = dirname(outVideo);
@@ -219,6 +239,7 @@ async function main() {
     await mkdir(dirname(audioPath), { recursive: true });
     await copyFile(resolve(args.audio), audioPath);
   } else {
+    await resolveVoiceReference();
     const scriptText = await fetchScriptText(args.script);
     await tts(scriptText, audioPath);
   }
