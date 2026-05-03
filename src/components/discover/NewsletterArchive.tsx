@@ -9,22 +9,22 @@ export function NewsletterArchive() {
   const { newsletters, isLoading, error, isUsingMockData, refetch } = usePublicNewsletters(4);
 
   const editionTypeStyles = {
-    weekly: 'bg-blkout-100 text-blkout-700',
-    monthly: 'bg-purple-100 text-purple-700',
+    weekly: 'bg-liberation-gold-divine/10 text-liberation-gold-divine border border-liberation-gold-divine/30',
+    monthly: 'bg-purple-500/10 text-purple-300 border border-purple-500/30',
   };
 
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-3 mb-6">
-        <div className="w-12 h-12 bg-gradient-to-br from-blkout-600 to-purple-600 rounded-xl flex items-center justify-center">
-          <Mail className="h-7 w-7 text-white" />
+        <div className="w-12 h-12 bg-liberation-gold-divine/10 border border-liberation-gold-divine/30 rounded-xl flex items-center justify-center">
+          <Mail className="h-7 w-7 text-liberation-gold-divine" />
         </div>
         <div className="flex-1">
-          <h2 className="text-2xl font-display font-bold text-gray-900">
+          <h2 className="text-2xl font-display font-bold uppercase tracking-tight text-white">
             Community Newsletter
           </h2>
-          <p className="text-sm text-gray-600">
-            Updates from Herald - our community communications agent
+          <p className="text-sm text-gray-400 font-disrupt italic">
+            updates from Herald — our community communications agent
           </p>
         </div>
         {isUsingMockData && (
@@ -84,14 +84,14 @@ export function NewsletterArchive() {
                   navigate(`/discover/newsletters/${newsletter.id}`);
                 }
               }}
-              className={`card transition-all duration-300 group animate-fade-in border border-gray-100 ${isMock ? 'opacity-70 cursor-default' : 'hover:shadow-lg cursor-pointer'}`}
+              className={`bg-white/5 border border-liberation-gold-divine/20 rounded-xl p-6 backdrop-blur-sm transition-all duration-300 group animate-fade-in ${isMock ? 'opacity-70 cursor-default' : 'hover:bg-white/10 hover:border-liberation-gold-divine/50 cursor-pointer'}`}
               style={{ animationDelay: `${index * 100}ms` }}
             >
               <div className="flex items-start justify-between gap-4">
                 <div className="flex-1">
                   <div className="flex items-center gap-3 mb-2">
-                    <span className={`px-3 py-1 rounded-full text-xs font-semibold ${editionTypeStyles[newsletter.editionType]}`}>
-                      {newsletter.editionType === 'weekly' ? 'Weekly Update' : 'Monthly Digest'}
+                    <span className={`px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider ${editionTypeStyles[newsletter.editionType]}`}>
+                      {newsletter.editionType === 'weekly' ? 'Weekly' : 'Monthly'}
                     </span>
                     <span className="text-xs text-gray-500">
                       #{newsletter.editionNumber}
@@ -101,17 +101,17 @@ export function NewsletterArchive() {
                       {formatDistanceToNow(newsletter.sentAt, { addSuffix: true })}
                     </span>
                   </div>
-                  <h3 className="font-semibold text-lg text-gray-900 mb-2 group-hover:text-blkout-600 transition-colors">
+                  <h3 className="font-semibold text-lg text-white mb-2 group-hover:text-liberation-gold-divine transition-colors">
                     {newsletter.title}
                   </h3>
                   {newsletter.summary && (
-                    <p className="text-gray-600 text-sm leading-relaxed line-clamp-2">
+                    <p className="text-gray-400 text-sm leading-relaxed line-clamp-2">
                       {newsletter.summary}
                     </p>
                   )}
                 </div>
                 <ChevronRight
-                  className="text-gray-400 group-hover:text-blkout-600 group-hover:translate-x-1 transition-all shrink-0"
+                  className="text-gray-500 group-hover:text-liberation-gold-divine group-hover:translate-x-1 transition-all shrink-0"
                   size={20}
                 />
               </div>
