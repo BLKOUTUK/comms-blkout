@@ -22,7 +22,7 @@ export function PublicLayout({ children }: PublicLayoutProps) {
   const showSecondRow = SECOND_ROW_ROUTES.some(r => location.pathname.startsWith(r));
 
   return (
-    <div className="min-h-screen bg-black text-white">
+    <div className="min-h-screen bg-black text-white font-signature">
       {/* Skip Link for keyboard navigation - WCAG 2.4.1 */}
       <a
         href="#main-content"
@@ -50,10 +50,10 @@ export function PublicLayout({ children }: PublicLayoutProps) {
                 className="h-10 md:h-12 w-auto hover:scale-105 transition-transform drop-shadow-lg"
               />
               <div className="hidden md:block border-l border-liberation-gold-divine/30 pl-3">
-                <div className="text-liberation-gold-divine font-black text-lg tracking-wider">
+                <div className="text-liberation-gold-divine font-black text-lg tracking-tight uppercase">
                   BLKOUT
                 </div>
-                <div className="text-gray-400 text-xs">Communications Hub</div>
+                <div className="text-gray-400 text-xs font-disrupt italic">communications hub</div>
               </div>
             </a>
 
