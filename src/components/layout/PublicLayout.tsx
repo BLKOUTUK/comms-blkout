@@ -69,7 +69,7 @@ export function PublicLayout({ children }: PublicLayoutProps) {
                 Home
               </a>
               <a
-                href="https://events.blkoutuk.cloud"
+                href="https://events.blkoutuk.com"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="px-4 py-2 rounded-md text-base font-black uppercase tracking-widest transition-all duration-200 text-gray-200 hover:text-yellow-400 hover:bg-yellow-500/10 flex items-center gap-2"
@@ -78,7 +78,7 @@ export function PublicLayout({ children }: PublicLayoutProps) {
                 Events
               </a>
               <a
-                href="https://news.blkoutuk.cloud"
+                href="https://news.blkoutuk.com"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="px-4 py-2 rounded-md text-base font-black uppercase tracking-widest transition-all duration-200 text-gray-200 hover:text-yellow-400 hover:bg-yellow-500/10 flex items-center gap-2"
@@ -87,7 +87,7 @@ export function PublicLayout({ children }: PublicLayoutProps) {
                 News
               </a>
               <a
-                href="https://ivor.blkoutuk.cloud"
+                href="https://ivor.blkoutuk.com"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="px-4 py-2 rounded-md text-base font-black uppercase tracking-widest transition-all duration-200 text-gray-200 hover:text-yellow-400 hover:bg-yellow-500/10 flex items-center gap-2"
@@ -96,7 +96,7 @@ export function PublicLayout({ children }: PublicLayoutProps) {
                 AIvor
               </a>
               <a
-                href="https://voices.blkoutuk.cloud"
+                href="https://voices.blkoutuk.com"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="px-4 py-2 rounded-md text-base font-black uppercase tracking-widest transition-all duration-200 text-gray-200 hover:text-yellow-400 hover:bg-yellow-500/10 flex items-center gap-2"
@@ -172,7 +172,7 @@ export function PublicLayout({ children }: PublicLayoutProps) {
               Platform
             </a>
             <a
-              href="https://events.blkoutuk.cloud"
+              href="https://events.blkoutuk.com"
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-200 text-gray-400 hover:text-liberation-sovereignty-gold hover:bg-liberation-sovereignty-gold/10"
@@ -180,7 +180,7 @@ export function PublicLayout({ children }: PublicLayoutProps) {
               Events
             </a>
             <a
-              href="https://news.blkoutuk.cloud"
+              href="https://news.blkoutuk.com"
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-200 text-gray-400 hover:text-liberation-sovereignty-gold hover:bg-liberation-sovereignty-gold/10"
@@ -188,7 +188,7 @@ export function PublicLayout({ children }: PublicLayoutProps) {
               News
             </a>
             <a
-              href="https://voices.blkoutuk.cloud"
+              href="https://voices.blkoutuk.com"
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-200 text-gray-400 hover:text-liberation-sovereignty-gold hover:bg-liberation-sovereignty-gold/10"
