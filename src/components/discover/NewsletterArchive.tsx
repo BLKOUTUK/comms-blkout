@@ -1,9 +1,11 @@
 
 import { Mail, Calendar, ChevronRight, Loader2, AlertCircle, FileText } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { usePublicNewsletters } from '@/hooks/usePublicNewsletters';
 import { formatDistanceToNow } from 'date-fns';
 
 export function NewsletterArchive() {
+  const navigate = useNavigate();
   const { newsletters, isLoading, error, isUsingMockData, refetch } = usePublicNewsletters(4);
 
   const editionTypeStyles = {
@@ -66,10 +68,23 @@ export function NewsletterArchive() {
       {/* Newsletters List */}
       {!isLoading && newsletters.length > 0 && (
         <div className="space-y-4">
-          {newsletters.map((newsletter, index) => (
+          {newsletters.map((newsletter, index) => {
+            const isMock = newsletter.id.startsWith('mock-');
+            return (
             <div
               key={newsletter.id}
-              className="card hover:shadow-lg transition-all duration-300 group cursor-pointer animate-fade-in border border-gray-100"
+              role="link"
+              tabIndex={isMock ? -1 : 0}
+              aria-disabled={isMock}
+              onClick={() => { if (!isMock) navigate(`/discover/newsletters/${newsletter.id}`); }}
+              onKeyDown={(e) => {
+                if (isMock) return;
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  navigate(`/discover/newsletters/${newsletter.id}`);
+                }
+              }}
+              className={`card transition-all duration-300 group animate-fade-in border border-gray-100 ${isMock ? 'opacity-70 cursor-default' : 'hover:shadow-lg cursor-pointer'}`}
               style={{ animationDelay: `${index * 100}ms` }}
             >
               <div className="flex items-start justify-between gap-4">
@@ -101,7 +116,8 @@ export function NewsletterArchive() {
                 />
               </div>
             </div>
-          ))}
+            );
+          })}
         </div>
       )}
 

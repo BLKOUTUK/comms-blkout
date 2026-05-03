@@ -5,6 +5,7 @@ import { ProtectedRoute } from '@/components/layout/ProtectedRoute';
 
 // Pages
 import { DiscoverPage } from '@/pages/discover/DiscoverPage';
+import { NewsletterDetail } from '@/pages/discover/NewsletterDetail';
 import { Dashboard } from '@/pages/admin/Dashboard';
 import { ContentCalendar } from '@/pages/admin/ContentCalendar';
 import { Drafts } from '@/pages/admin/Drafts';
@@ -33,6 +34,7 @@ function App() {
           {/* Public Routes */}
           <Route path="/" element={<Navigate to="/discover" replace />} />
           <Route path="/discover" element={<DiscoverPage />} />
+          <Route path="/discover/newsletters/:id" element={<NewsletterDetail />} />
 
           {/* OAuth Callback Routes */}
           <Route path="/auth/callback/:platform" element={<OAuthCallback />} />
