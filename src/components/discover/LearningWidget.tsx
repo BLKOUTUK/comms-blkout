@@ -34,36 +34,36 @@ export function LearningWidget() {
           <GraduationCap className="w-6 h-6 text-white" />
         </div>
         <div>
-          <h2 className="text-2xl font-display font-bold text-gray-900">
+          <h2 className="text-2xl font-display font-bold uppercase tracking-tight text-white">
             Learning & Self-Improvement
           </h2>
-          <span className="inline-block mt-1 px-3 py-0.5 bg-emerald-100 text-emerald-700 text-xs font-bold rounded-full uppercase tracking-wide">
+          <span className="inline-block mt-1 px-3 py-0.5 bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 text-xs font-bold rounded-full uppercase tracking-wide">
             Coming Soon
           </span>
         </div>
       </div>
 
-      <p className="text-gray-700 mb-2 leading-relaxed">
+      <p className="text-gray-300 mb-2 leading-relaxed">
         We're building a learning space rooted in liberation values — courses, skill exchanges, and
         mentorship powered by{' '}
         <a
           href="https://blkouthub.com"
           target="_blank"
           rel="noopener noreferrer"
-          className="text-emerald-600 font-semibold hover:underline inline-flex items-center gap-1"
+          className="text-emerald-300 font-semibold hover:underline inline-flex items-center gap-1"
         >
           <Users size={14} />
           BLKOUTHUB
         </a>{' '}
         community.
       </p>
-      <p className="text-gray-500 text-sm mb-6">
-        Available exclusively to BLKOUT members. Help us shape it.
+      <p className="text-gray-400 text-sm mb-6 font-disrupt italic">
+        available exclusively to BLKOUT members. help us shape it.
       </p>
 
       {!submitted ? (
         <>
-          <p className="text-gray-900 font-semibold text-sm mb-3">
+          <p className="text-white font-semibold text-sm mb-3 uppercase tracking-wider">
             What would you most like to learn?
           </p>
           <div className="flex flex-wrap gap-2 mb-4">
@@ -73,8 +73,8 @@ export function LearningWidget() {
                 onClick={() => toggle(item)}
                 className={`px-3 py-1.5 rounded-full text-sm font-medium border transition-colors ${
                   selected.includes(item)
-                    ? 'bg-emerald-600 text-white border-emerald-600'
-                    : 'bg-white text-gray-700 border-gray-200 hover:border-emerald-300 hover:bg-emerald-50'
+                    ? 'bg-emerald-500 text-black border-emerald-500'
+                    : 'bg-white/5 text-gray-300 border-white/15 hover:border-emerald-400/60 hover:bg-emerald-500/10'
                 }`}
               >
                 {item}
@@ -88,12 +88,12 @@ export function LearningWidget() {
               value={customIdea}
               onChange={(e) => setCustomIdea(e.target.value)}
               placeholder="Something else? Tell us..."
-              className="flex-1 px-4 py-2.5 border border-gray-200 rounded-lg text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-400"
+              className="flex-1 px-4 py-2.5 border border-white/15 bg-white/5 rounded-lg text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-400/60"
             />
             <button
               onClick={handleSubmit}
               disabled={selected.length === 0 && !customIdea.trim()}
-              className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-bold rounded-lg transition-colors flex items-center gap-2"
+              className="px-5 py-2.5 bg-emerald-500 hover:bg-emerald-400 disabled:bg-white/10 disabled:text-gray-500 disabled:cursor-not-allowed text-black font-bold rounded-lg transition-colors flex items-center gap-2 uppercase tracking-wider"
             >
               <Send size={16} />
               Send
@@ -102,9 +102,9 @@ export function LearningWidget() {
         </>
       ) : (
         <div className="text-center py-6">
-          <CheckCircle className="w-10 h-10 text-emerald-500 mx-auto mb-3" />
-          <p className="text-gray-900 font-semibold">Thanks for sharing!</p>
-          <p className="text-gray-500 text-sm mt-1">
+          <CheckCircle className="w-10 h-10 text-emerald-400 mx-auto mb-3" />
+          <p className="text-white font-semibold">Thanks for sharing!</p>
+          <p className="text-gray-400 text-sm mt-1">
             Your input helps us build something that truly serves our community.
           </p>
         </div>

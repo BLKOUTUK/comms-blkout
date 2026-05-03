@@ -84,18 +84,18 @@ export function BlkoutVoicesWidget() {
           <Mic2 className="h-7 w-7 text-white" />
         </div>
         <div className="flex-1">
-          <h2 className="text-2xl font-display font-bold text-gray-900">
+          <h2 className="text-2xl font-display font-bold uppercase tracking-tight text-white">
             BLKOUT Voices
           </h2>
-          <p className="text-sm text-gray-600">
-            Community blog and perspectives
+          <p className="text-sm text-gray-400 font-disrupt italic">
+            community blog and perspectives
           </p>
         </div>
         <a
           href={VOICES_URL}
           target="_blank"
           rel="noopener noreferrer"
-          className="text-sm text-blkout-600 hover:text-blkout-700 font-semibold flex items-center gap-1"
+          className="text-sm text-purple-300 hover:text-purple-200 font-bold uppercase tracking-wider flex items-center gap-1"
         >
           Visit blog
           <ExternalLink size={14} />
@@ -105,22 +105,22 @@ export function BlkoutVoicesWidget() {
       {/* Posts Grid */}
       {isLoading ? (
         <div className="flex items-center justify-center py-12">
-          <Loader2 className="h-8 w-8 animate-spin text-purple-600" />
+          <Loader2 className="h-8 w-8 animate-spin text-purple-400" />
         </div>
       ) : error ? (
-        <div className="p-6 rounded-xl bg-amber-50 border border-amber-200 text-center">
-          <p className="text-amber-900 text-sm mb-3">{error}</p>
+        <div className="p-6 rounded-xl bg-amber-500/10 border border-amber-500/30 text-center">
+          <p className="text-amber-200 text-sm mb-3">{error}</p>
           <a
             href={VOICES_URL}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 text-purple-700 font-semibold text-sm"
+            className="inline-flex items-center gap-2 text-amber-300 font-semibold text-sm"
           >
             Visit Voices <ExternalLink size={14} />
           </a>
         </div>
       ) : posts.length === 0 ? (
-        <div className="p-6 rounded-xl bg-gray-50 border border-gray-200 text-center text-gray-600 text-sm">
+        <div className="p-6 rounded-xl bg-white/5 border border-white/10 text-center text-gray-400 text-sm">
           No articles published yet. Check back soon.
         </div>
       ) : (
@@ -131,10 +131,10 @@ export function BlkoutVoicesWidget() {
               href={post.url}
               target="_blank"
               rel="noopener noreferrer"
-              className="bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-lg hover:border-purple-300 transition-all group flex flex-col"
+              className="bg-white/5 backdrop-blur-sm rounded-xl border border-purple-500/20 overflow-hidden hover:bg-white/10 hover:border-purple-400/60 transition-all group flex flex-col"
             >
               {post.heroImage && (
-                <div className="aspect-video bg-gray-100 overflow-hidden">
+                <div className="aspect-video bg-white/5 overflow-hidden">
                   <img
                     src={post.heroImage}
                     alt={post.title}
@@ -144,7 +144,7 @@ export function BlkoutVoicesWidget() {
               )}
               <div className="p-5 flex flex-col flex-1">
                 <div className="flex items-center gap-2 mb-3 text-xs">
-                  <span className="px-2 py-0.5 bg-purple-100 text-purple-700 rounded-full font-semibold uppercase tracking-wide">
+                  <span className="px-2 py-0.5 bg-purple-500/15 text-purple-300 border border-purple-500/30 rounded-full font-semibold uppercase tracking-wide">
                     {post.category}
                   </span>
                   {post.date && (
@@ -159,19 +159,19 @@ export function BlkoutVoicesWidget() {
                   )}
                 </div>
 
-                <h3 className="font-bold text-gray-900 mb-2 group-hover:text-purple-700 transition-colors line-clamp-2">
+                <h3 className="font-bold text-white mb-2 group-hover:text-purple-300 transition-colors line-clamp-2">
                   {post.title}
                 </h3>
 
-                <p className="text-sm text-gray-600 mb-3 line-clamp-3 flex-1">
+                <p className="text-sm text-gray-400 mb-3 line-clamp-3 flex-1">
                   {post.excerpt}
                 </p>
 
-                <div className="flex items-center justify-between pt-2 border-t border-gray-100">
+                <div className="flex items-center justify-between pt-2 border-t border-white/10">
                   <span className="text-xs text-gray-500">
                     By {post.author}
                   </span>
-                  <ExternalLink size={14} className="text-purple-500 opacity-0 group-hover:opacity-100 transition-opacity" />
+                  <ExternalLink size={14} className="text-purple-400 opacity-0 group-hover:opacity-100 transition-opacity" />
                 </div>
               </div>
             </a>
