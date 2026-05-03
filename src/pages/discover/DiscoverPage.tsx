@@ -9,7 +9,6 @@ import { ArchiveArticleWidget } from '@/components/discover/ArchiveArticleWidget
 import { BlkoutVoicesWidget } from '@/components/discover/BlkoutVoicesWidget';
 import { FeaturedEventsWidget } from '@/components/discover/FeaturedEventsWidget';
 import { LearningWidget } from '@/components/discover/LearningWidget';
-import { NewsletterSignup } from '@/components/discover/NewsletterSignup';
 import { Heart, Users, Sparkles, Search } from 'lucide-react';
 
 const SECTIONS = [
@@ -44,9 +43,9 @@ export function DiscoverPage() {
         <div className="relative text-center animate-fade-in py-12">
           <div className="flex justify-center mb-6">
             <img
-              src="/images/blkout_logo_roundel_colour.png"
+              src="/images/blkout-sigil-gold.png"
               alt="BLKOUT"
-              className="w-36 h-36 object-contain drop-shadow-lg"
+              className="w-36 h-36 object-contain drop-shadow-2xl"
             />
           </div>
 
@@ -293,7 +292,7 @@ export function DiscoverPage() {
 
       {/* Newsletter Signup */}
       <section className="mb-12 bg-white/95 rounded-2xl p-8 shadow-lg backdrop-blur-sm">
-        <NewsletterSignup />
+        {/* NewsletterSignup removed — subscribe CTA lives inside NewsletterArchive widget per the aggregator principle. Component kept available for use on dedicated landing pages. */}
       </section>
 
       {/* Platform CTA - dark themed */}
