@@ -63,30 +63,30 @@ export function ArchiveArticleWidget() {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center gap-3">
-        <div className="w-12 h-12 bg-gradient-to-br from-amber-500 to-orange-600 rounded-xl flex items-center justify-center shadow-lg">
-          <BookOpen className="h-7 w-7 text-white" />
+        <div className="w-12 h-12 bg-liberation-gold-divine/10 border border-liberation-gold-divine/30 rounded-xl flex items-center justify-center">
+          <BookOpen className="h-7 w-7 text-liberation-gold-divine" />
         </div>
         <div className="flex-1">
-          <h2 className="text-2xl font-display font-bold text-gray-900">
+          <h2 className="text-2xl font-display font-bold uppercase tracking-tight text-white">
             From the Archive
           </h2>
-          <p className="text-sm text-gray-600">
-            Stories and history from our community
+          <p className="text-sm text-gray-400 font-disrupt italic">
+            stories and history from our community
           </p>
         </div>
         <a
           href="https://blkoutuk.com/stories"
-          className="text-sm text-blkout-600 hover:text-blkout-700 font-semibold flex items-center gap-1"
+          className="text-sm text-liberation-gold-divine hover:text-liberation-gold-rich font-semibold uppercase tracking-wider flex items-center gap-1"
         >
           View 280+ articles →
         </a>
       </div>
 
       {/* Featured Article Card */}
-      <div className="bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-lg transition-shadow">
+      <div className="bg-white/5 border border-liberation-gold-divine/20 rounded-xl overflow-hidden backdrop-blur-sm hover:bg-white/10 hover:border-liberation-gold-divine/50 transition-all">
         <div className="p-6">
           <div className="flex items-center gap-2 mb-3">
-            <span className="px-3 py-1 bg-amber-100 text-amber-800 rounded-full text-xs font-semibold">
+            <span className="px-3 py-1 bg-liberation-gold-divine/10 border border-liberation-gold-divine/30 text-liberation-gold-divine rounded-full text-xs font-semibold uppercase tracking-wider">
               {featuredArticle.category}
             </span>
             <span className="flex items-center gap-1 text-xs text-gray-500">
@@ -99,11 +99,11 @@ export function ArchiveArticleWidget() {
             </span>
           </div>
 
-          <h3 className="text-xl font-bold text-gray-900 mb-3">
+          <h3 className="text-xl font-bold text-white mb-3">
             {featuredArticle.title}
           </h3>
 
-          <p className="text-gray-600 mb-4 line-clamp-3">
+          <p className="text-gray-400 mb-4 line-clamp-3">
             {featuredArticle.excerpt}
           </p>
 
@@ -113,7 +113,7 @@ export function ArchiveArticleWidget() {
             </span>
             <a
               href={`https://blkoutuk.com/stories#${featuredArticle.slug}`}
-              className="inline-flex items-center gap-2 px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-lg font-semibold text-sm transition-colors"
+              className="inline-flex items-center gap-2 px-4 py-2 bg-liberation-gold-divine hover:bg-liberation-gold-rich text-black rounded-lg font-bold text-sm uppercase tracking-wider transition-colors"
             >
               Read Story →
             </a>
