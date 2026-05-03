@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { ArrowLeft, Loader2, AlertCircle, Calendar } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { supabase, isSupabaseConfigured } from '@/lib/supabase';
+import { PublicLayout } from '@/components/layout/PublicLayout';
 
 interface NewsletterRow {
   id: string;
@@ -68,36 +69,36 @@ export function NewsletterDetail() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-4xl mx-auto px-4 py-8">
+    <PublicLayout>
+      <div className="max-w-4xl mx-auto">
         <Link
           to="/discover"
-          className="inline-flex items-center gap-2 text-sm text-gray-600 hover:text-blkout-600 mb-6"
+          className="inline-flex items-center gap-2 text-sm text-gray-300 hover:text-liberation-sovereignty-gold mb-6 transition-colors"
         >
           <ArrowLeft size={16} /> Back to Discover
         </Link>
 
         {isLoading && (
           <div className="flex flex-col items-center justify-center py-24 space-y-3">
-            <Loader2 className="h-8 w-8 text-blkout-600 animate-spin" />
-            <p className="text-sm text-gray-500">Loading newsletter…</p>
+            <Loader2 className="h-8 w-8 text-liberation-sovereignty-gold animate-spin" />
+            <p className="text-sm text-gray-400">Loading newsletter…</p>
           </div>
         )}
 
         {error && !isLoading && (
-          <div className="card border-amber-200 bg-amber-50">
+          <div className="border border-amber-500/30 bg-amber-500/10 rounded-2xl p-6">
             <div className="flex items-start gap-3">
-              <AlertCircle className="h-5 w-5 text-amber-600 shrink-0 mt-0.5" />
+              <AlertCircle className="h-5 w-5 text-amber-400 shrink-0 mt-0.5" />
               <div>
-                <h3 className="font-semibold text-amber-900 mb-1">Newsletter not found</h3>
-                <p className="text-sm text-amber-700">{error}</p>
+                <h3 className="font-semibold text-amber-200 mb-1">Newsletter not found</h3>
+                <p className="text-sm text-amber-300/90">{error}</p>
               </div>
             </div>
           </div>
         )}
 
         {!isLoading && newsletter && (
-          <article className="bg-white rounded-2xl shadow-lg overflow-hidden">
+          <article className="bg-white/95 rounded-2xl shadow-lg backdrop-blur-sm overflow-hidden">
             <header className="px-8 pt-8 pb-5 border-b border-gray-100">
               <h1 className="text-2xl font-display font-bold text-gray-900 mb-2">
                 {newsletter.title}
@@ -132,6 +133,6 @@ export function NewsletterDetail() {
           </article>
         )}
       </div>
-    </div>
+    </PublicLayout>
   );
 }
