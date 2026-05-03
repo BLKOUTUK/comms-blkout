@@ -53,11 +53,11 @@ export function SocialMediaFeed() {
           <Instagram className="h-7 w-7 text-white" />
         </div>
         <div className="flex-1">
-          <h2 className="text-2xl font-display font-bold text-gray-900">
+          <h2 className="text-2xl font-display font-bold uppercase tracking-tight text-white">
             Connect With Us
           </h2>
-          <p className="text-sm text-gray-600">
-            Follow BLKOUT across our social channels
+          <p className="text-sm text-gray-400 font-disrupt italic">
+            follow BLKOUT across our social channels
           </p>
         </div>
       </div>
@@ -72,7 +72,7 @@ export function SocialMediaFeed() {
               href={channel.url}
               target="_blank"
               rel="noopener noreferrer"
-              className="group flex items-start gap-4 p-5 rounded-xl border border-gray-200 hover:border-gray-300 hover:shadow-md transition-all duration-300 bg-white"
+              className="group flex items-start gap-4 p-5 rounded-xl border border-white/10 bg-white/5 backdrop-blur-sm hover:border-liberation-gold-divine/40 hover:bg-white/10 transition-all duration-300"
             >
               <div
                 className={`w-12 h-12 bg-gradient-to-br ${channel.gradient} rounded-xl flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform`}
@@ -81,18 +81,18 @@ export function SocialMediaFeed() {
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-1">
-                  <h3 className="font-bold text-gray-900 group-hover:text-blkout-600 transition-colors">
+                  <h3 className="font-bold text-white group-hover:text-liberation-gold-divine transition-colors">
                     {channel.platform}
                   </h3>
                   <ExternalLink
                     size={14}
-                    className="text-gray-300 group-hover:text-blkout-500 transition-colors"
+                    className="text-gray-500 group-hover:text-liberation-gold-divine transition-colors"
                   />
                 </div>
-                <p className="text-sm text-blkout-600 font-medium mb-1">
+                <p className="text-sm text-liberation-gold-divine font-medium mb-1">
                   {channel.handle}
                 </p>
-                <p className="text-xs text-gray-500 line-clamp-2">
+                <p className="text-xs text-gray-400 line-clamp-2">
                   {channel.description}
                 </p>
               </div>

@@ -126,11 +126,11 @@ export function FeaturedEventsWidget() {
             <Calendar className="h-6 w-6 text-white" />
           </div>
           <div>
-            <h2 className="text-2xl font-display font-bold text-gray-900">
+            <h2 className="text-2xl font-display font-bold uppercase tracking-tight text-white">
               Featured Events
             </h2>
-            <p className="text-sm text-gray-600">
-              Upcoming community gatherings
+            <p className="text-sm text-gray-400 font-disrupt italic">
+              upcoming community gatherings
             </p>
           </div>
         </div>
@@ -138,7 +138,7 @@ export function FeaturedEventsWidget() {
           href="https://events.blkoutuk.com"
           target="_blank"
           rel="noopener noreferrer"
-          className="text-blkout-600 hover:text-blkout-700 font-medium text-sm flex items-center gap-1 group"
+          className="text-liberation-gold-divine hover:text-liberation-gold-rich font-bold uppercase tracking-wider text-sm flex items-center gap-1 group"
         >
           View all events
           <ExternalLink size={14} className="group-hover:translate-x-0.5 transition-transform" />
@@ -149,10 +149,10 @@ export function FeaturedEventsWidget() {
       {isLoading && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {[1, 2].map((i) => (
-            <div key={i} className="bg-gray-100 rounded-xl p-6 animate-pulse">
-              <div className="h-4 bg-gray-200 rounded w-1/3 mb-3" />
-              <div className="h-6 bg-gray-200 rounded w-3/4 mb-4" />
-              <div className="h-4 bg-gray-200 rounded w-1/2" />
+            <div key={i} className="bg-white/5 border border-white/10 rounded-xl p-6 animate-pulse">
+              <div className="h-4 bg-white/10 rounded w-1/3 mb-3" />
+              <div className="h-6 bg-white/10 rounded w-3/4 mb-4" />
+              <div className="h-4 bg-white/10 rounded w-1/2" />
             </div>
           ))}
         </div>
@@ -160,13 +160,13 @@ export function FeaturedEventsWidget() {
 
       {/* Error State */}
       {error && !isLoading && (
-        <div className="bg-amber-50 border border-amber-200 rounded-xl p-6 text-center">
-          <p className="text-amber-800">{error}</p>
+        <div className="bg-amber-500/10 border border-amber-500/30 rounded-xl p-6 text-center">
+          <p className="text-amber-200">{error}</p>
           <a
             href="https://events.blkoutuk.com"
             target="_blank"
             rel="noopener noreferrer"
-            className="text-amber-600 hover:text-amber-700 font-medium text-sm mt-2 inline-block"
+            className="text-amber-300 hover:text-amber-200 font-medium text-sm mt-2 inline-block"
           >
             Browse events directly →
           </a>
@@ -182,37 +182,37 @@ export function FeaturedEventsWidget() {
               href={event.url || 'https://events.blkoutuk.com'}
               target="_blank"
               rel="noopener noreferrer"
-              className="group relative overflow-hidden bg-white border border-gray-200 rounded-xl p-6 hover:shadow-lg hover:border-blkout-300 transition-all duration-300"
+              className="group relative overflow-hidden bg-white/5 border border-liberation-gold-divine/20 rounded-xl p-6 backdrop-blur-sm hover:bg-white/10 hover:border-liberation-gold-divine/50 transition-all duration-300"
             >
               {/* Date badge */}
-              <div className="absolute top-4 right-4 bg-gradient-to-br from-blkout-500 to-purple-600 text-white text-xs font-bold px-3 py-1.5 rounded-full">
+              <div className="absolute top-4 right-4 bg-liberation-gold-divine text-black text-xs font-bold px-3 py-1.5 rounded-full uppercase tracking-wider">
                 {formatEventDate(event.date)}
               </div>
 
               {/* Content */}
               <div className="pr-24">
                 {event.organizer && (
-                  <p className="text-xs font-medium text-blkout-600 mb-1 flex items-center gap-1">
+                  <p className="text-xs font-medium text-liberation-gold-divine mb-1 flex items-center gap-1 uppercase tracking-wider">
                     <Sparkles size={12} />
                     {event.organizer}
                   </p>
                 )}
 
-                <h3 className="text-lg font-bold text-gray-900 mb-3 group-hover:text-blkout-700 transition-colors line-clamp-2">
+                <h3 className="text-lg font-bold text-white mb-3 group-hover:text-liberation-gold-divine transition-colors line-clamp-2">
                   {event.title}
                 </h3>
 
-                <div className="space-y-1.5 text-sm text-gray-600">
+                <div className="space-y-1.5 text-sm text-gray-400">
                   {event.start_time && (
                     <div className="flex items-center gap-2">
-                      <Clock size={14} className="text-gray-400" />
+                      <Clock size={14} className="text-gray-500" />
                       <span>{formatTime(event.start_time)}</span>
                     </div>
                   )}
 
                   {event.location && (
                     <div className="flex items-center gap-2">
-                      <MapPin size={14} className="text-gray-400" />
+                      <MapPin size={14} className="text-gray-500" />
                       <span className="truncate">{event.location}</span>
                     </div>
                   )}
@@ -222,8 +222,8 @@ export function FeaturedEventsWidget() {
                 {event.cost && (
                   <span className={`inline-block mt-3 text-xs font-semibold px-2 py-1 rounded-full ${
                     event.cost.toLowerCase() === 'free'
-                      ? 'bg-green-100 text-green-700'
-                      : 'bg-gray-100 text-gray-700'
+                      ? 'bg-green-500/15 text-green-300 border border-green-500/30'
+                      : 'bg-white/10 text-gray-300 border border-white/20'
                   }`}>
                     {event.cost}
                   </span>
@@ -232,7 +232,7 @@ export function FeaturedEventsWidget() {
 
               {/* Hover arrow */}
               <div className="absolute bottom-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity">
-                <ExternalLink size={18} className="text-blkout-500" />
+                <ExternalLink size={18} className="text-liberation-gold-divine" />
               </div>
             </a>
           ))}
@@ -240,8 +240,8 @@ export function FeaturedEventsWidget() {
       )}
 
       {/* CTA Banner */}
-      <div className="bg-gradient-to-r from-pink-50 via-purple-50 to-blkout-50 rounded-xl p-6 text-center border border-pink-100">
-        <p className="text-gray-700 mb-3">
+      <div className="bg-white/5 border border-liberation-gold-divine/20 rounded-xl p-6 text-center backdrop-blur-sm">
+        <p className="text-gray-300 mb-3">
           Discover more events for the Black LGBTQ+ community
         </p>
         <a
