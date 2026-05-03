@@ -31,10 +31,11 @@ export function YouTubeEmbed({
             <Youtube className="h-7 w-7 text-white" />
           </div>
           <div>
-            <h3 className="text-2xl font-display font-bold text-gray-900">
+            <p className="text-xs uppercase tracking-[0.18em] text-red-400 font-bold mb-1">BLKOUT on YouTube</p>
+            <h3 className="text-2xl font-display font-bold uppercase tracking-tight text-white">
               {title}
             </h3>
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-gray-400 font-disrupt italic">
               {description}
             </p>
           </div>
@@ -43,7 +44,7 @@ export function YouTubeEmbed({
           href="https://www.youtube.com/@blkoutuk"
           target="_blank"
           rel="noopener noreferrer"
-          className="btn btn-primary flex items-center gap-2 shrink-0"
+          className="bg-red-600 hover:bg-red-500 text-white font-bold uppercase tracking-wider px-5 py-2.5 rounded-lg flex items-center gap-2 shrink-0 transition-colors"
         >
           <Play size={18} />
           Subscribe
@@ -92,7 +93,7 @@ export function YouTubeEmbed({
           href="https://www.youtube.com/@blkoutuk/videos"
           target="_blank"
           rel="noopener noreferrer"
-          className="text-center py-2 px-4 bg-gray-100 hover:bg-gray-200 rounded-lg text-sm font-medium text-gray-700 transition-colors flex items-center justify-center gap-2"
+          className="text-center py-2 px-4 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-red-500/40 rounded-lg text-sm font-medium text-gray-300 hover:text-white transition-all flex items-center justify-center gap-2"
         >
           All Videos
           <ExternalLink size={14} />
@@ -101,7 +102,7 @@ export function YouTubeEmbed({
           href="https://www.youtube.com/@blkoutuk/playlists"
           target="_blank"
           rel="noopener noreferrer"
-          className="text-center py-2 px-4 bg-gray-100 hover:bg-gray-200 rounded-lg text-sm font-medium text-gray-700 transition-colors flex items-center justify-center gap-2"
+          className="text-center py-2 px-4 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-red-500/40 rounded-lg text-sm font-medium text-gray-300 hover:text-white transition-all flex items-center justify-center gap-2"
         >
           Playlists
           <ExternalLink size={14} />
