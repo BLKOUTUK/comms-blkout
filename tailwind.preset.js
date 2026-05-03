@@ -157,7 +157,11 @@ module.exports = {
       // ================================================================
       fontFamily: {
         sans: ['Inter', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
-        display: ['Space Grotesk', 'system-ui', 'sans-serif'],
+        // BLKOUT One Platform Design — `display` now resolves to Work Sans (was Space
+        // Grotesk). Every existing `font-display` usage picks up the signature face
+        // without per-component edits. Space Grotesk kept as fallback if Work Sans
+        // hasn't loaded yet.
+        display: ['Work Sans', 'Space Grotesk', 'system-ui', 'sans-serif'],
         mono: ['JetBrains Mono', 'Fira Code', 'monospace'],
         // Legacy aliases
         liberation: ['Inter', 'system-ui', 'sans-serif'],
