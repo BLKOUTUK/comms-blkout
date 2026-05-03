@@ -174,14 +174,7 @@ export function DiscoverPage() {
           <NewsWidget />
         </section>
 
-        {/* Featured Event */}
-        {visible('events') && (
-          <section className="md:col-span-5 border-2 border-liberation-gold-divine/40 hover:border-liberation-gold-divine/70 transition-colors p-6 md:p-8 bg-black/40 flex flex-col justify-center">
-            <FeaturedEventsWidget />
-          </section>
-        )}
-
-        {/* YouTube — wide video showcase */}
+        {/* YouTube — Critical Frequency, moved up to break the 5-7 alternation */}
         {visible('youtube') && (
           <section className="md:col-span-7 border-2 border-liberation-gold-divine/40 hover:border-liberation-gold-divine/70 transition-colors p-6 md:p-8 bg-black/40 flex flex-col justify-center">
             <YouTubeEmbed
@@ -192,9 +185,29 @@ export function DiscoverPage() {
           </section>
         )}
 
+        {/* Featured Event — swapped down from above the YouTube cell */}
+        {visible('events') && (
+          <section className="md:col-span-5 border-2 border-liberation-gold-divine/40 hover:border-liberation-gold-divine/70 transition-colors p-6 md:p-8 bg-black/40 flex flex-col justify-center">
+            <FeaturedEventsWidget />
+          </section>
+        )}
+
+        {/* AIvor Short — looped 9:16 video, fills the previously-empty cell */}
+        <section className="md:col-span-5 md:row-span-2 border-2 border-news/40 hover:border-news/70 transition-colors p-3 md:p-4 bg-black flex items-center justify-center overflow-hidden">
+          <div className="aspect-[9/16] w-full max-w-[300px] mx-auto">
+            <iframe
+              src="https://www.youtube.com/embed/XWxFDq4tomw?autoplay=1&loop=1&playlist=XWxFDq4tomw&mute=1&controls=0&modestbranding=1&playsinline=1&rel=0"
+              title="AIvor — looping short"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              allowFullScreen
+              className="w-full h-full border-0 block"
+            />
+          </div>
+        </section>
+
         {/* From the Archive — pulls from blkoutuk.com/stories (270+ articles 2016-2024) */}
         {visible('archive') && (
-          <section className="md:col-span-5 border-2 border-liberation-gold-divine/40 hover:border-liberation-gold-divine/70 transition-colors p-6 md:p-8 bg-black/40 flex flex-col justify-center">
+          <section className="md:col-span-7 border-2 border-liberation-gold-divine/40 hover:border-liberation-gold-divine/70 transition-colors p-6 md:p-8 bg-black/40 flex flex-col justify-center">
             <ArchiveArticleWidget />
           </section>
         )}
