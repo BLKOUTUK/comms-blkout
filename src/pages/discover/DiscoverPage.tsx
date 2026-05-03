@@ -149,65 +149,72 @@ export function DiscoverPage() {
         </a>
       </section>
 
-      {/* BLKOUT HUB Widget */}
-      {visible('hub') && (
-        <section className="mb-12 bg-white/95 rounded-2xl p-8 shadow-lg backdrop-blur-sm">
-          <BlkoutHubWidget />
-        </section>
-      )}
+      {/* BENTO GRID — asymmetric, signature aesthetic.
+          Cells: dark canvas + heavy gold border + sharp edges + variable spans.
+          Container shell IS the chrome — widgets render their content directly. */}
+      <div className="grid grid-cols-1 md:grid-cols-12 gap-4 md:gap-6 auto-rows-[minmax(180px,auto)] mb-12">
 
-      {/* Featured Events */}
-      {visible('events') && (
-        <section className="mb-12 bg-white/95 rounded-2xl p-8 shadow-lg backdrop-blur-sm">
-          <FeaturedEventsWidget />
-        </section>
-      )}
+        {/* Newsletter — tall sidebar, vertical newsletter list */}
+        {visible('newsletter') && (
+          <section className="md:col-span-5 md:row-span-2 border-2 border-liberation-gold-divine/40 hover:border-liberation-gold-divine/70 transition-colors p-6 md:p-8 bg-black/40">
+            <NewsletterArchive />
+          </section>
+        )}
 
-      {/* Social Media Feed */}
-      {visible('social') && (
-        <section className="mb-12 bg-white/95 rounded-2xl p-8 shadow-lg backdrop-blur-sm">
-          <SocialMediaFeed />
-        </section>
-      )}
+        {/* HUB — square */}
+        {visible('hub') && (
+          <section className="md:col-span-7 border-2 border-liberation-gold-divine/40 hover:border-liberation-gold-divine/70 transition-colors p-6 md:p-8 bg-black/40">
+            <BlkoutHubWidget />
+          </section>
+        )}
 
-      {/* Newsletter Archive */}
-      {visible('newsletter') && (
-        <section className="mb-12 bg-white/95 rounded-2xl p-8 shadow-lg backdrop-blur-sm">
-          <NewsletterArchive />
-        </section>
-      )}
+        {/* YouTube — wide video showcase */}
+        {visible('youtube') && (
+          <section className="md:col-span-7 border-2 border-liberation-gold-divine/40 hover:border-liberation-gold-divine/70 transition-colors p-6 md:p-8 bg-black/40">
+            <YouTubeEmbed
+              videoId="BcBwsjtP86Q"
+              title="Critical Frequency"
+              description="Data invisibility is a political problem, not a comms challenge. Content note: discusses suicide and systemic failure."
+            />
+          </section>
+        )}
 
-      {/* BLKOUT Voices Blog */}
-      {visible('voices') && (
-        <section className="mb-12 bg-white/95 rounded-2xl p-8 shadow-lg backdrop-blur-sm">
-          <BlkoutVoicesWidget />
-        </section>
-      )}
+        {/* From the Archive */}
+        {visible('archive') && (
+          <section className="md:col-span-7 border-2 border-liberation-gold-divine/40 hover:border-liberation-gold-divine/70 transition-colors p-6 md:p-8 bg-black/40">
+            <ArchiveArticleWidget />
+          </section>
+        )}
 
-      {/* Learning & Self-Improvement */}
-      {visible('learning') && (
-        <section className="mb-12 bg-white/95 rounded-2xl p-8 shadow-lg backdrop-blur-sm">
-          <LearningWidget />
-        </section>
-      )}
+        {/* Featured Event */}
+        {visible('events') && (
+          <section className="md:col-span-5 border-2 border-liberation-gold-divine/40 hover:border-liberation-gold-divine/70 transition-colors p-6 md:p-8 bg-black/40">
+            <FeaturedEventsWidget />
+          </section>
+        )}
 
-      {/* Archive Article */}
-      {visible('archive') && (
-        <section className="mb-12 bg-white/95 rounded-2xl p-8 shadow-lg backdrop-blur-sm">
-          <ArchiveArticleWidget />
-        </section>
-      )}
+        {/* Voices */}
+        {visible('voices') && (
+          <section className="md:col-span-7 border-2 border-liberation-gold-divine/40 hover:border-liberation-gold-divine/70 transition-colors p-6 md:p-8 bg-black/40">
+            <BlkoutVoicesWidget />
+          </section>
+        )}
 
-      {/* Watch: Critical Frequency */}
-      {visible('youtube') && (
-        <section className="mb-12 bg-white/95 rounded-2xl p-8 shadow-lg backdrop-blur-sm">
-          <YouTubeEmbed
-            videoId="BcBwsjtP86Q"
-            title="Critical Frequency"
-            description="Data invisibility is a political problem, not a comms challenge. Content note: discusses suicide and systemic failure."
-          />
-        </section>
-      )}
+        {/* Social Feed — small */}
+        {visible('social') && (
+          <section className="md:col-span-5 border-2 border-liberation-gold-divine/40 hover:border-liberation-gold-divine/70 transition-colors p-6 md:p-8 bg-black/40">
+            <SocialMediaFeed />
+          </section>
+        )}
+
+        {/* Learning — full width strip */}
+        {visible('learning') && (
+          <section className="md:col-span-12 border-2 border-liberation-gold-divine/40 hover:border-liberation-gold-divine/70 transition-colors p-6 md:p-8 bg-black/40">
+            <LearningWidget />
+          </section>
+        )}
+
+      </div>
 
       {/* No results */}
       {searchQuery && !SECTIONS.some(s => matchesSearch(s.keywords, searchQuery)) && (
