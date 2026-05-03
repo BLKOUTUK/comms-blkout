@@ -45,9 +45,9 @@ export function PublicLayout({ children }: PublicLayoutProps) {
               aria-label="BLKOUT - Go to main platform"
             >
               <img
-                src="/images/blkout_logo_roundel_colour.png"
+                src="/images/blkout-sigil-gold.png"
                 alt="BLKOUT"
-                className="h-10 md:h-12 w-auto hover:scale-105 transition-transform drop-shadow-lg"
+                className="h-10 md:h-12 w-auto hover:scale-105 transition-transform drop-shadow-2xl"
               />
               <div className="hidden md:block border-l border-liberation-gold-divine/30 pl-3">
                 <div className="text-liberation-gold-divine font-black text-lg tracking-tight uppercase">

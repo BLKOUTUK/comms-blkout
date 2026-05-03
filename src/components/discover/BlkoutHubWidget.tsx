@@ -25,11 +25,11 @@ export function BlkoutHubWidget() {
               className="w-24 h-24 object-contain rounded-xl bg-white/10 backdrop-blur-sm p-2"
             />
             <div>
-              <h2 className="text-2xl font-display font-bold mb-1">
+              <h2 className="text-2xl font-display font-bold uppercase tracking-tight mb-1">
                 BLKOUT HUB
               </h2>
-              <p className="text-white/90 text-sm">
-                Our Digital Community Home
+              <p className="text-white/90 text-sm font-disrupt italic">
+                our digital community home
               </p>
             </div>
           </div>

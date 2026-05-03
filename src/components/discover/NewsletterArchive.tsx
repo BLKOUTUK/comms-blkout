@@ -123,32 +123,32 @@ export function NewsletterArchive() {
 
       {/* Empty State */}
       {!isLoading && newsletters.length === 0 && !error && (
-        <div className="card text-center py-12">
-          <FileText className="h-12 w-12 text-gray-300 mx-auto mb-3" />
-          <h3 className="font-semibold text-gray-900 mb-2">
+        <div className="bg-white/5 border border-white/10 rounded-xl text-center py-12">
+          <FileText className="h-12 w-12 text-gray-500 mx-auto mb-3" />
+          <h3 className="font-semibold text-white mb-2 uppercase tracking-tight">
             No newsletters published yet
           </h3>
-          <p className="text-sm text-gray-600">
-            Subscribe to receive community updates when they're released!
+          <p className="text-sm text-gray-400 font-disrupt italic">
+            subscribe to receive community updates when they're released
           </p>
         </div>
       )}
 
       {/* Subscribe CTA */}
       {!isLoading && (
-        <div className="bg-gradient-to-r from-blkout-50 to-purple-50 rounded-xl p-6 border border-blkout-100">
+        <div className="bg-liberation-gold-divine/5 border border-liberation-gold-divine/30 rounded-xl p-6 backdrop-blur-sm">
           <div className="flex flex-col sm:flex-row items-center gap-4">
             <div className="flex-1 text-center sm:text-left">
-              <h3 className="font-semibold text-gray-900 mb-1">
+              <h3 className="font-semibold text-white mb-1 uppercase tracking-tight">
                 Get updates in your inbox
               </h3>
-              <p className="text-sm text-gray-600">
-                Weekly updates for engaged members, monthly digests for the wider community.
+              <p className="text-sm text-gray-400 font-disrupt italic">
+                weekly for engaged members, monthly for the wider community.
               </p>
             </div>
             <a
               href="/preferences"
-              className="btn btn-primary whitespace-nowrap flex items-center gap-2"
+              className="bg-liberation-gold-divine hover:bg-liberation-gold-rich text-black font-bold uppercase tracking-wider px-5 py-2.5 rounded-lg whitespace-nowrap flex items-center gap-2 transition-colors"
             >
               <Mail size={16} />
               Subscribe
