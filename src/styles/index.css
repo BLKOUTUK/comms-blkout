@@ -7,9 +7,15 @@
   body {
     @apply bg-gray-50 text-gray-900 font-sans antialiased;
   }
-  
+
   h1, h2, h3, h4, h5, h6 {
     @apply font-display font-bold;
+  }
+
+  /* BLKOUT One Platform Design — gold selection (works on both admin light + public dark) */
+  ::selection {
+    background: #FFD700;
+    color: #000000;
   }
 }
 
@@ -108,6 +114,23 @@
 @layer utilities {
   .text-balance {
     text-wrap: balance;
+  }
+
+  /* BLKOUT One Platform Design — noise hero (radial purple-deep + gold).
+     Apply to a hero section as a backdrop overlay. Public surfaces only. */
+  .noise {
+    position: relative;
+    isolation: isolate;
+  }
+  .noise::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background:
+      radial-gradient(ellipse at top left, rgba(155, 77, 202, 0.18), transparent 55%),
+      radial-gradient(ellipse at bottom right, rgba(255, 215, 0, 0.08), transparent 60%);
+    pointer-events: none;
   }
 
   .animate-fade-in {
