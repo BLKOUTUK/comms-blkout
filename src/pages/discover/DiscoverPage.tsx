@@ -10,6 +10,7 @@ import { ArchiveArticleWidget } from '@/components/discover/ArchiveArticleWidget
 import { BlkoutVoicesWidget } from '@/components/discover/BlkoutVoicesWidget';
 import { FeaturedEventsWidget } from '@/components/discover/FeaturedEventsWidget';
 import { LearningWidget } from '@/components/discover/LearningWidget';
+import FoundationLayer from '@/components/foundation/FoundationLayer';
 import { Heart, Users, Sparkles, Search } from 'lucide-react';
 
 const SECTIONS = [
@@ -39,9 +40,11 @@ export function DiscoverPage() {
 
   return (
     <PublicLayout>
-      {/* Hero Section - dark theme */}
+      {/* Hero Section - dark theme + foundation imagery (joy register — discovery is welcoming) */}
       <div className="relative mb-16 overflow-hidden">
-        <div className="relative text-center animate-fade-in py-12">
+        <FoundationLayer category="joy" seed="comms-discover-hero" opacity={0.18} />
+        <div className="absolute inset-0 bg-black/55 pointer-events-none" />
+        <div className="relative z-10 text-center animate-fade-in py-12">
           <div className="flex justify-center mb-6">
             <img
               src="/images/blkout-sigil-gold.png"
