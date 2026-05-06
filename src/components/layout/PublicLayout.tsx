@@ -9,14 +9,6 @@ interface PublicLayoutProps {
 
 const SECOND_ROW_ROUTES = ['/discover', '/about'];
 
-const secondaryNav = [
-  { id: 'discover', label: 'Discover', href: '/discover', internal: true },
-  { id: 'community', label: 'Community', href: 'https://blkouthub.com' },
-  { id: 'shop', label: 'Shop', href: 'https://blkoutuk.com/shop' },
-  { id: 'membership', label: 'Membership', href: 'https://blkoutuk.com/membership' },
-  { id: 'about', label: 'About', href: 'https://blkoutuk.com/about' },
-];
-
 export function PublicLayout({ children }: PublicLayoutProps) {
   const location = useLocation();
   const showSecondRow = SECOND_ROW_ROUTES.some(r => location.pathname.startsWith(r));
@@ -31,9 +23,12 @@ export function PublicLayout({ children }: PublicLayoutProps) {
         Skip to main content
       </a>
 
+      {/* Section identity bar — comms is the hub, default to gold (Round 2 chrome) */}
+      <div className="sticky top-0 z-40 h-1 bg-liberation-gold-divine" aria-hidden />
+
       {/* Header */}
       <header
-        className="sticky top-0 z-40 bg-black border-b border-liberation-gold-divine/30 shadow-lg backdrop-blur-sm"
+        className="sticky top-1 z-40 bg-black border-b border-liberation-gold-divine/30 shadow-lg backdrop-blur-sm"
         role="banner"
       >
         <div className="max-w-7xl mx-auto px-6 py-3">
@@ -57,13 +52,15 @@ export function PublicLayout({ children }: PublicLayoutProps) {
               </div>
             </a>
 
-            {/* Desktop Navigation — Top 5 */}
+            {/* Desktop Navigation — Option C hybrid 5-button cross-app nav. Each button carries its own
+                section-accent underline on hover (mirrors community-platform Round 2). comms-blkout is
+                the hub — none of the 5 main sections is "current", so all five are hover-only. */}
             <nav className="hidden md:flex items-center gap-4" aria-label="Main navigation">
               <a
                 href="https://blkoutuk.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="px-4 py-2 rounded-md text-base font-black uppercase tracking-widest transition-all duration-200 text-gray-200 hover:text-yellow-400 hover:bg-yellow-500/10 flex items-center gap-2"
+                className="px-4 py-2 text-base font-signature font-black uppercase tracking-tight transition-colors duration-200 border-b-2 border-transparent text-gray-200 hover:text-liberation-gold-divine hover:border-liberation-gold-divine/60 flex items-center gap-2"
               >
                 <Home size={18} />
                 Home
@@ -72,7 +69,7 @@ export function PublicLayout({ children }: PublicLayoutProps) {
                 href="https://events.blkoutuk.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="px-4 py-2 rounded-md text-base font-black uppercase tracking-widest transition-all duration-200 text-gray-200 hover:text-yellow-400 hover:bg-yellow-500/10 flex items-center gap-2"
+                className="px-4 py-2 text-base font-signature font-black uppercase tracking-tight transition-colors duration-200 border-b-2 border-transparent text-gray-200 hover:text-liberation-events hover:border-liberation-events/60 flex items-center gap-2"
               >
                 <Calendar size={18} />
                 Events
@@ -81,25 +78,25 @@ export function PublicLayout({ children }: PublicLayoutProps) {
                 href="https://news.blkoutuk.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="px-4 py-2 rounded-md text-base font-black uppercase tracking-widest transition-all duration-200 text-gray-200 hover:text-yellow-400 hover:bg-yellow-500/10 flex items-center gap-2"
+                className="px-4 py-2 text-base font-signature font-black uppercase tracking-tight transition-colors duration-200 border-b-2 border-transparent text-gray-200 hover:text-liberation-pride-purple-deep hover:border-liberation-pride-purple-deep/60 flex items-center gap-2"
               >
                 <Newspaper size={18} />
                 News
               </a>
               <a
-                href="https://ivor.blkoutuk.com"
+                href="https://blkoutuk.com/intro"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="px-4 py-2 rounded-md text-base font-black uppercase tracking-widest transition-all duration-200 text-gray-200 hover:text-yellow-400 hover:bg-yellow-500/10 flex items-center gap-2"
+                className="px-4 py-2 text-base font-signature font-black uppercase tracking-tight transition-colors duration-200 border-b-2 border-transparent text-gray-200 hover:text-liberation-aivor hover:border-liberation-aivor/60 flex items-center gap-2"
               >
                 <Brain size={18} />
                 AIvor
               </a>
               <a
-                href="https://voices.blkoutuk.com"
+                href="https://voices.blkoutuk.cloud"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="px-4 py-2 rounded-md text-base font-black uppercase tracking-widest transition-all duration-200 text-gray-200 hover:text-yellow-400 hover:bg-yellow-500/10 flex items-center gap-2"
+                className="px-4 py-2 text-base font-signature font-black uppercase tracking-tight transition-colors duration-200 border-b-2 border-transparent text-gray-200 hover:text-liberation-pan-african-green hover:border-liberation-pan-african-green/60 flex items-center gap-2"
               >
                 <ExternalLink size={18} />
                 Voices
@@ -116,37 +113,59 @@ export function PublicLayout({ children }: PublicLayoutProps) {
           </div>
         </div>
 
-        {/* Second row — only on Discover and About pages */}
+        {/* Second row — only on Discover and About pages. Per-button section accents
+            (Discover/Community = gold, Shop = orange, Membership/About = red).
+            Class strings are inline (not data-driven) so Tailwind's JIT picks up every variant. */}
         {showSecondRow && (
-          <div className="border-t border-purple-500/30 bg-black/80">
+          <div className="border-t border-liberation-gold-divine/20 bg-black/80">
             <div className="max-w-7xl mx-auto px-6 py-1.5">
               <nav className="hidden md:flex items-center gap-3 justify-end" aria-label="Secondary navigation">
-                {secondaryNav.map((item) =>
-                  item.internal ? (
-                    <Link
-                      key={item.id}
-                      to={item.href}
-                      className={`px-3 py-1 rounded-md text-sm font-bold uppercase tracking-wider transition-all duration-200 ${
-                        location.pathname.startsWith(item.href)
-                          ? 'bg-purple-500/15 text-purple-400'
-                          : 'text-gray-400 hover:text-purple-400 hover:bg-purple-500/10'
-                      }`}
-                    >
-                      {item.label}
-                    </Link>
-                  ) : (
-                    <a
-                      key={item.id}
-                      href={item.href}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="px-3 py-1 rounded-md text-sm font-bold uppercase tracking-wider transition-all duration-200 text-gray-400 hover:text-purple-400 hover:bg-purple-500/10 flex items-center gap-1"
-                    >
-                      {item.label}
-                      <ExternalLink size={12} className="opacity-50" />
-                    </a>
-                  )
-                )}
+                <Link
+                  to="/discover"
+                  className={`px-3 py-1 text-sm font-bold uppercase tracking-wider transition-colors duration-200 border-b-2 ${
+                    location.pathname.startsWith('/discover')
+                      ? 'text-liberation-gold-divine border-liberation-gold-divine'
+                      : 'text-gray-400 border-transparent hover:text-liberation-gold-divine hover:border-liberation-gold-divine/60'
+                  }`}
+                >
+                  Discover
+                </Link>
+                <a
+                  href="https://blkouthub.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-3 py-1 text-sm font-bold uppercase tracking-wider transition-colors duration-200 border-b-2 border-transparent text-gray-400 hover:text-liberation-gold-divine hover:border-liberation-gold-divine/60 flex items-center gap-1"
+                >
+                  Community
+                  <ExternalLink size={12} className="opacity-50" />
+                </a>
+                <a
+                  href="https://blkoutuk.com/shop"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-3 py-1 text-sm font-bold uppercase tracking-wider transition-colors duration-200 border-b-2 border-transparent text-gray-400 hover:text-liberation-pride-orange hover:border-liberation-pride-orange/60 flex items-center gap-1"
+                >
+                  Shop
+                  <ExternalLink size={12} className="opacity-50" />
+                </a>
+                <a
+                  href="https://blkoutuk.com/membership"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-3 py-1 text-sm font-bold uppercase tracking-wider transition-colors duration-200 border-b-2 border-transparent text-gray-400 hover:text-liberation-pan-african-red hover:border-liberation-pan-african-red/60 flex items-center gap-1"
+                >
+                  Membership
+                  <ExternalLink size={12} className="opacity-50" />
+                </a>
+                <a
+                  href="https://blkoutuk.com/about"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-3 py-1 text-sm font-bold uppercase tracking-wider transition-colors duration-200 border-b-2 border-transparent text-gray-400 hover:text-liberation-pan-african-red hover:border-liberation-pan-african-red/60 flex items-center gap-1"
+                >
+                  About
+                  <ExternalLink size={12} className="opacity-50" />
+                </a>
               </nav>
             </div>
           </div>
