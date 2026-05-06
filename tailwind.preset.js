@@ -65,6 +65,19 @@ module.exports = {
           'green-bright': '#00D68F',
         },
 
+        // BLKOUT One Platform Design — events + AIvor section tokens (matches community-platform Round 2).
+        // Events = lemon yellow (cool, distinct from gold-rich). AIvor = broadcast blue (1940s/50s heritage).
+        'liberation-events': {
+          DEFAULT: '#FFE600',
+          lemon: '#FFE600',
+          'lemon-dark': '#7A6D00',
+        },
+        'liberation-aivor': {
+          DEFAULT: '#5B9BD5',
+          blue: '#5B9BD5',
+          'blue-dark': '#2E6A9C',
+        },
+
         // Healing Colors (Trauma-Informed)
         'liberation-healing': {
           sage: '#A8C69F',
@@ -220,6 +233,9 @@ module.exports = {
       // BORDER RADIUS - Soft Corners
       // ================================================================
       borderRadius: {
+        // BLKOUT One Platform Design — sharp edges by default (matches community-platform Round 2).
+        // Bare `rounded` resolves to 0; explicit `rounded-md/lg/xl/2xl/full` still soften where intentional.
+        DEFAULT: '0',
         'liberation-sm': '0.375rem',  // 6px
         'liberation-md': '0.5rem',    // 8px
         'liberation-lg': '0.75rem',   // 12px
