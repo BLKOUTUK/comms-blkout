@@ -24,6 +24,7 @@ export type {
   BidDocument,
   BidWritingSession,
   BidWritingProgress,
+  FunderRelationship,
 } from '../services/grants/types';
 
 export type PlatformType = 'instagram' | 'linkedin' | 'twitter' | 'facebook' | 'tiktok' | 'youtube';
