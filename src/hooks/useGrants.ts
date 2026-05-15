@@ -12,7 +12,13 @@ import type {
   OpportunityPipeline,
   BidWritingProgress,
   BidWritingTemplate,
+  FunderRelationship,
 } from '@/types';
+
+// Normalise a funder name for matching across the dashboard and the CRM
+// (lowercase, strip punctuation/whitespace) — funder names rarely match exactly.
+export const normalizeFunderName = (name: string): string =>
+  (name || '').toLowerCase().replace(/[^a-z0-9]/g, '');
 
 // Pipeline summary type
 interface PipelineSummary {
@@ -96,7 +102,7 @@ const mockGrants: Grant[] = [
     funder_type: 'trust',
     program_area: 'Racial Justice',
     amount_requested: 200000,
-    status: 'preparing',
+    status: 'submitted',
     priority: 'critical',
     strategic_fit_score: 10,
     blkout_priority_alignment: {
@@ -121,7 +127,7 @@ const mockGrants: Grant[] = [
     lead_writer: 'Dr Rob Berkeley MBE',
     team_members: ['Dr Rob Berkeley MBE', 'Project Lead (TBC)'],
     tags: ['racial-justice', 'economic-empowerment', 'action-research', 'cooperative', 'CBS', 'intersectional', 'community-wealth'],
-    notes: 'Expression of Interest for BLKOUTNXT: Economic Futures programme. Two strands: (1) Participatory action research on employment experiences at intersection of race and sexuality, with 25-30 person intergenerational cohort and 3-5 peer researchers. Cross-sector advocacy with Black employment and men\'s employment initiatives. Academic partners: King\'s College London, Sheffield University, UAL. (2) Cooperative infrastructure development - feasibility work for community-owned enterprise (venue, subscription, media). CBS governance. Budget: Staffing £122,623 (Director 0.2 FTE + Project Lead 0.6 FTE), Research £46,000, Cooperative dev £20,000, Core costs £11,377. Aligns with TfL priorities: increase household incomes + increase household/community wealth.',
+    notes: 'EOI submitted on time, Feb 8 2026. Awaiting TfL response. BLKOUTNXT: Economic Futures programme. Two strands: (1) Participatory action research on employment experiences at intersection of race and sexuality, with 25-30 person intergenerational cohort and 3-5 peer researchers. Cross-sector advocacy with Black employment and men\'s employment initiatives. Academic partners: King\'s College London, Sheffield University, UAL. (2) Cooperative infrastructure development - feasibility work for community-owned enterprise (venue, subscription, media). CBS governance. Budget: Staffing £122,623 (Director 0.2 FTE + Project Lead 0.6 FTE), Research £46,000, Cooperative dev £20,000, Core costs £11,377. Aligns with TfL priorities: increase household incomes + increase household/community wealth.',
     documents: [
       { name: 'Expression of Interest - Main', url: '', type: 'application', uploadedAt: '2026-01-31T00:00:00Z' },
       { name: 'Budget Narrative (3-Year)', url: '', type: 'budget', uploadedAt: '2026-01-31T00:00:00Z' },
@@ -131,7 +137,203 @@ const mockGrants: Grant[] = [
       { name: 'Supporting Documents List', url: '', type: 'other', uploadedAt: '2026-01-31T00:00:00Z' },
     ],
     created_at: '2026-01-31T00:00:00Z',
-    updated_at: new Date().toISOString(),
+    updated_at: '2026-02-08T00:00:00Z',
+  },
+  // ==================== REAL BID: Seen — Weaving Liberation Digital Justice Fund ====================
+  {
+    id: '6',
+    title: 'Seen — Weaving Liberation, Digital Justice Fund (Round 1)',
+    funder_name: 'Weaving Liberation',
+    funder_type: 'foundation',
+    program_area: 'Digital Justice',
+    amount_requested: 34000, // €40,000 ≈ £34k
+    status: 'preparing',
+    priority: 'critical',
+    strategic_fit_score: 9,
+    blkout_priority_alignment: {
+      liberation: 10,
+      ownership: 10,
+      mental_health: 6,
+      economic_justice: 7,
+      movement_building: 9,
+    },
+    scaling_tier: 'growth',
+    geographic_scope: 'uk_wide',
+    deadline_date: '2026-06-21',
+    writing_investment_hours: 24,
+    review_required: 'peer',
+    is_modular: true,
+    can_fund_independently: true,
+    lead_writer: 'Dr Rob Berkeley MBE',
+    tags: ['seen', 'digital-justice', 'cooperative-governance', 'fair-use', 'counter-algorithmic'],
+    notes: 'Draft at projects/seen/funding/05-weaving-liberation-digital-justice-fund.md (submission-ready PDF in generated/). €40k over 2yr (2026–2028). Optional fund webinar Wed 20 May 2026 12:30 CET. Registration deadline 24 May 2026 (gating action); submission 21 June 2026; shortlist early Aug. Digital commons + cooperative governance + fair-use policy as sector artefact. Anchored to Seen.',
+    documents: [
+      { name: 'Round 1 Application Draft', url: '', type: 'application', uploadedAt: '2026-05-12T00:00:00Z' },
+    ],
+    created_at: '2026-05-12T00:00:00Z',
+    updated_at: '2026-05-13T00:00:00Z',
+  },
+  // ==================== REAL BID: Seen — Heritage Fund Pilot £10k ====================
+  {
+    id: '7',
+    title: 'Seen — National Lottery Heritage Fund Pilot',
+    funder_name: 'National Lottery Heritage Fund',
+    funder_type: 'lottery',
+    program_area: 'Heritage Grants (single-stage, £3k–£10k tier)',
+    amount_requested: 10000,
+    status: 'preparing',
+    priority: 'high',
+    strategic_fit_score: 9,
+    blkout_priority_alignment: {
+      liberation: 9,
+      ownership: 8,
+      mental_health: 5,
+      economic_justice: 6,
+      movement_building: 8,
+    },
+    scaling_tier: 'seed',
+    geographic_scope: 'national',
+    deadline_date: '2026-06-15',
+    writing_investment_hours: 16,
+    review_required: 'peer',
+    is_modular: true,
+    can_fund_independently: true,
+    lead_writer: 'Dr Rob Berkeley MBE',
+    tags: ['seen', 'heritage', 'pilot', 'archive', 'black-queer-britain'],
+    notes: 'Draft at projects/seen/funding/01-heritage-fund-pilot-10k.md. 3-month pilot Aug–Oct 2026: 4 fortnightly editions + 1 community listening room at The Arzner + fair-use/IP policy. Pre-application call to HF South-East team needed before submission. Pilot evidence feeds Year 1 bid (Nov 2026). 8-week decision target.',
+    documents: [
+      { name: 'Pilot Application Draft (£10k)', url: '', type: 'application', uploadedAt: '2026-05-12T00:00:00Z' },
+    ],
+    created_at: '2026-05-12T00:00:00Z',
+    updated_at: '2026-05-12T00:00:00Z',
+  },
+  // ==================== REAL BID: Seen — Boiler Room Broadcast Lab #14 ====================
+  {
+    id: '8',
+    title: 'Seen — Boiler Room Broadcast Lab #14 (flagship pilot event)',
+    funder_name: 'Boiler Room',
+    funder_type: 'corporate',
+    program_area: 'Broadcast Lab Edition #14',
+    amount_requested: 10000,
+    status: 'researching',
+    priority: 'medium',
+    strategic_fit_score: 8,
+    scaling_tier: 'seed',
+    geographic_scope: 'uk_wide',
+    deadline_date: '2026-07-15', // TBC — placeholder until BL#14 deadline confirmed
+    writing_investment_hours: 12,
+    review_required: 'peer',
+    is_modular: true,
+    can_fund_independently: true,
+    lead_writer: 'Dr Rob Berkeley MBE',
+    tags: ['seen', 'live-event', 'broadcast', 'book-slam-shape', 'pilot'],
+    notes: 'Draft at projects/seen/funding/04-boiler-room-broadcast-lab.md. £10k cash + in-kind production. Flagship live event for Seen pilot autumn 2026, Book Slam-shape, broadcast through Boiler Room. Submission window TBC — check Broadcast Lab #14 page for current deadline. Independent of Heritage Fund pilot but complementary.',
+    documents: [
+      { name: 'Broadcast Lab #14 Concept Draft', url: '', type: 'application', uploadedAt: '2026-05-12T00:00:00Z' },
+    ],
+    created_at: '2026-05-12T00:00:00Z',
+    updated_at: '2026-05-12T00:00:00Z',
+  },
+  // ==================== REAL BID: Seen — Heritage Fund Year 1 £35k ====================
+  {
+    id: '9',
+    title: 'Seen — National Lottery Heritage Fund Year 1',
+    funder_name: 'National Lottery Heritage Fund',
+    funder_type: 'lottery',
+    program_area: 'Heritage Grants £10k–£250k (two-stage)',
+    amount_requested: 35000,
+    status: 'researching',
+    priority: 'high',
+    strategic_fit_score: 9,
+    blkout_priority_alignment: {
+      liberation: 9,
+      ownership: 8,
+      mental_health: 5,
+      economic_justice: 6,
+      movement_building: 8,
+    },
+    scaling_tier: 'growth',
+    geographic_scope: 'national',
+    deadline_date: '2026-11-30',
+    writing_investment_hours: 40,
+    review_required: 'full_external',
+    is_modular: true,
+    can_fund_independently: false,
+    module_dependencies: ['7'], // depends on HF pilot evidence
+    lead_writer: 'Dr Rob Berkeley MBE',
+    tags: ['seen', 'heritage', 'year-one', 'archive', 'curators-cohort'],
+    notes: 'Draft at projects/seen/funding/02-heritage-fund-year1-35k.md. 12-month delivery Jan–Dec 2027: 25 fortnightly editions, 10 commissioned curators, 12 live listening rooms, published fair-use/IP policy. Total project cost £71,280 (HF £35k + ACE £22k + Boiler Room £14,280 in-kind/cash). Submit Nov 2026 on back of pilot evidence. Coincides with BLKOUT 10th anniversary.',
+    created_at: '2026-05-12T00:00:00Z',
+    updated_at: '2026-05-12T00:00:00Z',
+  },
+  // ==================== REAL BID: Seen — Arts Council NLPG £22k ====================
+  {
+    id: '10',
+    title: 'Seen — Arts Council England, National Lottery Project Grants',
+    funder_name: 'Arts Council England',
+    funder_type: 'government',
+    program_area: 'National Lottery Project Grants (<£30k strand)',
+    amount_requested: 22000,
+    status: 'researching',
+    priority: 'high',
+    strategic_fit_score: 8,
+    scaling_tier: 'growth',
+    geographic_scope: 'city',
+    deadline_date: '2026-11-15',
+    writing_investment_hours: 32,
+    review_required: 'peer',
+    is_modular: true,
+    can_fund_independently: false,
+    module_dependencies: ['7'],
+    lead_writer: 'Dr Rob Berkeley MBE',
+    tags: ['seen', 'arts-council', 'live-performance', 'audience-development'],
+    notes: 'Draft at projects/seen/funding/03-arts-council-nlpg-22k.md. Live performance programme for Seen Year 1: 12 events London 2027. 4 flagships co-hosted with archive partners (Autograph/Bishopsgate/BCA/British Library), 8 community-scale at The Arzner. Match funding £49,280 from HF + Boiler Room + earned income. Pre-submission call to ACE Customer Services to confirm CBS eligibility under "corporate body" category. 12-week decision target.',
+    created_at: '2026-05-12T00:00:00Z',
+    updated_at: '2026-05-12T00:00:00Z',
+  },
+  // ==================== REAL BID: TNL Solidarity Fund (DiaspoRainbow Coalition) ====================
+  {
+    id: '11',
+    title: 'DiaspoRainbow Coalition — TNL Solidarity Fund (£5m QTIPOC infrastructure)',
+    funder_name: 'National Lottery Community Fund',
+    funder_type: 'lottery',
+    program_area: 'Solidarity Fund',
+    amount_requested: 4998000,
+    status: 'preparing',
+    priority: 'critical',
+    strategic_fit_score: 10,
+    blkout_priority_alignment: {
+      liberation: 10,
+      ownership: 10,
+      mental_health: 8,
+      economic_justice: 9,
+      movement_building: 10,
+    },
+    funder_relationship_score: 6,
+    scaling_tier: 'transformation',
+    min_viable_budget: 3000000,
+    max_potential_budget: 5000000,
+    geographic_scope: 'uk_wide',
+    participant_range_min: 200,
+    participant_range_max: 500,
+    scaling_notes: '6.5-year programme: 12mo Y0 development + 5yr delivery + 6mo wrap. £4,998k = 99.96% of £5m envelope. Includes QTIPOC CookOut full 5yr arc (£1.055m), 10 partner orgs, digital commons (£290k), retreats, participatory grants pool with clawback (£375k). Two architecture options (A/B) and three host options still in coalition discussion post-retreat.',
+    writing_investment_hours: 120,
+    review_required: 'full_external',
+    is_modular: true,
+    can_fund_independently: false,
+    lead_writer: 'Dr Rob Berkeley MBE (joint with Marlborough Productions)',
+    team_members: ['Dr Rob Berkeley MBE', 'Seyi Osi (Marlborough)', 'Tarik Elmoutawakil (Marlborough)', 'Coalition steering (10 partner orgs)'],
+    tags: ['tnl', 'solidarity-fund', 'coalition', 'cookout', 'diasporainbow', 'qtipoc', 'cbs-host'],
+    notes: 'Feasibility analysis: projects/dr-reflections/output/solidarity-fund-feasibility.md. Note-form answers: projects/dr-reflections/output/tnl-solidarity-application-notes.md. POST-RETREAT STATE (8-10 May 2026): Vol I + Vol II out to Marlborough + participants 15 May. Feedback due Marlborough Wed 21 May / participants Fri 23 May. Then synthesise into late-May joint-authorship doc for Q10-13 prose (750w each). Open decisions: (1) Proposal A (retain CookOut + 10-org + retreats) vs B (drop CookOut, lighter coalition, more micro-grants); (2) host structure — sole Marlborough, sole BLKOUT, or Marlborough-led with BLKOUT named partner on digital + org-dev; (3) budget pathway within 5-10yr ceiling. Largest bid BLKOUT has been involved in. Success criterion: "the bid is the right bid".',
+    documents: [
+      { name: 'Coalition Feasibility Analysis', url: '', type: 'narrative', uploadedAt: '2026-05-08T00:00:00Z' },
+      { name: 'Note-form Application Answers (Q1-9)', url: '', type: 'application', uploadedAt: '2026-05-08T00:00:00Z' },
+      { name: 'Volume I — Architecture Review', url: '', type: 'narrative', uploadedAt: '2026-05-15T00:00:00Z' },
+      { name: 'Volume II — Retreat Synthesis', url: '', type: 'narrative', uploadedAt: '2026-05-15T00:00:00Z' },
+    ],
+    deadline_date: '2026-07-31', // estimate — coalition synthesis drives submission window
+    created_at: '2026-05-08T00:00:00Z',
+    updated_at: '2026-05-15T00:00:00Z',
   },
 ];
 
@@ -486,6 +688,53 @@ const mockOpportunities: OpportunityPipeline[] = [
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
   },
+  // ==================== Lewisham — Creative Health Microgrants (new 15 May 2026) ====================
+  {
+    id: '21',
+    title: 'Creative Health in Lewisham Neighbourhoods Microgrants',
+    funder_name: 'Lewisham Council + South-East London ICB',
+    source: 'funder_website',
+    source_url: 'https://communityfunding.lewisham.gov.uk/our-funds/small-grants',
+    status: 'assessing',
+    funding_min: 2000,
+    funding_max: 2000,
+    deadline_date: '2026-06-07',
+    days_until_deadline: 23,
+    deadline_urgency: 'approaching',
+    combined_fit_score: 5.5,
+    project_category: 'creative',
+    eligibility_criteria: 'Projects bringing partners together for community health and wellbeing through creative activity in Lewisham neighbourhoods. Delivery July–December 2026.',
+    blkout_alignment_notes: 'Geographic constraint: Lewisham-anchored activity required. Candidate anchor partners (Lewisham): The Albany (Deptford SE8), Blueprint for All (Deptford SE8), Rivoli Ballroom (Crofton Park SE4), Piehouse Co-op. Small (£2k) — pilot-shape. Could pair with mental-health programming or a Seen-aligned listening room in Lewisham.',
+    research_notes: 'Info sessions: Online Tue 19 May 1–2pm; In person Wed 20 May 2:30–3:30pm at Catford House SE6 4SP. Contact: cultural.development@lewisham.gov.uk. Deadline 7 Jun 2026 11:59pm. Delivery window Jul–Dec 2026.',
+    funder_priorities: ['Lewisham residents', 'Creative health', 'Community wellbeing', 'Partnership working'],
+    discovered_date: '2026-05-15',
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+  },
+  // ==================== Lewisham — Neighbourhood Health Creative Communication Grant (new 15 May 2026) ====================
+  {
+    id: '22',
+    title: 'Neighbourhood Health Creative Communication Grant (Lewisham)',
+    funder_name: 'Lewisham Council + South-East London ICB',
+    source: 'funder_website',
+    source_url: 'https://communityfunding.lewisham.gov.uk/our-funds/small-grants',
+    status: 'recommended',
+    funding_min: 4000,
+    funding_max: 4000,
+    deadline_date: '2026-06-07',
+    days_until_deadline: 23,
+    deadline_urgency: 'approaching',
+    combined_fit_score: 6.5,
+    project_category: 'creative',
+    eligibility_criteria: 'Creative project that explains and connects people to local neighbourhood health services and activities in Lewisham. Delivery July–December 2026.',
+    blkout_alignment_notes: 'Stronger fit than the Microgrants — BLKOUT has comms/design/video capacity (AIvor, newsletter, social) that maps cleanly to "creative communication for neighbourhood health". Needs Lewisham anchor partner. Candidates: The Albany (strongest — Deptford community arts venue with established creative-health programming, e.g. Meet Me at the Albany); Blueprint for All (strongest values alignment — Stephen Lawrence race-equity legacy, but youth-focused vs BLKOUT adult audience); Rivoli Ballroom (heritage venue, good for an event but a hire space not a health partner); Piehouse Co-op (co-op-to-co-op fit with BLKOUT CBS values). Lead recommendation: approach The Albany as co-host.',
+    research_notes: 'Info sessions: Online Tue 19 May 4–5pm; In person Wed 20 May 4–5pm at Catford House SE6 4SP. Contact: cultural.development@lewisham.gov.uk. Deadline 7 Jun 2026 11:59pm. Delivery window Jul–Dec 2026.',
+    recommended_project: 'Black queer men’s neighbourhood-health communications package (video + print + listening event) for Lewisham',
+    funder_priorities: ['Lewisham residents', 'Neighbourhood health services', 'Creative communication', 'Community connection'],
+    discovered_date: '2026-05-15',
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+  },
   {
     id: '19',
     title: 'Black Artists Grant (BAG)',
@@ -519,6 +768,48 @@ const mockOpportunities: OpportunityPipeline[] = [
     blkout_alignment_notes: 'Check regional rounds availability. Up to £20k/year for 2 years. Core funding for food/support work.',
     funder_priorities: ['Community organisations', 'Food and support', 'Core funding'],
     discovered_date: '2026-01-31',
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+  },
+  // ==================== Maudsley Charity (prospect — Rob, 15 May 2026) ====================
+  {
+    id: '23',
+    title: 'Maudsley Charity — mental health grants programmes',
+    funder_name: 'Maudsley Charity',
+    source: 'manual',
+    source_url: 'https://maudsleycharity.org/grants/',
+    status: 'researching',
+    funding_min: 25000,
+    funding_max: 250000,
+    deadline_urgency: 'no_deadline',
+    combined_fit_score: 7.5,
+    project_category: 'mental_health',
+    eligibility_criteria: 'Mental health care in south London (SLaM footprint — Lambeth, Southwark, Lewisham, Croydon). Funds clinical, academic and community partners.',
+    blkout_alignment_notes: 'Strong thematic fit — Black queer men’s mental health is core to BLKOUT, and the south London geography overlaps with the emerging Lewisham anchor work. Community-facing programme is "Building Brighter Futures"; "Living Well with Psychosis" and "Advancing Care in our Local Trust" are more clinical. Approach as a relationship — identify the right programme + named contact before applying. Grant range is an estimate; confirm current rounds.',
+    research_notes: 'Three programmes: Advancing Care in our Local Trust, Living Well with Psychosis, Building Brighter Futures. No fixed open rounds confirmed on site — contact charity directly. Rob has flagged as a prospect.',
+    recommended_project: 'Black queer men’s mental health / wellbeing programme (BMHWA-adjacent), south London',
+    funder_priorities: ['Mental health', 'South London', 'Community partners', 'Lived experience'],
+    discovered_date: '2026-05-15',
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+  },
+  // ==================== Impact on Urban Health (prospect — Rob, 15 May 2026) ====================
+  {
+    id: '24',
+    title: 'Impact on Urban Health — health inequalities partnerships',
+    funder_name: 'Impact on Urban Health (Guy’s & St Thomas’ Foundation)',
+    source: 'manual',
+    source_url: 'https://urbanhealth.org.uk/',
+    status: 'researching',
+    funding_min: 50000,
+    deadline_urgency: 'no_deadline',
+    combined_fit_score: 6.0,
+    project_category: 'mental_health',
+    eligibility_criteria: 'Work tackling health inequalities in Lambeth and Southwark. Funds via partnerships and commissions, not open grants.',
+    blkout_alignment_notes: 'Partnership/commission funder, not an application route — this is a relationship to build, not a form to fill. Geography is Lambeth + Southwark (NOT Lewisham). Their named programmes (children’s health and food, children’s mental health, air pollution, financial foundations for adult health) don’t map directly to BLKOUT’s adult Black queer men’s work; "financial foundations for adult health" is the nearest door. Needs a Lambeth/Southwark anchor and a long-game relationship approach.',
+    research_notes: 'Part of Guy’s & St Thomas’ Foundation. Funds through "Become a partner" route + Tenders page rather than open grants. The Grain House, 46 Loman Street, SE1 0EH. Rob has flagged as a prospect.',
+    funder_priorities: ['Health inequalities', 'Lambeth & Southwark', 'Partnership-led', 'Systemic change'],
+    discovered_date: '2026-05-15',
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
   },
@@ -573,19 +864,85 @@ const mockBidProgress: BidWritingProgress[] = [
     grant_title: 'Trust for London - Racial Justice Fund (BLKOUTNXT: Economic Futures)',
     funder_name: 'Trust for London',
     amount_requested: 200000,
-    grant_status: 'preparing',
+    grant_status: 'submitted',
     writing_investment_hours: 60,
     review_required: 'full_external',
     total_documents: 6,
-    drafts_in_progress: 1,
-    documents_in_review: 1,
-    documents_approved: 4,
+    drafts_in_progress: 0,
+    documents_in_review: 0,
+    documents_approved: 6,
     total_target_words: 6500,
-    total_words_written: 5500,
-    word_count_progress_pct: 85,
+    total_words_written: 6500,
+    word_count_progress_pct: 100,
     total_time_spent_minutes: 960,
     total_sessions: 12,
     deadline_status: 'on_track',
+  },
+  // ==================== REAL BID: Seen — Weaving Liberation ====================
+  {
+    grant_id: '6',
+    grant_title: 'Seen — Weaving Liberation, Digital Justice Fund (Round 1)',
+    funder_name: 'Weaving Liberation',
+    amount_requested: 34000,
+    deadline_date: '2026-06-21',
+    days_until_deadline: 37,
+    deadline_status: 'on_track',
+    grant_status: 'preparing',
+    total_documents: 1,
+    drafts_in_progress: 0,
+    documents_in_review: 1,
+    documents_approved: 0,
+    total_target_words: 3500,
+    total_words_written: 3500,
+    word_count_progress_pct: 100,
+    total_time_spent_minutes: 600,
+    total_sessions: 5,
+    writing_investment_hours: 24,
+    review_required: 'peer',
+  },
+  // ==================== REAL BID: Seen — Heritage Fund Pilot ====================
+  {
+    grant_id: '7',
+    grant_title: 'Seen — National Lottery Heritage Fund Pilot',
+    funder_name: 'National Lottery Heritage Fund',
+    amount_requested: 10000,
+    deadline_date: '2026-06-15',
+    days_until_deadline: 31,
+    deadline_status: 'on_track',
+    grant_status: 'preparing',
+    total_documents: 1,
+    drafts_in_progress: 0,
+    documents_in_review: 1,
+    documents_approved: 0,
+    total_target_words: 2500,
+    total_words_written: 2500,
+    word_count_progress_pct: 100,
+    total_time_spent_minutes: 480,
+    total_sessions: 4,
+    writing_investment_hours: 16,
+    review_required: 'peer',
+  },
+  // ==================== REAL BID: TNL Solidarity Fund (Coalition) ====================
+  {
+    grant_id: '11',
+    grant_title: 'DiaspoRainbow Coalition — TNL Solidarity Fund (£5m QTIPOC infrastructure)',
+    funder_name: 'National Lottery Community Fund',
+    amount_requested: 4998000,
+    deadline_date: '2026-07-31',
+    days_until_deadline: 77,
+    deadline_status: 'on_track',
+    grant_status: 'preparing',
+    total_documents: 4,
+    drafts_in_progress: 2,
+    documents_in_review: 2,
+    documents_approved: 0,
+    total_target_words: 12000, // Q10-13 = 4 × 750w + structural Q1-9 + Q22-30
+    total_words_written: 4500,
+    word_count_progress_pct: 38,
+    total_time_spent_minutes: 1680,
+    total_sessions: 18,
+    writing_investment_hours: 120,
+    review_required: 'full_external',
   },
 ];
 
@@ -769,6 +1126,62 @@ export function useGrants() {
     getGrantsByPriority,
     getUpcomingDeadlines,
   };
+}
+
+/**
+ * useFunderRelationships
+ * Reads the CRM `organizations` table (same Supabase project) to identify
+ * funders BLKOUT has a cultivated relationship with — not cold opportunities.
+ *
+ * "Cultivated" = relationship_status active/developing. The CRM marks funders
+ * via is_funder, org_type 'funder_foundation', or relationship_type funder/sponsor.
+ * Read-only and fail-soft: any error (or an unpopulated CRM) yields an empty map,
+ * so the dashboard simply shows no relationship badges rather than breaking.
+ */
+export function useFunderRelationships() {
+  const [relationships, setRelationships] = useState<Map<string, FunderRelationship>>(new Map());
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchRelationships = async () => {
+      try {
+        if (!isSupabaseConfigured()) {
+          setLoading(false);
+          return;
+        }
+
+        const { data, error: fetchError } = await supabase
+          .from('organizations')
+          .select('name, relationship_type, relationship_status, relationship_start_date')
+          .or('is_funder.eq.true,org_type.eq.funder_foundation,relationship_type.eq.funder,relationship_type.eq.sponsor')
+          .in('relationship_status', ['active', 'developing']);
+
+        if (fetchError) throw fetchError;
+
+        const map = new Map<string, FunderRelationship>();
+        (data || []).forEach((org) => {
+          if (org?.name) {
+            map.set(normalizeFunderName(org.name), {
+              name: org.name,
+              relationship_type: org.relationship_type ?? null,
+              relationship_status: org.relationship_status ?? null,
+              relationship_start_date: org.relationship_start_date ?? null,
+            });
+          }
+        });
+        setRelationships(map);
+      } catch (err) {
+        // CRM may be unpopulated with funders, or table unreachable — degrade quietly.
+        console.warn('Funder relationships unavailable from CRM:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchRelationships();
+  }, []);
+
+  return { relationships, loading };
 }
 
 // Hook for fetching a single grant with details

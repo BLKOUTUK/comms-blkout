@@ -13,15 +13,23 @@ import {
   XCircle,
   Globe,
   Users,
-  Lightbulb
+  Lightbulb,
+  Heart
 } from 'lucide-react';
-import type { OpportunityPipeline, OpportunityStatus, OpportunitySource } from '../../services/grants/types';
+import type {
+  OpportunityPipeline,
+  OpportunityStatus,
+  OpportunitySource,
+  FunderRelationship,
+} from '../../services/grants/types';
 
 interface OpportunityCardProps {
   opportunity: OpportunityPipeline;
   formatCurrency: (amount: number) => string;
   onConvert?: (id: string) => void;
   onDecline?: (id: string) => void;
+  /** CRM relationship for this funder, if BLKOUT has a cultivated one. */
+  relationship?: FunderRelationship;
 }
 
 const sourceConfig: Record<OpportunitySource, { icon: typeof Globe; label: string; color: string }> = {
@@ -56,10 +64,13 @@ export function OpportunityCard({
   formatCurrency,
   onConvert,
   onDecline,
+  relationship,
 }: OpportunityCardProps) {
   const source = sourceConfig[opportunity.source];
   const status = statusConfig[opportunity.status];
   const SourceIcon = source.icon;
+  const relationshipLabel =
+    relationship?.relationship_status === 'developing' ? 'Relationship developing' : 'Known funder';
 
   // Calculate deadline urgency
   const getDeadlineDisplay = () => {
@@ -116,9 +127,18 @@ export function OpportunityCard({
           {opportunity.title}
         </h3>
 
-        <div className="flex items-center gap-2 mt-2 text-slate-600">
+        <div className="flex items-center gap-2 mt-2 text-slate-600 flex-wrap">
           <Building2 className="w-4 h-4 text-slate-400" />
           <span className="text-sm">{opportunity.funder_name}</span>
+          {relationship && (
+            <span
+              className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-rose-50 text-rose-700 border border-rose-200"
+              title={`CRM: ${relationship.relationship_type || 'funder'} — ${relationship.relationship_status || 'active'}`}
+            >
+              <Heart className="w-3 h-3" />
+              {relationshipLabel}
+            </span>
+          )}
         </div>
 
         {/* Funding & Deadline Row */}
