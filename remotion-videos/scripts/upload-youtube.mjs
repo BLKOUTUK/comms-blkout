@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { readFile, stat } from "node:fs/promises";
+import { readFile, stat, appendFile } from "node:fs/promises";
 import { createReadStream } from "node:fs";
 import { resolve } from "node:path";
 import { parseArgs } from "node:util";
@@ -149,3 +149,48 @@ const result = await uploadBytes(uploadUrl);
 console.log(`✓ Uploaded.`);
 console.log(`  video id: ${result.id}`);
 console.log(`  https://www.youtube.com/watch?v=${result.id}`);
+
+// --- Publish summary -------------------------------------------------------
+// Review-gate model: the cron uploads unlisted, then emits everything needed
+// to publish. The digest is not live on the news site until a human pastes the
+// block below into news-blkout/src/config/aivorDigest.ts and commits it.
+
+const watchUrl = `https://www.youtube.com/watch?v=${result.id}`;
+const digestWeekLabel = props.dateRangeTo
+  ? `Week ending ${props.dateRangeTo}`
+  : props.weekLabel || weekTag;
+const teaseTitles = (props.teases || []).map((t) => t.title).filter(Boolean);
+const digestSummary = teaseTitles.length
+  ? `${teaseTitles.length} stories the community voted up — ${teaseTitles.join(", ")}.`
+  : props.intro || "AIvor's weekly round-up of the stories that matter.";
+
+const digestBlock = [
+  "export const latestDigest: AIvorDigest = {",
+  `  weekLabel: ${JSON.stringify(digestWeekLabel)},`,
+  `  videoUrl: ${JSON.stringify(watchUrl)},`,
+  `  format: 'short',`,
+  `  summary:`,
+  `    ${JSON.stringify(digestSummary)},`,
+  `  youtubeChannelUrl: 'https://www.youtube.com/channel/UC7g_Es50958bYJauxym0n1A',`,
+  "};",
+].join("\n");
+
+const publishSummary = [
+  "## 📺 Weekly digest — ready to publish",
+  "",
+  `**Video:** [${title}](${watchUrl}) · privacy: \`${args.privacy}\``,
+  "",
+  "To publish: review the video, then replace the `latestDigest` export in",
+  "`news-blkout/src/config/aivorDigest.ts` with the block below and commit it.",
+  "news-blkout redeploys automatically on push.",
+  "",
+  "```ts",
+  digestBlock,
+  "```",
+  "",
+].join("\n");
+
+console.log("\n" + publishSummary);
+if (process.env.GITHUB_STEP_SUMMARY) {
+  await appendFile(process.env.GITHUB_STEP_SUMMARY, publishSummary + "\n");
+}
