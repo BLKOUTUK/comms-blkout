@@ -24,7 +24,7 @@ import { Layout } from '../../components/layout/Layout';
 import { GrantPipelineCard } from '../../components/grants/GrantPipelineCard';
 import { OpportunityCard } from '../../components/grants/OpportunityCard';
 import { BidProgressCard } from '../../components/grants/BidProgressCard';
-import { useGrants } from '../../hooks/useGrants';
+import { useGrants, useFunderRelationships, normalizeFunderName } from '../../hooks/useGrants';
 
 // Status colors following BLKOUT design system
 const statusColors = {
@@ -53,8 +53,32 @@ export default function Grants() {
     pipelineSummary,
   } = useGrants();
 
+  const { relationships: funderRelationships } = useFunderRelationships();
+
   const [activeTab, setActiveTab] = useState<'pipeline' | 'opportunities' | 'writing'>('pipeline');
   const [searchQuery, setSearchQuery] = useState('');
+  const [showFilters, setShowFilters] = useState(false);
+  const [statusFilter, setStatusFilter] = useState('all');
+  const [categoryFilter, setCategoryFilter] = useState('all');
+  const [urgencyFilter, setUrgencyFilter] = useState('all');
+  const [relationshipOnly, setRelationshipOnly] = useState(false);
+
+  // Opportunities filtered by search + the filter panel facets
+  const filteredOpportunities = opportunities.filter((opp) => {
+    const q = searchQuery.trim().toLowerCase();
+    if (q && !`${opp.title} ${opp.funder_name}`.toLowerCase().includes(q)) return false;
+    if (statusFilter !== 'all' && opp.status !== statusFilter) return false;
+    if (categoryFilter !== 'all' && opp.project_category !== categoryFilter) return false;
+    if (urgencyFilter !== 'all' && opp.deadline_urgency !== urgencyFilter) return false;
+    if (relationshipOnly && !funderRelationships.has(normalizeFunderName(opp.funder_name))) return false;
+    return true;
+  });
+
+  const activeFilterCount =
+    (statusFilter !== 'all' ? 1 : 0) +
+    (categoryFilter !== 'all' ? 1 : 0) +
+    (urgencyFilter !== 'all' ? 1 : 0) +
+    (relationshipOnly ? 1 : 0);
 
   // Format currency
   const formatCurrency = (amount: number) => {
@@ -185,21 +209,120 @@ export default function Grants() {
         </div>
 
         {/* Search and Filters */}
-        <div className="flex items-center gap-4">
-          <div className="flex-1 relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
-            <input
-              type="text"
-              placeholder="Search grants, funders, or opportunities..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-shadow"
-            />
+        <div className="space-y-4">
+          <div className="flex items-center gap-4">
+            <div className="flex-1 relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+              <input
+                type="text"
+                placeholder="Search grants, funders, or opportunities..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-10 pr-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-shadow"
+              />
+            </div>
+            <button
+              onClick={() => setShowFilters((s) => !s)}
+              className={`flex items-center gap-2 px-4 py-2.5 border rounded-lg transition-colors ${
+                showFilters || activeFilterCount > 0
+                  ? 'border-teal-500 bg-teal-50 text-teal-700'
+                  : 'border-slate-200 hover:bg-slate-50 text-slate-700'
+              }`}
+            >
+              <Filter className="w-5 h-5" />
+              <span>Filters</span>
+              {activeFilterCount > 0 && (
+                <span className="ml-1 px-1.5 py-0.5 bg-teal-600 text-white text-xs font-semibold rounded-full">
+                  {activeFilterCount}
+                </span>
+              )}
+            </button>
           </div>
-          <button className="flex items-center gap-2 px-4 py-2.5 border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors">
-            <Filter className="w-5 h-5 text-slate-500" />
-            <span className="text-slate-700">Filters</span>
-          </button>
+
+          {/* Filter panel — applies to the Opportunities tab */}
+          {showFilters && (
+            <div className="bg-slate-50 border border-slate-200 rounded-xl p-4">
+              <div className="flex items-center justify-between mb-3">
+                <p className="text-sm font-medium text-slate-700">Filter opportunities</p>
+                {activeFilterCount > 0 && (
+                  <button
+                    onClick={() => {
+                      setStatusFilter('all');
+                      setCategoryFilter('all');
+                      setUrgencyFilter('all');
+                      setRelationshipOnly(false);
+                    }}
+                    className="text-xs text-teal-600 hover:text-teal-700 font-medium"
+                  >
+                    Clear all
+                  </button>
+                )}
+              </div>
+              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                <label className="block">
+                  <span className="text-xs text-slate-500">Status</span>
+                  <select
+                    value={statusFilter}
+                    onChange={(e) => setStatusFilter(e.target.value)}
+                    className="mt-1 w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
+                  >
+                    <option value="all">All statuses</option>
+                    <option value="new">New</option>
+                    <option value="researching">Researching</option>
+                    <option value="assessing">Assessing</option>
+                    <option value="recommended">Recommended</option>
+                    <option value="declined">Declined</option>
+                    <option value="converted">Converted</option>
+                  </select>
+                </label>
+                <label className="block">
+                  <span className="text-xs text-slate-500">Category</span>
+                  <select
+                    value={categoryFilter}
+                    onChange={(e) => setCategoryFilter(e.target.value)}
+                    className="mt-1 w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
+                  >
+                    <option value="all">All categories</option>
+                    <option value="infrastructure">Tech Infrastructure</option>
+                    <option value="mental_health">Mental Health</option>
+                    <option value="creative">Creative &amp; Cultural</option>
+                    <option value="capacity_building">Capacity Building</option>
+                    <option value="advocacy">Advocacy</option>
+                    <option value="research">Research</option>
+                  </select>
+                </label>
+                <label className="block">
+                  <span className="text-xs text-slate-500">Deadline</span>
+                  <select
+                    value={urgencyFilter}
+                    onChange={(e) => setUrgencyFilter(e.target.value)}
+                    className="mt-1 w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
+                  >
+                    <option value="all">Any deadline</option>
+                    <option value="urgent">Urgent</option>
+                    <option value="approaching">Approaching</option>
+                    <option value="future">Future</option>
+                    <option value="no_deadline">No deadline / rolling</option>
+                    <option value="expired">Expired</option>
+                  </select>
+                </label>
+              </div>
+              <label className="flex items-center gap-2 mt-3 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={relationshipOnly}
+                  onChange={(e) => setRelationshipOnly(e.target.checked)}
+                  className="rounded border-slate-300 text-teal-600 focus:ring-teal-500"
+                />
+                <span className="text-sm text-slate-700">
+                  Only funders we have a cultivated relationship with
+                </span>
+                <span className="text-xs text-slate-400">
+                  ({funderRelationships.size} in CRM)
+                </span>
+              </label>
+            </div>
+          )}
         </div>
 
         {/* Content based on active tab */}
@@ -263,16 +386,23 @@ export default function Grants() {
               </h2>
               <div className="flex items-center gap-2 text-sm text-slate-500">
                 <Sparkles className="w-4 h-4" />
-                <span>{opportunities.length} opportunities discovered</span>
+                <span>
+                  {filteredOpportunities.length}
+                  {filteredOpportunities.length !== opportunities.length
+                    ? ` of ${opportunities.length}`
+                    : ''}{' '}
+                  opportunities
+                </span>
               </div>
             </div>
 
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {opportunities.map((opp) => (
+              {filteredOpportunities.map((opp) => (
                 <OpportunityCard
                   key={opp.id}
                   opportunity={opp}
                   formatCurrency={formatCurrency}
+                  relationship={funderRelationships.get(normalizeFunderName(opp.funder_name))}
                 />
               ))}
             </div>
@@ -290,6 +420,18 @@ export default function Grants() {
                   <Plus className="w-4 h-4" />
                   Add Opportunity
                 </button>
+              </div>
+            )}
+
+            {opportunities.length > 0 && filteredOpportunities.length === 0 && (
+              <div className="text-center py-12 bg-slate-50 rounded-xl border border-dashed border-slate-200">
+                <Filter className="w-12 h-12 text-slate-300 mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-slate-700 mb-2">
+                  No opportunities match these filters
+                </h3>
+                <p className="text-slate-500">
+                  Adjust or clear the filters to see more.
+                </p>
               </div>
             )}
           </div>
