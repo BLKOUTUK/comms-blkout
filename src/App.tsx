@@ -17,14 +17,17 @@ import { SocialSyncEditorial } from '@/pages/admin/SocialSyncEditorial';
 import { Newsletters } from '@/pages/admin/Newsletters';
 import { OAuthCallback } from '@/pages/auth/OAuthCallback';
 import Grants from '@/pages/admin/Grants';
+import { Finance } from '@/pages/admin/Finance';
 import { EventModeration } from '@/pages/admin/EventModeration';
 import { NewsModeration } from '@/pages/admin/NewsModeration';
 import { DesignStudio } from '@/pages/admin/DesignStudio';
 import { CampaignReview } from '@/pages/admin/CampaignReview';
 import { CampaignDashboard } from '@/pages/admin/CampaignDashboard';
 import { DigestVid } from '@/pages/admin/DigestVid';
+import { ContentPipeline } from '@/pages/admin/ContentPipeline';
 import { NewsletterPreferences } from '@/pages/preferences/NewsletterPreferences';
 import { CelebratePage } from '@/pages/celebrate/CelebratePage';
+import { Fundraising } from '@/pages/admin/Fundraising';
 
 function App() {
   return (
@@ -121,6 +124,22 @@ function App() {
             }
           />
           <Route
+            path="/admin/finance"
+            element={
+              <ProtectedRoute>
+                <Finance />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/fundraising"
+            element={
+              <ProtectedRoute>
+                <Fundraising />
+              </ProtectedRoute>
+            }
+          />
+          <Route
             path="/admin/events"
             element={
               <ProtectedRoute>
@@ -166,6 +185,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <DigestVid />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/pipeline"
+            element={
+              <ProtectedRoute>
+                <ContentPipeline />
               </ProtectedRoute>
             }
           />

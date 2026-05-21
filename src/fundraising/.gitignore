@@ -1,0 +1,6 @@
+# Transient generation logs
+outputs/_batch.log
+outputs/_batch-retry.log
+__pycache__/
+*.pyc
+.venv/
