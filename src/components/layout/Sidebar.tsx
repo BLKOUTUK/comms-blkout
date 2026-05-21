@@ -13,6 +13,9 @@ import {
   CalendarCheck,
   Newspaper,
   Video,
+  Sparkles,
+  PoundSterling,
+  Radio,
 } from 'lucide-react';
 
 const navigation = [
@@ -22,7 +25,10 @@ const navigation = [
   { name: 'Content Calendar', href: '/admin/calendar', icon: Calendar },
   { name: 'Drafts', href: '/admin/drafts', icon: FileText },
   { name: 'Grant Funding', href: '/admin/grants', icon: Banknote },
+  { name: 'CF Fundraising', href: '/admin/fundraising', icon: Radio },
+  { name: 'Finance', href: '/admin/finance', icon: PoundSterling },
   { name: 'Agents', href: '/admin/agents', icon: Bot },
+  { name: 'Content Pipeline', href: '/admin/pipeline', icon: Sparkles },
   { name: 'Newsletters', href: '/admin/newsletters', icon: Mail },
   { name: 'DigestVid', href: '/admin/digestvid', icon: Video },
   { name: 'SocialSync', href: '/admin/socialsync', icon: Zap },
