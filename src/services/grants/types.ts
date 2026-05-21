@@ -318,6 +318,17 @@ export interface StrategicGrantPipeline {
   days_until_deadline?: number;
 }
 
+// ==================== CRM FUNDER RELATIONSHIP ====================
+
+// Sourced live from the CRM `organizations` table. Identifies funders BLKOUT
+// has an actual cultivated relationship with, vs cold-discovered opportunities.
+export interface FunderRelationship {
+  name: string;
+  relationship_type: string | null;
+  relationship_status: string | null;
+  relationship_start_date: string | null;
+}
+
 // ==================== OPPORTUNITY DISCOVERY TYPES ====================
 
 export type OpportunitySource =
