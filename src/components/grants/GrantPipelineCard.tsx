@@ -15,6 +15,7 @@ import {
   LucideIcon
 } from 'lucide-react';
 import type { Grant, Priority } from '../../types';
+import { CfOutreachBadge, type CfOutreachSummary } from './CfOutreachBadge';
 
 interface StatusConfig {
   bg: string;
@@ -28,6 +29,10 @@ interface GrantPipelineCardProps {
   statusColors: Record<string, StatusConfig>;
   priorityColors: Record<Priority, string>;
   getUrgencyClass: (daysUntil: number | null) => string;
+  /** Critical Frequency draft activity for this funder, if any. */
+  cfOutreach?: CfOutreachSummary;
+  /** Switch to CF Outreach tab pre-filtered by this funder. */
+  onCfOutreachClick?: () => void;
 }
 
 export function GrantPipelineCard({
@@ -36,6 +41,8 @@ export function GrantPipelineCard({
   statusColors,
   priorityColors,
   getUrgencyClass,
+  cfOutreach,
+  onCfOutreachClick,
 }: GrantPipelineCardProps) {
   const status = statusColors[grant.status] || statusColors.researching;
   const StatusIcon = status.icon;
@@ -105,13 +112,16 @@ export function GrantPipelineCard({
             </h3>
 
             {/* Funder Info */}
-            <div className="flex items-center gap-2 mt-2 text-slate-600">
+            <div className="flex items-center gap-2 mt-2 text-slate-600 flex-wrap">
               <Building2 className="w-4 h-4 text-slate-400" />
               <span className="text-sm">{grant.funder_name}</span>
               {grant.funder_type && (
                 <span className="text-xs text-slate-400 capitalize">
                   • {grant.funder_type}
                 </span>
+              )}
+              {cfOutreach && onCfOutreachClick && (
+                <CfOutreachBadge summary={cfOutreach} onClick={onCfOutreachClick} />
               )}
             </div>
 

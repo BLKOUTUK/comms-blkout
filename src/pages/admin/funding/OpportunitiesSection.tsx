@@ -2,12 +2,15 @@ import { Filter, Plus, Sparkles } from 'lucide-react';
 import { OpportunityCard } from '@/components/grants/OpportunityCard';
 import { normalizeFunderName } from '@/hooks/useGrants';
 import type { OpportunityPipeline, FunderRelationship } from '@/types';
+import type { CfOutreachSummary } from '@/components/grants/CfOutreachBadge';
 
 interface Props {
   opportunities: OpportunityPipeline[];
   filteredOpportunities: OpportunityPipeline[];
   funderRelationships: Map<string, FunderRelationship>;
   formatCurrency: (n: number) => string;
+  cfOutreachByFunder: Map<string, CfOutreachSummary>;
+  onCfOutreachClick: (funderName: string) => void;
 }
 
 export function OpportunitiesSection({
@@ -15,6 +18,8 @@ export function OpportunitiesSection({
   filteredOpportunities,
   funderRelationships,
   formatCurrency,
+  cfOutreachByFunder,
+  onCfOutreachClick,
 }: Props) {
   return (
     <div className="space-y-6">
@@ -33,14 +38,19 @@ export function OpportunitiesSection({
       </div>
 
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {filteredOpportunities.map((opp) => (
-          <OpportunityCard
-            key={opp.id}
-            opportunity={opp}
-            formatCurrency={formatCurrency}
-            relationship={funderRelationships.get(normalizeFunderName(opp.funder_name))}
-          />
-        ))}
+        {filteredOpportunities.map((opp) => {
+          const cf = cfOutreachByFunder.get(normalizeFunderName(opp.funder_name));
+          return (
+            <OpportunityCard
+              key={opp.id}
+              opportunity={opp}
+              formatCurrency={formatCurrency}
+              relationship={funderRelationships.get(normalizeFunderName(opp.funder_name))}
+              cfOutreach={cf}
+              onCfOutreachClick={cf ? () => onCfOutreachClick(opp.funder_name) : undefined}
+            />
+          );
+        })}
       </div>
 
       {opportunities.length === 0 && (
