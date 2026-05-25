@@ -20,6 +20,7 @@ import {
   Info,
 } from 'lucide-react';
 import { Layout } from '../../components/layout/Layout';
+import { useSubscriptions, type LiveSubscription } from '../../hooks/useSubscriptions';
 
 // Year 1 Conservative Baseline — from CBS Registration Briefing + Business Case
 const YEAR1_PROJECTION = {
@@ -181,6 +182,44 @@ const BILLING_BADGE: Record<BillingCycle, { label: string; classes: string }> = 
 const TOTAL_MONTHLY = SUBSCRIPTIONS.reduce((s, x) => s + x.monthlyCost, 0);
 const TOTAL_ANNUAL = TOTAL_MONTHLY * 12;
 
+// Unified view shape used by the Infrastructure tab. Both the hardcoded
+// SUBSCRIPTIONS array and live rows from Supabase are coerced into this.
+export interface SubscriptionView {
+  service: string;
+  category: SubscriptionCategory;
+  monthlyCost: number;
+  annualCost?: number;
+  billing: BillingCycle;
+  lastVerified: string;
+  source: SubscriptionSource;
+  nextRenewal?: string;
+  notes?: string;
+}
+
+function liveToView(row: LiveSubscription): SubscriptionView {
+  const category = (
+    row.category === 'other' || !row.category
+      ? 'tools'
+      : row.category
+  ) as SubscriptionCategory;
+  const billingRaw = row.billing_cycle || 'unknown';
+  const billing: BillingCycle =
+    billingRaw === 'monthly' || billingRaw === 'annual' || billingRaw === 'usage'
+      ? billingRaw
+      : 'usage';
+  return {
+    service: row.service_name,
+    category,
+    monthlyCost: row.monthly_cost_gbp ?? 0,
+    annualCost: row.annual_cost_gbp ?? undefined,
+    billing,
+    lastVerified: row.last_invoice_at ? row.last_invoice_at.slice(0, 10) : '—',
+    source: row.source === 'manual' ? 'service-dashboard' : 'gmail-receipt',
+    nextRenewal: row.next_renewal_at ?? undefined,
+    notes: row.notes ?? undefined,
+  };
+}
+
 function formatGBP(amount: number): string {
   const abs = Math.abs(amount);
   const formatted = new Intl.NumberFormat('en-GB', {
@@ -205,6 +244,22 @@ type TabId = 'overview' | 'projections' | 'infrastructure';
 
 export function Finance() {
   const [activeTab, setActiveTab] = useState<TabId>('overview');
+
+  // Live subscriptions from Supabase. Falls back to the hardcoded SUBSCRIPTIONS array
+  // below if Supabase is unreachable or returns empty (e.g., scanner hasn't seeded yet).
+  const live = useSubscriptions();
+  const useLive = !live.isLoading && !live.error && live.subscriptions.length > 0;
+
+  const activeSubs: SubscriptionView[] = useLive
+    ? live.subscriptions.map(liveToView)
+    : (SUBSCRIPTIONS as SubscriptionView[]);
+  const totalMonthly = useLive ? live.monthlyTotal : TOTAL_MONTHLY;
+  const totalAnnual = useLive ? live.annualTotal : TOTAL_ANNUAL;
+  const verifiedLabel = useLive
+    ? live.lastScannedAt
+      ? `Live · last invoice ${live.lastScannedAt.slice(0, 10)}`
+      : 'Live · no invoices yet'
+    : 'Static · 25 May 2026';
 
   const totalActualRevenue = YEAR1_PROJECTION.revenue.streams.reduce((s, r) => s + r.actual, 0);
   const totalActualExpenses = YEAR1_PROJECTION.expenses.categories.reduce((s, c) => s + c.actual, 0);
@@ -574,24 +629,24 @@ export function Finance() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="bg-white rounded-xl border border-gray-200 p-5">
                 <p className="text-sm font-medium text-gray-500">Total monthly</p>
-                <p className="text-2xl font-bold text-gray-900 mt-1">{formatGBP(TOTAL_MONTHLY)}<span className="text-base font-normal text-gray-500">/mo</span></p>
-                <p className="text-xs text-gray-400 mt-1">{SUBSCRIPTIONS.length} active subscriptions</p>
+                <p className="text-2xl font-bold text-gray-900 mt-1">{formatGBP(totalMonthly)}<span className="text-base font-normal text-gray-500">/mo</span></p>
+                <p className="text-xs text-gray-400 mt-1">{activeSubs.length} active subscriptions</p>
               </div>
               <div className="bg-white rounded-xl border border-gray-200 p-5">
                 <p className="text-sm font-medium text-gray-500">Total annual</p>
-                <p className="text-2xl font-bold text-gray-900 mt-1">{formatGBP(TOTAL_ANNUAL)}<span className="text-base font-normal text-gray-500">/yr</span></p>
+                <p className="text-2xl font-bold text-gray-900 mt-1">{formatGBP(totalAnnual)}<span className="text-base font-normal text-gray-500">/yr</span></p>
                 <p className="text-xs text-gray-400 mt-1">Year 1 projected expense: {formatGBP(YEAR1_PROJECTION.expenses.total)}</p>
               </div>
               <div className="bg-white rounded-xl border border-gray-200 p-5">
-                <p className="text-sm font-medium text-gray-500">Last verified</p>
-                <p className="text-2xl font-bold text-gray-900 mt-1">25 May 2026</p>
-                <p className="text-xs text-gray-400 mt-1">Via Gmail invoice scan + dashboards</p>
+                <p className="text-sm font-medium text-gray-500">Data source</p>
+                <p className="text-2xl font-bold text-gray-900 mt-1">{useLive ? 'Live' : 'Static'}</p>
+                <p className="text-xs text-gray-400 mt-1">{verifiedLabel}</p>
               </div>
             </div>
 
             {/* Subscriptions by category */}
             {(Object.keys(CATEGORY_LABELS) as SubscriptionCategory[]).map((cat) => {
-              const items = SUBSCRIPTIONS.filter((s) => s.category === cat);
+              const items = activeSubs.filter((s) => s.category === cat);
               if (items.length === 0) return null;
               const catTotal = items.reduce((s, x) => s + x.monthlyCost, 0);
               return (
@@ -644,7 +699,7 @@ export function Finance() {
 
             {/* What It Powers */}
             <div className="bg-white rounded-xl border border-gray-200 p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">What {formatGBP(TOTAL_MONTHLY)}/month Powers</h3>
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">What {formatGBP(totalMonthly)}/month Powers</h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                 {[
                   { name: 'blkoutuk.com', desc: 'Community platform' },
@@ -679,9 +734,9 @@ export function Finance() {
               </h3>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div className="text-center p-4 bg-gray-50 rounded-lg">
-                  <p className="text-3xl font-bold text-gray-900">{Math.ceil(TOTAL_ANNUAL / 75)}</p>
+                  <p className="text-3xl font-bold text-gray-900">{Math.ceil(totalAnnual / 75)}</p>
                   <p className="text-sm text-gray-600 mt-1">members to cover tech costs</p>
-                  <p className="text-xs text-gray-400">{Math.ceil(TOTAL_ANNUAL / 75)} × £75/yr = {formatGBP(Math.ceil(TOTAL_ANNUAL / 75) * 75)}</p>
+                  <p className="text-xs text-gray-400">{Math.ceil(totalAnnual / 75)} × £75/yr = {formatGBP(Math.ceil(totalAnnual / 75) * 75)}</p>
                 </div>
                 <div className="text-center p-4 bg-amber-50 rounded-lg">
                   <p className="text-3xl font-bold text-amber-700">45</p>
