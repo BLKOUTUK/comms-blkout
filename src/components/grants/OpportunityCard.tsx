@@ -22,6 +22,7 @@ import type {
   OpportunitySource,
   FunderRelationship,
 } from '../../services/grants/types';
+import { CfOutreachBadge, type CfOutreachSummary } from './CfOutreachBadge';
 
 interface OpportunityCardProps {
   opportunity: OpportunityPipeline;
@@ -30,6 +31,10 @@ interface OpportunityCardProps {
   onDecline?: (id: string) => void;
   /** CRM relationship for this funder, if BLKOUT has a cultivated one. */
   relationship?: FunderRelationship;
+  /** Critical Frequency draft activity for this funder, if any. */
+  cfOutreach?: CfOutreachSummary;
+  /** Switch to CF Outreach tab pre-filtered by this funder. */
+  onCfOutreachClick?: () => void;
 }
 
 const sourceConfig: Record<OpportunitySource, { icon: typeof Globe; label: string; color: string }> = {
@@ -65,6 +70,8 @@ export function OpportunityCard({
   onConvert,
   onDecline,
   relationship,
+  cfOutreach,
+  onCfOutreachClick,
 }: OpportunityCardProps) {
   const source = sourceConfig[opportunity.source];
   const status = statusConfig[opportunity.status];
@@ -138,6 +145,9 @@ export function OpportunityCard({
               <Heart className="w-3 h-3" />
               {relationshipLabel}
             </span>
+          )}
+          {cfOutreach && onCfOutreachClick && (
+            <CfOutreachBadge summary={cfOutreach} onClick={onCfOutreachClick} />
           )}
         </div>
 

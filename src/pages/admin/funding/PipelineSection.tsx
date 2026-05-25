@@ -1,12 +1,16 @@
 import { AlertCircle, CheckCircle2, FileText, Search, ArrowRight, Clock } from 'lucide-react';
 import { GrantPipelineCard } from '@/components/grants/GrantPipelineCard';
+import { normalizeFunderName } from '@/hooks/useGrants';
 import type { Grant } from '@/types';
+import type { CfOutreachSummary } from '@/components/grants/CfOutreachBadge';
 
 interface Props {
   grants: Grant[];
   searchQuery: string;
   formatCurrency: (n: number) => string;
   getUrgencyClass: (d: number | null) => string;
+  cfOutreachByFunder: Map<string, CfOutreachSummary>;
+  onCfOutreachClick: (funderName: string) => void;
 }
 
 const statusColors = {
@@ -27,7 +31,14 @@ const priorityColors = {
   low: 'border-l-slate-300',
 };
 
-export function PipelineSection({ grants, searchQuery, formatCurrency, getUrgencyClass }: Props) {
+export function PipelineSection({
+  grants,
+  searchQuery,
+  formatCurrency,
+  getUrgencyClass,
+  cfOutreachByFunder,
+  onCfOutreachClick,
+}: Props) {
   const q = searchQuery.trim().toLowerCase();
   const priorityGrants = grants
     .filter((g) => ['critical', 'high'].includes(g.priority))
@@ -38,6 +49,14 @@ export function PipelineSection({ grants, searchQuery, formatCurrency, getUrgenc
       g.title.toLowerCase().includes(q) ||
       g.funder_name.toLowerCase().includes(q),
   );
+
+  const cardProps = (grant: Grant) => {
+    const cf = cfOutreachByFunder.get(normalizeFunderName(grant.funder_name));
+    return {
+      cfOutreach: cf,
+      onCfOutreachClick: cf ? () => onCfOutreachClick(grant.funder_name) : undefined,
+    };
+  };
 
   return (
     <div className="space-y-6">
@@ -55,6 +74,7 @@ export function PipelineSection({ grants, searchQuery, formatCurrency, getUrgenc
               statusColors={statusColors}
               priorityColors={priorityColors}
               getUrgencyClass={getUrgencyClass}
+              {...cardProps(grant)}
             />
           ))}
         </div>
@@ -71,6 +91,7 @@ export function PipelineSection({ grants, searchQuery, formatCurrency, getUrgenc
               statusColors={statusColors}
               priorityColors={priorityColors}
               getUrgencyClass={getUrgencyClass}
+              {...cardProps(grant)}
             />
           ))}
         </div>
