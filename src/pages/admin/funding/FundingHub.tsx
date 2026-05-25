@@ -15,6 +15,7 @@ import {
   Search,
   Filter,
   Sparkles,
+  ExternalLink,
 } from 'lucide-react';
 import { Layout } from '@/components/layout/Layout';
 import { useGrants, useFunderRelationships, normalizeFunderName } from '@/hooks/useGrants';
@@ -26,6 +27,22 @@ import { OutreachSection } from './OutreachSection';
 import type { CfOutreachSummary } from '@/components/grants/CfOutreachBadge';
 
 type Tab = 'pipeline' | 'opportunities' | 'writing' | 'outreach';
+
+// Canonical materials surfaced across all tabs — the pitch decks / governing docs
+// shared with funders. Append to this list as new authoritative documents land.
+const KEY_DOCUMENTS: Array<{
+  label: string;
+  href: string;
+  badge?: string;
+  description?: string;
+}> = [
+  {
+    label: 'Critical Frequency · Pitch Deck',
+    href: 'https://drive.google.com/file/d/1OCF7RHhkv3VnBa-scs-C2ATZc73xEa0C/view',
+    badge: 'Canonical',
+    description: 'Final May 2026 · sent with TNL Solidarity Fund opening letter',
+  },
+];
 
 export default function FundingHub() {
   const { grants, opportunities, bidProgress, pipelineSummary } = useGrants();
@@ -182,6 +199,44 @@ export default function FundingHub() {
             </div>
           </div>
         </div>
+
+        {/* Key documents — canonical materials surfaced across all tabs */}
+        {KEY_DOCUMENTS.length > 0 && (
+          <div>
+            <h2 className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2">
+              Key documents
+            </h2>
+            <div className="flex flex-wrap gap-3">
+              {KEY_DOCUMENTS.map((doc) => (
+                <a
+                  key={doc.href}
+                  href={doc.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-start gap-3 px-4 py-3 bg-white border border-slate-200 rounded-xl hover:border-teal-400 hover:bg-teal-50/30 transition-colors group max-w-md"
+                >
+                  <FileText className="w-5 h-5 text-teal-600 flex-shrink-0 mt-0.5" />
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="font-medium text-slate-900 group-hover:text-teal-700">
+                        {doc.label}
+                      </span>
+                      {doc.badge && (
+                        <span className="text-xs px-1.5 py-0.5 rounded bg-teal-100 text-teal-700 font-medium">
+                          {doc.badge}
+                        </span>
+                      )}
+                    </div>
+                    {doc.description && (
+                      <p className="text-xs text-slate-500 mt-0.5">{doc.description}</p>
+                    )}
+                  </div>
+                  <ExternalLink className="w-4 h-4 text-slate-400 group-hover:text-teal-600 flex-shrink-0 mt-1" />
+                </a>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Tab Navigation */}
         <div className="border-b border-slate-200">
