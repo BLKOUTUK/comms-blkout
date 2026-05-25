@@ -23,6 +23,7 @@ import { PipelineSection } from './PipelineSection';
 import { OpportunitiesSection } from './OpportunitiesSection';
 import { BidWritingSection } from './BidWritingSection';
 import { OutreachSection } from './OutreachSection';
+import type { CfOutreachSummary } from '@/components/grants/CfOutreachBadge';
 
 type Tab = 'pipeline' | 'opportunities' | 'writing' | 'outreach';
 
@@ -69,6 +70,39 @@ export default function FundingHub() {
     }).length;
     return { inFlight, sentThisMonth };
   }, [drafts]);
+
+  // Per-funder CF outreach summary — keyed by normalized funder name.
+  // Matches via either draft.partner_name or draft.org_name, so a draft for
+  // "Wellcome Mental Health" surfaces on the "Wellcome Trust" grant card iff
+  // either name normalises to the same key. Names that drift will simply not
+  // cross-link — preferable to false positives.
+  const cfOutreachByFunder = useMemo(() => {
+    const map = new Map<string, CfOutreachSummary>();
+    drafts.forEach((d) => {
+      const keys = new Set<string>();
+      if (d.partner_name) keys.add(normalizeFunderName(d.partner_name));
+      if (d.org_name) keys.add(normalizeFunderName(d.org_name));
+      keys.forEach((key) => {
+        if (!key) return;
+        const existing = map.get(key) ?? { draftCount: 0, sentCount: 0 };
+        if (d.status === 'draft' || d.status === 'reviewed') existing.draftCount += 1;
+        else if (d.status === 'sent' || d.status === 'responded') existing.sentCount += 1;
+        if (d.sent_at) {
+          const date = d.sent_at.slice(0, 10);
+          if (!existing.lastSentAt || date > existing.lastSentAt) {
+            existing.lastSentAt = date;
+          }
+        }
+        map.set(key, existing);
+      });
+    });
+    return map;
+  }, [drafts]);
+
+  const handleCfOutreachClick = (funderName: string) => {
+    setActiveTab('outreach');
+    setOutreachPartnerFilter(funderName);
+  };
 
   const formatCurrency = (amount: number) =>
     new Intl.NumberFormat('en-GB', {
@@ -298,6 +332,8 @@ export default function FundingHub() {
             searchQuery={searchQuery}
             formatCurrency={formatCurrency}
             getUrgencyClass={getUrgencyClass}
+            cfOutreachByFunder={cfOutreachByFunder}
+            onCfOutreachClick={handleCfOutreachClick}
           />
         )}
 
@@ -307,6 +343,8 @@ export default function FundingHub() {
             filteredOpportunities={filteredOpportunities}
             funderRelationships={funderRelationships}
             formatCurrency={formatCurrency}
+            cfOutreachByFunder={cfOutreachByFunder}
+            onCfOutreachClick={handleCfOutreachClick}
           />
         )}
 
