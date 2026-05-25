@@ -15,7 +15,6 @@ import {
   Video,
   Sparkles,
   PoundSterling,
-  Radio,
 } from 'lucide-react';
 
 const navigation = [
@@ -24,8 +23,7 @@ const navigation = [
   { name: 'News Moderation', href: '/admin/news', icon: Newspaper },
   { name: 'Content Calendar', href: '/admin/calendar', icon: Calendar },
   { name: 'Drafts', href: '/admin/drafts', icon: FileText },
-  { name: 'Grant Funding', href: '/admin/grants', icon: Banknote },
-  { name: 'CF Fundraising', href: '/admin/fundraising', icon: Radio },
+  { name: 'Funding', href: '/admin/fundraising', icon: Banknote },
   { name: 'Finance', href: '/admin/finance', icon: PoundSterling },
   { name: 'Agents', href: '/admin/agents', icon: Bot },
   { name: 'Content Pipeline', href: '/admin/pipeline', icon: Sparkles },
