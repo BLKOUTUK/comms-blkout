@@ -62,14 +62,124 @@ const FIVE_YEAR = [
   { year: 5, revenue: 176125, expenses: 153000, surplus: 23125, members: 575, grantDep: 31 },
 ];
 
-const MONTHLY_INFRA = [
-  { service: 'Coolify VPS (Hostinger)', cost: 25 },
-  { service: 'Supabase Pro', cost: 20 },
-  { service: 'GROQ AI (IVOR)', cost: 50 },
-  { service: 'Vercel Pro', cost: 15 },
-  { service: 'Domain renewal', cost: 2 },
-  { service: 'Contingency', cost: 13 },
+// Active subscriptions — verified against Gmail invoices + service dashboards on 25 May 2026.
+// Source = how the amount was confirmed. Billing = how the service charges (annualised to monthly
+// for usage and annual). When a service is cancelled, remove from this array; don't keep as a stub.
+type BillingCycle = 'monthly' | 'annual' | 'usage';
+type SubscriptionSource = 'gmail-receipt' | 'service-dashboard' | 'estimate';
+type SubscriptionCategory = 'infrastructure' | 'ai' | 'tools' | 'domain';
+
+interface Subscription {
+  service: string;
+  category: SubscriptionCategory;
+  monthlyCost: number;        // £ — monthly equivalent (annual cost / 12 for annuals)
+  annualCost?: number;         // £ — explicit annual cost for annually-billed services
+  billing: BillingCycle;
+  lastVerified: string;        // YYYY-MM-DD
+  source: SubscriptionSource;
+  nextRenewal?: string;        // YYYY-MM-DD for annuals
+  notes?: string;
+}
+
+const SUBSCRIPTIONS: Subscription[] = [
+  // Infrastructure
+  {
+    service: 'Hostinger VPS (Coolify)',
+    category: 'infrastructure',
+    monthlyCost: 17.99,
+    annualCost: 215.86,
+    billing: 'annual',
+    lastVerified: '2026-05-25',
+    source: 'gmail-receipt',
+    nextRenewal: '2027-05-07',
+    notes: 'Hosts all BLKOUT apps via Coolify',
+  },
+  {
+    service: 'Google Workspace',
+    category: 'infrastructure',
+    monthlyCost: 14,
+    billing: 'monthly',
+    lastVerified: '2026-05-25',
+    source: 'service-dashboard',
+    notes: 'blkoutuk.com workspace',
+  },
+  // AI
+  {
+    service: 'Anthropic Claude API',
+    category: 'ai',
+    monthlyCost: 90,
+    billing: 'usage',
+    lastVerified: '2026-04-27',
+    source: 'gmail-receipt',
+    notes: 'Claude API consumption — varies. £75 + £15 VAT April invoice',
+  },
+  {
+    service: 'OpenRouter (Bayard LLM routing)',
+    category: 'ai',
+    monthlyCost: 12,
+    billing: 'usage',
+    lastVerified: '2026-05-21',
+    source: 'gmail-receipt',
+    notes: '~$15 avg across 4 recent invoices',
+  },
+  {
+    service: 'Google Cloud Platform',
+    category: 'ai',
+    monthlyCost: 3.45,
+    billing: 'usage',
+    lastVerified: '2026-05-01',
+    source: 'gmail-receipt',
+    notes: 'Bayard OAuth + APIs — low usage',
+  },
+  // Tools
+  {
+    service: 'SendFox',
+    category: 'tools',
+    monthlyCost: 8,
+    billing: 'monthly',
+    lastVerified: '2026-05-07',
+    source: 'gmail-receipt',
+    notes: 'Newsletter platform ($10/mo USD)',
+  },
+  {
+    service: 'Canva',
+    category: 'tools',
+    monthlyCost: 8.33,
+    annualCost: 99.99,
+    billing: 'annual',
+    lastVerified: '2026-05-25',
+    source: 'service-dashboard',
+    nextRenewal: '2026-11-03',
+    notes: 'Annual design subscription',
+  },
+  // Domain
+  {
+    service: 'WordPress.com domain',
+    category: 'domain',
+    monthlyCost: 1.33,
+    annualCost: 16,
+    billing: 'annual',
+    lastVerified: '2026-05-22',
+    source: 'gmail-receipt',
+    notes: 'blkoutuk.com domain registrar',
+  },
 ];
+
+const CATEGORY_LABELS: Record<SubscriptionCategory, string> = {
+  infrastructure: 'Infrastructure',
+  ai: 'AI & APIs',
+  tools: 'Tools',
+  domain: 'Domains',
+};
+
+const BILLING_BADGE: Record<BillingCycle, { label: string; classes: string }> = {
+  monthly: { label: 'monthly', classes: 'bg-blue-50 text-blue-700' },
+  annual: { label: 'annual', classes: 'bg-purple-50 text-purple-700' },
+  usage: { label: 'usage', classes: 'bg-amber-50 text-amber-700' },
+};
+
+const TOTAL_MONTHLY = SUBSCRIPTIONS.reduce((s, x) => s + x.monthlyCost, 0);
+const TOTAL_ANNUAL = TOTAL_MONTHLY * 12;
 
 function formatGBP(amount: number): string {
   const abs = Math.abs(amount);
@@ -102,7 +212,7 @@ export function Finance() {
   const tabs: { id: TabId; label: string }[] = [
     { id: 'overview', label: 'Year 1 Overview' },
     { id: 'projections', label: '5-Year Forecast' },
-    { id: 'infrastructure', label: 'Infrastructure Costs' },
+    { id: 'infrastructure', label: 'Subscriptions' },
   ];
 
   return (
@@ -460,43 +570,92 @@ export function Finance() {
 
         {activeTab === 'infrastructure' && (
           <div className="space-y-6">
-            {/* Monthly Infrastructure */}
-            <div className="bg-white rounded-xl border border-gray-200 p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                <Receipt className="h-5 w-5 text-amber-600" />
-                Monthly Infrastructure Costs
-              </h3>
-              <div className="space-y-3">
-                {MONTHLY_INFRA.map((item) => (
-                  <div key={item.service} className="flex items-center justify-between py-2 border-b border-gray-50">
-                    <span className="text-sm text-gray-700">{item.service}</span>
-                    <span className="text-sm font-medium text-gray-900">{formatGBP(item.cost)}/mo</span>
-                  </div>
-                ))}
-                <div className="flex items-center justify-between pt-2 font-semibold">
-                  <span className="text-gray-900">Total Monthly</span>
-                  <span className="text-gray-900">
-                    {formatGBP(MONTHLY_INFRA.reduce((s, i) => s + i.cost, 0))}/mo
-                  </span>
-                </div>
-                <div className="flex items-center justify-between text-gray-500">
-                  <span>Annual</span>
-                  <span>{formatGBP(MONTHLY_INFRA.reduce((s, i) => s + i.cost, 0) * 12)}/yr</span>
-                </div>
+            {/* Totals */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="bg-white rounded-xl border border-gray-200 p-5">
+                <p className="text-sm font-medium text-gray-500">Total monthly</p>
+                <p className="text-2xl font-bold text-gray-900 mt-1">{formatGBP(TOTAL_MONTHLY)}<span className="text-base font-normal text-gray-500">/mo</span></p>
+                <p className="text-xs text-gray-400 mt-1">{SUBSCRIPTIONS.length} active subscriptions</p>
+              </div>
+              <div className="bg-white rounded-xl border border-gray-200 p-5">
+                <p className="text-sm font-medium text-gray-500">Total annual</p>
+                <p className="text-2xl font-bold text-gray-900 mt-1">{formatGBP(TOTAL_ANNUAL)}<span className="text-base font-normal text-gray-500">/yr</span></p>
+                <p className="text-xs text-gray-400 mt-1">Year 1 projected expense: {formatGBP(YEAR1_PROJECTION.expenses.total)}</p>
+              </div>
+              <div className="bg-white rounded-xl border border-gray-200 p-5">
+                <p className="text-sm font-medium text-gray-500">Last verified</p>
+                <p className="text-2xl font-bold text-gray-900 mt-1">25 May 2026</p>
+                <p className="text-xs text-gray-400 mt-1">Via Gmail invoice scan + dashboards</p>
               </div>
             </div>
 
+            {/* Subscriptions by category */}
+            {(Object.keys(CATEGORY_LABELS) as SubscriptionCategory[]).map((cat) => {
+              const items = SUBSCRIPTIONS.filter((s) => s.category === cat);
+              if (items.length === 0) return null;
+              const catTotal = items.reduce((s, x) => s + x.monthlyCost, 0);
+              return (
+                <div key={cat} className="bg-white rounded-xl border border-gray-200 p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                      <Receipt className="h-5 w-5 text-amber-600" />
+                      {CATEGORY_LABELS[cat]}
+                    </h3>
+                    <span className="text-sm text-gray-500">
+                      {formatGBP(catTotal)}/mo · {formatGBP(catTotal * 12)}/yr
+                    </span>
+                  </div>
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-sm">
+                      <thead>
+                        <tr className="text-left text-gray-500 border-b border-gray-100">
+                          <th className="pb-2 pr-3 font-medium">Service</th>
+                          <th className="pb-2 pr-3 font-medium text-right">Monthly</th>
+                          <th className="pb-2 pr-3 font-medium text-right">Annual</th>
+                          <th className="pb-2 pr-3 font-medium">Billing</th>
+                          <th className="pb-2 pr-3 font-medium">Verified</th>
+                          <th className="pb-2 font-medium">Next renewal</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {items.map((s) => (
+                          <tr key={s.service} className="border-b border-gray-50">
+                            <td className="py-2 pr-3">
+                              <div className="text-gray-900 font-medium">{s.service}</div>
+                              {s.notes && <div className="text-xs text-gray-500">{s.notes}</div>}
+                            </td>
+                            <td className="py-2 pr-3 text-right text-gray-900">{formatGBP(s.monthlyCost)}</td>
+                            <td className="py-2 pr-3 text-right text-gray-700">{formatGBP(s.annualCost ?? s.monthlyCost * 12)}</td>
+                            <td className="py-2 pr-3">
+                              <span className={`inline-block px-2 py-0.5 rounded text-xs font-medium ${BILLING_BADGE[s.billing].classes}`}>
+                                {BILLING_BADGE[s.billing].label}
+                              </span>
+                            </td>
+                            <td className="py-2 pr-3 text-xs text-gray-500" title={`Source: ${s.source}`}>{s.lastVerified}</td>
+                            <td className="py-2 text-xs text-gray-500">{s.nextRenewal ?? '—'}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              );
+            })}
+
             {/* What It Powers */}
             <div className="bg-white rounded-xl border border-gray-200 p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">What £125/month Powers</h3>
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">What {formatGBP(TOTAL_MONTHLY)}/month Powers</h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                 {[
-                  { name: 'blkoutuk.com', desc: 'Main website' },
-                  { name: 'events.blkoutuk.cloud', desc: 'Events calendar' },
-                  { name: 'news.blkoutuk.cloud', desc: 'Community news' },
-                  { name: 'comms.blkoutuk.cloud', desc: 'Communications hub' },
-                  { name: 'crm.blkoutuk.cloud', desc: 'CRM & governance' },
-                  { name: 'ivor.blkoutuk.cloud', desc: 'AI assistant API' },
+                  { name: 'blkoutuk.com', desc: 'Community platform' },
+                  { name: 'commons.blkoutuk.com', desc: 'Commons walkthrough' },
+                  { name: 'comms.blkoutuk.com', desc: 'Communications + Funding hub' },
+                  { name: 'events.blkoutuk.com', desc: 'Events calendar' },
+                  { name: 'news.blkoutuk.com', desc: 'Community news' },
+                  { name: 'compass.blkoutuk.com', desc: "Ivor's Compass" },
+                  { name: 'crm.blkoutuk.cloud', desc: 'CRM' },
+                  { name: 'ivor.blkoutuk.com', desc: 'AIvor API' },
+                  { name: 'critical.blkoutuk.com', desc: 'Critical Frequency' },
                 ].map((site) => (
                   <div key={site.name} className="flex items-center gap-2 p-3 bg-gray-50 rounded-lg">
                     <CheckCircle2 className="h-4 w-4 text-emerald-500 flex-shrink-0" />
@@ -508,7 +667,7 @@ export function Finance() {
                 ))}
               </div>
               <p className="text-xs text-gray-500 mt-4">
-                Plus: Supabase database, IVOR AI responses, health monitoring, automated scrapers, and cron jobs.
+                Plus: Supabase free tier (1 active database), AIvor LLM responses, health monitoring, automated scrapers, cron jobs, and the Bayard personal assistant.
               </p>
             </div>
 
@@ -520,9 +679,9 @@ export function Finance() {
               </h3>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div className="text-center p-4 bg-gray-50 rounded-lg">
-                  <p className="text-3xl font-bold text-gray-900">20</p>
+                  <p className="text-3xl font-bold text-gray-900">{Math.ceil(TOTAL_ANNUAL / 75)}</p>
                   <p className="text-sm text-gray-600 mt-1">members to cover tech costs</p>
-                  <p className="text-xs text-gray-400">20 × £75/yr = £1,500</p>
+                  <p className="text-xs text-gray-400">{Math.ceil(TOTAL_ANNUAL / 75)} × £75/yr = {formatGBP(Math.ceil(TOTAL_ANNUAL / 75) * 75)}</p>
                 </div>
                 <div className="text-center p-4 bg-amber-50 rounded-lg">
                   <p className="text-3xl font-bold text-amber-700">45</p>
