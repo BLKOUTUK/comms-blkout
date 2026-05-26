@@ -10,6 +10,7 @@ interface ArchiveArticle {
   author: string;
   slug: string;
   category: string;
+  source_url: string | null;
 }
 
 export function ArchiveArticleWidget() {
@@ -24,10 +25,11 @@ export function ArchiveArticleWidget() {
       }
 
       try {
-        // Get a random featured article from legacy_articles
+        // Random featured article from public.archived_articles (the
+        // migrated blkoutuk.com archive — 278 rows of full-text content).
         const { data } = await supabase
-          .from('legacy_articles')
-          .select('title, excerpt, published_at, author, slug, category_id')
+          .from('archived_articles')
+          .select('title, excerpt, published_at, slug, source_url, category_id')
           .eq('status', 'published')
           .not('excerpt', 'is', null)
           .order('published_at', { ascending: false })
@@ -40,9 +42,10 @@ export function ArchiveArticleWidget() {
             title: randomArticle.title,
             excerpt: randomArticle.excerpt || 'Read the full story...',
             published_at: randomArticle.published_at,
-            author: randomArticle.author || 'BLKOUT Collective',
+            author: 'BLKOUT Collective',
             slug: randomArticle.slug,
-            category: 'Archive'
+            category: 'Archive',
+            source_url: randomArticle.source_url
           });
         }
       } catch (error) {
@@ -112,7 +115,9 @@ export function ArchiveArticleWidget() {
               By {featuredArticle.author}
             </span>
             <a
-              href={`https://blkoutuk.com/stories#${featuredArticle.slug}`}
+              href={featuredArticle.source_url || `https://blkoutuk.com/${featuredArticle.slug}/`}
+              target="_blank"
+              rel="noopener noreferrer"
               className="inline-flex items-center gap-2 px-4 py-2 bg-liberation-gold-divine hover:bg-liberation-gold-rich text-black rounded-lg font-bold text-sm uppercase tracking-wider transition-colors"
             >
               Read Story →
