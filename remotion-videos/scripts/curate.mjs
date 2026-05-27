@@ -108,23 +108,60 @@ function buildCtaUrl(weekTag) {
   return `https://news.blkoutuk.com?${params}`;
 }
 
-async function fetchTopStories() {
-  const url = `${apiBase}/api/top-stories?period=week&limit=${limit}`;
+async function fetchStoriesForPeriod(period, fetchLimit = 20) {
+  const url = `${apiBase}/api/top-stories?period=${period}&limit=${fetchLimit}`;
   const res = await fetch(url, { headers: { Accept: "application/json" } });
   if (!res.ok) {
-    throw new Error(
-      `GET ${url} → HTTP ${res.status} ${res.statusText}. Falling back: use props/sample-news-digest.json.`
-    );
+    throw new Error(`GET ${url} → HTTP ${res.status} ${res.statusText}.`);
   }
   const json = await res.json();
-  const stories =
-    json?.data?.topStories || json?.topStories || json?.data || [];
-  if (!Array.isArray(stories) || stories.length < limit) {
+  return json?.data?.topStories || json?.topStories || json?.data || [];
+}
+
+function dedupeById(stories, alreadySeen) {
+  const seen = new Set(alreadySeen);
+  const out = [];
+  for (const s of stories) {
+    const key = s.id ?? s.slug;
+    if (key && !seen.has(key)) {
+      seen.add(key);
+      out.push(s);
+    }
+  }
+  return out;
+}
+
+async function fetchTopStories() {
+  const weekStories = await fetchStoriesForPeriod("week", limit);
+  if (Array.isArray(weekStories) && weekStories.length >= limit) {
+    return weekStories.slice(0, limit);
+  }
+
+  const weekCount = weekStories?.length ?? 0;
+  console.log(
+    `→ Week has ${weekCount}/${limit} stories. Backfilling with editor's picks from a wider window.`
+  );
+
+  const seenKeys = (weekStories || []).map((s) => s.id ?? s.slug).filter(Boolean);
+  const monthStories = await fetchStoriesForPeriod("month");
+  const monthBackfill = dedupeById(monthStories, seenKeys);
+  let combined = [...(weekStories || []), ...monthBackfill];
+
+  if (combined.length < limit) {
+    console.log(`→ Month window also light. Backfilling further from all-time.`);
+    const combinedKeys = combined.map((s) => s.id ?? s.slug).filter(Boolean);
+    const allStories = await fetchStoriesForPeriod("all");
+    const allBackfill = dedupeById(allStories, combinedKeys);
+    combined = [...combined, ...allBackfill];
+  }
+
+  if (combined.length < limit) {
     throw new Error(
-      `Endpoint returned ${stories.length} stories (need ${limit}). The active voting period may not have enough votes yet.`
+      `Editor's-pick backfill exhausted: got ${combined.length} stories total (need ${limit}).`
     );
   }
-  return stories;
+
+  return combined.slice(0, limit);
 }
 
 function buildProps(stories, { weekTag, weekLabel }) {

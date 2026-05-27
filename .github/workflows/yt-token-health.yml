@@ -1,0 +1,76 @@
+name: YT OAuth Token Health
+
+# Daily probe of the YouTube refresh token. Testing-mode OAuth apps with
+# restricted scopes get ~7-day refresh-token expiry — silent failures of the
+# Sunday news-video cron are how we discovered this (W21, 24 May 2026). This
+# workflow fails loudly the day after expiry so Rob gets a GH email and can
+# re-mint before the next Sunday upload window.
+#
+# Re-mint command: cd ~/blkout-platform/apps/comms-blkout/remotion-videos && node scripts/yt-remint.mjs
+
+on:
+  schedule:
+    - cron: "0 12 * * *"  # 12:00 UTC daily
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Probe refresh-token grant
+        env:
+          YT_CLIENT_ID: ${{ secrets.YT_CLIENT_ID }}
+          YT_CLIENT_SECRET: ${{ secrets.YT_CLIENT_SECRET }}
+          YT_REFRESH_TOKEN: ${{ secrets.YT_REFRESH_TOKEN }}
+        run: |
+          set -u
+
+          if [ -z "$YT_CLIENT_ID" ] || [ -z "$YT_CLIENT_SECRET" ] || [ -z "$YT_REFRESH_TOKEN" ]; then
+            echo "::error::One or more required secrets are unset (YT_CLIENT_ID / YT_CLIENT_SECRET / YT_REFRESH_TOKEN)."
+            exit 1
+          fi
+
+          response=$(curl -sS -w "\n__HTTP__:%{http_code}" -X POST \
+            --data-urlencode "client_id=$YT_CLIENT_ID" \
+            --data-urlencode "client_secret=$YT_CLIENT_SECRET" \
+            --data-urlencode "refresh_token=$YT_REFRESH_TOKEN" \
+            --data-urlencode "grant_type=refresh_token" \
+            https://oauth2.googleapis.com/token)
+
+          http_code=$(printf "%s" "$response" | grep "^__HTTP__:" | cut -d: -f2)
+          body=$(printf "%s" "$response" | sed '/^__HTTP__:/d')
+
+          case "$http_code" in
+            200)
+              echo "✓ Refresh-token grant healthy. Sunday cron will succeed."
+              ;;
+            400|401)
+              # invalid_grant (token expired/revoked) or invalid_client (creds mismatch).
+              # Either way, action is required.
+              error=$(printf "%s" "$body" | python3 -c "import json,sys;print(json.load(sys.stdin).get('error','?'))" 2>/dev/null || echo "unknown")
+              echo "::error::YT refresh token grant failed (HTTP $http_code, error=$error). Re-mint locally: cd ~/blkout-platform/apps/comms-blkout/remotion-videos && node scripts/yt-remint.mjs"
+              echo "::group::Google response body"
+              printf "%s\n" "$body"
+              echo "::endgroup::"
+              exit 1
+              ;;
+            5*)
+              # Treat upstream 5xx as a transient blip rather than a token problem.
+              # Don't page Rob for Google's bad day.
+              echo "::warning::Google returned HTTP $http_code (likely transient). Not alerting."
+              echo "::group::Body"
+              printf "%s\n" "$body"
+              echo "::endgroup::"
+              ;;
+            *)
+              echo "::error::Unexpected HTTP $http_code from Google's token endpoint. Investigate manually."
+              echo "::group::Body"
+              printf "%s\n" "$body"
+              echo "::endgroup::"
+              exit 1
+              ;;
+          esac
