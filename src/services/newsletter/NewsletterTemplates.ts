@@ -564,3 +564,281 @@ export function generateNewsletterHTML(
   }
   return generateMonthlyNewsletterHTML(newsletter as MonthlyNewsletter, options);
 }
+
+/**
+ * Generate Welcome Email HTML
+ * Sent automatically when a new contact is created (via Supabase trigger)
+ */
+export function generateWelcomeEmailHTML(options: {
+  firstName?: string;
+  preferencesUrl?: string;
+  unsubscribeUrl?: string;
+}): string {
+  const { firstName, preferencesUrl, unsubscribeUrl } = options;
+  const greeting = firstName ? `Dear ${firstName}` : 'Welcome';
+
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>Welcome to BLKOUT</title>
+  <span style="display:none;font-size:0;line-height:0;max-height:0;max-width:0;opacity:0;overflow:hidden;visibility:hidden;">Welcome to the BLKOUT community — by us, for us, always.</span>
+  <style>
+    body { margin: 0; padding: 0; width: 100%; background-color: ${COLORS.light}; }
+    table { border-collapse: collapse; }
+    img { border: 0; display: block; max-width: 100%; height: auto; }
+    a { color: ${COLORS.primary}; text-decoration: none; }
+    @media only screen and (max-width: 600px) {
+      .container { width: 100% !important; padding: 0 16px !important; }
+    }
+  </style>
+</head>
+<body style="margin:0;padding:0;font-family:${FONT_FAMILY};background-color:${COLORS.light};color:${COLORS.dark};">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:${COLORS.light};">
+    <tr>
+      <td align="center" style="padding:20px 0;">
+        <table role="presentation" class="container" width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background-color:${COLORS.white};border-radius:16px;overflow:hidden;box-shadow:0 4px 6px rgba(0,0,0,0.05);">
+
+          <!-- Header -->
+          <tr>
+            <td style="background:linear-gradient(135deg, ${COLORS.primary} 0%, ${COLORS.secondary} 100%);padding:40px 32px;text-align:center;">
+              <img src="https://comms.blkoutuk.cloud/images/blkoutlogo_wht_transparent.png" alt="BLKOUT" width="120" style="width:120px;height:auto;margin:0 auto 16px;">
+              <h1 style="margin:0;font-size:28px;font-weight:700;color:${COLORS.white};">
+                Welcome to BLKOUT
+              </h1>
+              <p style="margin:12px 0 0;font-size:14px;color:rgba(255,255,255,0.9);">
+                Community-Owned Liberation Technology
+              </p>
+            </td>
+          </tr>
+
+          <!-- Welcome message -->
+          <tr>
+            <td style="padding:32px;">
+              <h2 style="margin:0 0 16px;font-size:22px;color:${COLORS.dark};">${greeting},</h2>
+              <p style="margin:0 0 16px;font-size:16px;line-height:1.6;color:${COLORS.dark};">
+                Thank you for joining the BLKOUT community. We are a community-owned cooperative building liberation technology for and by Black queer men in the UK.
+              </p>
+              <p style="margin:0 0 16px;font-size:16px;line-height:1.6;color:${COLORS.dark};">
+                Here's what you can expect from us:
+              </p>
+            </td>
+          </tr>
+
+          <!-- What to expect -->
+          <tr>
+            <td style="padding:0 32px 24px;">
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+                <tr>
+                  <td style="padding:16px;background-color:${COLORS.light};border-radius:12px;border-left:4px solid ${COLORS.primary};margin-bottom:12px;">
+                    <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+                      <tr>
+                        <td width="40" style="font-size:24px;vertical-align:top;padding-right:12px;">&#128140;</td>
+                        <td>
+                          <p style="margin:0;font-size:14px;font-weight:600;color:${COLORS.dark};">Community Events</p>
+                          <p style="margin:4px 0 0;font-size:13px;color:${COLORS.gray};">Regular gatherings, socials, and cultural events</p>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+                <tr><td style="height:8px;"></td></tr>
+                <tr>
+                  <td style="padding:16px;background-color:${COLORS.light};border-radius:12px;border-left:4px solid ${COLORS.secondary};margin-bottom:12px;">
+                    <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+                      <tr>
+                        <td width="40" style="font-size:24px;vertical-align:top;padding-right:12px;">&#128172;</td>
+                        <td>
+                          <p style="margin:0;font-size:14px;font-weight:600;color:${COLORS.dark};">Newsletter Updates</p>
+                          <p style="margin:4px 0 0;font-size:13px;color:${COLORS.gray};">Monthly roundups of community news, resources, and opportunities</p>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+                <tr><td style="height:8px;"></td></tr>
+                <tr>
+                  <td style="padding:16px;background-color:${COLORS.light};border-radius:12px;border-left:4px solid ${COLORS.accent};">
+                    <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+                      <tr>
+                        <td width="40" style="font-size:24px;vertical-align:top;padding-right:12px;">&#129309;</td>
+                        <td>
+                          <p style="margin:0;font-size:14px;font-weight:600;color:${COLORS.dark};">CBS Membership</p>
+                          <p style="margin:4px 0 0;font-size:13px;color:${COLORS.gray};">Become a co-owner — vote on decisions, shape our future</p>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- CTA -->
+          <tr>
+            <td style="padding:0 32px 32px;text-align:center;">
+              ${preferencesUrl ? `
+              <a href="${preferencesUrl}" style="display:inline-block;background:${COLORS.primary};color:${COLORS.white};padding:14px 32px;border-radius:8px;font-weight:600;font-size:16px;text-decoration:none;">
+                Set Your Preferences
+              </a>
+              <p style="margin:12px 0 0;font-size:13px;color:${COLORS.gray};">Tell us what matters to you so we can tailor your experience.</p>
+              ` : `
+              <a href="https://blkoutuk.com" style="display:inline-block;background:${COLORS.primary};color:${COLORS.white};padding:14px 32px;border-radius:8px;font-weight:600;font-size:16px;text-decoration:none;">
+                Explore BLKOUT
+              </a>
+              `}
+            </td>
+          </tr>
+
+          <!-- Footer -->
+          ${generateFooter(unsubscribeUrl, preferencesUrl)}
+
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>`;
+}
+
+/**
+ * Generate Event Announcement Email HTML
+ * Used for promoting upcoming BLKOUT events
+ */
+export function generateEventAnnouncementHTML(options: {
+  eventName: string;
+  eventDate: string;
+  eventTime?: string;
+  eventLocation?: string;
+  eventDescription: string;
+  rsvpUrl?: string;
+  imageUrl?: string;
+  unsubscribeUrl?: string;
+  preferencesUrl?: string;
+}): string {
+  const { eventName, eventDate, eventTime, eventLocation, eventDescription, rsvpUrl, imageUrl, unsubscribeUrl, preferencesUrl } = options;
+
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>${eventName} — BLKOUT Event</title>
+  <span style="display:none;font-size:0;line-height:0;max-height:0;max-width:0;opacity:0;overflow:hidden;visibility:hidden;">You're invited: ${eventName} — ${eventDate}</span>
+  <style>
+    body { margin: 0; padding: 0; width: 100%; background-color: ${COLORS.light}; }
+    table { border-collapse: collapse; }
+    img { border: 0; display: block; max-width: 100%; height: auto; }
+    a { color: ${COLORS.primary}; text-decoration: none; }
+    @media only screen and (max-width: 600px) {
+      .container { width: 100% !important; padding: 0 16px !important; }
+    }
+  </style>
+</head>
+<body style="margin:0;padding:0;font-family:${FONT_FAMILY};background-color:${COLORS.light};color:${COLORS.dark};">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:${COLORS.light};">
+    <tr>
+      <td align="center" style="padding:20px 0;">
+        <table role="presentation" class="container" width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background-color:${COLORS.white};border-radius:16px;overflow:hidden;box-shadow:0 4px 6px rgba(0,0,0,0.05);">
+
+          <!-- Header -->
+          <tr>
+            <td style="background:linear-gradient(135deg, ${COLORS.darker} 0%, ${COLORS.primaryDark} 100%);padding:32px;text-align:center;">
+              <img src="https://comms.blkoutuk.cloud/images/blkoutlogo_wht_transparent.png" alt="BLKOUT" width="60" style="width:60px;height:auto;margin:0 auto 12px;">
+              <p style="margin:0;font-size:13px;font-weight:600;color:${COLORS.secondary};letter-spacing:2px;text-transform:uppercase;">You're Invited</p>
+            </td>
+          </tr>
+
+          ${imageUrl ? `
+          <!-- Event Image -->
+          <tr>
+            <td>
+              <img src="${imageUrl}" alt="${eventName}" width="600" style="width:100%;height:auto;">
+            </td>
+          </tr>
+          ` : ''}
+
+          <!-- Event Details -->
+          <tr>
+            <td style="padding:32px;">
+              <h1 style="margin:0 0 20px;font-size:26px;font-weight:700;color:${COLORS.dark};line-height:1.3;">
+                ${eventName}
+              </h1>
+
+              <!-- Date/Time/Location card -->
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:${COLORS.light};border-radius:12px;margin-bottom:24px;">
+                <tr>
+                  <td style="padding:20px;">
+                    <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+                      <tr>
+                        <td style="padding-bottom:${eventTime ? '12px' : '0'};">
+                          <table role="presentation" cellpadding="0" cellspacing="0">
+                            <tr>
+                              <td width="30" style="font-size:18px;vertical-align:middle;">&#128197;</td>
+                              <td style="font-size:15px;font-weight:600;color:${COLORS.dark};">${eventDate}</td>
+                            </tr>
+                          </table>
+                        </td>
+                      </tr>
+                      ${eventTime ? `
+                      <tr>
+                        <td style="padding-bottom:${eventLocation ? '12px' : '0'};">
+                          <table role="presentation" cellpadding="0" cellspacing="0">
+                            <tr>
+                              <td width="30" style="font-size:18px;vertical-align:middle;">&#128336;</td>
+                              <td style="font-size:15px;color:${COLORS.dark};">${eventTime}</td>
+                            </tr>
+                          </table>
+                        </td>
+                      </tr>
+                      ` : ''}
+                      ${eventLocation ? `
+                      <tr>
+                        <td>
+                          <table role="presentation" cellpadding="0" cellspacing="0">
+                            <tr>
+                              <td width="30" style="font-size:18px;vertical-align:middle;">&#128205;</td>
+                              <td style="font-size:15px;color:${COLORS.dark};">${eventLocation}</td>
+                            </tr>
+                          </table>
+                        </td>
+                      </tr>
+                      ` : ''}
+                    </table>
+                  </td>
+                </tr>
+              </table>
+
+              <!-- Description -->
+              <p style="margin:0 0 24px;font-size:16px;line-height:1.6;color:${COLORS.dark};">
+                ${eventDescription}
+              </p>
+
+              <!-- RSVP Button -->
+              ${rsvpUrl ? `
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+                <tr>
+                  <td align="center">
+                    <a href="${rsvpUrl}" style="display:inline-block;background:${COLORS.primary};color:${COLORS.white};padding:16px 40px;border-radius:8px;font-weight:700;font-size:17px;text-decoration:none;">
+                      RSVP Now
+                    </a>
+                  </td>
+                </tr>
+              </table>
+              ` : ''}
+            </td>
+          </tr>
+
+          <!-- Footer -->
+          ${generateFooter(unsubscribeUrl, preferencesUrl)}
+
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>`;
+}

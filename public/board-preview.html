@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Our Board — BLKOUT</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --gold: #FFD700;
+    --gold-soft: #D4AF37;
+    --black: #000000;
+    --bg-card: #111111;
+    --bg-card-hover: #1a1a1a;
+    --white: #ffffff;
+    --grey: #999999;
+    --red: #D4261A;
+    --teal: #2A9D8F;
+    --purple: #4a1942;
+  }
+
+  body {
+    background: var(--black);
+    color: var(--white);
+    font-family: 'Inter', Arial, sans-serif;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* HEADER */
+  .header {
+    text-align: center;
+    padding: 60px 24px 40px;
+    border-bottom: 1px solid rgba(255, 215, 0, 0.15);
+  }
+  .header img {
+    width: 100px;
+    margin-bottom: 32px;
+  }
+  .header h1 {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 800;
+    font-size: 2.8rem;
+    color: var(--white);
+    letter-spacing: -0.02em;
+    margin-bottom: 16px;
+  }
+  .header h1 span {
+    color: var(--gold);
+  }
+  .header p.subtitle {
+    font-size: 1.15rem;
+    color: var(--grey);
+    max-width: 640px;
+    margin: 0 auto;
+    line-height: 1.7;
+  }
+
+  /* STRUCTURE SECTION */
+  .structure {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 48px 24px 32px;
+  }
+  .structure h2 {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 700;
+    font-size: 1.5rem;
+    color: var(--gold);
+    margin-bottom: 20px;
+  }
+  .structure p {
+    font-size: 1rem;
+    color: #cccccc;
+    margin-bottom: 16px;
+    line-height: 1.7;
+  }
+  .principles {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 16px;
+    margin-top: 24px;
+  }
+  .principle {
+    background: var(--bg-card);
+    border: 1px solid rgba(255, 215, 0, 0.1);
+    border-radius: 8px;
+    padding: 20px;
+  }
+  .principle strong {
+    color: var(--gold);
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .principle p {
+    font-size: 0.9rem;
+    color: #aaaaaa;
+    margin-top: 8px;
+    margin-bottom: 0;
+  }
+
+  /* BOARD GRID */
+  .board-section {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 40px 24px;
+  }
+  .section-label {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--gold-soft);
+    margin-bottom: 24px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+  }
+
+  .pair-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 24px;
+    margin-bottom: 48px;
+  }
+
+  /* MEMBER CARD */
+  .card {
+    background: var(--bg-card);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 12px;
+    overflow: hidden;
+    transition: border-color 0.3s ease;
+  }
+  .card:hover {
+    border-color: rgba(255, 215, 0, 0.25);
+  }
+  .card-image {
+    width: 100%;
+    aspect-ratio: 1;
+    object-fit: cover;
+    display: block;
+  }
+  .card-body {
+    padding: 24px;
+  }
+  .card-name {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 700;
+    font-size: 1.4rem;
+    color: var(--white);
+    margin-bottom: 4px;
+  }
+  .card-role {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--gold);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 16px;
+  }
+  .card-statement {
+    font-size: 0.95rem;
+    color: #cccccc;
+    line-height: 1.7;
+    font-style: italic;
+  }
+  .card-statement::before {
+    content: "\201C";
+    color: var(--gold-soft);
+    font-size: 1.4rem;
+    font-style: normal;
+    margin-right: 2px;
+  }
+  .card-statement::after {
+    content: "\201D";
+    color: var(--gold-soft);
+    font-size: 1.4rem;
+    font-style: normal;
+    margin-left: 2px;
+  }
+
+  /* VACANCY CARD */
+  .card-vacancy {
+    background: linear-gradient(135deg, rgba(212, 175, 55, 0.08), rgba(42, 157, 143, 0.06));
+    border: 2px dashed rgba(255, 215, 0, 0.3);
+    border-radius: 12px;
+    padding: 40px 32px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    min-height: 420px;
+  }
+  .vacancy-icon {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: rgba(255, 215, 0, 0.1);
+    border: 2px dashed rgba(255, 215, 0, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    color: var(--gold);
+    margin-bottom: 20px;
+  }
+  .vacancy-title {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 700;
+    font-size: 1.2rem;
+    color: var(--white);
+    margin-bottom: 12px;
+  }
+  .vacancy-text {
+    font-size: 0.95rem;
+    color: #aaaaaa;
+    line-height: 1.7;
+    margin-bottom: 20px;
+    max-width: 280px;
+  }
+  .vacancy-cta {
+    display: inline-block;
+    background: var(--gold);
+    color: var(--black);
+    font-family: 'Poppins', sans-serif;
+    font-weight: 700;
+    font-size: 0.9rem;
+    padding: 12px 28px;
+    border-radius: 6px;
+    text-decoration: none;
+    transition: background 0.2s ease;
+  }
+  .vacancy-cta:hover {
+    background: var(--gold-soft);
+  }
+
+  /* ADVISORY SECTION */
+  .advisory {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 32px 24px 60px;
+    text-align: center;
+  }
+  .advisory h2 {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 700;
+    font-size: 1.5rem;
+    color: var(--gold);
+    margin-bottom: 16px;
+  }
+  .advisory p {
+    font-size: 1rem;
+    color: #cccccc;
+    line-height: 1.7;
+    max-width: 600px;
+    margin: 0 auto 24px;
+  }
+  .advisory a {
+    color: var(--gold);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  /* FOOTER */
+  .footer {
+    border-top: 1px solid rgba(255, 215, 0, 0.1);
+    text-align: center;
+    padding: 32px 24px;
+  }
+  .footer p {
+    font-size: 0.8rem;
+    color: #555555;
+    line-height: 1.8;
+  }
+  .footer a {
+    color: var(--gold-soft);
+    text-decoration: none;
+  }
+
+  /* DRAFT BANNER */
+  .draft-banner {
+    background: var(--red);
+    color: var(--white);
+    text-align: center;
+    padding: 10px 16px;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    font-size: 0.85rem;
+    letter-spacing: 0.05em;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  /* RESPONSIVE */
+  @media (max-width: 640px) {
+    .header h1 { font-size: 2rem; }
+    .pair-row { grid-template-columns: 1fr; }
+    .card-vacancy { min-height: 320px; padding: 32px 24px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- DRAFT BANNER — remove before publishing -->
+<div class="draft-banner">
+  DRAFT — For board review only. Not yet public.
+</div>
+
+<!-- HEADER -->
+<header class="header">
+  <img src="https://comms.blkoutuk.cloud/images/blkoutlogo_wht_transparent.png" alt="BLKOUT">
+  <h1>Our <span>Board</span></h1>
+  <p class="subtitle">
+    BLKOUT is governed by the people it serves. Our board members are Black queer men
+    who volunteer their time, expertise, and care to shape the future of this cooperative.
+  </p>
+</header>
+
+<!-- HOW WE WORK -->
+<section class="structure">
+  <h2>How We Work</h2>
+  <p>
+    Every function on our board works in pairs — for accountability, mutual support,
+    and organisational agility. Each pair is building a working group around their function,
+    bringing more community members into governance and creating a talent pipeline for the future.
+  </p>
+  <div class="principles">
+    <div class="principle">
+      <strong>Pairs, not silos</strong>
+      <p>No one works alone. Every function has two people sharing the load and holding each other accountable.</p>
+    </div>
+    <div class="principle">
+      <strong>Advisory groups</strong>
+      <p>Each pair builds a wider group — bringing members and allies with relevant skills closer to the work.</p>
+    </div>
+    <div class="principle">
+      <strong>Talent pipeline</strong>
+      <p>Today's advisory group member is tomorrow's board candidate. We grow governance from within.</p>
+    </div>
+  </div>
+</section>
+
+<!-- LEADERSHIP -->
+<section class="board-section">
+  <div class="section-label">Leadership</div>
+  <div class="pair-row">
+
+    <!-- Peter -->
+    <div class="card">
+      <img class="card-image" src="/board-images/peter.png" alt="Illustrated portrait of Peter">
+      <div class="card-body">
+        <div class="card-name">Peter</div>
+        <div class="card-role">Chair</div>
+        <p class="card-statement">Being part of a structured force for positive change — that's what drew me to BLKOUT. I believe in the mission and want to help build something that lasts. As a board member, I hope to bring focus, energy, and a commitment to making this space everything it can be for our community.</p>
+      </div>
+    </div>
+
+    <!-- Lanre -->
+    <div class="card">
+      <img class="card-image" src="/board-images/lanre.png" alt="Illustrated portrait of Lanre">
+      <div class="card-body">
+        <div class="card-name">Lanre</div>
+        <div class="card-role">Secretary / Vice-Chair</div>
+        <p class="card-statement">I believe Black queer men will have a thriving, loving community — not as a dream, but as something we build together. I'm here to promote that vision. When I'm not running or at the gym, I'm thinking about how ancient wisdom and philosophy can guide us toward something better.</p>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- COMMUNITY PAIR -->
+<section class="board-section">
+  <div class="section-label">Community</div>
+  <div class="pair-row">
+
+    <!-- Nathan -->
+    <div class="card">
+      <img class="card-image" src="/board-images/nathan.png" alt="Illustrated portrait of Nathan">
+      <div class="card-body">
+        <div class="card-name">Nathan</div>
+        <div class="card-role">Community</div>
+        <p class="card-statement">I've been part of the BLKOUT community for years and I've seen what it means to people. I want to help take it to the next level — making sure we're organised, sustainable, and still having a laugh while we do it. Good governance doesn't have to be dry.</p>
+      </div>
+    </div>
+
+    <!-- Jean-Eric -->
+    <div class="card">
+      <img class="card-image" src="/board-images/jean-eric.png" alt="Illustrated portrait of Jean-Eric">
+      <div class="card-body">
+        <div class="card-name">Jean-Eric</div>
+        <div class="card-role">Community</div>
+        <p class="card-statement">A gay man of Burundian origin, living in Hackney, connecting people — that's me in a sentence. I joined BLKOUT's board because I saw an organisation with real momentum behind it. I want to be part of shaping what comes next, and making sure the connections we build actually hold.</p>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- DIGITAL PAIR -->
+<section class="board-section">
+  <div class="section-label">Digital</div>
+  <div class="pair-row">
+
+    <!-- Lloyd -->
+    <div class="card">
+      <img class="card-image" src="/board-images/lloyd.png" alt="Illustrated portrait of Lloyd">
+      <div class="card-body">
+        <div class="card-name">Lloyd</div>
+        <div class="card-role">Digital</div>
+        <p class="card-statement">Visibility is my superpower. Growing up, I learned that standing tall as a Black queer person — even when you feel invisible — is a radical act. I joined the BLKOUT board because I want to help build a community where no one has to fight for the right to be seen.</p>
+      </div>
+    </div>
+
+    <!-- Reuben -->
+    <div class="card">
+      <img class="card-image" src="/board-images/reuben.png" alt="Illustrated portrait of Reuben">
+      <div class="card-body">
+        <div class="card-name">Reuben</div>
+        <div class="card-role">Digital</div>
+        <p class="card-statement">I'm drawn to balance — in life and in community. BLKOUT matters because it creates space for Black queer men to simply exist, without performance. I hope to bring a steady presence to the board: someone who listens carefully, values simplicity, and believes that showing up consistently is its own kind of leadership.</p>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- FINANCE PAIR — VACANCIES -->
+<section class="board-section">
+  <div class="section-label">Finance / Fundraising</div>
+  <div class="pair-row">
+
+    <div class="card-vacancy">
+      <div class="vacancy-icon">?</div>
+      <div class="vacancy-title">Could this be you?</div>
+      <p class="vacancy-text">
+        We're looking for two people to form our Finance/Fundraising pair.
+        Comfortable with numbers, budgets, and the questions that keep a small organisation honest.
+      </p>
+      <a href="mailto:rob@blkoutuk.com" class="vacancy-cta">Get in touch</a>
+    </div>
+
+    <div class="card-vacancy">
+      <div class="vacancy-icon">?</div>
+      <div class="vacancy-title">Could this be you?</div>
+      <p class="vacancy-text">
+        No formal qualifications needed — just care, commitment, and a willingness to work as a pair.
+        We'll support your development.
+      </p>
+      <a href="mailto:rob@blkoutuk.com" class="vacancy-cta">Get in touch</a>
+    </div>
+
+  </div>
+</section>
+
+<!-- MANAGING EDITOR -->
+<section class="board-section">
+  <div class="section-label">Managing Editor</div>
+  <div class="pair-row" style="max-width: 520px;">
+
+    <!-- Rob -->
+    <div class="card">
+      <img class="card-image" src="/board-images/rob.png" alt="Illustrated portrait of Rob">
+      <div class="card-body">
+        <div class="card-name">Rob</div>
+        <div class="card-role">Managing Editor</div>
+        <p class="card-statement">Founder of BLKOUT. Ten years building community infrastructure for Black queer men in the UK — first as a platform, now as a cooperative. The board holds me accountable. That's how it should be.</p>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- GET INVOLVED -->
+<section class="advisory">
+  <h2>Get Involved</h2>
+  <p>
+    You don't have to be on the board to shape BLKOUT's future. Each pair is building
+    an advisory group — a space where members and potential members can contribute skills,
+    ideas, and time to the functions that matter to them.
+  </p>
+  <p>
+    Interested in Community, Digital, or Finance? Want to help but not sure how?
+    <a href="mailto:rob@blkoutuk.com">Drop Rob a line</a> and we'll find a way.
+  </p>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <p>
+    BLKOUT Creative Ltd &middot; Community Benefit Society RS009639<br>
+    <a href="https://blkoutuk.com">blkoutuk.com</a>
+  </p>
+</footer>
+
+</body>
+</html>

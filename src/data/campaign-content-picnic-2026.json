@@ -1,0 +1,697 @@
+{
+  "campaign": {
+    "name": "BLKOUT Annual Picnic 2026",
+    "tagline": "Bring what we need. Come as you are.",
+    "run": "2026-07-01 to 2026-08-16",
+    "cadence": "one post per day",
+    "event": {
+      "date": "2026-08-16",
+      "time": "13:00-19:30",
+      "venue": "Regent's Park, London"
+    },
+    "owner": "Nzube + the community team",
+    "soundtrack": [
+      "Roy Ayers — Everybody Loves the Sunshine",
+      "The Blackbyrds — Doing It in the Park",
+      "Incognito — London Town"
+    ],
+    "cause": "LGBT+ Rights Ghana (bucket + chip-in surplus)",
+    "after_party": "Karaoke at Zodiac Bar (pending confirmation)"
+  },
+  "content_calendar": [
+    {
+      "phase": "Week 1 · 1–5 Jul — The invitation (Morning palette)",
+      "content": [
+        {
+          "scheduled_for": "2026-07-01",
+          "weekday": "Wed",
+          "slot": "Launch",
+          "title": "Launch — Wed 1 Jul",
+          "content": "Bring what we need. Come as you are. — Our annual picnic is back. Sunday 16 August, Regent's Park. Save the date. ☀️",
+          "platform": "instagram",
+          "type": "reel",
+          "format": "Reel",
+          "asset": "Morning day-arc frame",
+          "track": null,
+          "status": "draft"
+        },
+        {
+          "scheduled_for": "2026-07-02",
+          "weekday": "Thu",
+          "slot": "Our People",
+          "title": "Our People — Thu 2 Jul",
+          "content": "From the 19-year-old who's never been, to the elder who's been to every one. Every age. Every shade of us.",
+          "platform": "instagram",
+          "type": "social",
+          "format": "Still",
+          "asset": "Activity: dominoes",
+          "track": null,
+          "status": "draft"
+        },
+        {
+          "scheduled_for": "2026-07-03",
+          "weekday": "Fri",
+          "slot": "Save Your Spot",
+          "title": "Save Your Spot — Fri 3 Jul",
+          "content": "Free to come, always. Pop your name down — we'll send the exact corner of the park nearer the time. 🔗",
+          "platform": "instagram",
+          "type": "social",
+          "format": "Still + link",
+          "asset": "Morning frame",
+          "track": null,
+          "status": "draft"
+        },
+        {
+          "scheduled_for": "2026-07-04",
+          "weekday": "Sat",
+          "slot": "The Vibe",
+          "title": "The Vibe — Sat 4 Jul",
+          "content": "Not an event. A gathering. The first light of a long summer day.",
+          "platform": "instagram",
+          "type": "reel",
+          "format": "Reel",
+          "asset": "Morning frame",
+          "track": null,
+          "status": "draft"
+        },
+        {
+          "scheduled_for": "2026-07-05",
+          "weekday": "Sun",
+          "slot": "Countdown",
+          "title": "Countdown — Sun 5 Jul",
+          "content": "Six Sundays till the park. 🌞",
+          "platform": "instagram",
+          "type": "social",
+          "format": "Still",
+          "asset": "Palette card",
+          "track": null,
+          "status": "draft"
+        }
+      ]
+    },
+    {
+      "phase": "Week 2 · 6–12 Jul — The soundtrack & lineage (Midday)",
+      "content": [
+        {
+          "scheduled_for": "2026-07-06",
+          "weekday": "Mon",
+          "slot": "Music Monday",
+          "title": "Music Monday — Mon 6 Jul",
+          "content": "🎵 Roy Ayers, Everybody Loves the Sunshine. \"My life in the sunshine.\" The whole brief, in one song.",
+          "platform": "instagram",
+          "type": "reel",
+          "format": "Reel",
+          "asset": "Midday frame",
+          "track": "Roy Ayers — Everybody Loves the Sunshine",
+          "status": "draft"
+        },
+        {
+          "scheduled_for": "2026-07-07",
+          "weekday": "Tue",
+          "slot": "Picnics Past",
+          "title": "Picnics Past — Tue 7 Jul",
+          "content": "2019. Same grass, same us. 📸",
+          "platform": "instagram",
+          "type": "social",
+          "format": "Still",
+          "asset": "Archive (AUG 2019)",
+          "track": null,
+          "status": "draft"
+        },
+        {
+          "scheduled_for": "2026-07-08",
+          "weekday": "Wed",
+          "slot": "The Invitation",
+          "title": "The Invitation — Wed 8 Jul",
+          "content": "No stage, no line-up, no tickets — just us, in the sun.",
+          "platform": "instagram",
+          "type": "social",
+          "format": "Still",
+          "asset": "Palette card",
+          "track": null,
+          "status": "draft"
+        },
+        {
+          "scheduled_for": "2026-07-09",
+          "weekday": "Thu",
+          "slot": "Our People",
+          "title": "Our People — Thu 9 Jul",
+          "content": "The kite-fliers, the watchers, the one who brought too much food. Bring who you are.",
+          "platform": "instagram",
+          "type": "social",
+          "format": "Carousel",
+          "asset": "Activity: kite-flying",
+          "track": null,
+          "status": "draft"
+        },
+        {
+          "scheduled_for": "2026-07-10",
+          "weekday": "Fri",
+          "slot": "Save Your Spot",
+          "title": "Save Your Spot — Fri 10 Jul",
+          "content": "A name on the list = the location lands in your inbox closer to the day. 🔗",
+          "platform": "instagram",
+          "type": "social",
+          "format": "Still + link",
+          "asset": "Midday frame",
+          "track": null,
+          "status": "draft"
+        },
+        {
+          "scheduled_for": "2026-07-11",
+          "weekday": "Sat",
+          "slot": "The Vibe",
+          "title": "The Vibe — Sat 11 Jul",
+          "content": "🎵 The Blackbyrds, Doing It in the Park. Midday, peak summer, nowhere to be but here.",
+          "platform": "instagram",
+          "type": "reel",
+          "format": "Reel",
+          "asset": "Midday frame",
+          "track": "The Blackbyrds — Doing It in the Park",
+          "status": "draft"
+        },
+        {
+          "scheduled_for": "2026-07-12",
+          "weekday": "Sun",
+          "slot": "Countdown",
+          "title": "Countdown — Sun 12 Jul",
+          "content": "Five Sundays till the park.",
+          "platform": "instagram",
+          "type": "social",
+          "format": "Still",
+          "asset": "Palette card",
+          "track": null,
+          "status": "draft"
+        }
+      ]
+    },
+    {
+      "phase": "Week 3 · 13–19 Jul — Picnics past (Golden hour)",
+      "content": [
+        {
+          "scheduled_for": "2026-07-13",
+          "weekday": "Mon",
+          "slot": "Music Monday",
+          "title": "Music Monday — Mon 13 Jul",
+          "content": "🎵 The Blackbyrds, Doing It in the Park. Because that's literally the plan.",
+          "platform": "instagram",
+          "type": "reel",
+          "format": "Reel",
+          "asset": "Golden frame",
+          "track": "The Blackbyrds — Doing It in the Park",
+          "status": "draft"
+        },
+        {
+          "scheduled_for": "2026-07-14",
+          "weekday": "Tue",
+          "slot": "Picnics Past",
+          "title": "Picnics Past — Tue 14 Jul",
+          "content": "2020 — the summer we needed each other most. 📸",
+          "platform": "instagram",
+          "type": "social",
+          "format": "Still",
+          "asset": "Archive (AUG 2020)",
+          "track": null,
+          "status": "draft"
+        },
+        {
+          "scheduled_for": "2026-07-15",
+          "weekday": "Wed",
+          "slot": "The Invitation",
+          "title": "The Invitation — Wed 15 Jul",
+          "content": "Nothing to perform; nowhere to be but here.",
+          "platform": "instagram",
+          "type": "social",
+          "format": "Still",
+          "asset": "Palette card",
+          "track": null,
+          "status": "draft"
+        },
+        {
+          "scheduled_for": "2026-07-16",
+          "weekday": "Thu",
+          "slot": "Our People",
+          "title": "Our People — Thu 16 Jul",
+          "content": "The faces that come back every year — and the new ones we can't wait to meet.",
+          "platform": "instagram",
+          "type": "social",
+          "format": "Carousel",
+          "asset": "Archive faces",
+          "track": null,
+          "status": "draft"
+        },
+        {
+          "scheduled_for": "2026-07-17",
+          "weekday": "Fri",
+          "slot": "Save Your Spot",
+          "title": "Save Your Spot — Fri 17 Jul",
+          "content": "Tell us you're coming — it helps us bring enough for everyone. 🔗",
+          "platform": "instagram",
+          "type": "social",
+          "format": "Still + link",
+          "asset": "Golden frame",
+          "track": null,
+          "status": "draft"
+        },
+        {
+          "scheduled_for": "2026-07-18",
+          "weekday": "Sat",
+          "slot": "The Vibe",
+          "title": "The Vibe — Sat 18 Jul",
+          "content": "🎵 Incognito, London Town. Golden hour. A London thing, a Black thing, a love thing.",
+          "platform": "instagram",
+          "type": "reel",
+          "format": "Reel",
+          "asset": "Golden frame",
+          "track": "Incognito — London Town",
+          "status": "draft"
+        },
+        {
+          "scheduled_for": "2026-07-19",
+          "weekday": "Sun",
+          "slot": "Countdown",
+          "title": "Countdown — Sun 19 Jul",
+          "content": "Four Sundays till the park.",
+          "platform": "instagram",
+          "type": "social",
+          "format": "Still",
+          "asset": "Palette card",
+          "track": null,
+          "status": "draft"
+        }
+      ]
+    },
+    {
+      "phase": "Week 4 · 20–26 Jul — All of us, every age (Golden) + the sponsor reveal",
+      "content": [
+        {
+          "scheduled_for": "2026-07-20",
+          "weekday": "Mon",
+          "slot": "Music Monday",
+          "title": "Music Monday — Mon 20 Jul",
+          "content": "🎵 Incognito, London Town — Bluey & co. The sound of Black London in the sun.",
+          "platform": "instagram",
+          "type": "reel",
+          "format": "Reel",
+          "asset": "Golden frame",
+          "track": "Incognito — London Town",
+          "status": "draft"
+        },
+        {
+          "scheduled_for": "2026-07-21",
+          "weekday": "Tue",
+          "slot": "Picnics Past",
+          "title": "Picnics Past — Tue 21 Jul",
+          "content": "2021. Look how we hold each other. 📸",
+          "platform": "instagram",
+          "type": "social",
+          "format": "Still",
+          "asset": "Archive (AUG 2021)",
+          "track": null,
+          "status": "draft"
+        },
+        {
+          "scheduled_for": "2026-07-22",
+          "weekday": "Wed",
+          "slot": "The Invitation",
+          "title": "The Invitation — Wed 22 Jul",
+          "content": "Come as you are. Bring your cousin, your ex, your situationship, your mum.",
+          "platform": "instagram",
+          "type": "social",
+          "format": "Still",
+          "asset": "Activity: rounders",
+          "track": null,
+          "status": "draft"
+        },
+        {
+          "scheduled_for": "2026-07-23",
+          "weekday": "Thu",
+          "slot": "Our People",
+          "title": "Our People — Thu 23 Jul",
+          "content": "Skating runs this country. One of the crews we'd love to see roll in — got skates? Bring them. (Inspiration: @laronbest, LA skate icon — credit/tag, not attending.)",
+          "platform": "instagram",
+          "type": "social",
+          "format": "Carousel",
+          "asset": "Skate culture (feat. @laronbest, inspo)",
+          "track": null,
+          "status": "draft"
+        },
+        {
+          "scheduled_for": "2026-07-24",
+          "weekday": "Fri",
+          "slot": "Save Your Spot",
+          "title": "Save Your Spot — Fri 24 Jul",
+          "content": "Free, always. Add your name — exact spot + timings to follow. 🔗",
+          "platform": "instagram",
+          "type": "social",
+          "format": "Still + link",
+          "asset": "Golden frame",
+          "track": null,
+          "status": "draft"
+        },
+        {
+          "scheduled_for": "2026-07-25",
+          "weekday": "Sat",
+          "slot": "The Vibe",
+          "title": "The Vibe — Sat 25 Jul",
+          "content": "The hour the light goes gold and nobody wants to leave.",
+          "platform": "instagram",
+          "type": "reel",
+          "format": "Reel",
+          "asset": "Golden frame",
+          "track": null,
+          "status": "draft"
+        },
+        {
+          "scheduled_for": "2026-07-26",
+          "weekday": "Sun",
+          "slot": "Sponsor reveal + Countdown",
+          "title": "Sponsor reveal + Countdown — Sun 26 Jul",
+          "content": "This year's sponsors: us. No brands. No logos. The community funds its own joy — chip in if you can, the rest goes to LGBT+ Rights Ghana. 🪣 Three Sundays till the park.",
+          "platform": "instagram",
+          "type": "social",
+          "format": "Still",
+          "asset": "Palette card",
+          "track": null,
+          "status": "draft"
+        }
+      ]
+    },
+    {
+      "phase": "Week 5 · 27 Jul–2 Aug — The build (Dusk)",
+      "content": [
+        {
+          "scheduled_for": "2026-07-27",
+          "weekday": "Mon",
+          "slot": "Music Monday",
+          "title": "Music Monday — Mon 27 Jul",
+          "content": "🎵 Soul II Soul, Keep On Movin'. \"A happy face, a thumping bass.\" Keep on.",
+          "platform": "instagram",
+          "type": "reel",
+          "format": "Reel",
+          "asset": "Dusk frame",
+          "track": "Soul II Soul — Keep On Movin'",
+          "status": "draft"
+        },
+        {
+          "scheduled_for": "2026-07-28",
+          "weekday": "Tue",
+          "slot": "Picnics Past",
+          "title": "Picnics Past — Tue 28 Jul",
+          "content": "2022. The year of the 31 July sunshine. 📸",
+          "platform": "instagram",
+          "type": "social",
+          "format": "Still",
+          "asset": "Archive (AUG 2022)",
+          "track": null,
+          "status": "draft"
+        },
+        {
+          "scheduled_for": "2026-07-29",
+          "weekday": "Wed",
+          "slot": "The Invitation",
+          "title": "The Invitation — Wed 29 Jul",
+          "content": "Bring what we need. A blanket. A plate to share. Yourself.",
+          "platform": "instagram",
+          "type": "social",
+          "format": "Still",
+          "asset": "Palette card",
+          "track": null,
+          "status": "draft"
+        },
+        {
+          "scheduled_for": "2026-07-30",
+          "weekday": "Thu",
+          "slot": "Our People",
+          "title": "Our People — Thu 30 Jul",
+          "content": "When the speaker comes out on the trolley, you know. 🔊",
+          "platform": "instagram",
+          "type": "social",
+          "format": "Carousel",
+          "asset": "Activity: sound-system",
+          "track": null,
+          "status": "draft"
+        },
+        {
+          "scheduled_for": "2026-07-31",
+          "weekday": "Fri",
+          "slot": "Save Your Spot",
+          "title": "Save Your Spot — Fri 31 Jul",
+          "content": "Two and a bit weeks. Save your spot — and we'll tell you exactly where to find us. 🔗",
+          "platform": "instagram",
+          "type": "social",
+          "format": "Still + link",
+          "asset": "Dusk frame",
+          "track": null,
+          "status": "draft"
+        },
+        {
+          "scheduled_for": "2026-08-01",
+          "weekday": "Sat",
+          "slot": "The Vibe",
+          "title": "The Vibe — Sat 1 Aug",
+          "content": "Just us, in the sun — and then the string lights come on.",
+          "platform": "instagram",
+          "type": "reel",
+          "format": "Reel",
+          "asset": "Dusk frame",
+          "track": null,
+          "status": "draft"
+        },
+        {
+          "scheduled_for": "2026-08-02",
+          "weekday": "Sun",
+          "slot": "Countdown",
+          "title": "Countdown — Sun 2 Aug",
+          "content": "Two Sundays till the park.",
+          "platform": "instagram",
+          "type": "social",
+          "format": "Still",
+          "asset": "Palette card",
+          "track": null,
+          "status": "draft"
+        }
+      ]
+    },
+    {
+      "phase": "Week 6 · 3–9 Aug — The cause & the after-party (Dusk → Night)",
+      "content": [
+        {
+          "scheduled_for": "2026-08-03",
+          "weekday": "Mon",
+          "slot": "Music Monday",
+          "title": "Music Monday — Mon 3 Aug",
+          "content": "🎵 Omar, There's Nothing Like This. British soul, golden and grown.",
+          "platform": "instagram",
+          "type": "reel",
+          "format": "Reel",
+          "asset": "Night frame",
+          "track": "Omar — There's Nothing Like This",
+          "status": "draft"
+        },
+        {
+          "scheduled_for": "2026-08-04",
+          "weekday": "Tue",
+          "slot": "Picnics Past",
+          "title": "Picnics Past — Tue 4 Aug",
+          "content": "2023. Still here. Still ours. 📸",
+          "platform": "instagram",
+          "type": "social",
+          "format": "Still",
+          "asset": "Archive (AUG 2023)",
+          "track": null,
+          "status": "draft"
+        },
+        {
+          "scheduled_for": "2026-08-05",
+          "weekday": "Wed",
+          "slot": "The cause",
+          "title": "The cause — Wed 5 Aug",
+          "content": "Why the bucket? It's been a brutal year for our family in Ghana. We give together — to LGBT+ Rights Ghana, a partner we love.",
+          "platform": "instagram",
+          "type": "social",
+          "format": "Carousel",
+          "asset": "Palette card",
+          "track": null,
+          "status": "draft"
+        },
+        {
+          "scheduled_for": "2026-08-06",
+          "weekday": "Thu",
+          "slot": "Our People",
+          "title": "Our People — Thu 6 Aug",
+          "content": "Loud table. Louder laugh. Bring your domino face.",
+          "platform": "instagram",
+          "type": "social",
+          "format": "Still",
+          "asset": "Activity: dominoes",
+          "track": null,
+          "status": "draft"
+        },
+        {
+          "scheduled_for": "2026-08-07",
+          "weekday": "Fri",
+          "slot": "Save Your Spot",
+          "title": "Save Your Spot — Fri 7 Aug",
+          "content": "Last clear week to sign up. Exact location drops to your inbox soon. 🔗",
+          "platform": "instagram",
+          "type": "social",
+          "format": "Still + link",
+          "asset": "Night frame",
+          "track": null,
+          "status": "draft"
+        },
+        {
+          "scheduled_for": "2026-08-08",
+          "weekday": "Sat",
+          "slot": "After-party reveal",
+          "title": "After-party reveal — Sat 8 Aug",
+          "content": "And when the sun goes down… 🎤 karaoke after-party at Zodiac Bar (Trans-founded, ours for the night). (pending confirmation)",
+          "platform": "instagram",
+          "type": "reel",
+          "format": "Reel",
+          "asset": "Activity: sound-system / Night",
+          "track": null,
+          "status": "draft"
+        },
+        {
+          "scheduled_for": "2026-08-09",
+          "weekday": "Sun",
+          "slot": "Countdown",
+          "title": "Countdown — Sun 9 Aug",
+          "content": "Next Sunday. ☀️",
+          "platform": "instagram",
+          "type": "social",
+          "format": "Still",
+          "asset": "Palette card",
+          "track": null,
+          "status": "draft"
+        }
+      ]
+    },
+    {
+      "phase": "Week 7 · 10–16 Aug — The day arrives (Night → daybreak)",
+      "content": [
+        {
+          "scheduled_for": "2026-08-10",
+          "weekday": "Mon",
+          "slot": "Music Monday",
+          "title": "Music Monday — Mon 10 Aug",
+          "content": "🎵 Maze ft. Frankie Beverly, Before I Let Go. The cookout anthem. You know what week it is.",
+          "platform": "instagram",
+          "type": "reel",
+          "format": "Reel",
+          "asset": "Night frame",
+          "track": "Maze ft. Frankie Beverly — Before I Let Go",
+          "status": "draft"
+        },
+        {
+          "scheduled_for": "2026-08-11",
+          "weekday": "Tue",
+          "slot": "Picnics Past",
+          "title": "Picnics Past — Tue 11 Aug",
+          "content": "Every year, one frame. Here's the reel of us. 📸",
+          "platform": "instagram",
+          "type": "social",
+          "format": "Carousel",
+          "asset": "Archive best-of",
+          "track": null,
+          "status": "draft"
+        },
+        {
+          "scheduled_for": "2026-08-12",
+          "weekday": "Wed",
+          "slot": "The Invitation",
+          "title": "The Invitation — Wed 12 Aug",
+          "content": "Not an event. A gathering. This Sunday. Regent's Park.",
+          "platform": "instagram",
+          "type": "social",
+          "format": "Still",
+          "asset": "Day-arc montage",
+          "track": null,
+          "status": "draft"
+        },
+        {
+          "scheduled_for": "2026-08-13",
+          "weekday": "Thu",
+          "slot": "Practical",
+          "title": "Practical — Thu 13 Aug",
+          "content": "What to bring: a blanket, a plate to share, sun cream, your people. We've got backup food + the speaker.",
+          "platform": "instagram",
+          "type": "social",
+          "format": "Carousel",
+          "asset": "Palette cards",
+          "track": null,
+          "status": "draft"
+        },
+        {
+          "scheduled_for": "2026-08-14",
+          "weekday": "Fri",
+          "slot": "Location + weather",
+          "title": "Location + weather — Fri 14 Aug",
+          "content": "📍 Checking your inbox today: the exact corner of Regent's Park + the weather word. Not signed up? Last chance. 🔗",
+          "platform": "instagram",
+          "type": "social",
+          "format": "Still + link",
+          "asset": "Morning frame",
+          "track": null,
+          "status": "draft"
+        },
+        {
+          "scheduled_for": "2026-08-15",
+          "weekday": "Sat",
+          "slot": "Eve",
+          "title": "Eve — Sat 15 Aug",
+          "content": "Tomorrow. One day, all its light. Bring what we need. Come as you are.",
+          "platform": "instagram",
+          "type": "reel",
+          "format": "Reel",
+          "asset": "Day-arc (all five)",
+          "track": null,
+          "status": "draft"
+        },
+        {
+          "scheduled_for": "2026-08-16",
+          "weekday": "Sun",
+          "slot": "THE DAY",
+          "title": "THE DAY — Sun 16 Aug",
+          "content": "Today. Regent's Park, 1–7.30pm. Then karaoke at Zodiac. Come and be among your people. ☀️",
+          "platform": "instagram",
+          "type": "reel",
+          "format": "Reel / live",
+          "asset": "Golden frame",
+          "track": null,
+          "status": "draft"
+        }
+      ]
+    }
+  ],
+  "key_dates": [
+    {
+      "date": "2026-07-01",
+      "note": "Campaign launch / save the date"
+    },
+    {
+      "date": "2026-07-26",
+      "note": "Sponsor reveal — \"this year's sponsors: us\""
+    },
+    {
+      "date": "2026-08-14",
+      "note": "Exact location + weather word to sign-ups"
+    },
+    {
+      "date": "2026-08-16",
+      "note": "THE DAY — Regent's Park 1–7.30pm + Zodiac after-party"
+    }
+  ],
+  "hashtags": [
+    "#BLKOUTPicnic",
+    "#BringWhatWeNeed",
+    "#ComeAsYouAre"
+  ],
+  "success_metrics": {
+    "rsvps": "sign-up headcount (for catering + Zodiac)",
+    "fundraising": "chip-in surplus + bucket → LGBT+ Rights Ghana",
+    "reach": "reel plays on the three soundtrack posts"
+  }
+}

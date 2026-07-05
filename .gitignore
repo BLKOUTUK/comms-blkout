@@ -36,3 +36,16 @@ server-dist/
 socialsync-content-generation/
 *.Zone.Identifier
 package-lock.json
+graphify-out/
+
+# Agent tooling state (machine-local)
+.claude-flow/
+.swarm/
+.claude/worktrees/
+supabase/.temp/
+
+# Raw working assets — source material lives in the image archive / Drive, not the app repo
+assets/
+remotion-videos/public/assets/
+public/IvorAvatar/
+public/assets/
