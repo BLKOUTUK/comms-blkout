@@ -33,6 +33,7 @@ Quick cuts of diverse X-Men 97 animated heroes from the journey (use generated c
 "EVERY HERO DISTINCT"
 "EVERY VOICE MATTERS"
 "THIS IS US"
+"Stronger together."
 
 ---
 
