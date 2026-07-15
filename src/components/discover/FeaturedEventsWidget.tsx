@@ -14,19 +14,6 @@ interface FeaturedEvent {
   tags?: string[];
 }
 
-// Fallback events if API fails
-const FALLBACK_EVENTS: FeaturedEvent[] = [
-  {
-    id: 'fallback-1',
-    title: 'BLKOUT Community Meetup',
-    date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-    location: 'London',
-    organizer: 'BLKOUT UK',
-    cost: 'Free',
-    url: 'https://events.blkoutuk.com'
-  }
-];
-
 function formatEventDate(dateStr: string): string {
   const date = new Date(dateStr);
   return date.toLocaleDateString('en-GB', {
@@ -53,14 +40,14 @@ function getWeekNumber(date: Date): number {
 }
 
 export function FeaturedEventsWidget() {
-  const [events, setEvents] = useState<FeaturedEvent[]>(FALLBACK_EVENTS);
+  const [events, setEvents] = useState<FeaturedEvent[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     async function fetchFeaturedEvents() {
       if (!isSupabaseConfigured()) {
-        console.log('Supabase not configured, using fallback events');
+        console.log('Supabase not configured, no events to show');
         setIsLoading(false);
         return;
       }
@@ -174,7 +161,7 @@ export function FeaturedEventsWidget() {
       )}
 
       {/* Events Grid */}
-      {!isLoading && !error && (
+      {!isLoading && !error && events.length > 0 && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {events.map((event) => (
             <a
@@ -239,10 +226,20 @@ export function FeaturedEventsWidget() {
         </div>
       )}
 
-      {/* CTA Banner */}
-      <div className="bg-white/5 border border-liberation-gold-divine/20 rounded-xl p-6 text-center backdrop-blur-sm">
-        <p className="text-gray-300 mb-3">
-          Discover more events for the Black LGBTQ+ community
+      {/* Straight talk — honest state of the calendar until the regular rhythm lands (also serves as the empty state) */}
+      <div className="bg-white/5 border border-liberation-gold-divine/20 rounded-xl p-6 backdrop-blur-sm">
+        <p className="text-gray-300 text-sm leading-relaxed mb-4">
+          <span className="text-liberation-gold-divine font-semibold">Straight talk:</span> this calendar isn't yet
+          the reliable, complete picture we want to give you — our regular events rhythm arrives from September.
+          Until then we share what we find and verify, and promise only what we can keep — like the{' '}
+          <a
+            href="https://commons.blkoutuk.com/picnic.html"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-liberation-gold-divine underline hover:text-white transition-colors"
+          >
+            Annual Picnic, Sunday 16 August
+          </a>.
         </p>
         <a
           href="https://events.blkoutuk.com"
@@ -251,7 +248,7 @@ export function FeaturedEventsWidget() {
           className="inline-flex items-center gap-2 bg-gradient-to-r from-blkout-600 to-purple-600 text-white font-bold py-2.5 px-6 rounded-lg hover:from-blkout-700 hover:to-purple-700 transition-all shadow-md hover:shadow-lg"
         >
           <Calendar size={18} />
-          Browse Full Calendar
+          Browse the calendar so far
         </a>
       </div>
     </div>
