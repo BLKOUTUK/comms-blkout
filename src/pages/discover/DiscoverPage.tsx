@@ -10,12 +10,14 @@ import { ArchiveArticleWidget } from '@/components/discover/ArchiveArticleWidget
 import { BlkoutVoicesWidget } from '@/components/discover/BlkoutVoicesWidget';
 import { FeaturedEventsWidget } from '@/components/discover/FeaturedEventsWidget';
 import { LearningWidget } from '@/components/discover/LearningWidget';
+import { PlaygroundWidget } from '@/components/discover/PlaygroundWidget';
 import FoundationLayer from '@/components/foundation/FoundationLayer';
 import { Heart, Users, Sparkles, Search } from 'lucide-react';
 
 const SECTIONS = [
 { id: 'hub', keywords: ['hub', 'community', 'connect', 'blkouthub'] },
-  { id: 'events', keywords: ['events', 'calendar', 'upcoming', 'pride'] },
+  { id: 'events', keywords: ['events', 'calendar', 'upcoming', 'pride', 'picnic'] },
+  { id: 'playground', keywords: ['playground', 'games', 'play', 'oomf', 'comic', 'sky', 'constellations', 'compass', 'interactive'] },
   { id: 'social', keywords: ['social', 'media', 'instagram', 'linkedin'] },
   { id: 'newsletter', keywords: ['newsletter', 'email', 'subscribe', 'archive'] },
   { id: 'voices', keywords: ['voices', 'blog', 'articles', 'stories', 'writing'] },
@@ -115,10 +117,10 @@ export function DiscoverPage() {
         </div>
       </div>
 
-      {/* Featured Event: BMHWA Brown Bag Lunch */}
+      {/* Featured Event: BLKOUT Annual Picnic 2026 */}
       <section className="mb-12">
         <a
-          href="https://events.teams.microsoft.com/event/5214601e-e40d-4f09-aadc-d06712e7cac1@38543a29-5839-4060-90c6-b1aac6064ddf"
+          href="https://commons.blkoutuk.com/picnic.html"
           target="_blank"
           rel="noopener noreferrer"
           className="block bg-gradient-to-r from-gray-900 via-black to-gray-900 rounded-2xl p-8 border-2 border-liberation-gold-divine/40 shadow-lg hover:border-liberation-gold-divine/70 hover:shadow-2xl transition-all duration-300 group"
@@ -126,26 +128,23 @@ export function DiscoverPage() {
           <div className="flex flex-col md:flex-row md:items-center gap-6">
             <div className="flex-shrink-0 text-center">
               <div className="bg-liberation-gold-divine/10 border border-liberation-gold-divine/30 rounded-xl px-5 py-3">
-                <p className="text-liberation-gold-divine text-xs font-bold uppercase tracking-widest">Wed 25 March</p>
-                <p className="text-white text-lg font-bold">12:00 – 13:00</p>
-                <p className="text-gray-400 text-xs">GMT · Online · Free</p>
+                <p className="text-liberation-gold-divine text-xs font-bold uppercase tracking-widest">Sun 16 August</p>
+                <p className="text-white text-lg font-bold">1:00 – 7:30pm</p>
+                <p className="text-gray-400 text-xs">Regent's Park · Free</p>
               </div>
             </div>
             <div className="flex-1">
-              <p className="text-liberation-gold-divine text-xs font-bold uppercase tracking-widest mb-2">BMHWA Brown Bag Lunch</p>
+              <p className="text-liberation-gold-divine text-xs font-bold uppercase tracking-widest mb-2">BLKOUT Annual Picnic 2026</p>
               <h3 className="text-2xl md:text-3xl font-bold text-white group-hover:text-liberation-gold-divine transition-colors mb-3">
-                Can Good Mental Health 'Go Viral'?
+                Bring what we need. Come as you are.
               </h3>
               <p className="text-gray-300 text-sm leading-relaxed mb-3">
-                BLKOUT UK's Critical Frequency project — machine learning, network science, and behavioural economics for mental health intervention with Black queer men. Dr Rob Berkeley presents, Dr Ariel Breaux Torres in conversation.
-              </p>
-              <p className="text-gray-500 text-xs">
-                More info: <span className="text-liberation-gold-divine underline">critical.blkoutuk.com</span>
+                One long afternoon in the sun — food, music, games and each other. The gathering of the BLKOUT year, and everyone who saves a spot helps us plan the welcome.
               </p>
             </div>
             <div className="flex-shrink-0 text-center">
               <span className="inline-flex items-center gap-2 bg-liberation-gold-divine text-black font-bold py-3 px-6 rounded-lg text-sm group-hover:bg-white group-hover:text-black transition-colors shadow-md">
-                Register Free →
+                Save your spot →
               </span>
             </div>
           </div>
@@ -226,6 +225,13 @@ export function DiscoverPage() {
         {visible('social') && (
           <section className="md:col-span-5 border-2 border-liberation-gold-divine/40 hover:border-liberation-gold-divine/70 transition-colors p-6 md:p-8 bg-black/40 flex flex-col justify-center">
             <SocialMediaFeed />
+          </section>
+        )}
+
+        {/* Playground — games and interactive elements */}
+        {visible('playground') && (
+          <section className="md:col-span-7 border-2 border-liberation-gold-divine/40 hover:border-liberation-gold-divine/70 transition-colors p-6 md:p-8 bg-black/40 flex flex-col justify-center">
+            <PlaygroundWidget />
           </section>
         )}
 
