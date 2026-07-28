@@ -62,7 +62,7 @@ The BLKOUT Comms newsletter workflow ("Herald Agent") has been validated end-to-
 ### Working Credentials
 
 ```bash
-RESEND_API_KEY=re_HK47Qpxi_8hfuv32bYXxnb3nzFkoMLrSS  # ✅ VALID
+RESEND_API_KEY=re_REVOKED_KEY_REMOVED_use_Coolify_env  # ✅ VALID
 EDITOR_EMAIL=rob@blkoutuk.com  # ✅ CORRECT (not robbe@)
 ```
 

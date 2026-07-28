@@ -14,9 +14,9 @@
  *   - Test recipient email (defaults to robbe@blkoutuk.com)
  */
 
-const RESEND_API_KEY = process.env.RESEND_API_KEY || 're_HK47Qpxi_8hfuv32bYXxnb3nzFkoMLrSS';
+const RESEND_API_KEY = process.env.RESEND_API_KEY || 're_REVOKED_KEY_REMOVED_use_Coolify_env';
 const TEST_RECIPIENT = process.env.TEST_EMAIL || 'rob@blkoutuk.com';
-const FROM_ADDRESS = 'BLKOUT <noreply@blkoutuk.com>'; // Domain verified in Resend
+const FROM_ADDRESS = 'BLKOUT <noreply@updates.blkoutuk.com>'; // updates.blkoutuk.com is the ONLY verified domain on the Resend account — blkoutuk.com returns 403
 
 // ANSI colors for terminal output
 const colors = {

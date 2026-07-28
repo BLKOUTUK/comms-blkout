@@ -79,7 +79,7 @@ export async function handleSendEditorialPrompt(req: VercelRequest, res: VercelR
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          from: 'BLKOUT Herald <noreply@blkoutuk.com>',
+          from: 'BLKOUT Herald <noreply@updates.blkoutuk.com>',
           to: EDITOR_EMAIL,
           subject: `📝 Editorial needed: ${edition.title}`,
           html: emailHtml,
