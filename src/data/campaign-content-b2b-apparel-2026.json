@@ -1,0 +1,198 @@
+{
+  "campaign": {
+    "name": "Brother to Brother — worn close to the heart",
+    "slug": "b2b-apparel-2026",
+    "tagline": "Worn close to the heart.",
+    "run": "31 Jul – 16 Aug 2026 (10 posts; freepost weekend launch, ends Picnic day)",
+    "cadence": "Every other day, then Picnic Sunday",
+    "owner": "Rob",
+    "cause": "Brother to Brother range relaunch — new chest monogram (interpretation of the 1991 Beam–Hemphill anthology cover), blkoutuk.com/shop on the face of every asset",
+    "gate": "LIFTED 30 Jul (T26 products live on Teemill). Auto-gate: the posting routine checks the Teemill sitemap for 'brother-to-brother-t26' before every post.",
+    "channels": {
+      "instagram": "READY — Zapier publish_media_v2 / publish_video, instagramPageId 17841403920630280 (see reference_instagram_autopost_zapier)",
+      "linkedin": "READY — Zapier create_company_update, company_id 19202635",
+      "facebook": "BLOCKED — stale Zapier grant lists zero Pages; Rob must Remove-app in Facebook Business Integrations then fresh-connect, then posts here can flow",
+      "twitter": "NO ROUTE — Zapier does not carry X; manual posting only if ever wanted"
+    },
+    "asset_dir_local": "~/blkout/projects/blkout-shop/promo-b2b/",
+    "asset_base_url": "https://raw.githubusercontent.com/BLKOUTUK/commons/main/public/shop-b2b-assets/",
+    "routine": "LAUNCH one-shot trig_01JgyGUUhVeAdRQEfUeXaYVp fires Fri 31 Jul 11:07 UTC (12:07 BST). Then trig_01NnXYZmhFnm3i2SjhEpvpYP daily 15:07 UTC 1-16 Aug. IG + LinkedIn via Zapier; Facebook/Twitter excluded; auto-gate = sitemap must contain brother-to-brother-t26."
+  },
+  "content_calendar": [
+    {
+      "phase": "Launch · 31 Jul – 2 Aug — Payday + Teemill FREEPOST weekend",
+      "content": [
+        {
+          "scheduled_for": "2026-07-31",
+          "weekday": "Fri",
+          "slot": "LAUNCH — payday + freepost",
+          "title": "Launch — Fri 31 Jul, 12:07",
+          "content": "Brother to Brother, redesigned. An interpretation of the 1991 classic — new writings by Black gay men — now worn small, over the heart. Organic cotton, printed to order. It's payday — and the post is free: free UK delivery on everything, this weekend only, ends Sunday midnight. blkoutuk.com/shop",
+          "platforms": [
+            "instagram",
+            "linkedin"
+          ],
+          "type": "reel",
+          "format": "Video (freepost banner)",
+          "asset": "b2b-video-7-slide-range-freepost.mp4",
+          "status": "scheduled — one-shot trig_01JgyGUUhVeAdRQEfUeXaYVp"
+        },
+        {
+          "scheduled_for": "2026-08-01",
+          "weekday": "Sat",
+          "slot": "Freepost day 2",
+          "title": "The tee — Sat 1 Aug",
+          "content": "Payday weekend, brothers. Free UK delivery on everything until Sunday midnight — Teemill's freepost weekend. The white tee with the black badge, worn over the heart — the 1991 pairing. blkoutuk.com/shop",
+          "platforms": [
+            "instagram",
+            "linkedin"
+          ],
+          "type": "social",
+          "format": "Still (freepost banner)",
+          "asset": "b2b-promo-1-tee-stoop-freepost.jpg",
+          "status": "scheduled — fires via routine trig_01NnXYZmhFnm3i2SjhEpvpYP"
+        },
+        {
+          "scheduled_for": "2026-08-02",
+          "weekday": "Sun",
+          "slot": "Freepost LAST DAY",
+          "title": "Last day — Sun 2 Aug",
+          "content": "Last day — free UK delivery ends midnight tonight. Take the space. Bring a brother. The Brother to Brother monogram, worn over the heart: blkoutuk.com/shop",
+          "platforms": [
+            "instagram",
+            "linkedin"
+          ],
+          "type": "social",
+          "format": "Still (last-day banner)",
+          "asset": "b2b-promo-2-tee-gallery-lastday.jpg",
+          "status": "scheduled — fires via routine trig_01NnXYZmhFnm3i2SjhEpvpYP"
+        },
+        {
+          "scheduled_for": "2026-08-05",
+          "weekday": "Wed",
+          "slot": "Elders",
+          "title": "The toast — Wed 5 Aug",
+          "content": "To the ones who showed us how. Brother to Brother — worn close to the heart: blkoutuk.com/shop",
+          "platforms": [
+            "instagram",
+            "linkedin",
+            "facebook"
+          ],
+          "type": "social",
+          "format": "Still",
+          "asset": "b2b-promo-3-polo-dinner.jpg",
+          "status": "scheduled — fires via routine trig_01NnXYZmhFnm3i2SjhEpvpYP"
+        },
+        {
+          "scheduled_for": "2026-08-07",
+          "weekday": "Fri",
+          "slot": "Golden hour",
+          "title": "Rooftop — Fri 7 Aug",
+          "content": "The city is ours this hour. Brother to Brother — worn close to the heart: blkoutuk.com/shop",
+          "platforms": [
+            "instagram",
+            "linkedin",
+            "facebook"
+          ],
+          "type": "reel",
+          "format": "Video (5s)",
+          "asset": "b2b-video-4-polo-rooftop.mp4",
+          "status": "scheduled — fires via routine trig_01NnXYZmhFnm3i2SjhEpvpYP"
+        }
+      ]
+    },
+    {
+      "phase": "Week 2 · 10–16 Aug — Into the Picnic",
+      "content": [
+        {
+          "scheduled_for": "2026-08-10",
+          "weekday": "Mon",
+          "slot": "Giveaway",
+          "title": "Giveaway — Mon 10 Aug",
+          "content": "You can't buy these. Hand-pressed by us — including one black-on-black that only shows itself when the light catches it. They're prizes. Karaoke and games, Annual Picnic, Sunday 16 August, Regent's Park. Come sing for your shirt. The ones you CAN buy: blkoutuk.com/shop",
+          "platforms": [
+            "instagram",
+            "facebook"
+          ],
+          "type": "social",
+          "format": "Still (real photo of hand-pressed tees)",
+          "asset": "b2b-promo-9-prize-tee.jpg",
+          "status": "scheduled — fires via routine trig_01NnXYZmhFnm3i2SjhEpvpYP"
+        },
+        {
+          "scheduled_for": "2026-08-13",
+          "weekday": "Thu",
+          "slot": "Tenderness",
+          "title": "South Bank — Thu 13 Aug",
+          "content": "Hold your brother close. Brother to Brother — worn close to the heart: blkoutuk.com/shop",
+          "platforms": [
+            "instagram",
+            "linkedin",
+            "facebook"
+          ],
+          "type": "reel",
+          "format": "Video (5s)",
+          "asset": "b2b-video-5-hoodie-southbank.mp4",
+          "status": "scheduled — fires via routine trig_01NnXYZmhFnm3i2SjhEpvpYP"
+        },
+        {
+          "scheduled_for": "2026-08-15",
+          "weekday": "Sat",
+          "slot": "Care",
+          "title": "Kitchen — Sat 15 Aug",
+          "content": "Care, served hot. Brother to Brother — worn close to the heart: blkoutuk.com/shop",
+          "platforms": [
+            "instagram",
+            "linkedin",
+            "facebook"
+          ],
+          "type": "social",
+          "format": "Still",
+          "asset": "b2b-promo-6-hoodie-kitchen.jpg",
+          "status": "scheduled — fires via routine trig_01NnXYZmhFnm3i2SjhEpvpYP"
+        },
+        {
+          "scheduled_for": "2026-08-16",
+          "weekday": "Sun",
+          "slot": "Picnic day",
+          "title": "Picnic day — Sun 16 Aug",
+          "content": "Wear it loud. Bring it home. And today: see you in the park — BLKOUT Annual Picnic, Regent's Park, 1–7.30pm, free, all welcome. blkoutuk.com/shop",
+          "platforms": [
+            "instagram",
+            "linkedin",
+            "facebook"
+          ],
+          "type": "social",
+          "format": "Still (slide)",
+          "asset": "b2b-promo-8-slide-shop.jpg",
+          "status": "scheduled — fires via routine trig_01NnXYZmhFnm3i2SjhEpvpYP"
+        }
+      ]
+    }
+  ],
+  "spare_assets": [
+    "b2b-promo-4-polo-rooftop.jpg (still of the reel)",
+    "b2b-promo-5-hoodie-southbank.jpg (still of the reel)",
+    "b2b-promo-7-slide-range.jpg (still of the launch reel)",
+    "b2b-video-1-tee-stoop.mp4",
+    "b2b-video-2-tee-gallery.mp4",
+    "b2b-video-3-polo-dinner.mp4",
+    "b2b-video-6-hoodie-kitchen.mp4",
+    "b2b-video-8-slide-shop.mp4"
+  ],
+  "key_dates": [
+    {
+      "date": "2026-08-03",
+      "what": "Campaign launch (gated on Teemill uploads done)"
+    },
+    {
+      "date": "2026-08-16",
+      "what": "Annual Picnic, Regent's Park — campaign close"
+    }
+  ],
+  "hashtags": [
+    "#BLKOUT",
+    "#BrotherToBrother",
+    "#BlackQueerJoy"
+  ]
+}
