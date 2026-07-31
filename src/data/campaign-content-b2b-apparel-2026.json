@@ -16,7 +16,7 @@
     },
     "asset_dir_local": "~/blkout/projects/blkout-shop/promo-b2b/",
     "asset_base_url": "https://raw.githubusercontent.com/BLKOUTUK/commons/main/public/shop-b2b-assets/",
-    "routine": "LAUNCH one-shot trig_01JgyGUUhVeAdRQEfUeXaYVp fires Fri 31 Jul 11:07 UTC (12:07 BST). Then trig_01NnXYZmhFnm3i2SjhEpvpYP daily 15:07 UTC 1-16 Aug. IG + LinkedIn via Zapier; Facebook/Twitter excluded; auto-gate = sitemap must contain brother-to-brother-t26."
+    "routine": "LAUNCH one-shot trig_01JgyGUUhVeAdRQEfUeXaYVp fires Fri 31 Jul 11:07 UTC (12:07 BST). Then trig_01NnXYZmhFnm3i2SjhEpvpYP daily 15:07 UTC 1-16 Aug. IG + LinkedIn via Zapier; Facebook/Twitter excluded; auto-gate = sitemap must contain brother-to-brother-t26. UPDATED 31 Jul eve: all rows stills (publish_video banned — reels time out), giveaway caption = winners' framing, routine self-verifies via media list after posting."
   },
   "content_calendar": [
     {
@@ -94,9 +94,9 @@
             "linkedin",
             "facebook"
           ],
-          "type": "reel",
-          "format": "Video (5s)",
-          "asset": "b2b-video-4-polo-rooftop.mp4",
+          "type": "social",
+          "format": "Still",
+          "asset": "b2b-promo-4-polo-rooftop.jpg",
           "status": "scheduled — fires via routine trig_01NnXYZmhFnm3i2SjhEpvpYP"
         }
       ]
@@ -109,7 +109,7 @@
           "weekday": "Mon",
           "slot": "Giveaway",
           "title": "Giveaway — Mon 10 Aug",
-          "content": "You can't buy these. Hand-pressed by us — including one black-on-black that only shows itself when the light catches it. They're prizes. Karaoke and games, Annual Picnic, Sunday 16 August, Regent's Park. Come sing for your shirt. The ones you CAN buy: blkoutuk.com/shop",
+          "content": "You can't buy these. Exclusive winners' tees — editions that will never go on sale, including a black-on-black that only shows itself when the light catches it. They're the prizes: karaoke and games, Annual Picnic, Sunday 16 August, Regent's Park. Come sing for your shirt. The ones you CAN buy: blkoutuk.com/shop",
           "platforms": [
             "instagram",
             "facebook"
@@ -130,9 +130,9 @@
             "linkedin",
             "facebook"
           ],
-          "type": "reel",
-          "format": "Video (5s)",
-          "asset": "b2b-video-5-hoodie-southbank.mp4",
+          "type": "social",
+          "format": "Still",
+          "asset": "b2b-promo-5-hoodie-southbank.jpg",
           "status": "scheduled — fires via routine trig_01NnXYZmhFnm3i2SjhEpvpYP"
         },
         {
