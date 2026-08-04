@@ -131,7 +131,9 @@ function buildScript(props) {
   props.teases.forEach((t, i) => {
     const headline = trimSentence(t.title, 16);
     const beat = pick(SIGNATURE_BEATS, seed + i);
-    lines.push(`${connectors[i]} — ${headline}. ${beat}`);
+    // A headline keeping its own ? or ! must not also collect a full stop.
+    const stop = /[?!]$/.test(headline) ? "" : ".";
+    lines.push(`${connectors[i]} — ${headline}${stop} ${beat}`);
   });
   lines.push(
     `All three at ${props.cta?.spokenUrl || "news.blkoutuk.com"}, where you're the editor. Tell us which stories matter most to you.`

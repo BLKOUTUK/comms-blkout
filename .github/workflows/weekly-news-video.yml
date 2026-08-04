@@ -105,6 +105,9 @@ jobs:
           YT_CLIENT_ID: ${{ secrets.YT_CLIENT_ID }}
           YT_CLIENT_SECRET: ${{ secrets.YT_CLIENT_SECRET }}
           YT_REFRESH_TOKEN: ${{ secrets.YT_REFRESH_TOKEN }}
+          # Needed to write the digest row that the news site panel reads.
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
           # inputs.privacy only exists on workflow_dispatch; on a `schedule`
           # trigger it is always empty. This fallback IS the weekly default —
           # it was 'unlisted', so every scheduled digest published to nobody.
