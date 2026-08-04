@@ -85,19 +85,31 @@ const OPENERS = [
 const CONNECTORS_FIRST = ["First", "To begin"];
 const CONNECTORS_SECOND = ["Then", "Next", "Also this week"];
 const CONNECTORS_THIRD = ["And finally", "And to close"];
+// Beats are picked at random against whatever story lands in that slot, so they
+// must read acceptably over a killing or an imprisonment as well as good news.
+// "Marvellous." and "Quite extraordinary." were removed after W31 spoke
+// "A Black trans teen was shot and killed in Florida. Marvellous."
 const SIGNATURE_BEATS = [
-  "Quite extraordinary.",
-  "Marvellous.",
   "Worth your attention.",
   "A story I shan't soon forget.",
+  "Do read it.",
+  "It stayed with me.",
 ];
 
 function pick(arr, seed) {
   return arr[seed % arr.length];
 }
 
+// Spoken aloud, a headline cut mid-clause is worse than a long one. Prefer the
+// first complete sentence; only fall back to a word cap if that is still long.
 function trimSentence(s, maxWords) {
-  const words = s.replace(/\s+/g, " ").trim().split(" ");
+  const clean = s.replace(/\s+/g, " ").trim();
+  const firstSentence = clean.match(/^[^.!?]+[.!?]/)?.[0]?.trim();
+  const candidate =
+    firstSentence && firstSentence.split(" ").length <= maxWords
+      ? firstSentence
+      : clean;
+  const words = candidate.split(" ");
   if (words.length <= maxWords) return words.join(" ").replace(/[.,;:]+$/, "");
   return words.slice(0, maxWords).join(" ").replace(/[.,;:]+$/, "") + "…";
 }
@@ -114,10 +126,10 @@ function buildScript(props) {
   ];
 
   const lines = [
-    `${opener}, here's what you told us mattered this week.`,
+    `${opener}, here's what's moving in our news this week.`,
   ];
   props.teases.forEach((t, i) => {
-    const headline = trimSentence(t.title, 12);
+    const headline = trimSentence(t.title, 16);
     const beat = pick(SIGNATURE_BEATS, seed + i);
     lines.push(`${connectors[i]} — ${headline}. ${beat}`);
   });

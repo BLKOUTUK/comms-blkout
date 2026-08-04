@@ -1,7 +1,9 @@
 name: Weekly News Video
 
-# Sunday 02:00 UTC = 03:00 BST. Pipeline runs ~25 min, uploads to YouTube as
-# unlisted by default. By 09:00 BST you have a YT link ready to cross-post.
+# Sunday 02:00 UTC = 03:00 BST. Pipeline runs ~25 min and publishes to YouTube
+# PUBLIC by default — the digest ships every week without a human gate.
+# Still manual: pasting the block the upload step prints into
+# news-blkout/src/config/aivorDigest.ts so the news site panel tracks it.
 
 on:
   schedule:
@@ -103,7 +105,10 @@ jobs:
           YT_CLIENT_ID: ${{ secrets.YT_CLIENT_ID }}
           YT_CLIENT_SECRET: ${{ secrets.YT_CLIENT_SECRET }}
           YT_REFRESH_TOKEN: ${{ secrets.YT_REFRESH_TOKEN }}
-          YT_PRIVACY: ${{ inputs.privacy || 'unlisted' }}
+          # inputs.privacy only exists on workflow_dispatch; on a `schedule`
+          # trigger it is always empty. This fallback IS the weekly default —
+          # it was 'unlisted', so every scheduled digest published to nobody.
+          YT_PRIVACY: ${{ inputs.privacy || 'public' }}
           WEEK_LABEL: ${{ inputs.week_label }}
         run: |
           set -e
