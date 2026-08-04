@@ -150,10 +150,10 @@ console.log(`✓ Uploaded.`);
 console.log(`  video id: ${result.id}`);
 console.log(`  https://www.youtube.com/watch?v=${result.id}`);
 
-// --- Publish summary -------------------------------------------------------
-// Review-gate model: the cron uploads unlisted, then emits everything needed
-// to publish. The digest is not live on the news site until a human pastes the
-// block below into news-blkout/src/config/aivorDigest.ts and commits it.
+// --- Publish ---------------------------------------------------------------
+// The digest row goes straight to Supabase and the news site panel reads the
+// newest one at runtime. No commit, no redeploy, no human step. The paste-ready
+// block below is kept only as a manual fallback if the write fails.
 
 const watchUrl = `https://www.youtube.com/watch?v=${result.id}`;
 const digestWeekLabel = props.dateRangeTo
@@ -175,20 +175,82 @@ const digestBlock = [
   "};",
 ].join("\n");
 
-const publishSummary = [
-  "## 📺 Weekly digest — ready to publish",
-  "",
-  `**Video:** [${title}](${watchUrl}) · privacy: \`${args.privacy}\``,
-  "",
-  "To publish: review the video, then replace the `latestDigest` export in",
-  "`news-blkout/src/config/aivorDigest.ts` with the block below and commit it.",
-  "news-blkout redeploys automatically on push.",
-  "",
-  "```ts",
-  digestBlock,
-  "```",
-  "",
-].join("\n");
+// Push the digest to Supabase so the news site panel picks it up on next load.
+// Upsert on week_tag so a re-run of the same week replaces rather than stacks.
+async function publishToSupabase() {
+  const url = process.env.SUPABASE_URL;
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!url || !key) {
+    return { ok: false, detail: "SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY not set" };
+  }
+  const res = await fetch(
+    `${url.replace(/\/$/, "")}/rest/v1/aivor_digests?on_conflict=week_tag`,
+    {
+      method: "POST",
+      headers: {
+        apikey: key,
+        Authorization: `Bearer ${key}`,
+        "Content-Type": "application/json",
+        Prefer: "resolution=merge-duplicates,return=minimal",
+      },
+      body: JSON.stringify({
+        week_tag: weekTag,
+        week_label: digestWeekLabel,
+        video_url: watchUrl,
+        video_id: result.id,
+        format: "short",
+        summary: digestSummary,
+        privacy: args.privacy,
+        published_at: new Date().toISOString(),
+      }),
+    }
+  );
+  if (!res.ok) {
+    return { ok: false, detail: `HTTP ${res.status} ${await res.text()}` };
+  }
+  return { ok: true };
+}
+
+let published = { ok: false, detail: "not attempted" };
+try {
+  published = await publishToSupabase();
+} catch (err) {
+  published = { ok: false, detail: err.message };
+}
+
+// A failed write must not fail the run — the video is already up, and the
+// fallback block below still lets a human publish by hand.
+if (published.ok) {
+  console.log(`✓ Digest row written to Supabase (week ${weekTag}).`);
+} else {
+  console.log(`⚠ Supabase digest write failed: ${published.detail}`);
+}
+
+const publishSummary = published.ok
+  ? [
+      "## 📺 Weekly digest — published",
+      "",
+      `**Video:** [${title}](${watchUrl}) · privacy: \`${args.privacy}\``,
+      "",
+      `Digest row written to Supabase for week \`${weekTag}\`. The news site panel`,
+      "reads the newest row at load — nothing further to do.",
+      "",
+    ].join("\n")
+  : [
+      "## ⚠ Weekly digest — uploaded, but the site panel did NOT update",
+      "",
+      `**Video:** [${title}](${watchUrl}) · privacy: \`${args.privacy}\``,
+      "",
+      `Supabase write failed: \`${published.detail}\``,
+      "",
+      "Fallback — replace the `latestDigest` export in",
+      "`news-blkout/src/config/aivorDigest.ts` with the block below and commit it.",
+      "",
+      "```ts",
+      digestBlock,
+      "```",
+      "",
+    ].join("\n");
 
 console.log("\n" + publishSummary);
 if (process.env.GITHUB_STEP_SUMMARY) {
