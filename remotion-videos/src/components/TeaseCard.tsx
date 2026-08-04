@@ -82,7 +82,8 @@ export const TeaseCard: React.FC<{
         >
           Rank #{tease.rank ?? index + 1}
         </div>
-        {tease.voteCount != null && (
+        {/* Below 2 the badge advertises that nobody is voting — say nothing instead. */}
+        {tease.voteCount != null && tease.voteCount > 1 && (
           <div
             style={{
               display: "inline-flex",
@@ -95,7 +96,8 @@ export const TeaseCard: React.FC<{
               letterSpacing: 1,
             }}
           >
-            👍 {tease.voteCount.toLocaleString()} votes
+            👍 {tease.voteCount.toLocaleString()} vote
+            {tease.voteCount === 1 ? "" : "s"}
           </div>
         )}
       </div>

@@ -509,7 +509,8 @@ const SidePanel: React.FC<{
         >
           {String(rank).padStart(2, "0")}
         </div>
-        {votes != null && (
+        {/* Below 2 the badge advertises that nobody is voting — say nothing instead. */}
+        {votes != null && votes > 1 && (
           <div
             style={{
               fontFamily: FONTS.ui,
@@ -519,7 +520,7 @@ const SidePanel: React.FC<{
               letterSpacing: 1,
             }}
           >
-            👍 {votes.toLocaleString()} votes
+            👍 {votes.toLocaleString()} vote{votes === 1 ? "" : "s"}
           </div>
         )}
         <div
