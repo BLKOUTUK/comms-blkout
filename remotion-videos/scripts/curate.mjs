@@ -96,7 +96,9 @@ function buildStoryUrl(id, weekTag) {
     utm_medium: "reel",
     utm_campaign: `weekly-digest-${weekTag}`,
   });
-  return `https://news.blkoutuk.com/${encodeURIComponent(id)}?${params}`;
+  // Must be /article/<id> — App.tsx parses on that segment and anything else
+  // silently falls through to the homepage.
+  return `https://news.blkoutuk.com/article/${encodeURIComponent(id)}?${params}`;
 }
 
 function buildCtaUrl(weekTag) {
