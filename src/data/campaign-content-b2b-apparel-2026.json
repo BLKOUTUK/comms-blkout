@@ -109,7 +109,7 @@
           "weekday": "Mon",
           "slot": "Giveaway",
           "title": "Giveaway — Mon 10 Aug",
-          "content": "You can't buy these. Exclusive winners' tees — editions that will never go on sale, including a black-on-black that only shows itself when the light catches it. They're the prizes: karaoke and games, Annual Picnic, Sunday 16 August, Regent's Park. Come sing for your shirt. The ones you CAN buy: blkoutuk.com/shop",
+          "content": "You can't buy these. Three exclusive winners' tees — editions that will never go on sale, including a black-on-black that only shows itself when the light catches it. Three, because that's what fits in the bag. They're prizes for the karaoke and the games, and you have to be in the park to win one — no remote entry, no draw: Annual Picnic, Sunday 16 August, Regent's Park, 1–7.30pm, free, all welcome. Come sing for your shirt. The ones you CAN buy: blkoutuk.com/shop",
           "platforms": [
             "instagram",
             "facebook"
@@ -117,7 +117,8 @@
           "type": "social",
           "format": "Still (real photo of hand-pressed tees)",
           "asset": "b2b-promo-9-prize-tee.jpg",
-          "status": "scheduled — fires via routine trig_01NnXYZmhFnm3i2SjhEpvpYP"
+          "status": "scheduled — fires via routine trig_01NnXYZmhFnm3i2SjhEpvpYP",
+          "mechanics": "3 prizes only (carry limit). Won in person at the picnic via karaoke/games. No remote entry, no draw, no fulfilment by post."
         },
         {
           "scheduled_for": "2026-08-13",
