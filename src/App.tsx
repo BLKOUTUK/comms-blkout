@@ -2,6 +2,7 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from '@/hooks/useAuth';
 import { ProtectedRoute } from '@/components/layout/ProtectedRoute';
+import { Login } from '@/pages/Login';
 
 // Pages
 import { DiscoverPage } from '@/pages/discover/DiscoverPage';
@@ -41,6 +42,7 @@ function App() {
 
           {/* OAuth Callback Routes */}
           <Route path="/auth/callback/:platform" element={<OAuthCallback />} />
+          <Route path="/login" element={<Login />} />
 
           {/* Protected Admin Routes */}
           <Route
