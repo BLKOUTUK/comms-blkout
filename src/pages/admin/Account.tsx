@@ -17,11 +17,6 @@ export function Account() {
     setError(null);
     setDone(false);
 
-    if (password.length < 12) {
-      setError('Use at least 12 characters. Three unrelated words and a number works well.');
-      return;
-    }
-
     if (password !== confirm) {
       setError('The two passwords do not match.');
       return;
@@ -76,10 +71,6 @@ export function Account() {
               onChange={(e) => setPassword(e.target.value)}
               className="w-full rounded-lg border border-gray-300 px-3 py-2 text-gray-900 shadow-sm focus:border-blkout-600 focus:outline-none focus:ring-2 focus:ring-blkout-600/30"
             />
-            <p className="text-xs text-gray-500">
-              At least 12 characters. Three unrelated words and a number is easier to remember and
-              harder to guess than something short and cryptic.
-            </p>
           </div>
 
           <div className="space-y-1.5">
