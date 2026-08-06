@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from '@/hooks/useAuth';
 import { ProtectedRoute } from '@/components/layout/ProtectedRoute';
 import { Login } from '@/pages/Login';
+import { Account } from '@/pages/admin/Account';
 
 // Pages
 import { DiscoverPage } from '@/pages/discover/DiscoverPage';
@@ -82,6 +83,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <Analytics />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/account"
+            element={
+              <ProtectedRoute>
+                <Account />
               </ProtectedRoute>
             }
           />
