@@ -113,12 +113,26 @@ export function AuthProvider({ children }: AuthProviderProps) {
     setUser(null);
   };
 
+  const updatePassword = async (newPassword: string) => {
+    if (AUTH_DISABLED) {
+      throw new Error('Authentication is disabled, so there is no password to change.');
+    }
+
+    if (!isSupabaseConfigured()) {
+      throw new Error('Supabase is not configured');
+    }
+
+    const { error } = await supabase.auth.updateUser({ password: newPassword });
+    if (error) throw error;
+  };
+
   const value: AuthContextType = {
     user,
     isLoading,
     isAuthenticated: !!user,
     signIn,
     signOut,
+    updatePassword,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
