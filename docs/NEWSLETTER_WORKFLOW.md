@@ -39,7 +39,7 @@ The BLKOUT Comms platform includes a newsletter system ("Herald Agent") that gen
 ### ❌ Not Implemented
 
 1. **Email Sending**
-   - Resend API configured (`re_REVOKED_KEY_REMOVED_use_Coolify_env`) but not tested
+   - Resend API configured (`re_[REVOKED]`) but not tested
    - SendFox integration written but never executed
    - No proof of actual email delivery
 
@@ -297,7 +297,7 @@ curl https://comms.blkoutuk.cloud/api/herald/generate?job=herald-weekly
 
 ```bash
 # Resend API
-RESEND_API_KEY=re_REVOKED_KEY_REMOVED_use_Coolify_env
+RESEND_API_KEY=re_[REVOKED]
 
 # SendFox API
 SENDFOX_API_KEY=<needs verification>
@@ -455,7 +455,7 @@ open newsletter.html  # macOS
 
 ```bash
 curl -X POST https://api.resend.com/emails \
-  -H "Authorization: Bearer re_REVOKED_KEY_REMOVED_use_Coolify_env" \
+  -H "Authorization: Bearer re_[REVOKED]" \
   -H "Content-Type: application/json" \
   -d '{
     "from": "BLKOUT <noreply@blkoutuk.com>",
