@@ -5,7 +5,7 @@ import { parseArgs } from "node:util";
 
 const DEFAULT_API = "https://news.blkoutuk.cloud";
 const DEFAULT_OUT_BASE =
-  "/home/robbe/blkout-platform/apps/comms-blkout/.claude/worktrees/epic-blackburn-534916/remotion-videos/props";
+  "/home/robbe/blkout/platform/apps/comms-blkout/remotion-videos/props";
 const HOOK_MAX = 175;
 
 const { values: args } = parseArgs({
