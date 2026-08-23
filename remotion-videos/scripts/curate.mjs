@@ -194,7 +194,7 @@ function buildProps(stories, { weekTag, weekLabel }) {
       spokenUrl: "news dot Blackout UK dot com",
       displayUrl: "news.blkoutuk.com",
     },
-    avatarVideo: "assets/aivor-presenter.jpg",
+    avatarVideo: "assets/aivor-news.jpg",
     backdropVideo: "assets/hero-newsroom.mp4",
     bgMusic: false,
     durationSeconds: 35,
