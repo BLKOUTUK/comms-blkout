@@ -143,6 +143,23 @@ jobs:
           [ -n "$WEEK_LABEL" ] && ARGS+=(--week-label "$WEEK_LABEL")
           node scripts/upload-youtube.mjs "${ARGS[@]}"
 
+      # Host the digest (video + caption manifest) at stable public URLs so the
+      # Monday distribution routine can publish the Instagram Reel through
+      # Zapier's own connection — no Meta credential needed in this repo. The
+      # routine reads digests/latest.json and refuses manifests older than 8
+      # days, so a failure here surfaces Monday as NO-REPORT, never a stale post.
+      - name: Host digest for distribution
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          SUPABASE_BUCKET: ${{ secrets.SUPABASE_BUCKET }}
+          WEEK_LABEL: ${{ inputs.week_label }}
+        run: |
+          set -e
+          ARGS=(--aspect 9x16)
+          [ -n "$WEEK_LABEL" ] && ARGS+=(--week-label "$WEEK_LABEL")
+          node scripts/host-digest.mjs "${ARGS[@]}"
+
       - name: Failure summary
         if: failure()
         run: |
