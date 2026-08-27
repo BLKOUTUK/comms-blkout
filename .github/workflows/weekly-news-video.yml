@@ -35,6 +35,11 @@ on:
         required: false
         type: boolean
         default: false
+      publish_instagram:
+        description: "Also publish to Instagram as a Reel (PUBLIC — no undo)"
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -99,6 +104,25 @@ jobs:
           if-no-files-found: warn
           retention-days: 30
 
+      # Instagram is where BLKOUT's people actually are; YouTube is the warehouse.
+      # OFF by default and never on the schedule: a Reel is public with no undo,
+      # and the digest's content is not reviewed before it renders.
+      - name: Publish to Instagram (Reel)
+        if: ${{ inputs.publish_instagram == true }}
+        env:
+          IG_USER_ID: ${{ secrets.IG_USER_ID }}
+          IG_ACCESS_TOKEN: ${{ secrets.IG_ACCESS_TOKEN }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          SUPABASE_BUCKET: ${{ secrets.SUPABASE_BUCKET }}
+          WEEK_LABEL: ${{ inputs.week_label }}
+        run: |
+          set -e
+          ARGS=(--aspect 9x16)
+          [ -n "$WEEK_LABEL" ] && ARGS+=(--week-label "$WEEK_LABEL")
+          node scripts/publish-instagram.mjs "${ARGS[@]}"
+
+
       - name: Upload to YouTube
         if: ${{ !inputs.skip_upload }}
         env:
@@ -118,6 +142,23 @@ jobs:
           ARGS=(--aspect 9x16 --privacy "$YT_PRIVACY")
           [ -n "$WEEK_LABEL" ] && ARGS+=(--week-label "$WEEK_LABEL")
           node scripts/upload-youtube.mjs "${ARGS[@]}"
+
+      # Host the digest (video + caption manifest) at stable public URLs so the
+      # Monday distribution routine can publish the Instagram Reel through
+      # Zapier's own connection — no Meta credential needed in this repo. The
+      # routine reads digests/latest.json and refuses manifests older than 8
+      # days, so a failure here surfaces Monday as NO-REPORT, never a stale post.
+      - name: Host digest for distribution
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          SUPABASE_BUCKET: ${{ secrets.SUPABASE_BUCKET }}
+          WEEK_LABEL: ${{ inputs.week_label }}
+        run: |
+          set -e
+          ARGS=(--aspect 9x16)
+          [ -n "$WEEK_LABEL" ] && ARGS+=(--week-label "$WEEK_LABEL")
+          node scripts/host-digest.mjs "${ARGS[@]}"
 
       - name: Failure summary
         if: failure()
