@@ -19,6 +19,7 @@ import { readFile } from "node:fs/promises";
 import { stat, appendFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import { parseArgs } from "node:util";
+import { isoWeekTag, buildCaption, uploadToStorage } from "./lib/digest-common.mjs";
 
 const ROOT = resolve(import.meta.dirname, "..");
 const GRAPH = "https://graph.facebook.com/v21.0";
@@ -42,54 +43,13 @@ if (missing.length) {
 const { IG_USER_ID, IG_ACCESS_TOKEN, SUPABASE_URL,
         SUPABASE_SERVICE_ROLE_KEY, SUPABASE_BUCKET } = process.env;
 
-function isoWeekTag(date = new Date()) {
-  const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
-  const dayNum = d.getUTCDay() || 7;
-  d.setUTCDate(d.getUTCDate() + 4 - dayNum);
-  const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
-  return `${d.getUTCFullYear()}-W${String(Math.ceil(((d - yearStart) / 86400000 + 1) / 7)).padStart(2, "0")}`;
-}
-
 const weekTag = args["week-label"] || isoWeekTag();
 const videoPath = resolve(ROOT, `out/weekly-${weekTag}-${args.aspect}.mp4`);
 const propsPath = resolve(ROOT, `props/weekly-${weekTag}.json`);
 
-// ---- caption -------------------------------------------------------------
-// 2,200 characters is Instagram's hard limit. Count, never assume.
-function buildCaption(props) {
-  const lines = [`BLKOUT News — ${props.weekLabel || weekTag}`, ""];
-  for (const s of (props.stories || []).slice(0, 3)) lines.push(`• ${s.title}`);
-  lines.push("", "You're the editor. Vote on the stories that matter to you:",
-             props?.cta?.displayUrl || "news.blkoutuk.com", "",
-             "#BlackQueer #BLKOUT #MakingSpaceForUs #BlackQueerMen #QueerUK");
-  let caption = lines.join("\n");
-  if (caption.length > 2200) caption = caption.slice(0, 2197) + "...";
-  console.log(`  caption: ${caption.length}/2200 chars`);
-  return caption;
-}
-
-// ---- 1. host the mp4 publicly -------------------------------------------
-async function uploadToStorage(filePath, key) {
-  const buf = await readFile(filePath);
-  const res = await fetch(`${SUPABASE_URL}/storage/v1/object/${SUPABASE_BUCKET}/${key}`, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${SUPABASE_SERVICE_ROLE_KEY}`,
-      "Content-Type": "video/mp4",
-      "x-upsert": "true",
-    },
-    body: buf,
-  });
-  if (!res.ok) throw new Error(`Supabase upload failed: HTTP ${res.status} ${(await res.text()).slice(0, 200)}`);
-  const publicUrl = `${SUPABASE_URL}/storage/v1/object/public/${SUPABASE_BUCKET}/${key}`;
-
-  // Instagram fetches this URL itself. If it is not publicly readable the
-  // container fails with an opaque error, so prove reachability here instead.
-  const head = await fetch(publicUrl, { method: "HEAD" });
-  if (!head.ok) throw new Error(`Uploaded but not publicly reachable: HTTP ${head.status} — check bucket is public`);
-  console.log(`  public: ${publicUrl} (${head.headers.get("content-length")} bytes)`);
-  return publicUrl;
-}
+// caption + storage upload live in lib/digest-common.mjs, shared with
+// host-digest.mjs so the routine-published Reel and this direct path can
+// never drift apart.
 
 // ---- 2. create container -------------------------------------------------
 async function createContainer(videoUrl, caption) {
@@ -154,7 +114,7 @@ try {
   process.exit(1);
 }
 const props = JSON.parse(await readFile(propsPath, "utf8"));
-const caption = buildCaption(props);
+const caption = buildCaption(props, weekTag);
 
 if (args["dry-run"]) {
   console.log(`▶ DRY RUN — would publish ${videoPath}\n---\n${caption}\n---`);
@@ -162,7 +122,11 @@ if (args["dry-run"]) {
 }
 
 console.log(`→ Publishing ${weekTag} to Instagram as a Reel`);
-const publicUrl = await uploadToStorage(videoPath, `digests/weekly-${weekTag}-${args.aspect}.mp4`);
+const publicUrl = await uploadToStorage(videoPath, `digests/weekly-${weekTag}-${args.aspect}.mp4`, {
+  supabaseUrl: SUPABASE_URL.replace(/\/$/, ""),
+  serviceKey: SUPABASE_SERVICE_ROLE_KEY,
+  bucket: SUPABASE_BUCKET,
+});
 const containerId = await createContainer(publicUrl, caption);
 await waitForContainer(containerId);
 const postId = await publish(containerId);
