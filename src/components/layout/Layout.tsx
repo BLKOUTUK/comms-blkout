@@ -28,7 +28,7 @@ export function Layout({ children, showSidebar = true }: LayoutProps) {
           id="main-content"
           role="main"
           aria-label="Main content"
-          className={`flex-1 ${showSidebar ? 'ml-64' : ''}`}
+          className={`flex-1 min-w-0 ${showSidebar ? 'lg:ml-64' : ''}`}
           tabIndex={-1}
         >
           <div className="p-6 max-w-7xl mx-auto">{children}</div>
