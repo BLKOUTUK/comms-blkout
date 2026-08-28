@@ -185,6 +185,13 @@ async function lipsync() {
 
 async function render() {
   await mkdir(outDir, { recursive: true });
+  // Weekly look rotation (src/themes.ts): the composition picks its theme
+  // from the ISO week number, so consecutive digests differ at a glance.
+  // Stamped here, not in the curator, so --skip-curator runs rotate too.
+  const props = JSON.parse(await readFile(propsPath, "utf8"));
+  props.weekNumber = Number(weekTag.split("-W")[1]);
+  await writeFile(propsPath, JSON.stringify(props, null, 2) + "\n", "utf8");
+  console.log(`  props.weekNumber → ${props.weekNumber} (theme rotates on week % 5)`);
   for (const aspect of args.aspects.split(",")) {
     const compId = `IVORMessage${aspect}`;
     const out = resolve(outDir, `weekly-${weekTag}-${aspect}.mp4`);
