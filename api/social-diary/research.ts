@@ -28,7 +28,6 @@ const KNOWN_ORGANIZERS = [
   'Black Pride',
   'House of Rainbow',
   'BBZ',
-  'Pxssy Palace',
   'Bootylicious',
   'QTIPOC London',
   'Queer Black Spaces',
