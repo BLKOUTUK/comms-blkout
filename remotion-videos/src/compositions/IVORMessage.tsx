@@ -10,6 +10,7 @@ import {
   useVideoConfig,
 } from "remotion";
 import { COLORS, FONTS, PROPERTY_GRADIENTS } from "../brand";
+import { resolveDigestTheme } from "../themes";
 import { TeaseCard } from "../components/TeaseCard";
 import { CTA } from "../components/CTA";
 import { NewsroomSet } from "../components/NewsroomSet";
@@ -38,6 +39,8 @@ export const IVORMessage: React.FC<
   tickerText,
   backdropImage,
   backdropVideo,
+  weekNumber,
+  theme,
   aspect = "9:16",
 }) => {
   const frame = useCurrentFrame();
@@ -74,8 +77,13 @@ export const IVORMessage: React.FC<
     config: { damping: 14, stiffness: 90 },
   });
 
-  const gradient = PROPERTY_GRADIENTS[property];
+  // The news digest rotates its look weekly; other properties keep theirs.
+  const digestTheme =
+    property === "news-digest" ? resolveDigestTheme(theme, weekNumber) : null;
+  const gradient = digestTheme ? digestTheme.gradient : PROPERTY_GRADIENTS[property];
   const bgGradient = `linear-gradient(160deg, ${gradient[0]} 0%, ${gradient[1]} 50%, rgba(0,0,0,0.95) 100%)`;
+  const glowA = digestTheme?.glowA ?? "rgba(255, 215, 0, 0.15)";
+  const glowB = digestTheme?.glowB ?? "rgba(124, 58, 237, 0.18)";
 
   const bgMusicVolume = interpolate(
     frame,
@@ -106,8 +114,7 @@ export const IVORMessage: React.FC<
 
       <AbsoluteFill
         style={{
-          background:
-            "radial-gradient(ellipse at 25% 15%, rgba(255, 215, 0, 0.15) 0%, transparent 50%), radial-gradient(ellipse at 78% 12%, rgba(124, 58, 237, 0.18) 0%, transparent 48%)",
+          background: `radial-gradient(ellipse at 25% 15%, ${glowA} 0%, transparent 50%), radial-gradient(ellipse at 78% 12%, ${glowB} 0%, transparent 48%)`,
         }}
       />
       <AbsoluteFill

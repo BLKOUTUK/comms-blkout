@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { DIGEST_THEME_KEYS } from "../themes";
 
 export const teaseSchema = z.object({
   title: z.string().min(1).max(80),
@@ -35,6 +36,10 @@ export const ivorMessagePropsSchema = z.object({
   tickerText: z.string().min(1).max(400),
   backdropImage: z.string().optional(),
   backdropVideo: z.string().optional(),
+  // Weekly look rotation (see src/themes.ts). weekly-render.mjs sets
+  // weekNumber from the ISO week tag; theme is an explicit override.
+  weekNumber: z.number().int().nonnegative().optional(),
+  theme: z.enum(DIGEST_THEME_KEYS).optional(),
 });
 
 export type IvorMessageProps = z.infer<typeof ivorMessagePropsSchema>;
