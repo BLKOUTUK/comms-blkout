@@ -41,13 +41,13 @@ interface NewsArticle {
   published_at: string | null;
 }
 
-type StatusFilter = 'all' | 'draft' | 'published' | 'archived';
+type StatusFilter = 'all' | 'review' | 'draft' | 'published' | 'archived';
 
 export function NewsModeration() {
   const [articles, setArticles] = useState<NewsArticle[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>('review');
   const [expandedArticle, setExpandedArticle] = useState<string | null>(null);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
 
@@ -134,6 +134,7 @@ export function NewsModeration() {
 
   const statusCounts = {
     all: articles.length,
+    review: articles.filter(a => a.status === 'review').length,
     draft: articles.filter(a => a.status === 'draft').length,
     published: articles.filter(a => a.status === 'published').length,
     archived: articles.filter(a => a.status === 'archived').length,
@@ -169,7 +170,7 @@ export function NewsModeration() {
 
         {/* Status Tabs */}
         <div className="flex flex-wrap gap-2">
-          {(['all', 'draft', 'published', 'archived'] as StatusFilter[]).map((status) => (
+          {(['all', 'review', 'draft', 'published', 'archived'] as StatusFilter[]).map((status) => (
             <button
               key={status}
               onClick={() => setStatusFilter(status)}
@@ -229,6 +230,7 @@ export function NewsModeration() {
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-3 mb-2">
                       <span className={`px-2 py-1 rounded-full text-xs font-semibold ${
+                        article.status === 'review' ? 'bg-blue-100 text-blue-700' :
                         article.status === 'draft' ? 'bg-yellow-100 text-yellow-700' :
                         article.status === 'published' ? 'bg-green-100 text-green-700' :
                         'bg-gray-100 text-gray-700'
@@ -308,6 +310,30 @@ export function NewsModeration() {
                       >
                         <ExternalLink size={20} />
                       </a>
+                    )}
+                    {article.status === 'review' && (
+                      <>
+                        <button
+                          onClick={() => updateArticleStatus(article.id, 'published')}
+                          disabled={actionLoading === article.id}
+                          className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors disabled:opacity-50"
+                          title="Approve"
+                        >
+                          {actionLoading === article.id ? (
+                            <Loader2 className="animate-spin" size={20} />
+                          ) : (
+                            <Check size={20} />
+                          )}
+                        </button>
+                        <button
+                          onClick={() => updateArticleStatus(article.id, 'archived')}
+                          disabled={actionLoading === article.id}
+                          className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50"
+                          title="Reject"
+                        >
+                          <X size={20} />
+                        </button>
+                      </>
                     )}
                     {article.status === 'draft' && (
                       <button
