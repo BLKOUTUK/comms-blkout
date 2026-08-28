@@ -14,10 +14,32 @@ export function isoWeekTag(date = new Date()) {
   return `${d.getUTCFullYear()}-W${String(Math.ceil(((d - yearStart) / 86400000 + 1) / 7)).padStart(2, "0")}`;
 }
 
+/** "2026-W35" → "Week ending 30 Aug 2026" (Sunday of that ISO week). */
+export function weekEndingLabel(weekTag) {
+  const m = /^(\d{4})-W(\d{2})$/.exec(weekTag || "");
+  if (!m) return weekTag;
+  const [year, week] = [Number(m[1]), Number(m[2])];
+  const jan4 = new Date(Date.UTC(year, 0, 4));
+  const mondayW1 = new Date(jan4);
+  mondayW1.setUTCDate(jan4.getUTCDate() - ((jan4.getUTCDay() || 7) - 1));
+  const sunday = new Date(mondayW1);
+  sunday.setUTCDate(mondayW1.getUTCDate() + (week - 1) * 7 + 6);
+  return `Week ending ${sunday.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" })}`;
+}
+
+/** The curator emits `teases` (title/hook/url); accept `stories` for older props. */
+export function storyItems(props) {
+  return (props.teases || props.stories || []).slice(0, 3);
+}
+
 // 2,200 characters is Instagram's hard limit. Count, never assume.
 export function buildCaption(props, fallbackWeekTag) {
-  const lines = [`BLKOUT News — ${props.weekLabel || fallbackWeekTag}`, ""];
-  for (const s of (props.stories || []).slice(0, 3)) lines.push(`• ${s.title}`);
+  const label =
+    props.weekLabel && !/^\d{4}-W\d{2}$/.test(props.weekLabel)
+      ? props.weekLabel
+      : weekEndingLabel(props.weekLabel || fallbackWeekTag);
+  const lines = [`BLKOUT News — ${label}`, ""];
+  for (const s of storyItems(props)) lines.push(`• ${s.title}`);
   lines.push("", "You're the editor. Vote on the stories that matter to you:",
              props?.cta?.displayUrl || "news.blkoutuk.com", "",
              "#BlackQueer #BLKOUT #MakingSpaceForUs #BlackQueerMen #QueerUK");

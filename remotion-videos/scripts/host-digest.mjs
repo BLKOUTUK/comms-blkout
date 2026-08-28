@@ -17,7 +17,7 @@
 import { readFile, stat, appendFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import { parseArgs } from "node:util";
-import { isoWeekTag, buildCaption, putObject, uploadToStorage } from "./lib/digest-common.mjs";
+import { isoWeekTag, buildCaption, putObject, uploadToStorage, storyItems, weekEndingLabel } from "./lib/digest-common.mjs";
 
 const ROOT = resolve(import.meta.dirname, "..");
 
@@ -55,11 +55,11 @@ try {
 
   const manifest = JSON.stringify({
     week_tag: weekTag,
-    week_label: props.weekLabel || weekTag,
+    week_label: /^\d{4}-W\d{2}$/.test(props.weekLabel || "") || !props.weekLabel ? weekEndingLabel(weekTag) : props.weekLabel,
     aspect: args.aspect,
     video_url: videoUrl,
     caption,
-    stories: (props.stories || []).slice(0, 3).map((s) => s.title),
+    stories: storyItems(props).map((s) => s.title),
     hosted_at: new Date().toISOString(),
   }, null, 2);
 
