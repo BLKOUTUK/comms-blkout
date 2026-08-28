@@ -217,7 +217,7 @@ export function NewsModeration() {
                 className="bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-md transition-shadow"
               >
                 {/* Article Header */}
-                <div className="p-4 flex items-start gap-4">
+                <div className="p-4 flex flex-wrap items-start gap-4">
                   {/* Thumbnail */}
                   {article.featured_image && (
                     <img
@@ -280,7 +280,7 @@ export function NewsModeration() {
                   </div>
 
                   {/* Action Buttons */}
-                  <div className="flex items-center gap-2 flex-shrink-0">
+                  <div className="flex items-center gap-2 flex-shrink-0 ml-auto">
                     <button
                       onClick={() => setExpandedArticle(expandedArticle === article.id ? null : article.id)}
                       className="p-2 text-gray-500 hover:text-blkout-600 hover:bg-gray-100 rounded-lg transition-colors"
