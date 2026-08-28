@@ -89,7 +89,7 @@ export function NewsModeration() {
   const updateArticleStatus = async (articleId: string, newStatus: 'published' | 'archived' | 'draft') => {
     setActionLoading(articleId);
     try {
-      const updateData: Record<string, unknown> = { status: newStatus };
+      const updateData: Record<string, unknown> = { status: newStatus, published: newStatus === 'published' };
       if (newStatus === 'published' && !articles.find(a => a.id === articleId)?.published_at) {
         updateData.published_at = new Date().toISOString();
       }
