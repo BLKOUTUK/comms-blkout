@@ -11,12 +11,14 @@ import { BlkoutVoicesWidget } from '@/components/discover/BlkoutVoicesWidget';
 import { FeaturedEventsWidget } from '@/components/discover/FeaturedEventsWidget';
 import { LearningWidget } from '@/components/discover/LearningWidget';
 import { PlaygroundWidget } from '@/components/discover/PlaygroundWidget';
+import { BoroughDoorsWidget } from '@/components/discover/BoroughDoorsWidget';
 import FoundationLayer from '@/components/foundation/FoundationLayer';
 import { Heart, Users, Sparkles, Search } from 'lucide-react';
 
 const SECTIONS = [
 { id: 'hub', keywords: ['hub', 'community', 'connect', 'blkouthub'] },
   { id: 'events', keywords: ['events', 'calendar', 'upcoming', 'pride', 'picnic'] },
+  { id: 'boroughs', keywords: ['borough', 'boroughs', 'local', 'map', 'london', 'near', 'nearby', 'brent', 'croydon', 'enfield', 'hackney', 'haringey', 'lambeth', 'lewisham', 'newham', 'southwark', 'westminster', 'door', 'doors'] },
   { id: 'playground', keywords: ['playground', 'games', 'play', 'oomf', 'comic', 'sky', 'constellations', 'compass', 'interactive'] },
   { id: 'social', keywords: ['social', 'media', 'instagram', 'linkedin'] },
   { id: 'newsletter', keywords: ['newsletter', 'email', 'subscribe', 'archive'] },
@@ -206,6 +208,13 @@ export function DiscoverPage() {
             />
           </div>
         </section>
+
+        {/* Borough doors — the London map as a gateway into the local pages */}
+        {visible('boroughs') && (
+          <section className="md:col-span-7 border-2 border-liberation-gold-divine/40 hover:border-liberation-gold-divine/70 transition-colors p-6 md:p-8 bg-black/40 flex flex-col justify-center">
+            <BoroughDoorsWidget />
+          </section>
+        )}
 
         {/* From the Archive — pulls from blkoutuk.com/stories (270+ articles 2016-2024) */}
         {visible('archive') && (
