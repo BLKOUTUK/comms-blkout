@@ -110,14 +110,60 @@ function buildCtaUrl(weekTag) {
   return `https://news.blkoutuk.com?${params}`;
 }
 
+// The whole 25-minute weekly pipeline used to die on a single unretried fetch:
+// run 32662674715 (23 Aug 2026) failed after 53s with a bare "fetch failed", and
+// it took three manual dispatches to get that week's video out. The schedule is
+// weekly, so one blip at 02:00 on a Sunday costs a whole edition.
+//
+// Retries transient failures only — network errors, 429, and 5xx. A 404 or a 401
+// will not fix itself on a second attempt, so those still fail fast.
+const FETCH_ATTEMPTS = 4;
+const FETCH_TIMEOUT_MS = 20_000;
+const BACKOFF_MS = [2_000, 5_000, 12_000];
+
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
 async function fetchStoriesForPeriod(period, fetchLimit = 20) {
   const url = `${apiBase}/api/top-stories?period=${period}&limit=${fetchLimit}`;
-  const res = await fetch(url, { headers: { Accept: "application/json" } });
-  if (!res.ok) {
-    throw new Error(`GET ${url} → HTTP ${res.status} ${res.statusText}.`);
+  let lastErr;
+
+  for (let attempt = 1; attempt <= FETCH_ATTEMPTS; attempt++) {
+    try {
+      // fetch has no default timeout — a hung connection would stall the job
+      // as surely as a refused one.
+      const res = await fetch(url, {
+        headers: { Accept: "application/json" },
+        signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
+      });
+
+      if (res.ok) {
+        const json = await res.json();
+        return json?.data?.topStories || json?.topStories || json?.data || [];
+      }
+
+      const retriable = res.status === 429 || res.status >= 500;
+      lastErr = new Error(`GET ${url} → HTTP ${res.status} ${res.statusText}.`);
+      if (!retriable) throw lastErr;
+    } catch (err) {
+      // AbortError, network failure, or a retriable HTTP status rethrown above.
+      if (err instanceof Error && err.message.startsWith("GET ") && !/HTTP (429|5\d\d)/.test(err.message)) {
+        throw err;
+      }
+      lastErr = err;
+    }
+
+    if (attempt < FETCH_ATTEMPTS) {
+      const wait = BACKOFF_MS[attempt - 1] + Math.floor(Math.random() * 750);
+      console.warn(
+        `  ! ${period} stories attempt ${attempt}/${FETCH_ATTEMPTS} failed (${lastErr?.message ?? lastErr}) — retrying in ${Math.round(wait / 1000)}s`
+      );
+      await sleep(wait);
+    }
   }
-  const json = await res.json();
-  return json?.data?.topStories || json?.topStories || json?.data || [];
+
+  throw new Error(
+    `GET ${url} failed after ${FETCH_ATTEMPTS} attempts. Last error: ${lastErr?.message ?? lastErr}`
+  );
 }
 
 function dedupeById(stories, alreadySeen) {
