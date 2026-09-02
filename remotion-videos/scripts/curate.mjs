@@ -3,7 +3,11 @@ import { writeFile, mkdir } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { parseArgs } from "node:util";
 
-const DEFAULT_API = "https://news.blkoutuk.cloud";
+// news.blkoutuk.com — the public host, matching every other reference in this
+// repo (article links, CTA, spoken URL, YouTube description). The .cloud alias
+// serves the identical Express app; having one caller on a different hostname
+// was an outlier, not a convention.
+const DEFAULT_API = "https://news.blkoutuk.com";
 const DEFAULT_OUT_BASE =
   "/home/robbe/blkout/platform/apps/comms-blkout/remotion-videos/props";
 const HOOK_MAX = 175;
