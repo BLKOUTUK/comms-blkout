@@ -18,7 +18,7 @@ import { Heart, Users, Sparkles, Search } from 'lucide-react';
 const SECTIONS = [
 { id: 'hub', keywords: ['hub', 'community', 'connect', 'blkouthub'] },
   { id: 'events', keywords: ['events', 'calendar', 'upcoming', 'pride', 'picnic'] },
-  { id: 'boroughs', keywords: ['borough', 'boroughs', 'local', 'map', 'london', 'near', 'nearby', 'brent', 'croydon', 'enfield', 'hackney', 'haringey', 'lambeth', 'lewisham', 'newham', 'southwark', 'westminster', 'door', 'doors'] },
+  { id: 'boroughs', keywords: ['borough', 'boroughs', 'local', 'map', 'london', 'near', 'nearby', 'brent', 'croydon', 'enfield', 'hackney', 'haringey', 'lambeth', 'lewisham', 'newham', 'southwark', 'waltham', 'waltham forest', 'westminster', 'door', 'doors'] },
   { id: 'playground', keywords: ['playground', 'games', 'play', 'oomf', 'comic', 'sky', 'constellations', 'compass', 'interactive'] },
   { id: 'social', keywords: ['social', 'media', 'instagram', 'linkedin'] },
   { id: 'newsletter', keywords: ['newsletter', 'email', 'subscribe', 'archive'] },
