@@ -1,0 +1,37 @@
+name: Email DNS Health
+
+# blkoutuk.com published TWO SPF records for months without anyone noticing
+# (fixed 2 Sept 2026). Two records is a PermError under RFC 7208, so SPF failed
+# for every message — invisible because Google DKIM-signs outbound and DMARC
+# passed on the DKIM leg alone. This is the check that would have caught it.
+#
+# Runs Mondays alongside the estate security sweep. No secrets: all public DNS.
+
+on:
+  schedule:
+    - cron: "40 6 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Check email DNS posture for blkoutuk.com
+        run: node scripts/check-email-dns.mjs
+
+      - name: What to do if this failed
+        if: failure()
+        run: |
+          echo "::notice::DNS for blkoutuk.com is managed in Hostinger (hpanel.hostinger.com) and only Rob can change it — there is no API access."
+          echo "::notice::If an edit is refused with a validation error naming a DIFFERENT record, the apex likely has an ALIAS and an A record together, which blocks ALL zone edits. Resolve that first."
+          echo "::notice::Before deleting either apex record, prove which one serves the site: curl --resolve blkoutuk.com:443:<IP> https://blkoutuk.com/ and compare the body."
