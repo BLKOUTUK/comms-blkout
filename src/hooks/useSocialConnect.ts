@@ -31,31 +31,31 @@ function checkPlatformConfiguration(): Map<SocialPlatform, boolean> {
   // Instagram - primary platform, fully implemented
   config.set(
     SocialPlatform.INSTAGRAM,
-    !!(import.meta.env.VITE_INSTAGRAM_CLIENT_ID && import.meta.env.VITE_INSTAGRAM_CLIENT_SECRET)
+    !!import.meta.env.VITE_INSTAGRAM_CLIENT_ID
   );
 
   // TikTok - implemented
   config.set(
     SocialPlatform.TIKTOK,
-    !!(import.meta.env.VITE_TIKTOK_CLIENT_KEY && import.meta.env.VITE_TIKTOK_CLIENT_SECRET)
+    !!import.meta.env.VITE_TIKTOK_CLIENT_KEY
   );
 
   // YouTube - check for Google/YouTube credentials
   config.set(
     SocialPlatform.YOUTUBE,
-    !!(import.meta.env.VITE_YOUTUBE_CLIENT_ID && import.meta.env.VITE_YOUTUBE_CLIENT_SECRET)
+    !!import.meta.env.VITE_YOUTUBE_CLIENT_ID
   );
 
   // LinkedIn
   config.set(
     SocialPlatform.LINKEDIN,
-    !!(import.meta.env.VITE_LINKEDIN_CLIENT_ID && import.meta.env.VITE_LINKEDIN_CLIENT_SECRET)
+    !!import.meta.env.VITE_LINKEDIN_CLIENT_ID
   );
 
   // Twitter/X
   config.set(
     SocialPlatform.TWITTER,
-    !!(import.meta.env.VITE_TWITTER_CLIENT_ID && import.meta.env.VITE_TWITTER_CLIENT_SECRET)
+    !!import.meta.env.VITE_TWITTER_CLIENT_ID
   );
 
   return config;

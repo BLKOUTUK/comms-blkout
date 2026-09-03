@@ -96,6 +96,35 @@ app.all('/api/auth/callback', async (req, res) => {
   }
 });
 
+// Health: says WHO answered, on which Node, and whether the database is reachable.
+// A 200 from the SPA fallback proves nothing, so this route sits above it and the
+// client checks `service` before believing the status.
+app.get('/api/health', async (_req, res) => {
+  const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
+  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  let db = 'FAILED: SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY not set';
+  if (supabaseUrl && serviceKey) {
+    try {
+      const r = await fetch(`${supabaseUrl}/rest/v1/agent_configurations?select=id&limit=1`, {
+        headers: { apikey: serviceKey, Authorization: `Bearer ${serviceKey}` },
+        signal: AbortSignal.timeout(5000),
+      });
+      db = r.ok ? 'ok' : `FAILED: HTTP ${r.status}`;
+    } catch (error) {
+      db = `FAILED: ${error instanceof Error ? error.message : String(error)}`;
+    }
+  }
+  const ok = db === 'ok';
+  res.status(ok ? 200 : 503).json({
+    service: 'comms-blkout',
+    status: ok ? 'ok' : 'degraded',
+    node: process.version,
+    commit: process.env.SOURCE_COMMIT || null,
+    db,
+    time: new Date().toISOString(),
+  });
+});
+
 // Static file serving (Vite build output)
 app.use(express.static(join(APP_ROOT, 'dist'), {
   maxAge: '1d',
@@ -110,6 +139,7 @@ app.get('*', (_req, res) => {
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`[Server] BLKOUT Comms running on port ${PORT}`);
   console.log(`[Server] API: /api/herald/generate`);
+  console.log(`[Server] Health: /api/health`);
   console.log(`[Server] Static: /dist`);
   console.log(`[Server] OpenRouter: ${process.env.OPENROUTER_API_KEY ? 'configured' : 'NOT configured'}`);
   console.log(`[Server] Supabase: ${process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL ? 'configured' : 'NOT configured'}`);

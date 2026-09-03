@@ -18,10 +18,11 @@ export function useContent() {
       setIsLoading(true);
       setError(null);
 
-      // If Supabase is not configured, use mock data
+      // No mock fallback (3 Sep 2026): an unconfigured or failing source leaves the
+      // list empty with `error` set, never a fabricated list.
       if (!isSupabaseConfigured()) {
-        console.log('📦 Using mock content data');
-        setContent(mockContent);
+        setError('Supabase not configured');
+        setContent([]);
         setIsLoading(false);
         return;
       }
@@ -38,8 +39,7 @@ export function useContent() {
     } catch (err) {
       console.error('Error fetching content:', err);
       setError(err instanceof Error ? err.message : 'Failed to fetch content');
-      // Fallback to mock data on error
-      setContent(mockContent);
+      setContent([]);
     } finally {
       setIsLoading(false);
     }

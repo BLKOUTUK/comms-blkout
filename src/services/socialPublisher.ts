@@ -20,7 +20,7 @@ const LINKEDIN_API = 'https://api.linkedin.com/v2';
 // Get credentials from environment
 function getMetaCredentials() {
   return {
-    accessToken: import.meta.env.VITE_META_ACCESS_TOKEN || '',
+    accessToken: '', // Never in the browser — this VITE_ value was compiled into the public bundle until 3 Sep 2026. The server holds it.
     instagramAccountId: import.meta.env.VITE_INSTAGRAM_BUSINESS_ID || '',
     facebookPageId: import.meta.env.VITE_FACEBOOK_PAGE_ID || ''
   };
@@ -28,7 +28,7 @@ function getMetaCredentials() {
 
 function getLinkedInCredentials() {
   return {
-    accessToken: import.meta.env.VITE_LINKEDIN_ACCESS_TOKEN || '',
+    accessToken: '', // Never in the browser — this VITE_ value was compiled into the public bundle until 3 Sep 2026. The server holds it.
     organizationId: import.meta.env.VITE_LINKEDIN_ORG_ID || ''
   };
 }
