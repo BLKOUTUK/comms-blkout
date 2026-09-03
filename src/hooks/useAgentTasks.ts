@@ -37,50 +37,6 @@ export interface AgentExecutionResult {
   };
 }
 
-// Mock tasks for development
-const mockTasks: AgentTask[] = [
-  {
-    id: 'mock-1',
-    agentType: 'herald',
-    title: 'Generate Weekly Newsletter',
-    description: 'Create weekly update for engaged members',
-    priority: 'high',
-    status: 'completed',
-    targetPlatform: 'email',
-    suggestedConfig: { edition_type: 'weekly' },
-    createdAt: new Date(),
-    updatedAt: new Date(),
-    completedAt: new Date(),
-    assignedTo: null,
-    generatedContent: 'Sample newsletter content that needs approval...',
-    executionMetadata: {},
-    approvalStatus: 'pending',
-    approvedBy: null,
-    approvedAt: null,
-    approvalNotes: null,
-  },
-  {
-    id: 'mock-2',
-    agentType: 'griot',
-    title: 'Community Spotlight Story',
-    description: 'Feature a verified creator in storytelling content',
-    priority: 'medium',
-    status: 'completed',
-    targetPlatform: 'instagram',
-    suggestedConfig: { style: 'narrative' },
-    createdAt: new Date(),
-    updatedAt: new Date(),
-    completedAt: new Date(),
-    assignedTo: null,
-    generatedContent: 'Sample story content awaiting review...',
-    executionMetadata: {},
-    approvalStatus: 'pending',
-    approvedBy: null,
-    approvedAt: null,
-    approvalNotes: null,
-  },
-];
-
 export function useAgentTasks(agentType?: AgentType) {
   const [tasks, setTasks] = useState<AgentTask[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -92,11 +48,8 @@ export function useAgentTasks(agentType?: AgentType) {
       setError(null);
 
       if (!isSupabaseConfigured()) {
-        console.log('📦 Using mock agent tasks');
-        const filtered = agentType
-          ? mockTasks.filter(t => t.agentType === agentType)
-          : mockTasks;
-        setTasks(filtered);
+        setTasks([]);
+        setError('Database not configured');
         setIsLoading(false);
         return;
       }
@@ -140,7 +93,7 @@ export function useAgentTasks(agentType?: AgentType) {
     } catch (err) {
       console.error('Error fetching agent tasks:', err);
       setError(err instanceof Error ? err.message : 'Failed to fetch tasks');
-      setTasks(mockTasks);
+      setTasks([]);
     } finally {
       setIsLoading(false);
     }
@@ -176,8 +129,7 @@ export function useAgentTasks(agentType?: AgentType) {
 
   const createTask = async (task: Omit<AgentTask, 'id' | 'createdAt' | 'updatedAt' | 'completedAt'>): Promise<{ success: boolean; error?: string }> => {
     if (!isSupabaseConfigured()) {
-      console.log('📦 Mock: Creating task', task);
-      return { success: true };
+      return { success: false, error: 'Database not configured' };
     }
 
     try {
@@ -203,8 +155,7 @@ export function useAgentTasks(agentType?: AgentType) {
 
   const updateTaskStatus = async (taskId: string, status: AgentTask['status']): Promise<{ success: boolean; error?: string }> => {
     if (!isSupabaseConfigured()) {
-      console.log('📦 Mock: Updating task status', { taskId, status });
-      return { success: true };
+      return { success: false, error: 'Database not configured' };
     }
 
     try {
@@ -251,7 +202,7 @@ export function useAgentTasks(agentType?: AgentType) {
       // Check if we got HTML back (static server fallback, not the API)
       const contentType = response.headers.get('content-type') || '';
       if (contentType.includes('text/html')) {
-        return { success: false, error: 'API not available. This deployment does not have serverless functions. Use the Vercel deployment for agent execution.' };
+        return { success: false, error: 'API unavailable: the server answered with HTML instead of JSON.' };
       }
 
       const data = await response.json();
@@ -327,21 +278,13 @@ export function useAgentTasks(agentType?: AgentType) {
       return { ...result, taskId };
     }
 
-    // Mock mode
-    const result = await executeAgent(
-      task.agentType,
-      task.title,
-      task.description || '',
-      task.targetPlatform
-    );
-    return { ...result, taskId: 'mock-' + Date.now() };
+    return { success: false, error: 'Database not configured' };
   };
 
   // Approval functions
   const approveTask = async (taskId: string, notes?: string): Promise<{ success: boolean; error?: string }> => {
     if (!isSupabaseConfigured()) {
-      console.log('📦 Mock: Approving task', { taskId, notes });
-      return { success: true };
+      return { success: false, error: 'Database not configured' };
     }
 
     try {
@@ -365,8 +308,7 @@ export function useAgentTasks(agentType?: AgentType) {
 
   const rejectTask = async (taskId: string, notes: string): Promise<{ success: boolean; error?: string }> => {
     if (!isSupabaseConfigured()) {
-      console.log('📦 Mock: Rejecting task', { taskId, notes });
-      return { success: true };
+      return { success: false, error: 'Database not configured' };
     }
 
     try {
@@ -390,8 +332,7 @@ export function useAgentTasks(agentType?: AgentType) {
 
   const requestRevision = async (taskId: string, notes: string): Promise<{ success: boolean; error?: string }> => {
     if (!isSupabaseConfigured()) {
-      console.log('📦 Mock: Requesting revision', { taskId, notes });
-      return { success: true };
+      return { success: false, error: 'Database not configured' };
     }
 
     try {

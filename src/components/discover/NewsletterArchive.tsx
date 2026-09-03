@@ -6,7 +6,7 @@ import { formatDistanceToNow } from 'date-fns';
 
 export function NewsletterArchive() {
   const navigate = useNavigate();
-  const { newsletters, isLoading, error, isUsingMockData, refetch } = usePublicNewsletters(4);
+  const { newsletters, isLoading, error, refetch } = usePublicNewsletters(4);
 
   const editionTypeStyles = {
     weekly: 'bg-liberation-gold-divine/10 text-liberation-gold-divine border border-liberation-gold-divine/30',
@@ -27,11 +27,6 @@ export function NewsletterArchive() {
             updates from Herald — our community communications agent
           </p>
         </div>
-        {isUsingMockData && (
-          <div className="text-xs text-amber-600 bg-amber-50 px-3 py-1 rounded-full">
-            Demo Mode
-          </div>
-        )}
       </div>
 
       {/* Loading State */}

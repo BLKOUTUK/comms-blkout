@@ -22,6 +22,7 @@ const statusColors = {
   awarded: { bg: 'bg-emerald-100', text: 'text-emerald-700', icon: CheckCircle2 },
   declined: { bg: 'bg-red-100', text: 'text-red-700', icon: AlertCircle },
   reporting: { bg: 'bg-teal-100', text: 'text-teal-700', icon: FileText },
+  withdrawn: { bg: 'bg-gray-100', text: 'text-gray-500', icon: AlertCircle },
 };
 
 const priorityColors = {

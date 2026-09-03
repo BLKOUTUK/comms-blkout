@@ -1,17 +1,23 @@
 /**
- * useGrants Hook
- * React hook for grant funding management
- * Connects UI to GrantsClient service
+ * useGrants — the Funding page's data.
+ *
+ * Rewritten 3 Sep 2026. Until then this file was 1,252 lines, ~1,000 of them mock
+ * grants/opportunities/bid-progress returned from every `catch`, and it read the
+ * legacy `grants` table (16 rows, last write 25 May 2026). The live pipeline is
+ * `grant_pipeline` (the CRM's source of truth), read here through an admin RLS
+ * policy and mapped onto the `Grant` shape the components render. No fallback
+ * values: a failed fetch leaves the lists empty with `error` set.
  */
 
 import { useState, useEffect, useCallback } from 'react';
 import { supabase, isSupabaseConfigured } from '@/lib/supabase';
 import type {
   Grant,
+  GrantStatus,
+  FunderType,
   Priority,
   OpportunityPipeline,
   BidWritingProgress,
-  BidWritingTemplate,
   FunderRelationship,
 } from '@/types';
 
@@ -20,7 +26,6 @@ import type {
 export const normalizeFunderName = (name: string): string =>
   (name || '').toLowerCase().replace(/[^a-z0-9]/g, '');
 
-// Pipeline summary type
 interface PipelineSummary {
   totalGrants: number;
   totalRequested: number;
@@ -30,903 +35,87 @@ interface PipelineSummary {
   upcomingDeadlines: number;
 }
 
-// Mock data for development without Supabase
-const mockGrants: Grant[] = [
-  {
-    id: '1',
-    title: 'National Lottery Community Fund - Reaching Communities',
-    funder_name: 'National Lottery Community Fund',
-    funder_type: 'lottery',
-    amount_requested: 150000,
-    deadline_date: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-    status: 'preparing',
-    priority: 'critical',
-    strategic_fit_score: 9,
-    scaling_tier: 'growth',
-    writing_investment_hours: 40,
-    review_required: 'full_external',
-    geographic_scope: 'national',
-    participant_range_min: 500,
-    participant_range_max: 2000,
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-  },
-  {
-    id: '2',
-    title: 'Paul Hamlyn Foundation - Ideas and Pioneers',
-    funder_name: 'Paul Hamlyn Foundation',
-    funder_type: 'trust',
-    amount_requested: 75000,
-    deadline_date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-    status: 'eligible',
-    priority: 'high',
-    strategic_fit_score: 8,
-    scaling_tier: 'seed',
-    writing_investment_hours: 24,
-    review_required: 'peer',
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-  },
-  {
-    id: '3',
-    title: 'Comic Relief - Tech for Good',
-    funder_name: 'Comic Relief',
-    funder_type: 'foundation',
-    amount_requested: 50000,
-    deadline_date: new Date(Date.now() + 60 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-    status: 'researching',
-    priority: 'medium',
-    strategic_fit_score: 7,
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-  },
-  {
-    id: '4',
-    title: 'Esmée Fairbairn Foundation - Social Change',
-    funder_name: 'Esmée Fairbairn Foundation',
-    funder_type: 'trust',
-    amount_requested: 200000,
-    deadline_date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-    status: 'submitted',
-    priority: 'high',
-    strategic_fit_score: 9,
-    scaling_tier: 'scale',
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-  },
-  // ==================== REAL BID: Trust for London EOI ====================
-  {
-    id: '5',
-    title: 'Trust for London - Racial Justice Fund (BLKOUTNXT: Economic Futures)',
-    funder_name: 'Trust for London',
-    funder_type: 'trust',
-    program_area: 'Racial Justice',
-    amount_requested: 200000,
-    status: 'submitted',
-    priority: 'critical',
-    strategic_fit_score: 10,
-    blkout_priority_alignment: {
-      liberation: 10,
-      ownership: 10,
-      mental_health: 8,
-      economic_justice: 10,
-      movement_building: 9,
-    },
-    funder_relationship_score: 7,
-    scaling_tier: 'scale',
-    min_viable_budget: 150000,
-    max_potential_budget: 250000,
-    geographic_scope: 'city',
-    participant_range_min: 25,
-    participant_range_max: 30,
-    scaling_notes: '3-year programme. Strand 1: 18-month action research with cohort of 25-30 Black queer men. Strand 2: Cooperative infrastructure development for community enterprise.',
-    writing_investment_hours: 60,
-    review_required: 'full_external',
-    is_modular: true,
-    can_fund_independently: false,
-    lead_writer: 'Dr Rob Berkeley MBE',
-    team_members: ['Dr Rob Berkeley MBE', 'Project Lead (TBC)'],
-    tags: ['racial-justice', 'economic-empowerment', 'action-research', 'cooperative', 'CBS', 'intersectional', 'community-wealth'],
-    notes: 'EOI submitted on time, Feb 8 2026. Awaiting TfL response. BLKOUTNXT: Economic Futures programme. Two strands: (1) Participatory action research on employment experiences at intersection of race and sexuality, with 25-30 person intergenerational cohort and 3-5 peer researchers. Cross-sector advocacy with Black employment and men\'s employment initiatives. Academic partners: King\'s College London, Sheffield University, UAL. (2) Cooperative infrastructure development - feasibility work for community-owned enterprise (venue, subscription, media). CBS governance. Budget: Staffing £122,623 (Director 0.2 FTE + Project Lead 0.6 FTE), Research £46,000, Cooperative dev £20,000, Core costs £11,377. Aligns with TfL priorities: increase household incomes + increase household/community wealth.',
-    documents: [
-      { name: 'Expression of Interest - Main', url: '', type: 'application', uploadedAt: '2026-01-31T00:00:00Z' },
-      { name: 'Budget Narrative (3-Year)', url: '', type: 'budget', uploadedAt: '2026-01-31T00:00:00Z' },
-      { name: 'Theory of Change', url: '', type: 'narrative', uploadedAt: '2026-01-31T00:00:00Z' },
-      { name: 'Risk Assessment', url: '', type: 'other', uploadedAt: '2026-01-31T00:00:00Z' },
-      { name: 'Safeguarding Statement', url: '', type: 'other', uploadedAt: '2026-01-31T00:00:00Z' },
-      { name: 'Supporting Documents List', url: '', type: 'other', uploadedAt: '2026-01-31T00:00:00Z' },
-    ],
-    created_at: '2026-01-31T00:00:00Z',
-    updated_at: '2026-02-08T00:00:00Z',
-  },
-  // ==================== REAL BID: Seen — Weaving Liberation Digital Justice Fund ====================
-  {
-    id: '6',
-    title: 'Seen — Weaving Liberation, Digital Justice Fund (Round 1)',
-    funder_name: 'Weaving Liberation',
-    funder_type: 'foundation',
-    program_area: 'Digital Justice',
-    amount_requested: 34000, // €40,000 ≈ £34k
-    status: 'preparing',
-    priority: 'critical',
-    strategic_fit_score: 9,
-    blkout_priority_alignment: {
-      liberation: 10,
-      ownership: 10,
-      mental_health: 6,
-      economic_justice: 7,
-      movement_building: 9,
-    },
-    scaling_tier: 'growth',
-    geographic_scope: 'uk_wide',
-    deadline_date: '2026-06-21',
-    writing_investment_hours: 24,
-    review_required: 'peer',
-    is_modular: true,
-    can_fund_independently: true,
-    lead_writer: 'Dr Rob Berkeley MBE',
-    tags: ['seen', 'digital-justice', 'cooperative-governance', 'fair-use', 'counter-algorithmic'],
-    notes: 'Draft at projects/seen/funding/05-weaving-liberation-digital-justice-fund.md (submission-ready PDF in generated/). €40k over 2yr (2026–2028). Optional fund webinar Wed 20 May 2026 12:30 CET. Registration deadline 24 May 2026 (gating action); submission 21 June 2026; shortlist early Aug. Digital commons + cooperative governance + fair-use policy as sector artefact. Anchored to Seen.',
-    documents: [
-      { name: 'Round 1 Application Draft', url: '', type: 'application', uploadedAt: '2026-05-12T00:00:00Z' },
-    ],
-    created_at: '2026-05-12T00:00:00Z',
-    updated_at: '2026-05-13T00:00:00Z',
-  },
-  // ==================== REAL BID: Seen/Scene — Heritage Fund Project Enquiry £58,800 ====================
-  {
-    id: '7',
-    title: 'Seen/Scene — National Lottery Heritage Fund Project Enquiry',
-    funder_name: 'National Lottery Heritage Fund',
-    funder_type: 'lottery',
-    program_area: 'Heritage Grants £10k–£250k (single-stage, four-phase)',
-    amount_requested: 58800,
-    status: 'submitted',
-    priority: 'high',
-    strategic_fit_score: 9,
-    blkout_priority_alignment: {
-      liberation: 9,
-      ownership: 8,
-      mental_health: 5,
-      economic_justice: 6,
-      movement_building: 8,
-    },
-    scaling_tier: 'growth',
-    geographic_scope: 'national',
-    writing_investment_hours: 40,
-    review_required: 'peer',
-    is_modular: false,
-    can_fund_independently: true,
-    lead_writer: 'Dr Rob Berkeley MBE',
-    tags: ['seen-scene', 'heritage', 'project-enquiry-submitted', 'reference-PE-00024770'],
-    notes: 'Project Enquiry SUBMITTED 24 May 2026, reference PE-00024770. £58,800 single phased application Sept 2026 – Mar 2028, four phases (pilot Sept-Dec 2026 / review-preprod Jan-May 2027 / delivery Jun-Dec 2027 / evaluation Jan-Mar 2028). 18 editions, 9 commissioned curators, 6 community listening rooms. Awaiting Engagement team feedback ~10 working days (expected ~5 June). Officer questions ready at hf-project-enquiry.md. Old two-app strategy (£10k pilot + £35k Year 1) retired in favour of this single phased application.',
-    documents: [
-      { name: 'Project Enquiry (submitted)', url: '', type: 'application', uploadedAt: '2026-05-24T00:00:00Z' },
-    ],
-    created_at: '2026-05-12T00:00:00Z',
-    updated_at: '2026-05-24T00:00:00Z',
-  },
-  // ==================== REAL BID: Seen — Boiler Room Broadcast Lab #14 ====================
-  {
-    id: '8',
-    title: 'Seen — Boiler Room Broadcast Lab #14 (flagship pilot event)',
-    funder_name: 'Boiler Room',
-    funder_type: 'corporate',
-    program_area: 'Broadcast Lab Edition #14',
-    amount_requested: 10000,
-    status: 'researching',
-    priority: 'medium',
-    strategic_fit_score: 8,
-    scaling_tier: 'seed',
-    geographic_scope: 'uk_wide',
-    deadline_date: '2026-07-15', // TBC — placeholder until BL#14 deadline confirmed
-    writing_investment_hours: 12,
-    review_required: 'peer',
-    is_modular: true,
-    can_fund_independently: true,
-    lead_writer: 'Dr Rob Berkeley MBE',
-    tags: ['seen', 'live-event', 'broadcast', 'book-slam-shape', 'pilot'],
-    notes: 'Draft at projects/seen/funding/04-boiler-room-broadcast-lab.md. £10k cash + in-kind production. Flagship live event for Seen pilot autumn 2026, Book Slam-shape, broadcast through Boiler Room. Submission window TBC — check Broadcast Lab #14 page for current deadline. Independent of Heritage Fund pilot but complementary.',
-    documents: [
-      { name: 'Broadcast Lab #14 Concept Draft', url: '', type: 'application', uploadedAt: '2026-05-12T00:00:00Z' },
-    ],
-    created_at: '2026-05-12T00:00:00Z',
-    updated_at: '2026-05-12T00:00:00Z',
-  },
-  // id 9 (HF Year 1 £35k) retired 24 May 2026 — superseded by id 7 (£58,800 single phased application)
-  // ==================== REAL BID: Seen — Arts Council NLPG £22k ====================
-  {
-    id: '10',
-    title: 'Seen — Arts Council England, National Lottery Project Grants',
-    funder_name: 'Arts Council England',
-    funder_type: 'government',
-    program_area: 'National Lottery Project Grants (<£30k strand)',
-    amount_requested: 22000,
-    status: 'researching',
-    priority: 'high',
-    strategic_fit_score: 8,
-    scaling_tier: 'growth',
-    geographic_scope: 'city',
-    deadline_date: '2026-11-15',
-    writing_investment_hours: 32,
-    review_required: 'peer',
-    is_modular: true,
-    can_fund_independently: false,
-    module_dependencies: ['7'],
-    lead_writer: 'Dr Rob Berkeley MBE',
-    tags: ['seen', 'arts-council', 'live-performance', 'audience-development'],
-    notes: 'Draft at projects/seen/funding/03-arts-council-nlpg-22k.md. Live performance programme for Seen Year 1: 12 events London 2027. 4 flagships co-hosted with archive partners (Autograph/Bishopsgate/BCA/British Library), 8 community-scale at The Arzner. Match funding £49,280 from HF + Boiler Room + earned income. Pre-submission call to ACE Customer Services to confirm CBS eligibility under "corporate body" category. 12-week decision target.',
-    created_at: '2026-05-12T00:00:00Z',
-    updated_at: '2026-05-12T00:00:00Z',
-  },
-  // ==================== REAL BID: Critical Frequency — TNL Solidarity Fund (BLKOUT lead, cornerstone) ====================
-  {
-    id: '11',
-    title: 'Critical Frequency — TNL Solidarity Fund (BLKOUT lead, £4-5m cornerstone)',
-    funder_name: 'National Lottery Community Fund',
-    funder_type: 'lottery',
-    program_area: 'Solidarity Fund',
-    amount_requested: 4500000,
-    status: 'researching',
-    priority: 'critical',
-    strategic_fit_score: 10,
-    blkout_priority_alignment: {
-      liberation: 10,
-      ownership: 10,
-      mental_health: 10,
-      economic_justice: 7,
-      movement_building: 9,
-    },
-    funder_relationship_score: 6,
-    scaling_tier: 'transformation',
-    min_viable_budget: 4000000,
-    max_potential_budget: 5000000,
-    geographic_scope: 'uk_wide',
-    scaling_notes: '5-7yr cornerstone partnership. £250-500k Foundation Year → Years 2-5 delivery: 1,825 network-positioned therapy interventions, embedded systems-change leaders, deliberative assemblies. Single cornerstone partner (not syndicated panel). Reparations framing under UN GA Res 60/147.',
-    writing_investment_hours: 80,
-    review_required: 'full_external',
-    is_modular: false,
-    can_fund_independently: true,
-    lead_writer: 'Dr Rob Berkeley MBE',
-    team_members: ['Dr Rob Berkeley MBE', 'CF Advisory Circle (TBC)'],
-    tags: ['tnl', 'solidarity-fund', 'critical-frequency', 'cornerstone', 'black-queer-mens-mental-health', 'cbs', 'reparations-framing'],
-    notes: 'Opening letter drafted 24 May 2026: apps/comms-blkout/src/fundraising/outputs/A-policy-funders/tnl-solidarity-fund-opening-letter-2026-05-24.md. £4-5m founding-partnership ask sized to TNL £5m / 5-10yr ceiling. Email: SolidarityFund@tnlcommunityfund.org.uk. Slide deck amendments pending before send. STRATEGIC SHIFT 24 May 2026: from joint £4.998m big-tent bid (BLKOUT-host coalition) to two-separate-bids model — BLKOUT lead on CF + named partner on Marlborough\'s separate CookOut coalition bid (same fund, same round). Marlborough call deferred until they send bid-writer invite. Good neighbours, good fences. See memory project_solidarity_fund_bid for full strategic logic.',
-    documents: [
-      { name: 'Opening Letter (draft, pre-send)', url: '', type: 'application', uploadedAt: '2026-05-24T00:00:00Z' },
-      { name: 'Critical Frequency Pitch Deck', url: '', type: 'narrative', uploadedAt: '2026-05-21T00:00:00Z' },
-      { name: 'CF Narrative + Phased Partnership v2', url: '', type: 'narrative', uploadedAt: '2026-05-21T00:00:00Z' },
-    ],
-    created_at: '2026-05-08T00:00:00Z',
-    updated_at: '2026-05-24T00:00:00Z',
-  },
-  // ==================== DELIVERED: SCT 150 Ivor's Compass ====================
-  {
-    id: '12',
-    title: "Ivor's Compass — Samuel Coleridge-Taylor 150 Small Heritage Grant",
-    funder_name: 'Croydon Council / National Lottery Heritage Fund',
-    funder_type: 'government',
-    program_area: 'SCT 150 Small Heritage Grant',
-    amount_requested: 2500,
-    amount_awarded: 2500,
-    status: 'reporting',
-    priority: 'low',
-    strategic_fit_score: 9,
-    scaling_tier: 'seed',
-    geographic_scope: 'city',
-    writing_investment_hours: 12,
-    review_required: 'peer',
-    lead_writer: 'Dr Rob Berkeley MBE',
-    tags: ['ivors-compass', 'heritage', 'sct150', 'delivered', 'evaluated'],
-    notes: 'DELIVERED. Launch event 12 April 2026 at Stanley Arts (Croydon). Evaluation submitted 24 April 2026 per Croydon SCT 150 structure. Project: immersive installation + digital wellness journal + graphic novel exploring Ivor Cummings OBE (1913-1992). Live at compass.blkoutuk.com. 7-direction chatbot + 19-page graphic novel + workshop panels. Marta Feseha photographer (81-photo set). First BLKOUT Heritage Fund delivery, evidence base for Seen/Scene £58,800 enquiry.',
-    created_at: '2025-11-01T00:00:00Z',
-    updated_at: '2026-04-24T00:00:00Z',
-  },
-];
+const NOT_CONFIGURED = 'Database not configured';
 
-const mockOpportunities: OpportunityPipeline[] = [
-  {
-    id: '1',
-    title: 'Wellcome Trust - Mental Health Research',
-    funder_name: 'Wellcome Trust',
-    source: 'ivor_research',
-    status: 'recommended',
-    funding_min: 100000,
-    funding_max: 500000,
-    deadline_date: new Date(Date.now() + 45 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-    days_until_deadline: 45,
-    deadline_urgency: 'future',
-    combined_fit_score: 8.5,
-    project_category: 'mental_health',
-    recommended_project: 'IVOR Mental Health Support Module',
-    funder_priorities: ['Community-led research', 'Digital innovation', 'Underserved communities'],
-    discovered_date: new Date().toISOString().split('T')[0],
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-  },
-  {
-    id: '2',
-    title: 'Arts Council England - Developing Your Creative Practice',
-    funder_name: 'Arts Council England',
-    source: 'charity_excellence',
-    status: 'new',
-    funding_min: 2000,
-    funding_max: 10000,
-    deadline_date: new Date(Date.now() + 21 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-    days_until_deadline: 21,
-    deadline_urgency: 'approaching',
-    combined_fit_score: 7.2,
-    project_category: 'creative',
-    funder_priorities: ['Diverse artists', 'Career development'],
-    discovered_date: new Date().toISOString().split('T')[0],
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-  },
-  {
-    id: '3',
-    title: 'City Bridge Trust - Connecting Communities',
-    funder_name: 'City Bridge Trust',
-    source: '360giving',
-    status: 'assessing',
-    funding_min: 50000,
-    funding_max: 150000,
-    days_until_deadline: 90,
-    deadline_urgency: 'future',
-    combined_fit_score: 8.0,
-    project_category: 'infrastructure',
-    funder_priorities: ['London-based', 'Digital inclusion', 'LGBTQ+ communities'],
-    discovered_date: new Date().toISOString().split('T')[0],
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-  },
-  // ==================== REAL GRANT OPPORTUNITIES ====================
-  {
-    id: '4',
-    title: 'Consortium LGBT+ Collective Nurture Fund',
-    funder_name: 'LGBT Consortium',
-    source: 'funder_website',
-    source_url: 'https://www.consortium.lgbt',
-    status: 'recommended',
-    funding_min: 5000,
-    funding_max: 5000,
-    deadline_date: '2025-09-03',
-    days_until_deadline: Math.ceil((new Date('2025-09-03').getTime() - Date.now()) / (1000 * 60 * 60 * 24)),
-    deadline_urgency: new Date('2025-09-03') < new Date() ? 'expired' : 'future',
-    combined_fit_score: 9.0,
-    project_category: 'capacity_building',
-    eligibility_criteria: 'LGBT+ Global Majority community groups and organisations across UK',
-    blkout_alignment_notes: 'Specifically targets LGBT+ Global Majority groups. BLKOUT is ideal candidate.',
-    funder_priorities: ['LGBT+ Global Majority communities', 'Community groups', 'UK-wide'],
-    discovered_date: '2026-01-31',
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-  },
-  {
-    id: '5',
-    title: 'Lloyds Bank Foundation - Racial Equity Grants',
-    funder_name: 'Lloyds Bank Foundation',
-    source: 'funder_website',
-    source_url: 'https://www.lloydsbankfoundation.org.uk/funding',
-    status: 'recommended',
-    funding_min: 75000,
-    funding_max: 75000,
-    deadline_date: '2025-05-29',
-    days_until_deadline: Math.ceil((new Date('2025-05-29').getTime() - Date.now()) / (1000 * 60 * 60 * 24)),
-    deadline_urgency: new Date('2025-05-29') < new Date() ? 'expired' : 'future',
-    combined_fit_score: 8.5,
-    project_category: 'capacity_building',
-    eligibility_criteria: 'Black-led charities/CICs, income £25k-£500k, based OUTSIDE London',
-    blkout_alignment_notes: 'Unrestricted funding + development support. 3-year funding. Check if BLKOUT operates outside London.',
-    research_notes: 'Webinar 3 April 2025. Contact: enquiries@lloydsbankfoundation.org.uk',
-    funder_priorities: ['Black-led organisations', 'Racial equity', 'Unrestricted funding'],
-    discovered_date: '2026-01-31',
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-  },
-  {
-    id: '6',
-    title: 'Flexible Finance Fund',
-    funder_name: 'Ubele Initiative / Social Investment Business / Create Equity',
-    source: 'manual',
-    source_url: 'https://www.sibgroup.org.uk/funds/flexible-finance/',
-    status: 'assessing',
-    funding_min: 50000,
-    funding_max: 1500000,
-    deadline_urgency: 'no_deadline',
-    combined_fit_score: 7.0,
-    project_category: 'infrastructure',
-    eligibility_criteria: 'Black-led (51%+ board), min £200k turnover, 2+ years operating',
-    blkout_alignment_notes: 'Grant + loan blend. Grant up to 100% of loan value (max £200k grant). Dedicated advisor support. Check turnover eligibility.',
-    research_notes: 'Contact: sheila.forster@ubele.org. Rolling deadline.',
-    funder_priorities: ['Black-led organisations', 'Social enterprise', 'Community wealth building'],
-    discovered_date: '2026-01-31',
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-  },
-  {
-    id: '7',
-    title: 'Manchester Pride - Local Pride Grants',
-    funder_name: 'Manchester Pride',
-    source: 'funder_website',
-    source_url: 'https://www.manchesterpride.com/grants',
-    status: 'researching',
-    funding_min: 250,
-    funding_max: 1000,
-    deadline_date: '2025-03-10',
-    days_until_deadline: Math.ceil((new Date('2025-03-10').getTime() - Date.now()) / (1000 * 60 * 60 * 24)),
-    deadline_urgency: new Date('2025-03-10') < new Date() ? 'expired' : 'future',
-    combined_fit_score: 6.5,
-    project_category: 'creative',
-    eligibility_criteria: 'Greater Manchester LGBTQ+ groups',
-    blkout_alignment_notes: 'Needs Manchester connection. Quick turnaround, small grants for Pride activities.',
-    funder_priorities: ['LGBTQ+ communities', 'Greater Manchester', 'Pride activities'],
-    discovered_date: '2026-01-31',
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-  },
-  {
-    id: '8',
-    title: 'Manchester Pride - Impact Grants',
-    funder_name: 'Manchester Pride',
-    source: 'funder_website',
-    source_url: 'https://www.manchesterpride.com/grants',
-    status: 'researching',
-    deadline_date: '2025-03-21',
-    days_until_deadline: Math.ceil((new Date('2025-03-21').getTime() - Date.now()) / (1000 * 60 * 60 * 24)),
-    deadline_urgency: new Date('2025-03-21') < new Date() ? 'expired' : 'future',
-    combined_fit_score: 6.5,
-    project_category: 'capacity_building',
-    eligibility_criteria: 'Greater Manchester LGBTQ+ charities',
-    blkout_alignment_notes: 'Larger/longer-term funding. Needs Manchester connection. For sustained LGBTQ+ impact work.',
-    funder_priorities: ['LGBTQ+ charities', 'Greater Manchester', 'Sustained impact'],
-    discovered_date: '2026-01-31',
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-  },
-  {
-    id: '9',
-    title: 'Manchester Pride - Community/Superbia Grants',
-    funder_name: 'Manchester Pride',
-    source: 'funder_website',
-    source_url: 'https://www.manchesterpride.com/grants',
-    status: 'assessing',
-    funding_min: 250,
-    funding_max: 1000,
-    deadline_date: '2025-04-30',
-    days_until_deadline: Math.ceil((new Date('2025-04-30').getTime() - Date.now()) / (1000 * 60 * 60 * 24)),
-    deadline_urgency: new Date('2025-04-30') < new Date() ? 'expired' : 'future',
-    combined_fit_score: 7.5,
-    project_category: 'creative',
-    eligibility_criteria: 'Greater Manchester LGBTQ+ groups, priority: disabled, QTIPOC, Trans',
-    blkout_alignment_notes: 'QTIPOC priority is good fit. Round 2 opens Aug-Sept 2025.',
-    funder_priorities: ['QTIPOC communities', 'Disabled LGBTQ+', 'Trans communities', 'Greater Manchester'],
-    discovered_date: '2026-01-31',
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-  },
-  {
-    id: '10',
-    title: 'National Lottery Awards for All (England)',
-    funder_name: 'National Lottery Community Fund',
-    source: 'funder_website',
-    source_url: 'https://www.tnlcommunityfund.org.uk/funding/programmes',
-    status: 'recommended',
-    funding_min: 300,
-    funding_max: 20000,
-    deadline_urgency: 'no_deadline',
-    combined_fit_score: 8.5,
-    project_category: 'capacity_building',
-    eligibility_criteria: 'Constituted community groups, charities',
-    blkout_alignment_notes: 'Accessible entry point. Always open. Up to 2 years funding. Good for community wellbeing projects.',
-    recommended_project: 'Community wellbeing programme',
-    funder_priorities: ['Community wellbeing', 'Constituted groups', 'England-wide'],
-    discovered_date: '2026-01-31',
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-  },
-  {
-    id: '11',
-    title: 'National Lottery Climate Action Fund',
-    funder_name: 'National Lottery Community Fund',
-    source: 'funder_website',
-    source_url: 'https://www.tnlcommunityfund.org.uk/funding/programmes',
-    status: 'researching',
-    funding_min: 500000,
-    deadline_date: '2025-10-22',
-    days_until_deadline: Math.ceil((new Date('2025-10-22').getTime() - Date.now()) / (1000 * 60 * 60 * 24)),
-    deadline_urgency: new Date('2025-10-22') < new Date() ? 'expired' : 'future',
-    combined_fit_score: 5.0,
-    project_category: 'advocacy',
-    eligibility_criteria: 'Partnership-led projects, priority for marginalised communities',
-    blkout_alignment_notes: 'Would need climate justice angle. Large scale, requires partnership approach.',
-    funder_priorities: ['Climate action', 'Marginalised communities', 'Partnership-led'],
-    discovered_date: '2026-01-31',
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-  },
-  {
-    id: '12',
-    title: 'Consortium LGBT+ Youth Advocacy Fund',
-    funder_name: 'LGBT Consortium / Henry Smith Foundation',
-    source: 'funder_website',
-    source_url: 'https://www.consortium.lgbt',
-    status: 'recommended',
-    deadline_date: '2025-08-27',
-    days_until_deadline: Math.ceil((new Date('2025-08-27').getTime() - Date.now()) / (1000 * 60 * 60 * 24)),
-    deadline_urgency: new Date('2025-08-27') < new Date() ? 'expired' : 'future',
-    combined_fit_score: 8.0,
-    project_category: 'advocacy',
-    eligibility_criteria: 'UK orgs supporting LGBT+ young people 14-25',
-    blkout_alignment_notes: 'High priority if developing youth work. Focus on strengthening sustainability and resources.',
-    research_notes: 'Contact: grants@consortium.lgbt',
-    funder_priorities: ['LGBT+ young people', 'Sustainability', 'Youth advocacy 14-25'],
-    discovered_date: '2026-01-31',
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-  },
-  {
-    id: '13',
-    title: 'London Inclusive Talent Brokerage',
-    funder_name: 'Greater London Authority',
-    source: 'manual',
-    status: 'assessing',
-    funding_min: 40000,
-    funding_max: 70000,
-    deadline_date: '2025-09-05',
-    days_until_deadline: Math.ceil((new Date('2025-09-05').getTime() - Date.now()) / (1000 * 60 * 60 * 24)),
-    deadline_urgency: new Date('2025-09-05') < new Date() ? 'expired' : 'future',
-    combined_fit_score: 7.0,
-    project_category: 'capacity_building',
-    eligibility_criteria: 'Black/minority-ethnic led orgs (50%+ leadership), London-based',
-    blkout_alignment_notes: 'Medium priority if developing employability work. Delivery Sept 2025 - Sept 2026. Opens 1 August 2025.',
-    research_notes: 'Contact: grants@london.gov.uk',
-    funder_priorities: ['Black/minority-ethnic led organisations', 'Employability', 'London-based'],
-    discovered_date: '2026-01-31',
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-  },
-  {
-    id: '14',
-    title: 'Henry Smith Foundation - Shout! Fund',
-    funder_name: 'Henry Smith Foundation',
-    source: 'funder_website',
-    source_url: 'https://henrysmith.foundation/grants/shout/',
-    status: 'researching',
-    funding_max: 240000,
-    deadline_urgency: 'no_deadline',
-    combined_fit_score: 8.5,
-    project_category: 'advocacy',
-    eligibility_criteria: 'Advocacy services for LGBT+ young people 14-25',
-    blkout_alignment_notes: 'Currently closed - monitor for 2026 round reopening. Person-led advocacy focus. Interest in Wales, NI, rural areas.',
-    research_notes: 'Contact: buildingindependence@henrysmith.foundation. Up to 4 years funding.',
-    funder_priorities: ['LGBT+ young people 14-25', 'Person-led advocacy', 'Wales/NI/rural areas'],
-    discovered_date: '2026-01-31',
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-  },
-  {
-    id: '15',
-    title: 'Phoenix Way 2.0',
-    funder_name: 'National Lottery / Ubele Initiative',
-    source: 'manual',
-    source_url: 'https://ubele.org',
-    status: 'recommended',
-    deadline_urgency: 'no_deadline',
-    combined_fit_score: 9.0,
-    project_category: 'capacity_building',
-    eligibility_criteria: 'Black and Minoritised community-led groups',
-    blkout_alignment_notes: 'Perfect fit for BLKOUT. Decision-making by community leaders. Priorities: young people, women/girls. Part of £50m programme over 5 years. Regional rounds.',
-    funder_priorities: ['Black and Minoritised communities', 'Community-led', 'Young people', 'Women/girls'],
-    discovered_date: '2026-01-31',
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-  },
-  {
-    id: '16',
-    title: 'Baobab Community Fund',
-    funder_name: 'Baobab Foundation',
-    source: 'funder_website',
-    source_url: 'https://www.baobabfoundation.org.uk',
-    status: 'researching',
-    funding_min: 5000,
-    funding_max: 30000,
-    deadline_urgency: 'no_deadline',
-    combined_fit_score: 8.5,
-    project_category: 'capacity_building',
-    eligibility_criteria: 'Black African/Caribbean and Global Majority orgs',
-    blkout_alignment_notes: 'Currently closed - monitor for reopening. Multi-year funding (up to 5 years). Racial justice and climate equity focus.',
-    funder_priorities: ['Black African/Caribbean orgs', 'Global Majority', 'Racial justice', 'Climate equity'],
-    discovered_date: '2026-01-31',
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-  },
-  {
-    id: '17',
-    title: 'F100 Growth Fund',
-    funder_name: 'Black Equity Organisation / Sky',
-    source: 'manual',
-    source_url: 'https://www.blackequityorg.com',
-    status: 'new',
-    funding_max: 15000,
-    deadline_urgency: 'no_deadline',
-    combined_fit_score: 6.5,
-    project_category: 'capacity_building',
-    eligibility_criteria: 'Black-led UK businesses with MVP',
-    blkout_alignment_notes: 'Check current round. Video + presentation required. 2025 cohort. Includes Sky broadband.',
-    funder_priorities: ['Black-led businesses', 'Growth stage', 'MVP required'],
-    discovered_date: '2026-01-31',
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-  },
-  {
-    id: '18',
-    title: 'Black Seed Ventures',
-    funder_name: 'Black Seed',
-    source: 'manual',
-    status: 'new',
-    funding_max: 400000,
-    deadline_urgency: 'no_deadline',
-    combined_fit_score: 5.0,
-    project_category: 'infrastructure',
-    eligibility_criteria: 'Black-owned UK businesses, early-stage',
-    blkout_alignment_notes: 'Rolling applications. More suited for commercial ventures. Seed funding for entrepreneurs. Pitch submission required.',
-    funder_priorities: ['Black-owned businesses', 'Early-stage', 'Entrepreneurship'],
-    discovered_date: '2026-01-31',
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-  },
-  // ==================== Lewisham — Creative Health Microgrants (new 15 May 2026) ====================
-  {
-    id: '21',
-    title: 'Creative Health in Lewisham Neighbourhoods Microgrants',
-    funder_name: 'Lewisham Council + South-East London ICB',
-    source: 'funder_website',
-    source_url: 'https://communityfunding.lewisham.gov.uk/our-funds/small-grants',
-    status: 'assessing',
-    funding_min: 2000,
-    funding_max: 2000,
-    deadline_date: '2026-06-07',
-    days_until_deadline: 23,
-    deadline_urgency: 'approaching',
-    combined_fit_score: 5.5,
-    project_category: 'creative',
-    eligibility_criteria: 'Projects bringing partners together for community health and wellbeing through creative activity in Lewisham neighbourhoods. Delivery July–December 2026.',
-    blkout_alignment_notes: 'Geographic constraint: Lewisham-anchored activity required. Candidate anchor partners (Lewisham): The Albany (Deptford SE8), Blueprint for All (Deptford SE8), Rivoli Ballroom (Crofton Park SE4), Piehouse Co-op. Small (£2k) — pilot-shape. Could pair with mental-health programming or a Seen-aligned listening room in Lewisham.',
-    research_notes: 'Info sessions: Online Tue 19 May 1–2pm; In person Wed 20 May 2:30–3:30pm at Catford House SE6 4SP. Contact: cultural.development@lewisham.gov.uk. Deadline 7 Jun 2026 11:59pm. Delivery window Jul–Dec 2026.',
-    funder_priorities: ['Lewisham residents', 'Creative health', 'Community wellbeing', 'Partnership working'],
-    discovered_date: '2026-05-15',
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-  },
-  // ==================== Lewisham — Neighbourhood Health Creative Communication Grant (new 15 May 2026) ====================
-  {
-    id: '22',
-    title: 'Neighbourhood Health Creative Communication Grant (Lewisham)',
-    funder_name: 'Lewisham Council + South-East London ICB',
-    source: 'funder_website',
-    source_url: 'https://communityfunding.lewisham.gov.uk/our-funds/small-grants',
-    status: 'recommended',
-    funding_min: 4000,
-    funding_max: 4000,
-    deadline_date: '2026-06-07',
-    days_until_deadline: 23,
-    deadline_urgency: 'approaching',
-    combined_fit_score: 6.5,
-    project_category: 'creative',
-    eligibility_criteria: 'Creative project that explains and connects people to local neighbourhood health services and activities in Lewisham. Delivery July–December 2026.',
-    blkout_alignment_notes: 'Stronger fit than the Microgrants — BLKOUT has comms/design/video capacity (AIvor, newsletter, social) that maps cleanly to "creative communication for neighbourhood health". Needs Lewisham anchor partner. Candidates: The Albany (strongest — Deptford community arts venue with established creative-health programming, e.g. Meet Me at the Albany); Blueprint for All (strongest values alignment — Stephen Lawrence race-equity legacy, but youth-focused vs BLKOUT adult audience); Rivoli Ballroom (heritage venue, good for an event but a hire space not a health partner); Piehouse Co-op (co-op-to-co-op fit with BLKOUT CBS values). Lead recommendation: approach The Albany as co-host.',
-    research_notes: 'Info sessions: Online Tue 19 May 4–5pm; In person Wed 20 May 4–5pm at Catford House SE6 4SP. Contact: cultural.development@lewisham.gov.uk. Deadline 7 Jun 2026 11:59pm. Delivery window Jul–Dec 2026.',
-    recommended_project: 'Black queer men’s neighbourhood-health communications package (video + print + listening event) for Lewisham',
-    funder_priorities: ['Lewisham residents', 'Neighbourhood health services', 'Creative communication', 'Community connection'],
-    discovered_date: '2026-05-15',
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-  },
-  {
-    id: '19',
-    title: 'Black Artists Grant (BAG)',
-    funder_name: 'Creative Debuts',
-    source: 'manual',
-    status: 'new',
-    funding_min: 500,
-    funding_max: 500,
-    deadline_urgency: 'no_deadline',
-    combined_fit_score: 4.5,
-    project_category: 'creative',
-    eligibility_criteria: 'Black artists',
-    blkout_alignment_notes: 'For individual artists, not organisations. Could support community members or programming. £500/month rolling.',
-    funder_priorities: ['Black artists', 'Creative practice'],
-    discovered_date: '2026-01-31',
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-  },
-  {
-    id: '20',
-    title: 'Greggs Foundation Community Grants',
-    funder_name: 'Greggs Foundation',
-    source: 'funder_website',
-    source_url: 'https://www.greggsfoundation.org.uk',
-    status: 'new',
-    funding_max: 20000,
-    deadline_urgency: 'no_deadline',
-    combined_fit_score: 6.5,
-    project_category: 'capacity_building',
-    eligibility_criteria: 'Community organisations',
-    blkout_alignment_notes: 'Check regional rounds availability. Up to £20k/year for 2 years. Core funding for food/support work.',
-    funder_priorities: ['Community organisations', 'Food and support', 'Core funding'],
-    discovered_date: '2026-01-31',
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-  },
-  // ==================== Maudsley Charity (prospect — Rob, 15 May 2026) ====================
-  {
-    id: '23',
-    title: 'Maudsley Charity — mental health grants programmes',
-    funder_name: 'Maudsley Charity',
-    source: 'manual',
-    source_url: 'https://maudsleycharity.org/grants/',
-    status: 'researching',
-    funding_min: 25000,
-    funding_max: 250000,
-    deadline_urgency: 'no_deadline',
-    combined_fit_score: 7.5,
-    project_category: 'mental_health',
-    eligibility_criteria: 'Mental health care in south London (SLaM footprint — Lambeth, Southwark, Lewisham, Croydon). Funds clinical, academic and community partners.',
-    blkout_alignment_notes: 'Strong thematic fit — Black queer men’s mental health is core to BLKOUT, and the south London geography overlaps with the emerging Lewisham anchor work. Community-facing programme is "Building Brighter Futures"; "Living Well with Psychosis" and "Advancing Care in our Local Trust" are more clinical. Approach as a relationship — identify the right programme + named contact before applying. Grant range is an estimate; confirm current rounds.',
-    research_notes: 'Three programmes: Advancing Care in our Local Trust, Living Well with Psychosis, Building Brighter Futures. No fixed open rounds confirmed on site — contact charity directly. Rob has flagged as a prospect.',
-    recommended_project: 'Black queer men’s mental health / wellbeing programme (BMHWA-adjacent), south London',
-    funder_priorities: ['Mental health', 'South London', 'Community partners', 'Lived experience'],
-    discovered_date: '2026-05-15',
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-  },
-  // ==================== Impact on Urban Health (prospect — Rob, 15 May 2026) ====================
-  {
-    id: '24',
-    title: 'Impact on Urban Health — health inequalities partnerships',
-    funder_name: 'Impact on Urban Health (Guy’s & St Thomas’ Foundation)',
-    source: 'manual',
-    source_url: 'https://urbanhealth.org.uk/',
-    status: 'researching',
-    funding_min: 50000,
-    deadline_urgency: 'no_deadline',
-    combined_fit_score: 6.0,
-    project_category: 'mental_health',
-    eligibility_criteria: 'Work tackling health inequalities in Lambeth and Southwark. Funds via partnerships and commissions, not open grants.',
-    blkout_alignment_notes: 'Partnership/commission funder, not an application route — this is a relationship to build, not a form to fill. Geography is Lambeth + Southwark (NOT Lewisham). Their named programmes (children’s health and food, children’s mental health, air pollution, financial foundations for adult health) don’t map directly to BLKOUT’s adult Black queer men’s work; "financial foundations for adult health" is the nearest door. Needs a Lambeth/Southwark anchor and a long-game relationship approach.',
-    research_notes: 'Part of Guy’s & St Thomas’ Foundation. Funds through "Become a partner" route + Tenders page rather than open grants. The Grain House, 46 Loman Street, SE1 0EH. Rob has flagged as a prospect.',
-    funder_priorities: ['Health inequalities', 'Lambeth & Southwark', 'Partnership-led', 'Systemic change'],
-    discovered_date: '2026-05-15',
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-  },
-];
+// grant_pipeline.stage (CRM enum) → the status vocabulary the cards use.
+const STAGE_TO_STATUS: Record<string, GrantStatus> = {
+  research: 'researching',
+  preparing: 'preparing',
+  submitted: 'submitted',
+  under_review: 'under_review',
+  interview: 'under_review',
+  decision_pending: 'under_review',
+  approved: 'awarded',
+  active: 'awarded',
+  reporting: 'reporting',
+  completed: 'reporting',
+  rejected: 'declined',
+  withdrawn: 'withdrawn',
+};
 
-const mockBidProgress: BidWritingProgress[] = [
-  {
-    grant_id: '1',
-    grant_title: 'National Lottery Community Fund - Reaching Communities',
-    funder_name: 'National Lottery Community Fund',
-    amount_requested: 150000,
-    deadline_date: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-    days_until_deadline: 14,
-    deadline_status: 'urgent',
-    grant_status: 'preparing',
-    total_documents: 6,
-    drafts_in_progress: 2,
-    documents_in_review: 3,
-    documents_approved: 1,
-    total_target_words: 8000,
-    total_words_written: 5200,
-    word_count_progress_pct: 65,
-    total_time_spent_minutes: 720,
-    total_sessions: 8,
-    writing_investment_hours: 40,
-    review_required: 'full_external',
-  },
-  {
-    grant_id: '2',
-    grant_title: 'Paul Hamlyn Foundation - Ideas and Pioneers',
-    funder_name: 'Paul Hamlyn Foundation',
-    amount_requested: 75000,
-    deadline_date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-    days_until_deadline: 30,
-    deadline_status: 'approaching',
-    grant_status: 'eligible',
-    total_documents: 4,
-    drafts_in_progress: 3,
-    documents_in_review: 1,
-    documents_approved: 0,
-    total_target_words: 5000,
-    total_words_written: 1800,
-    word_count_progress_pct: 36,
-    total_time_spent_minutes: 240,
-    total_sessions: 3,
-    writing_investment_hours: 24,
-    review_required: 'peer',
-  },
-  // ==================== REAL BID: Trust for London EOI ====================
-  {
-    grant_id: '5',
-    grant_title: 'Trust for London - Racial Justice Fund (BLKOUTNXT: Economic Futures)',
-    funder_name: 'Trust for London',
-    amount_requested: 200000,
-    grant_status: 'submitted',
-    writing_investment_hours: 60,
-    review_required: 'full_external',
-    total_documents: 6,
-    drafts_in_progress: 0,
-    documents_in_review: 0,
-    documents_approved: 6,
-    total_target_words: 6500,
-    total_words_written: 6500,
-    word_count_progress_pct: 100,
-    total_time_spent_minutes: 960,
-    total_sessions: 12,
-    deadline_status: 'on_track',
-  },
-  // ==================== REAL BID: Seen — Weaving Liberation ====================
-  {
-    grant_id: '6',
-    grant_title: 'Seen — Weaving Liberation, Digital Justice Fund (Round 1)',
-    funder_name: 'Weaving Liberation',
-    amount_requested: 34000,
-    deadline_date: '2026-06-21',
-    days_until_deadline: 37,
-    deadline_status: 'on_track',
-    grant_status: 'preparing',
-    total_documents: 1,
-    drafts_in_progress: 0,
-    documents_in_review: 1,
-    documents_approved: 0,
-    total_target_words: 3500,
-    total_words_written: 3500,
-    word_count_progress_pct: 100,
-    total_time_spent_minutes: 600,
-    total_sessions: 5,
-    writing_investment_hours: 24,
-    review_required: 'peer',
-  },
-  // ==================== REAL BID: Seen/Scene — HF Project Enquiry (submitted) ====================
-  {
-    grant_id: '7',
-    grant_title: 'Seen/Scene — National Lottery Heritage Fund Project Enquiry',
-    funder_name: 'National Lottery Heritage Fund',
-    amount_requested: 58800,
-    deadline_status: 'on_track',
-    grant_status: 'submitted',
-    total_documents: 1,
-    drafts_in_progress: 0,
-    documents_in_review: 0,
-    documents_approved: 1,
-    total_target_words: 980, // sum of all 10 enquiry field word counts (Q1-Q10)
-    total_words_written: 980,
-    word_count_progress_pct: 100,
-    total_time_spent_minutes: 720,
-    total_sessions: 6,
-    writing_investment_hours: 40,
-    review_required: 'peer',
-  },
-  // ==================== REAL BID: Critical Frequency — TNL Solidarity Fund (BLKOUT lead) ====================
-  {
-    grant_id: '11',
-    grant_title: 'Critical Frequency — TNL Solidarity Fund (BLKOUT lead, £4-5m cornerstone)',
-    funder_name: 'National Lottery Community Fund',
-    amount_requested: 4500000,
-    deadline_status: 'on_track',
-    grant_status: 'researching',
-    total_documents: 3,
-    drafts_in_progress: 1,
-    documents_in_review: 0,
-    documents_approved: 0,
-    total_target_words: 8000, // 2-stage TNL Solidarity Fund full application
-    total_words_written: 454, // opening letter only
-    word_count_progress_pct: 6,
-    total_time_spent_minutes: 240,
-    total_sessions: 3,
-    writing_investment_hours: 80,
-    review_required: 'full_external',
-  },
-];
+const ORG_TYPE_TO_FUNDER_TYPE = (orgType: string | null | undefined): FunderType => {
+  const t = (orgType || '').toLowerCase();
+  if (t.includes('foundation')) return 'foundation';
+  if (t.includes('government') || t.includes('public_sector') || t.includes('council')) return 'government';
+  if (t.includes('corporate') || t.includes('business')) return 'corporate';
+  if (t.includes('lottery')) return 'lottery';
+  if (t.includes('trust')) return 'trust';
+  if (t.includes('individual')) return 'individual';
+  return 'other';
+};
+
+// Ordering aid only — derived from stage and deadline, not a stored judgement.
+const derivePriority = (stage: string, deadline: string | null): Priority => {
+  const days = deadline ? (new Date(deadline).getTime() - Date.now()) / 86_400_000 : null;
+  if (['submitted', 'under_review', 'interview', 'decision_pending'].includes(stage)) return 'high';
+  if (stage === 'preparing') return days !== null && days <= 30 ? 'critical' : 'high';
+  if (stage === 'research') return 'medium';
+  if (['approved', 'active', 'reporting'].includes(stage)) return 'medium';
+  return 'low';
+};
+
+interface PipelineRow {
+  id: string;
+  grant_name: string | null;
+  grant_program: string | null;
+  description: string | null;
+  amount_requested: number | null;
+  amount_awarded: number | null;
+  stage: string;
+  probability: number | null;
+  deadline: string | null;
+  submitted_at: string | null;
+  decision_expected: string | null;
+  decision_received: string | null;
+  grant_start_date: string | null;
+  grant_end_date: string | null;
+  application_document_url: string | null;
+  notes: string | null;
+  updated_at: string;
+  funder: { name: string | null; org_type: string | null } | null;
+}
+
+const toGrant = (row: PipelineRow): Grant => ({
+  id: row.id,
+  title: row.grant_name || row.grant_program || 'Untitled application',
+  funder_name: row.funder?.name || 'Unknown funder',
+  funder_type: ORG_TYPE_TO_FUNDER_TYPE(row.funder?.org_type),
+  program_area: row.grant_program || undefined,
+  application_url: row.application_document_url || undefined,
+  amount_requested: row.amount_requested ?? undefined,
+  amount_awarded: row.amount_awarded ?? undefined,
+  status: STAGE_TO_STATUS[row.stage] || 'researching',
+  deadline_date: row.deadline || undefined,
+  submission_date: row.submitted_at || undefined,
+  decision_expected_date: row.decision_expected || undefined,
+  decision_actual_date: row.decision_received || undefined,
+  grant_start_date: row.grant_start_date || undefined,
+  grant_end_date: row.grant_end_date || undefined,
+  priority: derivePriority(row.stage, row.deadline),
+  fit_score: row.probability ?? undefined,
+  notes: row.notes || row.description || undefined,
+  metadata: { source: 'grant_pipeline', stage: row.stage, updated_at: row.updated_at },
+});
 
 export function useGrants() {
   const [grants, setGrants] = useState<Grant[]>([]);
@@ -936,85 +125,22 @@ export function useGrants() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchGrants = useCallback(async () => {
-    try {
-      if (!isSupabaseConfigured()) {
-        console.log('📦 Using mock grants data');
-        return mockGrants;
-      }
-
-      const { data, error: fetchError } = await supabase
-        .from('grants')
-        .select('*')
-        .is('deleted_at', null)
-        .order('deadline_date', { ascending: true });
-
-      if (fetchError) throw fetchError;
-      return data || [];
-    } catch (err) {
-      console.error('Error fetching grants:', err);
-      return mockGrants;
-    }
-  }, []);
-
-  const fetchOpportunities = useCallback(async () => {
-    try {
-      if (!isSupabaseConfigured()) {
-        console.log('📦 Using mock opportunities data');
-        return mockOpportunities;
-      }
-
-      const { data, error: fetchError } = await supabase
-        .from('opportunity_pipeline')
-        .select('*');
-
-      if (fetchError) throw fetchError;
-      return data || [];
-    } catch (err) {
-      console.error('Error fetching opportunities:', err);
-      return mockOpportunities;
-    }
-  }, []);
-
-  const fetchBidProgress = useCallback(async () => {
-    try {
-      if (!isSupabaseConfigured()) {
-        console.log('📦 Using mock bid progress data');
-        return mockBidProgress;
-      }
-
-      const { data, error: fetchError } = await supabase
-        .from('bid_writing_progress')
-        .select('*');
-
-      if (fetchError) throw fetchError;
-      return data || [];
-    } catch (err) {
-      console.error('Error fetching bid progress:', err);
-      return mockBidProgress;
-    }
-  }, []);
-
-  const calculatePipelineSummary = useCallback((grantsList: Grant[]): PipelineSummary => {
-    const totalRequested = grantsList.reduce((sum, g) => sum + (g.amount_requested || 0), 0);
-    const totalAwarded = grantsList.reduce((sum, g) => sum + (g.amount_awarded || 0), 0);
-    const awardedCount = grantsList.filter(g => g.status === 'awarded').length;
-    const decidedCount = grantsList.filter(g => ['awarded', 'declined'].includes(g.status)).length;
-    const activeApplications = grantsList.filter(g =>
+  const summarise = useCallback((list: Grant[]): PipelineSummary => {
+    const totalRequested = list.reduce((sum, g) => sum + (g.amount_requested || 0), 0);
+    const totalAwarded = list.reduce((sum, g) => sum + (g.amount_awarded || 0), 0);
+    const awardedCount = list.filter((g) => g.status === 'awarded').length;
+    const decidedCount = list.filter((g) => ['awarded', 'declined'].includes(g.status)).length;
+    const activeApplications = list.filter((g) =>
       ['researching', 'eligible', 'preparing', 'submitted', 'under_review'].includes(g.status)
     ).length;
-
-    // Count grants with deadlines in next 30 days
-    const thirtyDaysFromNow = new Date();
-    thirtyDaysFromNow.setDate(thirtyDaysFromNow.getDate() + 30);
-    const upcomingDeadlines = grantsList.filter(g => {
+    const in30 = Date.now() + 30 * 86_400_000;
+    const upcomingDeadlines = list.filter((g) => {
       if (!g.deadline_date) return false;
-      const deadline = new Date(g.deadline_date);
-      return deadline <= thirtyDaysFromNow && deadline >= new Date();
+      const t = new Date(g.deadline_date).getTime();
+      return t <= in30 && t >= Date.now();
     }).length;
-
     return {
-      totalGrants: grantsList.length,
+      totalGrants: list.length,
       totalRequested,
       totalAwarded,
       successRate: decidedCount > 0 ? (awardedCount / decidedCount) * 100 : 0,
@@ -1024,102 +150,79 @@ export function useGrants() {
   }, []);
 
   const fetchAll = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    if (!isSupabaseConfigured()) {
+      setGrants([]); setOpportunities([]); setBidProgress([]); setPipelineSummary(null);
+      setError(NOT_CONFIGURED);
+      setLoading(false);
+      return;
+    }
     try {
-      setLoading(true);
-      setError(null);
-
-      const [grantsData, opportunitiesData, bidProgressData] = await Promise.all([
-        fetchGrants(),
-        fetchOpportunities(),
-        fetchBidProgress(),
+      const [pipeline, opps, bids] = await Promise.all([
+        supabase
+          .from('grant_pipeline')
+          .select('id, grant_name, grant_program, description, amount_requested, amount_awarded, stage, probability, deadline, submitted_at, decision_expected, decision_received, grant_start_date, grant_end_date, application_document_url, notes, updated_at, funder:organizations(name, org_type)')
+          .order('deadline', { ascending: true, nullsFirst: false }),
+        supabase.from('opportunity_pipeline').select('*'),
+        supabase.from('bid_writing_progress').select('*'),
       ]);
-
-      setGrants(grantsData);
-      setOpportunities(opportunitiesData);
-      setBidProgress(bidProgressData);
-      setPipelineSummary(calculatePipelineSummary(grantsData));
+      if (pipeline.error) throw pipeline.error;
+      const list = ((pipeline.data || []) as unknown as PipelineRow[]).map(toGrant);
+      setGrants(list);
+      setPipelineSummary(summarise(list));
+      // The two views are secondary; a failure there is reported, not papered over.
+      const secondary: string[] = [];
+      if (opps.error) { secondary.push(`opportunities: ${opps.error.message}`); setOpportunities([]); }
+      else setOpportunities((opps.data || []) as OpportunityPipeline[]);
+      if (bids.error) { secondary.push(`bid progress: ${bids.error.message}`); setBidProgress([]); }
+      else setBidProgress((bids.data || []) as BidWritingProgress[]);
+      if (secondary.length) setError(secondary.join(' · '));
     } catch (err) {
-      console.error('Error fetching grant data:', err);
-      setError(err instanceof Error ? err.message : 'Failed to fetch grant data');
-      // Use mock data as fallback
-      setGrants(mockGrants);
-      setOpportunities(mockOpportunities);
-      setBidProgress(mockBidProgress);
-      setPipelineSummary(calculatePipelineSummary(mockGrants));
+      console.error('Error fetching grant pipeline:', err);
+      setError(err instanceof Error ? err.message : 'Failed to fetch grant pipeline');
+      setGrants([]); setOpportunities([]); setBidProgress([]); setPipelineSummary(null);
     } finally {
       setLoading(false);
     }
-  }, [fetchGrants, fetchOpportunities, fetchBidProgress, calculatePipelineSummary]);
+  }, [summarise]);
 
   useEffect(() => {
     fetchAll();
   }, [fetchAll]);
 
-  const refetch = () => {
-    fetchAll();
-  };
-
-  // Filter grants by status
   const getGrantsByStatus = useCallback((status: string | string[]) => {
     const statuses = Array.isArray(status) ? status : [status];
-    return grants.filter(g => statuses.includes(g.status));
+    return grants.filter((g) => statuses.includes(g.status));
   }, [grants]);
 
-  // Filter grants by priority
   const getGrantsByPriority = useCallback((priority: Priority | Priority[]) => {
     const priorities = Array.isArray(priority) ? priority : [priority];
-    return grants.filter(g => priorities.includes(g.priority));
+    return grants.filter((g) => priorities.includes(g.priority));
   }, [grants]);
 
-  // Get upcoming deadlines
   const getUpcomingDeadlines = useCallback((days: number = 30) => {
-    const cutoff = new Date();
-    cutoff.setDate(cutoff.getDate() + days);
-
+    const cutoff = Date.now() + days * 86_400_000;
     return grants
-      .filter(g => {
-        if (!g.deadline_date) return false;
-        const deadline = new Date(g.deadline_date);
-        return deadline <= cutoff && deadline >= new Date();
-      })
-      .sort((a, b) => {
-        const dateA = new Date(a.deadline_date!).getTime();
-        const dateB = new Date(b.deadline_date!).getTime();
-        return dateA - dateB;
-      });
+      .filter((g) => g.deadline_date && new Date(g.deadline_date).getTime() <= cutoff && new Date(g.deadline_date).getTime() >= Date.now())
+      .sort((a, b) => new Date(a.deadline_date!).getTime() - new Date(b.deadline_date!).getTime());
   }, [grants]);
 
   return {
-    // Data
     grants,
     opportunities,
     bidProgress,
     pipelineSummary,
-
-    // State
     loading,
     error,
-
-    // Actions
-    refetch,
-
-    // Utility functions
+    refetch: fetchAll,
     getGrantsByStatus,
     getGrantsByPriority,
     getUpcomingDeadlines,
   };
 }
 
-/**
- * useFunderRelationships
- * Reads the CRM `organizations` table (same Supabase project) to identify
- * funders BLKOUT has a cultivated relationship with — not cold opportunities.
- *
- * "Cultivated" = relationship_status active/developing. The CRM marks funders
- * via is_funder, org_type 'funder_foundation', or relationship_type funder/sponsor.
- * Read-only and fail-soft: any error (or an unpopulated CRM) yields an empty map,
- * so the dashboard simply shows no relationship badges rather than breaking.
- */
+// Funder relationships from the CRM's organizations table, keyed by normalised name.
 export function useFunderRelationships() {
   const [relationships, setRelationships] = useState<Map<string, FunderRelationship>>(new Map());
   const [loading, setLoading] = useState(true);
@@ -1131,15 +234,12 @@ export function useFunderRelationships() {
           setLoading(false);
           return;
         }
-
         const { data, error: fetchError } = await supabase
           .from('organizations')
           .select('name, relationship_type, relationship_status, relationship_start_date')
           .or('is_funder.eq.true,org_type.eq.funder_foundation,relationship_type.eq.funder,relationship_type.eq.sponsor')
           .in('relationship_status', ['active', 'developing']);
-
         if (fetchError) throw fetchError;
-
         const map = new Map<string, FunderRelationship>();
         (data || []).forEach((org) => {
           if (org?.name) {
@@ -1159,94 +259,8 @@ export function useFunderRelationships() {
         setLoading(false);
       }
     };
-
     fetchRelationships();
   }, []);
 
   return { relationships, loading };
-}
-
-// Hook for fetching a single grant with details
-export function useGrant(grantId: string) {
-  const [grant, setGrant] = useState<Grant | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    const fetchGrant = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-
-        if (!isSupabaseConfigured()) {
-          const mockGrant = mockGrants.find(g => g.id === grantId) || null;
-          setGrant(mockGrant);
-          setLoading(false);
-          return;
-        }
-
-        const { data, error: fetchError } = await supabase
-          .from('grants')
-          .select('*')
-          .eq('id', grantId)
-          .is('deleted_at', null)
-          .single();
-
-        if (fetchError && fetchError.code !== 'PGRST116') throw fetchError;
-        setGrant(data);
-      } catch (err) {
-        console.error('Error fetching grant:', err);
-        setError(err instanceof Error ? err.message : 'Failed to fetch grant');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    if (grantId) {
-      fetchGrant();
-    }
-  }, [grantId]);
-
-  return { grant, loading, error };
-}
-
-// Hook for bid writing templates
-export function useTemplates() {
-  const [templates, setTemplates] = useState<BidWritingTemplate[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    const fetchTemplates = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-
-        if (!isSupabaseConfigured()) {
-          console.log('📦 Using mock templates');
-          setTemplates([]);
-          setLoading(false);
-          return;
-        }
-
-        const { data, error: fetchError } = await supabase
-          .from('bid_writing_templates')
-          .select('*')
-          .eq('is_active', true)
-          .order('times_used', { ascending: false });
-
-        if (fetchError) throw fetchError;
-        setTemplates(data || []);
-      } catch (err) {
-        console.error('Error fetching templates:', err);
-        setError(err instanceof Error ? err.message : 'Failed to fetch templates');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchTemplates();
-  }, []);
-
-  return { templates, loading, error };
 }
