@@ -1,621 +1,119 @@
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { Layout } from '@/components/layout/Layout';
-import { useSocialConnect } from '@/hooks/useSocialConnect';
-import { useCanva } from '@/hooks/useCanva';
-import { useAuth, isAuthDisabled } from '@/hooks/useAuth';
-import { SocialPlatform } from '@/types/socialsync';
-import { CheckCircle, AlertCircle, Loader2, Settings2, ExternalLink, Palette, User, LogOut } from 'lucide-react';
+import { useAgents } from '@/hooks/useAgents';
+import { supabase } from '@/lib/supabase';
+import { Bot, ExternalLink, Loader2, User } from 'lucide-react';
 
-// Platform display configuration
-const platformConfig = {
-  [SocialPlatform.INSTAGRAM]: {
-    icon: '📸',
-    color: 'bg-gradient-to-r from-purple-500 to-pink-500',
-    description: 'Share images and reels with your community',
-    docsUrl: 'https://developers.facebook.com/docs/instagram-api',
-    pendingVerification: true,
-    verificationMessage: 'Pending Meta business verification',
-  },
-  [SocialPlatform.TIKTOK]: {
-    icon: '🎵',
-    color: 'bg-black',
-    description: 'Engage younger audiences with short-form video',
-    docsUrl: 'https://developers.tiktok.com/doc',
-  },
-  [SocialPlatform.LINKEDIN]: {
-    icon: '💼',
-    color: 'bg-blue-700',
-    description: 'Professional networking and thought leadership',
-    docsUrl: 'https://developer.linkedin.com/',
-  },
-  [SocialPlatform.TWITTER]: {
-    icon: '𝕏',
-    color: 'bg-black',
-    description: 'Real-time conversations and community updates',
-    docsUrl: 'https://developer.twitter.com/',
-  },
-  [SocialPlatform.YOUTUBE]: {
-    icon: '▶️',
-    color: 'bg-red-600',
-    description: 'Video content and community engagement',
-    docsUrl: 'https://developers.google.com/youtube/v3',
-  },
-};
+// Cut to what persists (3 Sep 2026). The previous page had a Platforms tab reading a
+// table that does not exist, a Canva tab for a browser-side OAuth flow whose secret is
+// no longer in the client, an Agents tab with four hardcoded names and toggles that
+// wrote nothing, a "Save Changes" button with no handler, and developer onboarding copy
+// telling people to put client secrets in VITE_ variables. What remains reads and
+// writes agent_configurations, and says where the retired controls' jobs are done.
+
+const HOMES: { what: string; where: string; href?: string; internal?: boolean }[] = [
+  { what: 'Posting to social platforms', where: 'the Zapier routines — see the posting playbook' },
+  { what: 'Branded images and video', where: 'the blkout-image-gen skill, and Canva itself', href: 'https://www.canva.com' },
+  { what: 'Newsletter editions', where: 'the blkout-newsletter skill; sending is SendFox', href: 'https://sendfox.com' },
+  { what: 'Sign-in and password', where: 'your account page', href: '/admin/account', internal: true },
+];
 
 export function Settings() {
-  const { connections, isLoading, error, initiateConnect, disconnect, refreshStatus } = useSocialConnect();
-  const canva = useCanva();
-  const { user } = useAuth();
-  const [activeTab, setActiveTab] = useState<'platforms' | 'design' | 'agents' | 'general' | 'auth'>('platforms');
-  const [connectingPlatform, setConnectingPlatform] = useState<SocialPlatform | null>(null);
+  const { agents, isLoading, error, refetch } = useAgents();
+  const [busy, setBusy] = useState<string | null>(null);
+  const [saveError, setSaveError] = useState<string | null>(null);
 
-  useEffect(() => {
-    refreshStatus();
-  }, [refreshStatus]);
-
-  const handleConnect = async (platform: SocialPlatform) => {
-    setConnectingPlatform(platform);
-    initiateConnect(platform);
-    // Reset after a timeout (user will be redirected or popup will handle)
-    setTimeout(() => setConnectingPlatform(null), 5000);
-  };
-
-  const handleDisconnect = async (platform: SocialPlatform) => {
-    if (window.confirm(`Are you sure you want to disconnect ${platform}?`)) {
-      await disconnect(platform);
+  const toggle = async (agentType: string, currentlyActive: boolean) => {
+    setBusy(agentType);
+    setSaveError(null);
+    const { error: updateError } = await supabase
+      .from('agent_configurations')
+      .update({ is_active: !currentlyActive, updated_at: new Date().toISOString() })
+      .eq('agent_name', agentType);
+    setBusy(null);
+    if (updateError) {
+      setSaveError(`${agentType}: ${updateError.message}`);
+      return;
     }
+    refetch();
   };
-
-  const tabs = [
-    { id: 'platforms', label: 'Platform Connections' },
-    { id: 'design', label: 'Design Tools' },
-    { id: 'agents', label: 'Agent Configuration' },
-    { id: 'general', label: 'General Settings' },
-    { id: 'auth', label: 'Authentication' },
-  ] as const;
 
   return (
     <Layout>
       <div className="space-y-6">
-        {/* Page Header */}
         <div>
           <h1 className="text-3xl font-display font-bold text-gray-900">Settings</h1>
-          <p className="text-gray-600 mt-1">
-            Configure your BLKOUT communications system
+          <p className="text-gray-600 mt-1">Only things that persist live here</p>
+        </div>
+
+        {/* Agents — reads and writes agent_configurations */}
+        <div className="card">
+          <h2 className="text-xl font-semibold text-gray-900 mb-1 flex items-center gap-2">
+            <Bot size={20} className="text-blkout-600" />
+            Agents
+          </h2>
+          <p className="text-sm text-gray-500 mb-4">
+            Enabled agents can be given tasks on the Agents page. Changes are saved to the database immediately.
           </p>
-        </div>
-
-        {/* Tabs */}
-        <div className="border-b border-gray-200">
-          <nav className="-mb-px flex gap-8">
-            {tabs.map((tab) => (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`py-2 px-1 border-b-2 font-medium text-sm transition-colors ${
-                  activeTab === tab.id
-                    ? 'border-blkout-600 text-blkout-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                }`}
-              >
-                {tab.label}
-              </button>
-            ))}
-          </nav>
-        </div>
-
-        {/* Platform Connections Tab */}
-        {activeTab === 'platforms' && (
-          <div className="space-y-6">
-            {/* Error Alert */}
-            {error && (
-              <div className="card bg-red-50 border-red-200">
-                <div className="flex items-start gap-3">
-                  <AlertCircle className="text-red-600 flex-shrink-0 mt-0.5" size={20} />
+          {isLoading && (
+            <p className="text-sm text-gray-500 flex items-center gap-2"><Loader2 size={14} className="animate-spin" /> Loading agents…</p>
+          )}
+          {error && !isLoading && (
+            <p className="text-sm text-red-700 bg-red-50 border border-red-200 rounded-lg px-3 py-2">Agents unavailable: {error}</p>
+          )}
+          {saveError && (
+            <p className="text-sm text-red-700 bg-red-50 border border-red-200 rounded-lg px-3 py-2 mb-3">Save FAILED — {saveError}</p>
+          )}
+          <div className="divide-y divide-gray-100">
+            {agents.map((agent) => {
+              const active = agent.status === 'active';
+              return (
+                <div key={agent.id} className="py-3 flex items-center justify-between gap-4">
                   <div>
-                    <h3 className="font-semibold text-red-900">Connection Error</h3>
-                    <p className="text-sm text-red-800 mt-1">{error}</p>
+                    <p className="font-medium text-gray-900">{agent.name}</p>
+                    <p className="text-xs text-gray-500 capitalize">{agent.type}{agent.description ? ` · ${agent.description}` : ''}</p>
                   </div>
-                </div>
-              </div>
-            )}
-
-            {/* Platform Cards */}
-            <div className="card">
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-xl font-semibold text-gray-900">
-                  Social Media Connections
-                </h2>
-                <button
-                  onClick={() => refreshStatus()}
-                  disabled={isLoading}
-                  className="btn btn-outline text-sm"
-                >
-                  {isLoading ? <Loader2 className="animate-spin" size={16} /> : 'Refresh'}
-                </button>
-              </div>
-
-              {isLoading && connections.size === 0 ? (
-                <div className="text-center py-8">
-                  <Loader2 className="inline-block animate-spin h-8 w-8 text-blkout-600" />
-                  <p className="mt-2 text-gray-600">Loading platform status...</p>
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  {Object.values(SocialPlatform).map((platform) => {
-                    const connection = connections.get(platform);
-                    const config = platformConfig[platform];
-                    const isConnecting = connectingPlatform === platform;
-
-                    return (
-                      <div
-                        key={platform}
-                        className={`flex items-center justify-between p-4 border rounded-lg transition-colors ${
-                          connection?.isConnected
-                            ? 'border-green-200 bg-green-50'
-                            : connection?.isConfigured
-                            ? 'border-gray-200 hover:border-blkout-300'
-                            : 'border-gray-100 bg-gray-50'
-                        }`}
-                      >
-                        <div className="flex items-center gap-4">
-                          <div className={`w-12 h-12 ${config.color} rounded-lg flex items-center justify-center text-white text-xl`}>
-                            {config.icon}
-                          </div>
-                          <div>
-                            <div className="flex items-center gap-2">
-                              <h3 className="font-medium text-gray-900">{platform}</h3>
-                              {connection?.isConnected && (
-                                <CheckCircle className="text-green-600" size={16} />
-                              )}
-                              {!connection?.isConfigured && (
-                                <span className="text-xs px-2 py-0.5 bg-amber-100 text-amber-700 rounded">
-                                  Not configured
-                                </span>
-                              )}
-                            </div>
-                            {connection?.accountName ? (
-                              <p className="text-sm text-gray-600">@{connection.accountName}</p>
-                            ) : (
-                              <p className="text-sm text-gray-500">{config.description}</p>
-                            )}
-                            {connection?.lastSync && (
-                              <p className="text-xs text-gray-400 mt-1">
-                                Last synced: {connection.lastSync.toLocaleString()}
-                              </p>
-                            )}
-                            {connection?.error && (
-                              <p className="text-xs text-red-600 mt-1">{connection.error}</p>
-                            )}
-                          </div>
-                        </div>
-
-                        <div className="flex items-center gap-2">
-                          {!connection?.isConfigured && (
-                            <a
-                              href={config.docsUrl}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="btn btn-outline text-xs"
-                            >
-                              <Settings2 size={14} />
-                              Setup Guide
-                              <ExternalLink size={12} />
-                            </a>
-                          )}
-
-                          {/* Show pending verification status for platforms like Instagram */}
-                          {'pendingVerification' in config && config.pendingVerification && !connection?.isConnected ? (
-                            <div className="flex items-center gap-2">
-                              <span className="text-xs px-3 py-1.5 bg-amber-100 text-amber-800 rounded-full font-medium">
-                                {config.verificationMessage || 'Pending verification'}
-                              </span>
-                              <a
-                                href={config.docsUrl}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="text-xs text-gray-500 hover:text-gray-700"
-                              >
-                                <ExternalLink size={14} />
-                              </a>
-                            </div>
-                          ) : connection?.isConfigured && (
-                            <button
-                              onClick={() =>
-                                connection.isConnected
-                                  ? handleDisconnect(platform)
-                                  : handleConnect(platform)
-                              }
-                              disabled={isConnecting}
-                              className={`btn text-sm ${
-                                connection.isConnected ? 'btn-secondary' : 'btn-primary'
-                              }`}
-                            >
-                              {isConnecting ? (
-                                <>
-                                  <Loader2 className="animate-spin" size={16} />
-                                  Connecting...
-                                </>
-                              ) : connection.isConnected ? (
-                                'Disconnect'
-                              ) : (
-                                'Connect'
-                              )}
-                            </button>
-                          )}
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
-            </div>
-
-            {/* Setup Instructions */}
-            <div className="card bg-blkout-50 border-blkout-200">
-              <h3 className="text-lg font-semibold text-gray-900 mb-3">
-                Setting Up Social Media Connections
-              </h3>
-              <div className="space-y-4 text-sm text-gray-700">
-                <div>
-                  <h4 className="font-medium text-blkout-900 mb-2">1. Create Developer App</h4>
-                  <p>
-                    Each platform requires you to create a developer app to get API credentials.
-                    Click the "Setup Guide" button next to any platform for documentation.
-                  </p>
-                </div>
-                <div>
-                  <h4 className="font-medium text-blkout-900 mb-2">2. Add Credentials to .env</h4>
-                  <pre className="bg-white p-3 rounded border border-blkout-200 overflow-x-auto text-xs">
-{`# Instagram/Facebook
-VITE_INSTAGRAM_CLIENT_ID=your_app_id
-VITE_INSTAGRAM_CLIENT_SECRET=your_app_secret
-VITE_INSTAGRAM_REDIRECT_URI=${window.location.origin}/auth/callback/instagram
-
-# TikTok
-VITE_TIKTOK_CLIENT_KEY=your_client_key
-VITE_TIKTOK_CLIENT_SECRET=your_client_secret`}
-                  </pre>
-                </div>
-                <div>
-                  <h4 className="font-medium text-blkout-900 mb-2">3. Connect Account</h4>
-                  <p>
-                    Once credentials are configured, click "Connect" to authorize BLKOUT to
-                    post on your behalf. You can disconnect at any time.
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Design Tools Tab */}
-        {activeTab === 'design' && (
-          <div className="space-y-6">
-            {/* Canva Integration Card */}
-            <div className="card">
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 bg-gradient-to-br from-purple-500 via-pink-500 to-blue-500 rounded-lg flex items-center justify-center">
-                    <Palette className="text-white" size={24} />
-                  </div>
-                  <div>
-                    <h2 className="text-xl font-semibold text-gray-900">Canva Integration</h2>
-                    <p className="text-sm text-gray-500">Create and manage designs directly in BLKOUT</p>
-                  </div>
-                </div>
-                {canva.isConnected && (
-                  <span className="flex items-center gap-1 px-3 py-1 bg-green-100 text-green-700 text-sm rounded-full">
-                    <CheckCircle size={14} />
-                    Connected
-                  </span>
-                )}
-              </div>
-
-              {canva.error && (
-                <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
-                  <div className="flex items-center gap-2 text-red-700">
-                    <AlertCircle size={16} />
-                    <span className="text-sm">{canva.error}</span>
-                  </div>
-                </div>
-              )}
-
-              {!canva.isConfigured ? (
-                <div className="p-4 bg-amber-50 border border-amber-200 rounded-lg">
-                  <div className="flex items-start gap-3">
-                    <AlertCircle className="text-amber-600 flex-shrink-0 mt-0.5" size={20} />
-                    <div>
-                      <h3 className="font-semibold text-amber-900 mb-2">Canva Not Configured</h3>
-                      <p className="text-sm text-amber-800 mb-3">
-                        To enable Canva integration, add your Canva Connect API credentials to your environment variables.
-                      </p>
-                      <a
-                        href="https://www.canva.com/developers/"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="btn btn-outline text-sm inline-flex items-center gap-1"
-                      >
-                        <Settings2 size={14} />
-                        Get Canva API Credentials
-                        <ExternalLink size={12} />
-                      </a>
-                    </div>
-                  </div>
-                </div>
-              ) : canva.isConnected ? (
-                <div className="space-y-4">
-                  {/* Connected User Info */}
-                  <div className="p-4 bg-gray-50 rounded-lg">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-blkout-100 rounded-full flex items-center justify-center">
-                          <User className="text-blkout-600" size={20} />
-                        </div>
-                        <div>
-                          <p className="font-medium text-gray-900">{canva.user?.display_name || 'Canva User'}</p>
-                          <p className="text-sm text-gray-500">Connected to Canva</p>
-                        </div>
-                      </div>
-                      <button
-                        onClick={() => canva.disconnect()}
-                        disabled={canva.isLoading}
-                        className="btn btn-outline text-sm flex items-center gap-2 text-red-600 border-red-200 hover:bg-red-50"
-                      >
-                        {canva.isLoading ? (
-                          <Loader2 className="animate-spin" size={16} />
-                        ) : (
-                          <LogOut size={16} />
-                        )}
-                        Disconnect
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Quick Actions */}
-                  <div className="grid grid-cols-2 gap-4">
-                    <a
-                      href="/admin/design-studio"
-                      className="p-4 border border-gray-200 rounded-lg hover:border-blkout-300 hover:bg-blkout-50 transition-colors group"
-                    >
-                      <h3 className="font-medium text-gray-900 group-hover:text-blkout-700">Design Studio</h3>
-                      <p className="text-sm text-gray-500 mt-1">Create and manage your Canva designs</p>
-                    </a>
-                    <a
-                      href="https://www.canva.com"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="p-4 border border-gray-200 rounded-lg hover:border-blkout-300 hover:bg-blkout-50 transition-colors group"
-                    >
-                      <div className="flex items-center justify-between">
-                        <h3 className="font-medium text-gray-900 group-hover:text-blkout-700">Open Canva</h3>
-                        <ExternalLink size={14} className="text-gray-400" />
-                      </div>
-                      <p className="text-sm text-gray-500 mt-1">Access your Canva account directly</p>
-                    </a>
-                  </div>
-                </div>
-              ) : (
-                <div className="text-center py-6">
-                  <p className="text-gray-600 mb-4">
-                    Connect your Canva account to create professional social media graphics, event materials, and branded content.
-                  </p>
                   <button
-                    onClick={() => canva.connect()}
-                    disabled={canva.isLoading}
-                    className="btn btn-primary inline-flex items-center gap-2"
+                    onClick={() => toggle(agent.type, active)}
+                    disabled={busy === agent.type}
+                    className={`btn text-sm ${active ? 'btn-outline' : 'btn-primary'}`}
                   >
-                    {canva.isLoading ? (
-                      <>
-                        <Loader2 className="animate-spin" size={16} />
-                        Connecting...
-                      </>
-                    ) : (
-                      <>
-                        <Palette size={16} />
-                        Connect Canva Account
-                      </>
-                    )}
+                    {busy === agent.type ? 'Saving…' : active ? 'Disable' : 'Enable'}
                   </button>
                 </div>
-              )}
-            </div>
-
-            {/* Setup Instructions */}
-            <div className="card bg-blkout-50 border-blkout-200">
-              <h3 className="text-lg font-semibold text-gray-900 mb-3">
-                Setting Up Canva Integration
-              </h3>
-              <div className="space-y-4 text-sm text-gray-700">
-                <div>
-                  <h4 className="font-medium text-blkout-900 mb-2">1. Create a Canva Developer App</h4>
-                  <p>
-                    Visit the <a href="https://www.canva.com/developers/" target="_blank" rel="noopener noreferrer" className="text-blkout-600 hover:underline">Canva Developers Portal</a> and create a new app to get your API credentials.
-                  </p>
-                </div>
-                <div>
-                  <h4 className="font-medium text-blkout-900 mb-2">2. Add Credentials to .env</h4>
-                  <pre className="bg-white p-3 rounded border border-blkout-200 overflow-x-auto text-xs">
-{`# Canva Connect API
-VITE_CANVA_CLIENT_ID=your_canva_client_id
-VITE_CANVA_CLIENT_SECRET=your_canva_client_secret
-VITE_CANVA_REDIRECT_URI=${window.location.origin}/auth/callback/canva`}
-                  </pre>
-                </div>
-                <div>
-                  <h4 className="font-medium text-blkout-900 mb-2">3. Connect Your Account</h4>
-                  <p>
-                    Once credentials are configured, click "Connect Canva Account" to authorize BLKOUT to access your Canva designs.
-                  </p>
-                </div>
-              </div>
-            </div>
+              );
+            })}
           </div>
-        )}
+          {!isLoading && !error && agents.length === 0 && (
+            <p className="text-sm text-gray-500">No agent configurations in the database.</p>
+          )}
+        </div>
 
-        {/* Agent Configuration Tab */}
-        {activeTab === 'agents' && (
-          <div className="space-y-6">
-            <div className="card">
-              <h2 className="text-xl font-semibold text-gray-900 mb-4">
-                Agent Configuration
-              </h2>
-              <div className="space-y-4">
-                {['Griot', 'Listener', 'Weaver', 'Strategist'].map((agent) => (
-                  <div
-                    key={agent}
-                    className="p-4 border border-gray-200 rounded-lg"
-                  >
-                    <div className="flex items-center justify-between mb-3">
-                      <h3 className="font-medium text-gray-900">{agent}</h3>
-                      <label className="relative inline-flex items-center cursor-pointer">
-                        <input type="checkbox" className="sr-only peer" defaultChecked />
-                        <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blkout-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blkout-600"></div>
-                      </label>
-                    </div>
-                    <div className="space-y-3">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                          Content Generation Frequency
-                        </label>
-                        <select className="input">
-                          <option>Every 4 hours</option>
-                          <option>Every 8 hours</option>
-                          <option>Daily</option>
-                          <option>Manual</option>
-                        </select>
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                          Auto-Approve
-                        </label>
-                        <select className="input">
-                          <option>Require manual review</option>
-                          <option>Auto-approve all</option>
-                          <option>Auto-approve with confidence {'>'}90%</option>
-                        </select>
-                      </div>
-                    </div>
-                  </div>
+        {/* Where the retired controls' jobs are done now */}
+        <div className="card">
+          <h2 className="text-xl font-semibold text-gray-900 mb-4">Where things live</h2>
+          <ul className="space-y-3">
+            {HOMES.map((h) => (
+              <li key={h.what} className="flex items-start justify-between gap-4 text-sm">
+                <div>
+                  <p className="font-medium text-gray-900">{h.what}</p>
+                  <p className="text-gray-600">{h.where}</p>
+                </div>
+                {h.href && (h.internal ? (
+                  <Link to={h.href} className="text-blkout-600 hover:underline inline-flex items-center gap-1 shrink-0">
+                    <User size={14} /> Open
+                  </Link>
+                ) : (
+                  <a href={h.href} target="_blank" rel="noopener noreferrer" className="text-blkout-600 hover:underline inline-flex items-center gap-1 shrink-0">
+                    <ExternalLink size={14} /> Open
+                  </a>
                 ))}
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* General Settings Tab */}
-        {activeTab === 'general' && (
-          <div className="space-y-6">
-            <div className="card">
-              <h2 className="text-xl font-semibold text-gray-900 mb-4">
-                General Settings
-              </h2>
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Organization Name
-                  </label>
-                  <input
-                    type="text"
-                    className="input"
-                    defaultValue="BLKOUT UK"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Default Timezone
-                  </label>
-                  <select className="input">
-                    <option>Europe/London (GMT)</option>
-                    <option>America/New_York (EST)</option>
-                    <option>America/Los_Angeles (PST)</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Email Notifications
-                  </label>
-                  <div className="space-y-2">
-                    <label className="flex items-center gap-2">
-                      <input type="checkbox" className="rounded" defaultChecked />
-                      <span className="text-sm text-gray-700">New drafts for review</span>
-                    </label>
-                    <label className="flex items-center gap-2">
-                      <input type="checkbox" className="rounded" defaultChecked />
-                      <span className="text-sm text-gray-700">Content published</span>
-                    </label>
-                    <label className="flex items-center gap-2">
-                      <input type="checkbox" className="rounded" />
-                      <span className="text-sm text-gray-700">Daily summary</span>
-                    </label>
-                  </div>
-                </div>
-              </div>
-              <div className="mt-6">
-                <button className="btn btn-primary">Save Changes</button>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Authentication Tab */}
-        {activeTab === 'auth' && (
-          <div className="space-y-6">
-            {isAuthDisabled() && (
-              <div className="card bg-yellow-50 border-yellow-200">
-                <div className="flex items-start gap-3">
-                  <AlertCircle className="text-yellow-600 flex-shrink-0 mt-0.5" size={20} />
-                  <div>
-                    <h3 className="font-semibold text-yellow-900 mb-2">
-                      Authentication is Currently Disabled
-                    </h3>
-                    <p className="text-sm text-yellow-800 mb-3">
-                      The system is running in development mode with authentication disabled.
-                      You are logged in as a mock admin user.
-                    </p>
-                    <div className="text-sm text-yellow-800 space-y-1">
-                      <p><strong>Mock User:</strong> {user?.email}</p>
-                      <p><strong>Role:</strong> {user?.role}</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            <div className="card">
-              <h2 className="text-xl font-semibold text-gray-900 mb-4">
-                Authentication Configuration
-              </h2>
-              <div className="space-y-4">
-                <div className="p-4 bg-gray-50 rounded-lg">
-                  <h3 className="font-medium text-gray-900 mb-2">
-                    Enabling Authentication
-                  </h3>
-                  <ol className="text-sm text-gray-700 space-y-2 list-decimal list-inside">
-                    <li>Set up your Supabase project at <a href="https://supabase.com" target="_blank" rel="noopener noreferrer" className="text-blkout-600 hover:underline">supabase.com</a></li>
-                    <li>Copy your project URL and anon key</li>
-                    <li>Create a <code className="bg-gray-200 px-1 rounded">.env</code> file based on <code className="bg-gray-200 px-1 rounded">.env.example</code></li>
-                    <li>Set <code className="bg-gray-200 px-1 rounded">VITE_AUTH_DISABLED=false</code></li>
-                    <li>Add your Supabase credentials</li>
-                    <li>Restart the development server</li>
-                  </ol>
-                </div>
-
-                <div className="p-4 bg-blkout-50 rounded-lg border border-blkout-200">
-                  <h3 className="font-medium text-gray-900 mb-2">
-                    Environment Variables
-                  </h3>
-                  <pre className="text-xs bg-white p-3 rounded border border-gray-200 overflow-x-auto">
-{`VITE_SUPABASE_URL=your_supabase_url
-VITE_SUPABASE_ANON_KEY=your_anon_key
-VITE_AUTH_DISABLED=false`}
-                  </pre>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
+              </li>
+            ))}
+          </ul>
+        </div>
       </div>
     </Layout>
   );
