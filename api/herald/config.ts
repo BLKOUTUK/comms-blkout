@@ -17,8 +17,8 @@ export const EDITOR_AVATAR_URL = process.env.EDITOR_AVATAR_URL || 'https://comms
 
 // SendFox list mapping
 export const SENDFOX_LISTS = {
-  weekly_engaged: 538297,    // BLKOUT Hub (93 subscribers)
-  monthly_circle: 538162,    // My First List (1,223 subscribers)
+  weekly_engaged: 538297,    // BLKOUT Hub
+  monthly_circle: 631882,    // Newsletter — the whole list. (538162 "My First List" was deleted 3 Sep 2026)
   coop_members: 591727,      // Coop Founding Members (13 subscribers)
   founder_members: 592260    // FounderMembers (4 subscribers)
 };
