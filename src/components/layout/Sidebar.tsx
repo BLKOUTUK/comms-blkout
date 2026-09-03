@@ -1,4 +1,5 @@
 
+import { useEffect, useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import {
   LayoutDashboard,
@@ -34,7 +35,52 @@ const navigation = [
   { name: 'Settings', href: '/admin/settings', icon: Settings },
 ];
 
+
+// Status dot reads /api/health. It was a hardcoded green dot until 3 Sep 2026 and
+// stayed green through a total API outage.
+type Health = 'checking' | 'ok' | 'degraded' | 'down';
+const HEALTH_DOT: Record<Health, string> = {
+  checking: 'bg-gray-300',
+  ok: 'bg-green-500',
+  degraded: 'bg-amber-500',
+  down: 'bg-red-500',
+};
+const HEALTH_LABEL: Record<Health, string> = {
+  checking: 'Checking API…',
+  ok: 'API and database reachable',
+  degraded: 'API up, database FAILED',
+  down: 'API DOWN',
+};
+
 export function Sidebar() {
+  const [health, setHealth] = useState<Health>('checking');
+  const [detail, setDetail] = useState('');
+  useEffect(() => {
+    let cancelled = false;
+    const check = async () => {
+      try {
+        const r = await fetch('/api/health', { cache: 'no-store' });
+        const j = await r.json().catch(() => null);
+        if (cancelled) return;
+        if (!j || j.service !== 'comms-blkout') {
+          setHealth('down');
+          setDetail(`wrong responder (HTTP ${r.status})`);
+          return;
+        }
+        setHealth(j.status === 'ok' ? 'ok' : 'degraded');
+        setDetail(String(j.db ?? ''));
+      } catch {
+        if (!cancelled) {
+          setHealth('down');
+          setDetail('API unreachable');
+        }
+      }
+    };
+    check();
+    const t = setInterval(check, 60_000);
+    return () => { cancelled = true; clearInterval(t); };
+  }, []);
+
   return (
     <aside
       className="hidden lg:block fixed left-0 top-[73px] h-[calc(100vh-73px)] w-64 bg-white border-r border-gray-200"
@@ -62,19 +108,18 @@ export function Sidebar() {
         ))}
       </nav>
 
-      {/* Status Indicator */}
+      {/* Status Indicator — live, from /api/health */}
       <div
         className="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-200"
         role="status"
         aria-live="polite"
       >
         <div className="flex items-center gap-2 text-sm">
-          <div
-            className="w-2 h-2 bg-green-500 rounded-full animate-pulse"
-            aria-hidden="true"
-          />
-          <span className="text-gray-600">All Systems Operational</span>
-          <span className="sr-only">System status: operational</span>
+          <div className={`w-2 h-2 rounded-full ${HEALTH_DOT[health]}`} aria-hidden="true" />
+          <span className="text-gray-600">
+            {HEALTH_LABEL[health]}
+            {detail && health !== 'ok' ? ` — ${detail}` : ''}
+          </span>
         </div>
       </div>
     </aside>

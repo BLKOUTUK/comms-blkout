@@ -5,7 +5,7 @@ remotion-videos/out
 .github
 .vscode
 *.md
-.env.local
-.env.development
+.env
+.env.*
 dist
 server-dist

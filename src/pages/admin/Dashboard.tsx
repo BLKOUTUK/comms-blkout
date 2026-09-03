@@ -1,4 +1,5 @@
 
+import { Link } from 'react-router-dom';
 import { Layout } from '@/components/layout/Layout';
 import { AgentCard } from '@/components/shared/AgentCard';
 import { StatCard } from '@/components/shared/StatCard';
@@ -6,22 +7,26 @@ import { useAgents } from '@/hooks/useAgents';
 import { useContent } from '@/hooks/useContent';
 import { useDrafts } from '@/hooks/useDrafts';
 import { useAgentActivity } from '@/hooks/useAgentActivity';
-import { Users, MessageSquare, TrendingUp, FileText, Calendar, Clock } from 'lucide-react';
-import { mockCommunityMetrics } from '@/lib/mockData';
+import { useIvorDashboard } from '@/hooks/useIvorDashboard';
+import { CalendarCheck, CheckCircle2, ShieldAlert, FileText, Calendar, Clock } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
+
+// Until 3 Sep 2026 three of the four tiles here were mock values ("Community
+// Members: 2,847", "↑ 5.2%"). Tiles now show real counts from ivor-core or say
+// "unavailable" — never a number that isn't one. Membership numbers belong to the
+// metrics.* views and will arrive with the server-side metrics route.
+const unavailable = 'unavailable';
 
 export function Dashboard() {
   const { agents, isLoading: agentsLoading } = useAgents();
   const { content } = useContent();
   const { drafts } = useDrafts();
   const { activities, isUsingMockData: isActivityMock } = useAgentActivity(5);
+  const ivor = useIvorDashboard();
 
-  const stats = {
-    totalContent: content.length,
-    publishedContent: content.filter((c) => c.status === 'published').length,
-    scheduledContent: content.filter((c) => c.status === 'scheduled').length,
-    pendingDrafts: drafts.filter((d) => d.status === 'pending_review').length,
-  };
+  const pendingDrafts = drafts.filter((d) => d.status === 'pending_review').length;
+  const tile = (n: number | undefined) =>
+    ivor.isLoading ? '…' : n === undefined ? unavailable : n;
 
   return (
     <Layout>
@@ -37,35 +42,37 @@ export function Dashboard() {
         {/* Stats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <StatCard
-            title="Community Members"
-            value={mockCommunityMetrics.totalMembers.toLocaleString()}
-            change={{ value: 5.2, trend: 'up' }}
-            icon={Users}
+            title="Events added, last 7 days"
+            value={tile(ivor.events7d?.total)}
+            icon={CalendarCheck}
           />
           <StatCard
-            title="Engagement Quality"
-            value={`${mockCommunityMetrics.engagementQuality}%`}
-            change={{ value: 3.1, trend: 'up' }}
-            icon={MessageSquare}
-            iconColor="text-community-trust"
-            iconBg="bg-community-trust/10"
+            title="Approved, last 7 days"
+            value={tile(ivor.events7d?.approved)}
+            icon={CheckCircle2}
+            iconColor="text-green-600"
+            iconBg="bg-green-100"
           />
           <StatCard
-            title="Trust Score"
-            value={`${mockCommunityMetrics.trustScore}/100`}
-            change={{ value: 2.4, trend: 'up' }}
-            icon={TrendingUp}
-            iconColor="text-community-wisdom"
-            iconBg="bg-community-wisdom/10"
+            title="Moderation queue"
+            value={tile(ivor.moderation?.total)}
+            icon={ShieldAlert}
+            iconColor="text-amber-600"
+            iconBg="bg-amber-100"
           />
           <StatCard
             title="Pending Drafts"
-            value={stats.pendingDrafts}
+            value={pendingDrafts}
             icon={FileText}
-            iconColor="text-community-warmth"
-            iconBg="bg-community-warmth/10"
+            iconColor="text-blkout-600"
+            iconBg="bg-blkout-100"
           />
         </div>
+        {ivor.error && (
+          <p className="text-sm text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
+            Live numbers unavailable — ivor.blkoutuk.cloud did not answer: {ivor.error}
+          </p>
+        )}
 
         {/* Agent Status Cards */}
         <div>
@@ -146,10 +153,9 @@ export function Dashboard() {
         {/* Quick Actions */}
         <div className="card">
           <h2 className="text-xl font-semibold text-gray-900 mb-4">Quick Actions</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <button className="btn btn-primary">Create New Content</button>
-            <button className="btn btn-outline">Review Drafts</button>
-            <button className="btn btn-outline">View Analytics</button>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <Link to="/admin/calendar" className="btn btn-primary text-center">Create New Content</Link>
+            <Link to="/admin/drafts" className="btn btn-outline text-center">Review Drafts</Link>
           </div>
         </div>
       </div>

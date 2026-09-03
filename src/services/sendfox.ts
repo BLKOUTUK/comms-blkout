@@ -50,7 +50,7 @@ class SendFoxService {
 
   constructor() {
     // Token should be set via environment variable or configuration
-    this.accessToken = import.meta.env.VITE_SENDFOX_ACCESS_TOKEN || null;
+    this.accessToken = null // Never in the browser — this VITE_ value was compiled into the public bundle until 3 Sep 2026. The server holds it.;
   }
 
   setAccessToken(token: string) {

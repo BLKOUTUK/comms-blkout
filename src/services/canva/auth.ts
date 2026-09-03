@@ -9,7 +9,7 @@
 
 // Canva OAuth configuration from environment
 const CANVA_CLIENT_ID = import.meta.env.VITE_CANVA_CLIENT_ID || '';
-const CANVA_CLIENT_SECRET = import.meta.env.VITE_CANVA_CLIENT_SECRET || '';
+const CANVA_CLIENT_SECRET = '' // Never in the browser — this VITE_ value was compiled into the public bundle until 3 Sep 2026. The server holds it.;
 const CANVA_REDIRECT_URI = import.meta.env.VITE_CANVA_REDIRECT_URI ||
   `${window.location.origin}/auth/callback/canva`;
 

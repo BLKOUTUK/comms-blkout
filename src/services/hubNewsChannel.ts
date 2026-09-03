@@ -19,7 +19,7 @@ import { supabase, isSupabaseConfigured } from '@/lib/supabase';
 // Heartbeat API configuration (BLKOUT Hub is on Heartbeat)
 // API Key generated from Settings → API Keys in Heartbeat admin
 const HEARTBEAT_API_BASE = 'https://api.heartbeat.chat/v0';
-const HEARTBEAT_API_KEY = import.meta.env.VITE_HEARTBEAT_API_KEY || null;
+const HEARTBEAT_API_KEY = null // Never in the browser — this VITE_ value was compiled into the public bundle until 3 Sep 2026. The server holds it.;
 const NEWS_CHANNEL_ID = import.meta.env.VITE_HEARTBEAT_NEWS_CHANNEL_ID || null;
 
 

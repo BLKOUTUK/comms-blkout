@@ -19,16 +19,18 @@ class PlatformManager {
     private platforms: Map<SocialPlatform, SocialMediaPlatform> = new Map();
 
     constructor() {
-        // Initialize platforms with environment variables
-        // In production, these would come from secure backend storage
+        // Client IDs are public by design. Client secrets are NOT and must never be
+        // read here: they were compiled into the public bundle until 3 Sep 2026. The
+        // OAuth code exchange that needs them belongs server-side, so no platform
+        // registers until that exists.
         const instagramClientId = import.meta.env.VITE_INSTAGRAM_CLIENT_ID || '';
-        const instagramClientSecret = import.meta.env.VITE_INSTAGRAM_CLIENT_SECRET || '';
+        const instagramClientSecret = '';
         const tiktokClientKey = import.meta.env.VITE_TIKTOK_CLIENT_KEY || '';
-        const tiktokClientSecret = import.meta.env.VITE_TIKTOK_CLIENT_SECRET || '';
+        const tiktokClientSecret = '';
         const linkedinClientId = import.meta.env.VITE_LINKEDIN_CLIENT_ID || '';
-        const linkedinClientSecret = import.meta.env.VITE_LINKEDIN_CLIENT_SECRET || '';
+        const linkedinClientSecret = '';
         const twitterClientId = import.meta.env.VITE_TWITTER_CLIENT_ID || '';
-        const twitterClientSecret = import.meta.env.VITE_TWITTER_CLIENT_SECRET || '';
+        const twitterClientSecret = '';
 
         if (instagramClientId && instagramClientSecret) {
             this.platforms.set(

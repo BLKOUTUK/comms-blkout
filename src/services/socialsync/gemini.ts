@@ -2,10 +2,8 @@
 import { GoogleGenAI } from "@google/genai";
 import { AspectRatio, VideoResolution, VideoStyle } from "@/types/socialsync";
 
-// Get API credential from Vite environment
-const getGeminiCredential = (): string => {
-  return import.meta.env.VITE_GEMINI_API || '';
-};
+// Never in the browser — this VITE_ value was compiled into the public bundle until 3 Sep 2026. The server holds it.
+const getGeminiCredential = (): string => '';
 
 // Helper to check for API credential (required for Veo/Pro models)
 export const checkApiKey = async (): Promise<boolean> => {
