@@ -15,8 +15,10 @@ import { ArrowRight, Mail } from 'lucide-react';
 const SUBSCRIBE_URL = 'https://blkoutuk.com/subscribe';
 
 export function NewsletterPreferences() {
-  const { pathname } = useLocation();
+  const { pathname, search } = useLocation();
   const isSubscribe = pathname === '/subscribe';
+  // Landing for the re-permission email's "keep me on the list" click (Sep 2026).
+  const isStay = new URLSearchParams(search).get('stay') === '1';
 
   useEffect(() => {
     if (isSubscribe) window.location.replace(SUBSCRIBE_URL);
@@ -28,12 +30,18 @@ export function NewsletterPreferences() {
         <div className="text-center mb-8">
           <img src="/images/blkoutlogo_wht_transparent.png" alt="BLKOUT" className="w-20 h-20 mx-auto mb-4" />
           <h1 className="text-2xl font-bold text-white">
-            {isSubscribe ? 'Join the BLKOUT list' : 'Your emails from BLKOUT'}
+            {isStay ? "You're staying — thank you." : isSubscribe ? 'Join the BLKOUT list' : 'Your emails from BLKOUT'}
           </h1>
         </div>
 
         <div className="bg-white/95 rounded-2xl p-8 shadow-lg backdrop-blur-sm space-y-6">
-          {isSubscribe ? (
+          {isStay ? (
+            <p className="text-gray-700">
+              That's all it took — you're on the list, and the next letter lands at the start of
+              the month. Meanwhile, something alive:{' '}
+              <a href="https://blkoutuk.com/movement" className="text-blkout-600 underline">blkoutuk.com/movement</a>.
+            </p>
+          ) : isSubscribe ? (
             <p className="text-gray-700">
               Taking you to the signup form. If nothing happens,{' '}
               <a href={SUBSCRIBE_URL} className="text-blkout-600 underline">continue to blkoutuk.com/subscribe</a>.
