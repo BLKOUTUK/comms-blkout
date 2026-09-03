@@ -109,9 +109,9 @@ export async function handleSendFoxSend(req: VercelRequest, res: VercelResponse)
         Accept: 'application/json',
       },
       body: JSON.stringify({
-        title: title || `${subject} — ${new Date().toISOString().slice(0, 10)}`,
+        title: title || edition.title || `${subject} — ${new Date().toISOString().slice(0, 10)}`,
         subject,
-        preview_text: edition.preheader_text || undefined,
+        preview_text: edition.preview_text || undefined,
         html: edition.html_content,
         from_name: 'BLKOUT',
         from_email: 'rob@blkoutuk.com',
@@ -124,6 +124,12 @@ export async function handleSendFoxSend(req: VercelRequest, res: VercelResponse)
       return res.status(200).json({ ...fallback, message: 'SendFox did not accept the campaign — paste it instead', campaign_error: `SendFox ${response.status}: ${text.slice(0, 200)}` });
     }
     const campaign = JSON.parse(text);
+    if (campaign?.id) {
+      await supabase!
+        .from('newsletter_editions')
+        .update({ sendfox_campaign_id: String(campaign.id), updated_at: new Date().toISOString() })
+        .eq('id', edition_id);
+    }
     return res.status(200).json({
       success: true,
       campaign_created: true,
