@@ -15,10 +15,10 @@ import { formatDistanceToNow } from 'date-fns';
 import type { AgentType } from '@/types';
 
 export function Agents() {
-  const { agents, isLoading, isUsingMockData: isAgentsMock, refetch: refetchAgents } = useAgents();
+  const { agents, isLoading, refetch: refetchAgents } = useAgents();
   const { taskCounts, pendingApproval, createAndExecuteTask, approveTask, rejectTask, requestRevision, refetch: refetchTasks } = useAgentTasks();
   const { intelligence, dashboard, highPriorityIntel, isLoading: isIntelLoading, error: intelError, refetch: refetchIntelligence, markAsUsed } = useAgentIntelligence();
-  const { activities, isUsingMockData: isActivityMock, refetch: refetchActivity } = useAgentActivity(10);
+  const { activities, refetch: refetchActivity } = useAgentActivity(10);
 
   const [isPromptModalOpen, setIsPromptModalOpen] = useState(false);
   const [isConfigModalOpen, setIsConfigModalOpen] = useState(false);
@@ -68,17 +68,6 @@ export function Agents() {
           <div>
             <div className="flex items-center gap-3">
               <h1 className="text-3xl font-display font-bold text-gray-900">AI Agents</h1>
-              {isAgentsMock ? (
-                <span className="text-xs bg-red-100 text-red-700 px-2 py-1 rounded-full flex items-center gap-1">
-                  <Database size={12} />
-                  Not Connected
-                </span>
-              ) : (
-                <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full flex items-center gap-1">
-                  <Database size={12} />
-                  Live Data
-                </span>
-              )}
             </div>
             <p className="text-gray-600 mt-1">
               Manage your AI-powered content creation and community engagement agents
@@ -285,11 +274,6 @@ export function Agents() {
         <div className="card">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-xl font-semibold text-gray-900">Recent Agent Activity</h2>
-            {isActivityMock && (
-              <span className="text-xs text-red-600 bg-red-50 px-3 py-1 rounded-full">
-                No connection
-              </span>
-            )}
           </div>
           <div className="space-y-4">
             {activities.map((log) => {

@@ -1,24 +1,23 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { supabase, isSupabaseConfigured } from '@/lib/supabase';
-import { mockActivityLogs } from '@/lib/mockData';
 import type { ActivityLog } from '@/types';
 
 export function useAgentActivity(limit: number = 10) {
   const [activities, setActivities] = useState<ActivityLog[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [isUsingMockData, setIsUsingMockData] = useState(false);
 
   const fetchActivities = useCallback(async () => {
     try {
       setIsLoading(true);
       setError(null);
 
+      // No mock fallback (3 Sep 2026): an unconfigured or failing source leaves the list
+      // empty with `error` set, never an invented activity feed.
       if (!isSupabaseConfigured()) {
-        console.log('📦 Using mock activity data');
-        setActivities(mockActivityLogs.slice(0, limit));
-        setIsUsingMockData(true);
+        setActivities([]);
+        setError('Database not configured');
         setIsLoading(false);
         return;
       }
@@ -56,18 +55,13 @@ export function useAgentActivity(limit: number = 10) {
         }));
 
         setActivities(transformedActivities);
-        setIsUsingMockData(false);
       } else {
-        // Fallback to mock data if no activities
-        console.log('📦 No agent activities, using mock data');
-        setActivities(mockActivityLogs.slice(0, limit));
-        setIsUsingMockData(true);
+        setActivities([]);
       }
     } catch (err) {
       console.error('Error fetching agent activities:', err);
       setError(err instanceof Error ? err.message : 'Failed to fetch activities');
-      setActivities(mockActivityLogs.slice(0, limit));
-      setIsUsingMockData(true);
+      setActivities([]);
     } finally {
       setIsLoading(false);
     }
@@ -105,7 +99,6 @@ export function useAgentActivity(limit: number = 10) {
     activities,
     isLoading,
     error,
-    isUsingMockData,
     refetch: fetchActivities,
   };
 }

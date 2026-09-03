@@ -14,47 +14,21 @@ export interface PublicNewsletter {
   createdAt: Date;
 }
 
-// Mock data for development
-const mockNewsletters: PublicNewsletter[] = [
-  {
-    id: 'mock-nl-1',
-    editionNumber: 3,
-    editionType: 'weekly',
-    title: 'This Week at BLKOUT: New Governance Proposals',
-    summary: 'Community updates on governance, upcoming events, and member spotlights from this week.',
-    htmlContent: null,
-    sentAt: new Date(Date.now() - 48 * 60 * 60 * 1000), // 48 hours ago
-    publishedAt: new Date(Date.now() - 24 * 60 * 60 * 1000),
-    createdAt: new Date(Date.now() - 72 * 60 * 60 * 1000),
-  },
-  {
-    id: 'mock-nl-2',
-    editionNumber: 2,
-    editionType: 'monthly',
-    title: 'BLKOUT Monthly: November Community Digest',
-    summary: 'A comprehensive look back at November - events, achievements, and looking ahead to December.',
-    htmlContent: null,
-    sentAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000), // 7 days ago
-    publishedAt: new Date(Date.now() - 6 * 24 * 60 * 60 * 1000),
-    createdAt: new Date(Date.now() - 8 * 24 * 60 * 60 * 1000),
-  },
-];
-
 export function usePublicNewsletters(limit: number = 5) {
   const [newsletters, setNewsletters] = useState<PublicNewsletter[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [isUsingMockData, setIsUsingMockData] = useState(false);
 
   const fetchNewsletters = useCallback(async () => {
     try {
       setIsLoading(true);
       setError(null);
 
+      // No mock fallback (3 Sep 2026): this feeds the public Discover page — an empty
+      // archive shows as empty, never as invented editions.
       if (!isSupabaseConfigured()) {
-        console.log('📦 Using mock public newsletters');
-        setNewsletters(mockNewsletters.slice(0, limit));
-        setIsUsingMockData(true);
+        setNewsletters([]);
+        setError('Database not configured');
         setIsLoading(false);
         return;
       }
@@ -83,17 +57,13 @@ export function usePublicNewsletters(limit: number = 5) {
           createdAt: new Date(row.created_at),
         }));
         setNewsletters(transformed);
-        setIsUsingMockData(false);
       } else {
-        // No newsletters yet, show mock
-        setNewsletters(mockNewsletters.slice(0, limit));
-        setIsUsingMockData(true);
+        setNewsletters([]);
       }
     } catch (err) {
       console.error('Error fetching newsletters:', err);
       setError(err instanceof Error ? err.message : 'Failed to fetch newsletters');
-      setNewsletters(mockNewsletters.slice(0, limit));
-      setIsUsingMockData(true);
+      setNewsletters([]);
     } finally {
       setIsLoading(false);
     }
@@ -107,7 +77,6 @@ export function usePublicNewsletters(limit: number = 5) {
     newsletters,
     isLoading,
     error,
-    isUsingMockData,
     refetch: fetchNewsletters,
   };
 }

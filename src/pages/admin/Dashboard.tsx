@@ -21,7 +21,7 @@ export function Dashboard() {
   const { agents, isLoading: agentsLoading } = useAgents();
   const { content } = useContent();
   const { pendingApproval } = useAgentTasks();
-  const { activities, isUsingMockData: isActivityMock } = useAgentActivity(5);
+  const { activities } = useAgentActivity(5);
   const ivor = useIvorDashboard();
 
   const awaitingApproval = pendingApproval.length;
@@ -121,11 +121,6 @@ export function Dashboard() {
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-xl font-semibold text-gray-900">Recent Activity</h2>
               <div className="flex items-center gap-2">
-                {isActivityMock && (
-                  <span className="text-xs text-amber-600 bg-amber-50 px-2 py-0.5 rounded-full">
-                    Demo
-                  </span>
-                )}
                 <Clock size={20} className="text-gray-400" />
               </div>
             </div>

@@ -49,43 +49,6 @@ export interface NewsletterEdition {
   contentItems: NewsletterContentItem[];
 }
 
-// Mock data for development
-const mockEditions: NewsletterEdition[] = [
-  {
-    id: 'mock-edition-1',
-    editionNumber: 1,
-    subscriberTier: 'weekly_engaged',
-    subject: 'This Week at BLKOUT: Community Updates & Events',
-    preheaderText: 'New governance proposals, upcoming events, and member spotlights',
-    status: 'draft',
-    htmlContent: null,
-    scheduledFor: null,
-    sentAt: null,
-    openRate: null,
-    clickRate: null,
-    unsubscribes: 0,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-    contentItems: [],
-  },
-];
-
-const mockSubscribers: NewsletterSubscriber[] = [
-  {
-    id: 'mock-sub-1',
-    memberId: null,
-    email: 'engaged@example.com',
-    firstName: 'Test',
-    lastName: 'Subscriber',
-    tier: 'weekly_engaged',
-    sendfoxContactId: null,
-    isActive: true,
-    subscribedAt: new Date(),
-    lastEngagement: new Date(),
-    engagementScore: 85,
-  },
-];
-
 export function useNewsletter() {
   const [editions, setEditions] = useState<NewsletterEdition[]>([]);
   const [subscribers, setSubscribers] = useState<NewsletterSubscriber[]>([]);
@@ -98,9 +61,9 @@ export function useNewsletter() {
       setError(null);
 
       if (!isSupabaseConfigured()) {
-        console.log('📦 Using mock newsletter data');
-        setEditions(mockEditions);
-        setSubscribers(mockSubscribers);
+        setEditions([]);
+        setSubscribers([]);
+        setError('Database not configured');
         setIsLoading(false);
         return;
       }
@@ -171,8 +134,8 @@ export function useNewsletter() {
     } catch (err) {
       console.error('Error fetching newsletters:', err);
       setError(err instanceof Error ? err.message : 'Failed to fetch newsletters');
-      setEditions(mockEditions);
-      setSubscribers(mockSubscribers);
+      setEditions([]);
+      setSubscribers([]);
     } finally {
       setIsLoading(false);
     }
@@ -187,27 +150,7 @@ export function useNewsletter() {
     subject: string,
     preheaderText?: string
   ): Promise<{ success: boolean; edition?: NewsletterEdition; error?: string }> => {
-    if (!isSupabaseConfigured()) {
-      const newEdition: NewsletterEdition = {
-        id: `mock-${Date.now()}`,
-        editionNumber: editions.length + 1,
-        subscriberTier: tier,
-        subject,
-        preheaderText: preheaderText || null,
-        status: 'draft',
-        htmlContent: null,
-        scheduledFor: null,
-        sentAt: null,
-        openRate: null,
-        clickRate: null,
-        unsubscribes: 0,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        contentItems: [],
-      };
-      setEditions([newEdition, ...editions]);
-      return { success: true, edition: newEdition };
-    }
+    if (!isSupabaseConfigured()) return { success: false, error: 'Database not configured' };
 
     try {
       // Get next edition number
@@ -258,12 +201,7 @@ export function useNewsletter() {
     editionId: string,
     updates: Partial<Pick<NewsletterEdition, 'subject' | 'preheaderText' | 'htmlContent' | 'status' | 'scheduledFor'>>
   ): Promise<{ success: boolean; error?: string }> => {
-    if (!isSupabaseConfigured()) {
-      setEditions(editions.map(e =>
-        e.id === editionId ? { ...e, ...updates, updatedAt: new Date() } : e
-      ));
-      return { success: true };
-    }
+    if (!isSupabaseConfigured()) return { success: false, error: 'Database not configured' };
 
     try {
       const dbUpdates: Record<string, unknown> = {
@@ -294,19 +232,7 @@ export function useNewsletter() {
     editionId: string,
     item: Omit<NewsletterContentItem, 'id' | 'editionId'>
   ): Promise<{ success: boolean; error?: string }> => {
-    if (!isSupabaseConfigured()) {
-      const newItem: NewsletterContentItem = {
-        id: `mock-item-${Date.now()}`,
-        editionId,
-        ...item,
-      };
-      setEditions(editions.map(e =>
-        e.id === editionId
-          ? { ...e, contentItems: [...e.contentItems, newItem] }
-          : e
-      ));
-      return { success: true };
-    }
+    if (!isSupabaseConfigured()) return { success: false, error: 'Database not configured' };
 
     try {
       const { error } = await supabase
@@ -332,13 +258,7 @@ export function useNewsletter() {
   };
 
   const removeContentItem = async (itemId: string): Promise<{ success: boolean; error?: string }> => {
-    if (!isSupabaseConfigured()) {
-      setEditions(editions.map(e => ({
-        ...e,
-        contentItems: e.contentItems.filter(i => i.id !== itemId),
-      })));
-      return { success: true };
-    }
+    if (!isSupabaseConfigured()) return { success: false, error: 'Database not configured' };
 
     try {
       const { error } = await supabase
