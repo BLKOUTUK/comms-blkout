@@ -7,6 +7,7 @@ import {
 import { formatDistanceToNow } from 'date-fns';
 import type { AgentTask } from '@/hooks/useAgentTasks';
 import type { AgentType } from '@/types';
+import { ValuesCheck } from '@/components/shared/ValuesCheck';
 
 interface ApprovalQueueProps {
   tasks: AgentTask[];
@@ -38,6 +39,9 @@ export function ApprovalQueue({
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [filterAgent, setFilterAgent] = useState<AgentType | 'all'>('all');
   const [filterPriority, setFilterPriority] = useState<'all' | 'critical' | 'high' | 'medium' | 'low'>('all');
+  // The values check runs before every approval. It lived on the retired SocialSync
+  // editorial page until 3 Sep 2026; this is the only approve path now.
+  const [valuesCheckFor, setValuesCheckFor] = useState<string | null>(null);
 
   // Get unique agent types from tasks
   const agentTypes = [...new Set(tasks.map(t => t.agentType))];
@@ -67,13 +71,18 @@ export function ApprovalQueue({
     }));
   };
 
-  const handleApprove = async (taskId: string) => {
+  const handleApprove = (taskId: string) => setValuesCheckFor(taskId);
+
+  const completeApprove = async (taskId: string) => {
+    setValuesCheckFor(null);
     setActionInProgress(taskId);
-    const result = await onApprove(taskId);
+    const result = await onApprove(taskId, 'Values check passed');
     setActionInProgress(null);
     if (result.success) {
       setExpandedTask(null);
       onRefresh?.();
+    } else {
+      alert('Approve failed: ' + (result.error || 'unknown error'));
     }
   };
 
@@ -263,8 +272,11 @@ export function ApprovalQueue({
                       className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-xl hover:from-green-700 hover:to-emerald-700 disabled:opacity-50 font-medium shadow-sm hover:shadow-md transition-all"
                     >
                       <ThumbsUp size={18} />
-                      {isProcessing ? 'Processing...' : 'Approve & Publish'}
+                      {isProcessing ? 'Processing...' : 'Approve'}
                     </button>
+                    <p className="text-xs text-gray-500 text-center -mt-1">
+                      Runs the values check, then marks the content approved. Posting happens through the routines, not from here.
+                    </p>
 
                     {/* Revision Request */}
                     <div className="flex gap-2">
@@ -318,6 +330,22 @@ export function ApprovalQueue({
           );
         })}
       </div>
+
+      {/* Values check — gates every approval */}
+      {valuesCheckFor && (
+        <div className="fixed inset-0 z-50 bg-black/60 flex items-start justify-center overflow-y-auto p-6" role="dialog" aria-modal="true">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-2xl my-8">
+            <ValuesCheck
+              contentType="text"
+              onValidationComplete={(passed) => {
+                if (passed) completeApprove(valuesCheckFor);
+                else setValuesCheckFor(null);
+              }}
+              onCancel={() => setValuesCheckFor(null)}
+            />
+          </div>
+        </div>
+      )}
 
       {/* Empty filtered state */}
       {filteredTasks.length === 0 && tasks.length > 0 && (

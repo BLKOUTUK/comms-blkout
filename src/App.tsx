@@ -10,23 +10,13 @@ import { DiscoverPage } from '@/pages/discover/DiscoverPage';
 import { NewsletterDetail } from '@/pages/discover/NewsletterDetail';
 import { Dashboard } from '@/pages/admin/Dashboard';
 import { ContentCalendar } from '@/pages/admin/ContentCalendar';
-import { Drafts } from '@/pages/admin/Drafts';
 import { Agents } from '@/pages/admin/Agents';
-import { Analytics } from '@/pages/admin/Analytics';
 import { Settings } from '@/pages/admin/Settings';
-import { SocialSync } from '@/pages/admin/SocialSync';
-import { SocialSyncEditorial } from '@/pages/admin/SocialSyncEditorial';
 import { Newsletters } from '@/pages/admin/Newsletters';
-import { OAuthCallback } from '@/pages/auth/OAuthCallback';
 import Grants from '@/pages/admin/Grants';
 import { Finance } from '@/pages/admin/Finance';
 import { EventModeration } from '@/pages/admin/EventModeration';
 import { NewsModeration } from '@/pages/admin/NewsModeration';
-import { DesignStudio } from '@/pages/admin/DesignStudio';
-import { CampaignReview } from '@/pages/admin/CampaignReview';
-import { CampaignDashboard } from '@/pages/admin/CampaignDashboard';
-import { DigestVid } from '@/pages/admin/DigestVid';
-import { ContentPipeline } from '@/pages/admin/ContentPipeline';
 import { NewsletterPreferences } from '@/pages/preferences/NewsletterPreferences';
 import { CelebratePage } from '@/pages/celebrate/CelebratePage';
 import { Fundraising } from '@/pages/admin/Fundraising';
@@ -41,8 +31,6 @@ function App() {
           <Route path="/discover" element={<DiscoverPage />} />
           <Route path="/discover/newsletters/:id" element={<NewsletterDetail />} />
 
-          {/* OAuth Callback Routes */}
-          <Route path="/auth/callback/:platform" element={<OAuthCallback />} />
           <Route path="/login" element={<Login />} />
 
           {/* Protected Admin Routes */}
@@ -63,26 +51,10 @@ function App() {
             }
           />
           <Route
-            path="/admin/drafts"
-            element={
-              <ProtectedRoute>
-                <Drafts />
-              </ProtectedRoute>
-            }
-          />
-          <Route
             path="/admin/agents"
             element={
               <ProtectedRoute>
                 <Agents />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/admin/analytics"
-            element={
-              <ProtectedRoute>
-                <Analytics />
               </ProtectedRoute>
             }
           />
@@ -99,22 +71,6 @@ function App() {
             element={
               <ProtectedRoute>
                 <Settings />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/admin/socialsync"
-            element={
-              <ProtectedRoute>
-                <SocialSync />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/admin/editorial"
-            element={
-              <ProtectedRoute>
-                <SocialSyncEditorial />
               </ProtectedRoute>
             }
           />
@@ -166,47 +122,7 @@ function App() {
               </ProtectedRoute>
             }
           />
-          <Route
-            path="/admin/design-studio"
-            element={
-              <ProtectedRoute>
-                <DesignStudio />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/admin/campaigns"
-            element={
-              <ProtectedRoute>
-                <CampaignDashboard />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/admin/campaigns/review"
-            element={
-              <ProtectedRoute>
-                <CampaignReview />
-              </ProtectedRoute>
-            }
-          />
 
-          <Route
-            path="/admin/digestvid"
-            element={
-              <ProtectedRoute>
-                <DigestVid />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/admin/pipeline"
-            element={
-              <ProtectedRoute>
-                <ContentPipeline />
-              </ProtectedRoute>
-            }
-          />
 
           {/* Public Campaign Routes */}
           <Route path="/10years" element={<CelebratePage />} />

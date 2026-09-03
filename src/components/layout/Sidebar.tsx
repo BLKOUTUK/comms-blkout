@@ -4,17 +4,13 @@ import { NavLink } from 'react-router-dom';
 import {
   LayoutDashboard,
   Calendar,
-  FileText,
   Bot,
-  BarChart3,
   Settings,
-  Zap,
+  UserCircle,
   Mail,
   Banknote,
   CalendarCheck,
   Newspaper,
-  Video,
-  Sparkles,
   PoundSterling,
 } from 'lucide-react';
 
@@ -23,16 +19,12 @@ const navigation = [
   { name: 'Event Moderation', href: '/admin/events', icon: CalendarCheck },
   { name: 'News Moderation', href: '/admin/news', icon: Newspaper },
   { name: 'Content Calendar', href: '/admin/calendar', icon: Calendar },
-  { name: 'Drafts', href: '/admin/drafts', icon: FileText },
   { name: 'Funding', href: '/admin/fundraising', icon: Banknote },
   { name: 'Finance', href: '/admin/finance', icon: PoundSterling },
   { name: 'Agents', href: '/admin/agents', icon: Bot },
-  { name: 'Content Pipeline', href: '/admin/pipeline', icon: Sparkles },
   { name: 'Newsletters', href: '/admin/newsletters', icon: Mail },
-  { name: 'DigestVid', href: '/admin/digestvid', icon: Video },
-  { name: 'SocialSync', href: '/admin/socialsync', icon: Zap },
-  { name: 'Analytics', href: '/admin/analytics', icon: BarChart3 },
   { name: 'Settings', href: '/admin/settings', icon: Settings },
+  { name: 'Account', href: '/admin/account', icon: UserCircle },
 ];
 
 

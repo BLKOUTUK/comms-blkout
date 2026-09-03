@@ -5,7 +5,7 @@ import { AgentCard } from '@/components/shared/AgentCard';
 import { StatCard } from '@/components/shared/StatCard';
 import { useAgents } from '@/hooks/useAgents';
 import { useContent } from '@/hooks/useContent';
-import { useDrafts } from '@/hooks/useDrafts';
+import { useAgentTasks } from '@/hooks/useAgentTasks';
 import { useAgentActivity } from '@/hooks/useAgentActivity';
 import { useIvorDashboard } from '@/hooks/useIvorDashboard';
 import { CalendarCheck, CheckCircle2, ShieldAlert, FileText, Calendar, Clock } from 'lucide-react';
@@ -20,11 +20,11 @@ const unavailable = 'unavailable';
 export function Dashboard() {
   const { agents, isLoading: agentsLoading } = useAgents();
   const { content } = useContent();
-  const { drafts } = useDrafts();
+  const { pendingApproval } = useAgentTasks();
   const { activities, isUsingMockData: isActivityMock } = useAgentActivity(5);
   const ivor = useIvorDashboard();
 
-  const pendingDrafts = drafts.filter((d) => d.status === 'pending_review').length;
+  const awaitingApproval = pendingApproval.length;
   const tile = (n: number | undefined) =>
     ivor.isLoading ? '…' : n === undefined ? unavailable : n;
 
@@ -61,8 +61,8 @@ export function Dashboard() {
             iconBg="bg-amber-100"
           />
           <StatCard
-            title="Pending Drafts"
-            value={pendingDrafts}
+            title="Agent content awaiting approval"
+            value={awaitingApproval}
             icon={FileText}
             iconColor="text-blkout-600"
             iconBg="bg-blkout-100"
@@ -155,7 +155,7 @@ export function Dashboard() {
           <h2 className="text-xl font-semibold text-gray-900 mb-4">Quick Actions</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Link to="/admin/calendar" className="btn btn-primary text-center">Create New Content</Link>
-            <Link to="/admin/drafts" className="btn btn-outline text-center">Review Drafts</Link>
+            <Link to="/admin/agents" className="btn btn-outline text-center">Review agent content</Link>
           </div>
         </div>
       </div>
