@@ -124,16 +124,22 @@ export async function handleSendFoxSend(req: VercelRequest, res: VercelResponse)
       return res.status(200).json({ ...fallback, message: 'SendFox did not accept the campaign — paste it instead', campaign_error: `SendFox ${response.status}: ${text.slice(0, 200)}` });
     }
     const campaign = JSON.parse(text);
+    let record_error: string | undefined;
     if (campaign?.id) {
-      await supabase!
+      const { error: recordError } = await supabase!
         .from('newsletter_editions')
         .update({ sendfox_campaign_id: String(campaign.id), updated_at: new Date().toISOString() })
         .eq('id', edition_id);
+      if (recordError) {
+        console.error('[Herald] could not record sendfox_campaign_id on the edition:', recordError.message);
+        record_error = recordError.message;
+      }
     }
     return res.status(200).json({
       success: true,
       campaign_created: true,
       campaign_id: campaign.id,
+      record_error,
       message: 'Draft campaign created in SendFox — nothing has been sent',
       edition_id,
       list_id: targetListId,
