@@ -35,7 +35,6 @@ server-dist/
 .vercel
 socialsync-content-generation/
 *.Zone.Identifier
-package-lock.json
 graphify-out/
 
 # Agent tooling state (machine-local)
