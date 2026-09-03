@@ -16,6 +16,7 @@ import boroughsMap from '@/data/boroughs-map.json';
  */
 const OPEN_DOORS: Record<string, string> = {
   brent: 'Brent',
+  camden: 'Camden',
   croydon: 'Croydon',
   enfield: 'Enfield',
   hackney: 'Hackney',
