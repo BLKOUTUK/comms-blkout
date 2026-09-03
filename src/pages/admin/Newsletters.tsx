@@ -80,6 +80,9 @@ export function Newsletters() {
     html_content?: string;
     subject_line?: string;
     sendfox_campaign_url?: string;
+    campaign_created?: boolean;
+    campaign_id?: number;
+    campaign_error?: string;
   } | null>(null);
 
   // Generate newsletter content with Herald API
@@ -170,7 +173,7 @@ export function Newsletters() {
     if (editionType === 'weekly') {
       setSendFoxSelectedLists([538297]); // BLKOUT Hub
     } else {
-      setSendFoxSelectedLists([538162]); // Community Circle
+      setSendFoxSelectedLists([631882]); // Newsletter — the whole list
     }
   };
 
@@ -990,7 +993,9 @@ export function Newsletters() {
                 <div className="bg-green-50 border border-green-200 rounded-lg p-4">
                   <p className="text-green-800 font-medium flex items-center gap-2">
                     <CheckCircle size={18} />
-                    Newsletter ready for SendFox!
+                    {sendFoxResult.campaign_created
+                      ? `Draft campaign created in SendFox (id ${sendFoxResult.campaign_id}) — nothing sent yet. Open it there to check, then Send or Schedule.`
+                      : `SendFox did not accept the campaign${sendFoxResult.campaign_error ? ` (${sendFoxResult.campaign_error})` : ''} — open SendFox and paste the HTML.`}
                   </p>
                 </div>
 
