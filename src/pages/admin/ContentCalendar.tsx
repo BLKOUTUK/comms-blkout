@@ -16,7 +16,9 @@
  */
 
 import { useState, useMemo, useCallback } from 'react';
+import { Link } from 'react-router-dom';
 import { Layout } from '@/components/layout/Layout';
+import { useIvorDashboard } from '@/hooks/useIvorDashboard';
 import {
   Calendar,
   List,
@@ -45,7 +47,6 @@ import {
   Loader2,
   Activity,
   Zap,
-  Send,
 } from 'lucide-react';
 import {
   format,
@@ -167,6 +168,7 @@ export function ContentCalendar() {
 
   // Content editor
   const contentEditor = useContentEditor();
+  const ivor = useIvorDashboard();
 
   // Get all content items across campaigns
   const allContentItems = useMemo((): ContentWithCampaign[] => {
@@ -358,10 +360,6 @@ export function ContentCalendar() {
               <RefreshCw size={18} className={isLoading ? 'animate-spin' : ''} />
               Refresh
             </button>
-            <a href="/admin/editorial" className="btn btn-primary inline-flex items-center gap-2">
-              <Send size={18} />
-              Create Content
-            </a>
           </div>
         </div>
 
@@ -903,49 +901,71 @@ export function ContentCalendar() {
                 )}
               </div>
 
-              {/* Quick Actions */}
+              {/* Quick Actions — each does what it says (3 Sep 2026); the four before had no handlers */}
               <div className="card">
                 <h3 className="font-semibold text-gray-900 mb-4">Quick Actions</h3>
                 <div className="space-y-2">
-                  <button className="w-full flex items-center gap-3 p-3 rounded-lg border border-gray-200 hover:border-blkout-300 hover:bg-blkout-50 transition-colors text-left">
+                  <Link to="/admin/newsletters" className="w-full flex items-center gap-3 p-3 rounded-lg border border-gray-200 hover:border-blkout-300 hover:bg-blkout-50 transition-colors text-left">
                     <div className="w-8 h-8 rounded-lg bg-green-100 flex items-center justify-center text-green-600">
                       <Mail size={16} />
                     </div>
                     <div>
                       <p className="text-sm font-medium text-gray-900">Newsletter Brief</p>
-                      <p className="text-xs text-gray-500">Generate from content</p>
+                      <p className="text-xs text-gray-500">Generate on the Newsletters page</p>
                     </div>
-                  </button>
+                  </Link>
 
-                  <button className="w-full flex items-center gap-3 p-3 rounded-lg border border-gray-200 hover:border-blkout-300 hover:bg-blkout-50 transition-colors text-left">
+                  <a href="https://events.blkoutuk.com/api/calendar" download="blkout-events.ics" className="w-full flex items-center gap-3 p-3 rounded-lg border border-gray-200 hover:border-blkout-300 hover:bg-blkout-50 transition-colors text-left">
                     <div className="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center text-blue-600">
                       <Download size={16} />
                     </div>
                     <div>
                       <p className="text-sm font-medium text-gray-900">Export ICS</p>
-                      <p className="text-xs text-gray-500">Calendar file</p>
+                      <p className="text-xs text-gray-500">Approved events, live from events.blkoutuk.com</p>
                     </div>
-                  </button>
+                  </a>
 
-                  <button className="w-full flex items-center gap-3 p-3 rounded-lg border border-gray-200 hover:border-blkout-300 hover:bg-blkout-50 transition-colors text-left">
+                  <div className="w-full flex items-center gap-3 p-3 rounded-lg border border-gray-200">
                     <div className="w-8 h-8 rounded-lg bg-purple-100 flex items-center justify-center text-purple-600">
                       <FileDown size={16} />
                     </div>
                     <div>
                       <p className="text-sm font-medium text-gray-900">Status Report</p>
-                      <p className="text-xs text-gray-500">Generate summary</p>
+                      <p className="text-xs text-gray-500">
+                        {ivor.isLoading
+                          ? 'Loading…'
+                          : ivor.error
+                            ? `unavailable — ${ivor.error}`
+                            : `Last 7 days: ${ivor.events7d?.total ?? '?'} events added, ${ivor.events7d?.approved ?? '?'} approved · moderation queue ${ivor.moderation?.total ?? '?'}`}
+                      </p>
                     </div>
-                  </button>
+                  </div>
 
-                  <button className="w-full flex items-center gap-3 p-3 rounded-lg border border-gray-200 hover:border-blkout-300 hover:bg-blkout-50 transition-colors text-left">
-                    <div className="w-8 h-8 rounded-lg bg-teal-100 flex items-center justify-center text-teal-600">
-                      <Zap size={16} />
+                  <div className="w-full p-3 rounded-lg border border-gray-200">
+                    <div className="flex items-center gap-3 mb-2">
+                      <div className="w-8 h-8 rounded-lg bg-teal-100 flex items-center justify-center text-teal-600">
+                        <Zap size={16} />
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-gray-900">Next scheduled</p>
+                        <p className="text-xs text-gray-500">Scheduling is the routines' job — this is what is queued</p>
+                      </div>
                     </div>
-                    <div>
-                      <p className="text-sm font-medium text-gray-900">Bulk Schedule</p>
-                      <p className="text-xs text-gray-500">Auto-schedule ready content</p>
-                    </div>
-                  </button>
+                    {(() => {
+                      const next = sortedContent
+                        .filter((i) => i.status === 'scheduled' && i.scheduledFor && new Date(i.scheduledFor as string | Date).getTime() >= Date.now())
+                        .slice(0, 5);
+                      return next.length === 0 ? (
+                        <p className="text-xs text-gray-400 pl-11">Nothing scheduled</p>
+                      ) : (
+                        <ul className="text-xs text-gray-700 pl-11 space-y-1">
+                          {next.map((i) => (
+                            <li key={i.id}>{format(new Date(i.scheduledFor as string | Date), 'd MMM')} · {i.title}</li>
+                          ))}
+                        </ul>
+                      );
+                    })()}
+                  </div>
                 </div>
               </div>
 
