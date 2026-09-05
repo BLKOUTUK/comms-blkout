@@ -48,3 +48,7 @@ assets/
 remotion-videos/public/assets/
 public/IvorAvatar/
 public/assets/
+
+# personal-data exports never belong in the repo (5 Sep 2026)
+data/*.csv
+**/*User Export*.csv
