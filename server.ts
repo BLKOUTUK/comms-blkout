@@ -201,7 +201,12 @@ app.get('*', (_req, res) => {
   res.sendFile(join(APP_ROOT, 'dist', 'index.html'));
 });
 
-app.listen(PORT, '0.0.0.0', () => {
+// Graceful shutdown. node runs as PID 1 in the container with no wrapper, and without
+// a SIGTERM listener it never exits: Coolify's rolling update then waits the full
+// 30 s stop grace and SIGKILLs it, and for those 30 s Traefik round-robins between the
+// old and new containers (verified 10 Sep 2026, 30/30 deploys). Closing the server on
+// SIGTERM lets in-flight requests finish and drops the overlap to under a second.
+const server = app.listen(PORT, '0.0.0.0', () => {
   console.log(`[Server] BLKOUT Comms running on port ${PORT}`);
   console.log(`[Server] API: /api/herald/generate`);
   console.log(`[Server] Admin: /api/admin/dashboard, /api/admin/finance, /api/admin/content (session required)`);
@@ -211,3 +216,10 @@ app.listen(PORT, '0.0.0.0', () => {
   console.log(`[Server] OpenRouter: ${process.env.OPENROUTER_API_KEY ? 'configured' : 'NOT configured'}`);
   console.log(`[Server] Supabase: ${process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL ? 'configured' : 'NOT configured'}`);
 });
+const shutdown = (signal: string) => {
+  console.log(`[Server] ${signal} received — closing`);
+  server.close(() => process.exit(0));
+  setTimeout(() => process.exit(0), 5000).unref();
+};
+process.on('SIGTERM', () => shutdown('SIGTERM'));
+process.on('SIGINT', () => shutdown('SIGINT'));
