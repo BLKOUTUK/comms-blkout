@@ -1,11 +1,34 @@
 /**
  * Cron Dispatcher
  * Handle scheduled cron jobs dispatching
+ *
+ * Nothing schedules this. It is reachable at GET /api/herald/generate?job=<type>
+ * and only runs when that URL is hit by hand.
+ *
+ * A job that could not generate is never reported as a success: it answers 502 with
+ * the reason, and in the daily dispatch it is listed with `success: false` and its
+ * reason while the other jobs still run.
  */
 
 import type { VercelResponse } from '@vercel/node';
-import { runHeraldWeekly, runHeraldMonthly, runListenerResearch } from './jobs.js';
+import { runHeraldWeekly, runHeraldMonthly, runListenerResearch, generationFailureReason } from './jobs.js';
 import { runMetricsSync } from '../handlers/metrics-sync.js';
+
+type JobResult = { job: string; success: boolean; preview?: string; error?: string };
+
+/**
+ * Run one job and record what actually happened — never a hardcoded success.
+ */
+async function runJob(job: string, run: () => Promise<string>): Promise<JobResult> {
+  try {
+    const output = await run();
+    return { job, success: true, preview: output.slice(0, 100) };
+  } catch (error) {
+    const reason = generationFailureReason(error);
+    console.error(`[Cron] ${job} failed: ${reason}`);
+    return { job, success: false, error: reason };
+  }
+}
 
 /**
  * Handle scheduled cron jobs - single dispatcher handles all schedules
@@ -20,30 +43,26 @@ export async function handleCronJob(jobType: string, res: VercelResponse) {
     const dayOfMonth = now.getUTCDate();
     const hour = now.getUTCHours();
 
-    const results: { job: string; success: boolean; preview?: string }[] = [];
+    const results: JobResult[] = [];
 
     // Metrics sync runs every day at 8am UTC
     if (hour >= 8 && hour < 12) {
-      const syncResult = await runMetricsSync();
-      results.push({ job: 'metrics-sync', success: true, preview: syncResult.slice(0, 100) });
+      results.push(await runJob('metrics-sync', runMetricsSync));
     }
 
     // Listener research runs every day at 7am UTC
     if (hour >= 7 && hour < 12) {
-      const listenerResult = await runListenerResearch();
-      results.push({ job: 'listener-research', success: true, preview: listenerResult.slice(0, 100) });
+      results.push(await runJob('listener-research', runListenerResearch));
     }
 
     // Herald weekly runs on Fridays (dayOfWeek=5) at 9am UTC
     if (dayOfWeek === 5 && hour >= 9 && hour < 12) {
-      const weeklyResult = await runHeraldWeekly();
-      results.push({ job: 'herald-weekly', success: true, preview: weeklyResult.slice(0, 100) });
+      results.push(await runJob('herald-weekly', runHeraldWeekly));
     }
 
     // Herald monthly runs on 1st of month at 10am UTC
     if (dayOfMonth === 1 && hour >= 10 && hour < 14) {
-      const monthlyResult = await runHeraldMonthly();
-      results.push({ job: 'herald-monthly', success: true, preview: monthlyResult.slice(0, 100) });
+      results.push(await runJob('herald-monthly', runHeraldMonthly));
     }
 
     if (results.length === 0) {
@@ -54,28 +73,46 @@ export async function handleCronJob(jobType: string, res: VercelResponse) {
       });
     }
 
+    const failed = results.filter(r => !r.success);
+    if (failed.length > 0) {
+      return res.status(502).json({
+        success: false,
+        error: failed.map(f => `${f.job}: ${f.error}`).join('; '),
+        jobs_run: results
+      });
+    }
+
     return res.status(200).json({ success: true, jobs_run: results });
   }
 
   // Direct job execution (for testing)
-  if (jobType === 'herald-weekly') {
-    const content = await runHeraldWeekly();
-    return res.status(200).json({ success: true, type: 'herald-weekly', preview: content.slice(0, 200) });
-  }
+  const directJobs: Record<string, () => Promise<string>> = {
+    'herald-weekly': runHeraldWeekly,
+    'herald-monthly': runHeraldMonthly,
+    'listener-research': runListenerResearch,
+  };
 
-  if (jobType === 'herald-monthly') {
-    const content = await runHeraldMonthly();
-    return res.status(200).json({ success: true, type: 'herald-monthly', preview: content.slice(0, 200) });
-  }
-
-  if (jobType === 'listener-research') {
-    const content = await runListenerResearch();
-    return res.status(200).json({ success: true, type: 'listener-research', preview: content.slice(0, 200) });
+  const directJob = directJobs[jobType];
+  if (directJob) {
+    try {
+      const content = await directJob();
+      return res.status(200).json({ success: true, type: jobType, preview: content.slice(0, 200) });
+    } catch (error) {
+      const reason = generationFailureReason(error);
+      console.error(`[Cron] ${jobType} failed: ${reason}`);
+      return res.status(502).json({ success: false, type: jobType, error: reason });
+    }
   }
 
   if (jobType === 'metrics-sync' || jobType === 'metrics_sync') {
-    const result = await runMetricsSync();
-    return res.status(200).json({ success: true, type: 'metrics-sync', result });
+    try {
+      const result = await runMetricsSync();
+      return res.status(200).json({ success: true, type: 'metrics-sync', result });
+    } catch (error) {
+      const reason = generationFailureReason(error);
+      console.error(`[Cron] metrics-sync failed: ${reason}`);
+      return res.status(502).json({ success: false, type: 'metrics-sync', error: reason });
+    }
   }
 
   return res.status(400).json({ error: 'Unknown cron job type' });
