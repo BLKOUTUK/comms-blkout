@@ -160,6 +160,19 @@ jobs:
           [ -n "$WEEK_LABEL" ] && ARGS+=(--week-label "$WEEK_LABEL")
           node scripts/host-digest.mjs "${ARGS[@]}"
 
+      # Rob, 10 Sep 2026: the digest is content and belongs on the calendar —
+      # record it as a posted row, not just a side-table the news site reads.
+      - name: Record in the content register
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          WEEK_LABEL: ${{ inputs.week_label }}
+        run: |
+          set -e
+          ARGS=()
+          [ -n "$WEEK_LABEL" ] && ARGS+=(--week-label "$WEEK_LABEL")
+          node scripts/register-content.mjs "${ARGS[@]}"
+
       - name: Failure summary
         if: failure()
         run: |
