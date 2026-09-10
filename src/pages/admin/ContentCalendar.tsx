@@ -356,8 +356,9 @@ export function ContentCalendar() {
             </section>
 
             <p className="text-xs text-gray-500">
-              Automated routines — the weekly AIvor news digest and its Reel — publish on their
-              own schedule and are not in this register.
+              Automated routines, such as the weekly AIvor news digest and its Reel, publish on
+              their own schedule. Nothing here drives them. Where one appears above it is a record
+              written after the fact, with <code className="bg-gray-100 px-1 rounded">metadata.source</code> starting <code className="bg-gray-100 px-1 rounded">routine:</code>.
             </p>
           </>
         )}
