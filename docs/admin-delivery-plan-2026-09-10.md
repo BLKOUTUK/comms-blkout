@@ -66,3 +66,16 @@ Routing: **spec Fable · build Opus · records Sonnet · verify session model.**
 
 ## Proof standard
 Every tile: live / empty / failed / loading are visibly distinct; no number rendered that was not fetched this session; unauthenticated call → 401; the RPC refuses anon and authenticated. Build clean, deploy verified by `/api/health` commit hash and 6 consecutive requests (stale-container check).
+
+
+## Status, end of 10 Sep 2026
+
+| WP | Result |
+|---|---|
+| WP1 + WP2 | **Done.** PR #27 → `aed158e`. Migration 016 in blkout-crm `907d4b4`. Live-verified both hosts: 401 unauthenticated, 200 with a throwaway signed-in user (open_loops 22 · grant_pipeline 15 · memberships 0), garbage token 401 |
+| Identifiers (Rob, 10 Sep) | **Done.** PR #28 → `3759de2`. UTR + Zurich policy served after sign-in from Coolify runtime vars `ORG_*`; absent from src and dist; all six fields populated live |
+| WP3 | **Done.** Docs committed `8359f2c`; three task-inbox entries |
+| WP4 | **Done** (Rob's nod 10 Sep). events-calendar PR #33 `36a8d53` first, then ivor-core PR #9 `08ac529`; live 08:53 UTC, 12/12 401 without a session, open routes still 200 |
+| WP5 | **With Rob / September board** — what writes the first `memberships` row on 28 Dec |
+
+Found on the way, left open with tasks raised: news.blkoutuk.com/admin (ungated in-app moderation page, now 401s on write — retire → comms `/admin/news`); ivor-core `GET /api/news/pending` open; `/api/moderate*` unguarded by decision (chrome extension caller); ~20 other ivor-core route families unaudited. Rob still owes the five secret rotations + Coolify token.
