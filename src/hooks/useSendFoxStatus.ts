@@ -1,5 +1,6 @@
 
 import { useState, useEffect, useCallback } from 'react';
+import { apiFetch } from '@/lib/apiFetch';
 
 export interface SendFoxList {
   id: number;
@@ -49,7 +50,7 @@ export function useSendFoxStatus() {
 
     try {
       // Use the server-side API to check SendFox connection
-      const response = await fetch('/api/herald/generate', {
+      const response = await apiFetch('/api/herald/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ action: 'sendfox_lists' }),
@@ -103,7 +104,7 @@ export function useSendFoxStatus() {
     listIds?: number[]
   ): Promise<{ success: boolean; error?: string }> => {
     try {
-      const response = await fetch('/api/herald/generate', {
+      const response = await apiFetch('/api/herald/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -142,7 +143,7 @@ export function useSendFoxStatus() {
     subjectLine?: string;
   }> => {
     try {
-      const response = await fetch('/api/herald/generate', {
+      const response = await apiFetch('/api/herald/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

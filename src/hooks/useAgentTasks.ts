@@ -1,6 +1,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { supabase, isSupabaseConfigured } from '@/lib/supabase';
+import { apiFetch } from '@/lib/apiFetch';
 import type { AgentType } from '@/types';
 
 export interface AgentTask {
@@ -193,7 +194,7 @@ export function useAgentTasks(agentType?: AgentType) {
         ? { action: 'generate', edition_type: 'monthly', custom_intro: description }
         : { action: 'execute_agent', agent_type: agentType, title, description, target_platform: targetPlatform };
 
-      const response = await fetch(apiBase, {
+      const response = await apiFetch(apiBase, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body),

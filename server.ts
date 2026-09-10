@@ -6,6 +6,7 @@
 
 import express from 'express';
 import { join } from 'path';
+import { GUARDED_PATHS, requireSessionMiddleware } from './api/_auth.js';
 
 const APP_ROOT = process.cwd();  // /app in Docker (WORKDIR)
 const app = express();
@@ -14,7 +15,22 @@ const PORT = parseInt(process.env.PORT || '3000', 10);
 // Middleware
 app.use(express.json({ limit: '10mb' }));
 
+// Session guard — must sit above every route it protects. GUARDED_PATHS (api/_auth.ts)
+// is prefix-matched, so '/api/admin' covers /api/admin/*. Health, the OAuth callbacks
+// and provider webhooks are deliberately outside it; the reasons are listed there.
+app.use(GUARDED_PATHS, requireSessionMiddleware);
+
 // API Routes - must come before static file serving
+app.all('/api/admin/dashboard', async (req, res) => {
+  try {
+    const handler = await import('./api/admin/dashboard.js');
+    await handler.default(req as any, res as any);
+  } catch (error) {
+    console.error('[Server] Admin dashboard error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 app.all('/api/herald/generate', async (req, res) => {
   try {
     const handler = await import('./api/herald/generate.js');
@@ -139,6 +155,8 @@ app.get('*', (_req, res) => {
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`[Server] BLKOUT Comms running on port ${PORT}`);
   console.log(`[Server] API: /api/herald/generate`);
+  console.log(`[Server] Admin: /api/admin/dashboard (session required)`);
+  console.log(`[Server] Guarded: ${GUARDED_PATHS.join(' ')}`);
   console.log(`[Server] Health: /api/health`);
   console.log(`[Server] Static: /dist`);
   console.log(`[Server] OpenRouter: ${process.env.OPENROUTER_API_KEY ? 'configured' : 'NOT configured'}`);
