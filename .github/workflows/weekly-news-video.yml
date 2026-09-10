@@ -165,3 +165,23 @@ jobs:
         run: |
           echo "::error::Weekly news video pipeline failed."
           echo "Inspect the artifact for partial outputs."
+
+      # A failed Sunday used to be found days later in the Actions log: the 6 Sep 2026 run
+      # died in the curator and nobody was told. This step tells Rob within a minute, and it
+      # fails loudly itself if the secrets are missing — a silent notifier is the same fault.
+      - name: Tell Rob on Telegram
+        if: failure()
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          if [ -z "$TELEGRAM_BOT_TOKEN" ] || [ -z "$TELEGRAM_CHAT_ID" ]; then
+            echo "::error::TELEGRAM_BOT_TOKEN or TELEGRAM_CHAT_ID missing — nobody was told about this failure."
+            exit 1
+          fi
+          MSG="Weekly news video FAILED — $(date -u '+%a %d %b %H:%M') UTC. No digest this week unless re-run. $RUN_URL"
+          curl -fsS -X POST "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" \
+            --data-urlencode "chat_id=${TELEGRAM_CHAT_ID}" \
+            --data-urlencode "text=${MSG}" > /dev/null
+          echo "telegram sent"
