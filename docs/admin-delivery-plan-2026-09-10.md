@@ -37,7 +37,7 @@ audit of what remains, checked against the live estate today, plus the plan to c
 5. Guard ivor-core moderation endpoints — **cross-app**: events-calendar's `/moderation` page must send a bearer or it breaks. Needs Rob's nod.
 
 ### New (Rob, 10 Sep)
-6. **Organisation identity card on the `/admin` front page** — legal name, society number, registered office, dates, officers. Only facts already on the public FCA register go in the client bundle (the bundle is public). UTR and insurance policy numbers stay out of the app.
+6. **Organisation identity card on the `/admin` front page** — legal name, society number, registered office, dates, officers. Only facts already on the public FCA register go in the client bundle (the bundle is public). UTR and insurance identifiers are shown on the card too, but fetched after sign-in from the guarded route (Coolify runtime vars `ORG_*`), never compiled into the bundle — the same line the finance pages already sit on (Rob, 10 Sep).
 
 ### Housekeeping found today
 7. Delete the dead "Recent Content" panel and `useContent`.
