@@ -77,5 +77,9 @@ Every tile: live / empty / failed / loading are visibly distinct; no number rend
 | WP3 | **Done.** Docs committed `8359f2c`; three task-inbox entries |
 | WP4 | **Done** (Rob's nod 10 Sep). events-calendar PR #33 `36a8d53` first, then ivor-core PR #9 `08ac529`; live 08:53 UTC, 12/12 401 without a session, open routes still 200 |
 | WP5 | **With Rob / September board** — what writes the first `memberships` row on 28 Dec |
+| news.blkoutuk.com/admin | **Retired** (Rob, 10 Sep). news-blkout PR #13 `9828d4f`: server-side 301 → comms `/admin/news`; verified 12/12 after a forced redeploy |
+| Finance: one system | **Done** (Rob: "go on finance pages"). comms PR #30 `030ad92` + crm PR #9 `61b2da7` (migration 017): the books publish nine `finance.*` measures on every build, `/admin/finance` is "The books", CRM `/financial` 308 → comms. Brief `finance-one-system-brief-2026-09-10.md`. Verified live 09:37 UTC |
+| Books version control | **Done** (Rob: "fine, go ahead"). `~/blkout/projects/financial-management` is a git repo, author Rob, `(RB)` messages, auto-commit + push on every build, mirror on the VPS + nightly backup. Brief in that folder |
+| Content module | **Assessed, awaiting Rob's go** — one register (`content_calendar`), commands read/write it, `/admin/calendar` becomes "Content", approved agent drafts land in the register, crawler task-dumping retired |
 
 Found on the way, left open with tasks raised: news.blkoutuk.com/admin (ungated in-app moderation page, now 401s on write — retire → comms `/admin/news`); ivor-core `GET /api/news/pending` open; `/api/moderate*` unguarded by decision (chrome extension caller); ~20 other ivor-core route families unaudited. Rob still owes the five secret rotations + Coolify token.
