@@ -39,6 +39,18 @@ export interface MembershipTier {
   members: number;
 }
 
+// The society's private identifiers, served by the guarded route from Coolify runtime
+// vars (ORG_*). They are never compiled into this bundle — a field is the recorded string
+// or null, and null must render as "not recorded", never as blank or a dash.
+export interface OrgIdentifiers {
+  utr: string | null;
+  tax_office: string | null;
+  insurer: string | null;
+  insurance_policy_number: string | null;
+  insurance_period: string | null;
+  insurance_cover: string | null;
+}
+
 export interface AdminDashboardSnapshot {
   open_loops: OpenLoop[];
   first_gestures: {
@@ -55,6 +67,7 @@ export interface AdminDashboardSnapshot {
   } | null;
   grant_pipeline: PipelineBid[];
   memberships_by_tier: MembershipTier[];
+  identifiers: OrgIdentifiers;
   generated_at: string;
 }
 

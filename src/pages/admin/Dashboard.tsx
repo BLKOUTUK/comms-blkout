@@ -74,8 +74,11 @@ export function Dashboard() {
           </p>
         </div>
 
-        {/* Who we are */}
-        <OrgIdentityCard />
+        {/* Who we are. Identifiers come from the guarded route, not the bundle. */}
+        <OrgIdentityCard
+          identifiers={admin.data?.identifiers}
+          identifiersState={admin.isLoading ? 'loading' : admin.error ? 'failed' : 'ready'}
+        />
 
         {/* Stats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
