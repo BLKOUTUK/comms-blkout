@@ -18,7 +18,7 @@ const navigation = [
   { name: 'Dashboard', href: '/admin', icon: LayoutDashboard },
   { name: 'Event Moderation', href: '/admin/events', icon: CalendarCheck },
   { name: 'News Moderation', href: '/admin/news', icon: Newspaper },
-  { name: 'Content Calendar', href: '/admin/calendar', icon: Calendar },
+  { name: 'Content', href: '/admin/calendar', icon: Calendar },
   { name: 'Funding', href: '/admin/fundraising', icon: Banknote },
   { name: 'Finance', href: '/admin/finance', icon: PoundSterling },
   { name: 'Agents', href: '/admin/agents', icon: Bot },

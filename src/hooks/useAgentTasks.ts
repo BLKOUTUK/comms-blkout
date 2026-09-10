@@ -283,9 +283,26 @@ export function useAgentTasks(agentType?: AgentType) {
   };
 
   // Approval functions
-  const approveTask = async (taskId: string, notes?: string): Promise<{ success: boolean; error?: string }> => {
+  //
+  // Until 10 September 2026 approving wrote approval_status and stopped. 74 tasks had been
+  // approved or were waiting and not one of them had become a thing that could be posted —
+  // approval led nowhere. It now lands the approved draft in the content register
+  // (public.content_calendar) as a `ready` row, through the same guarded service-role route
+  // the Content page reads, and writes the new row's id back onto the task so the two
+  // records point at each other.
+  //
+  // The register write is NOT allowed to fail silently. If it fails, the approval itself is
+  // reported as failed and the caller shows the reason, because an approved task with no
+  // register row is exactly the state this change exists to end.
+  const approveTask = async (taskId: string, notes?: string): Promise<{ success: boolean; error?: string; contentId?: string }> => {
     if (!isSupabaseConfigured()) {
       return { success: false, error: 'Database not configured' };
+    }
+
+    const task = tasks.find((t) => t.id === taskId);
+    if (!task) return { success: false, error: 'Task not found in the loaded set' };
+    if (!task.generatedContent) {
+      return { success: false, error: 'This task has no generated content, so there is nothing to put in the register' };
     }
 
     try {
@@ -300,8 +317,44 @@ export function useAgentTasks(agentType?: AgentType) {
         .eq('id', taskId);
 
       if (error) throw error;
+
+      // The three channels BLKOUT posts to, unless the task names one.
+      const platform = (task.targetPlatform || '').toLowerCase();
+      const channels = ['instagram', 'facebook', 'linkedin', 'twitter', 'tiktok', 'youtube'].includes(platform)
+        ? [platform]
+        : ['instagram', 'facebook', 'linkedin'];
+
+      const response = await apiFetch('/api/admin/content', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title: task.title,
+          primary_content: task.generatedContent,
+          generated_by_agent: task.agentType,
+          status: 'ready',
+          priority: task.priority === 'critical' ? 'urgent' : task.priority,
+          metadata: { source: `agent:${taskId}`, channels },
+        }),
+      });
+
+      if (!response.ok) {
+        const text = await response.text();
+        throw new Error(`the register refused the row (HTTP ${response.status}): ${text.slice(0, 200)}`);
+      }
+
+      const result = await response.json();
+      const contentId = result?.row?.id as string | undefined;
+
+      await supabase
+        .from('socialsync_agent_tasks')
+        .update({
+          approval_notes: `${notes || 'Approved'} → register ${contentId || 'unknown'}`,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', taskId);
+
       fetchTasks(); // Refresh
-      return { success: true };
+      return { success: true, contentId };
     } catch (err) {
       return { success: false, error: err instanceof Error ? err.message : 'Failed to approve' };
     }
