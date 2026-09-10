@@ -31,6 +31,16 @@ app.all('/api/admin/dashboard', async (req, res) => {
   }
 });
 
+app.all('/api/admin/finance', async (req, res) => {
+  try {
+    const handler = await import('./api/admin/finance.js');
+    await handler.default(req as any, res as any);
+  } catch (error) {
+    console.error('[Server] Admin finance error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 app.all('/api/herald/generate', async (req, res) => {
   try {
     const handler = await import('./api/herald/generate.js');
@@ -155,7 +165,7 @@ app.get('*', (_req, res) => {
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`[Server] BLKOUT Comms running on port ${PORT}`);
   console.log(`[Server] API: /api/herald/generate`);
-  console.log(`[Server] Admin: /api/admin/dashboard (session required)`);
+  console.log(`[Server] Admin: /api/admin/dashboard, /api/admin/finance (session required)`);
   console.log(`[Server] Guarded: ${GUARDED_PATHS.join(' ')}`);
   console.log(`[Server] Health: /api/health`);
   console.log(`[Server] Static: /dist`);
