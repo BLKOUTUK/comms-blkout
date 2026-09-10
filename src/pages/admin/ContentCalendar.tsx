@@ -12,6 +12,11 @@
  * went out. Every control that could not answer one of those is gone.
  *
  * The route stays /admin/calendar so nothing external breaks; the sidebar says "Content".
+ *
+ * 10 September 2026: draft -> ready is now gated by the values check that used to sit on
+ * the agents page. `ready` is the status /post publishes from, so it is the moment a human
+ * takes responsibility for what goes out. The other moves — back to draft, skipped —
+ * change nothing a reader will see and need no check.
  */
 
 import { useMemo, useState } from 'react';
@@ -26,6 +31,7 @@ import {
   type ContentStatus,
 } from '@/hooks/useAdminContent';
 import { NewItemForm } from '@/components/content/NewItemForm';
+import { ValuesCheck } from '@/components/content/ValuesCheck';
 
 const STATUS_CHIP: Record<string, string> = {
   draft: 'bg-gray-100 text-gray-700 border-gray-200',
@@ -86,7 +92,7 @@ function Thumb({ row }: { row: ContentRow }) {
 
 function StatusControl({
   row, onSet, busy,
-}: { row: ContentRow; onSet: (id: string, s: ContentStatus) => void; busy: boolean }) {
+}: { row: ContentRow; onSet: (r: ContentRow, s: ContentStatus) => void; busy: boolean }) {
   const moves = NEXT_STATUS[row.status] ?? [];
   if (!moves.length) return null;
   return (
@@ -95,7 +101,7 @@ function StatusControl({
         <button
           key={next}
           disabled={busy}
-          onClick={() => onSet(row.id, next)}
+          onClick={() => onSet(row, next)}
           className="text-xs px-2 py-1 rounded border border-gray-200 hover:border-blkout-400 hover:bg-blkout-50 disabled:opacity-40"
         >
           {busy ? '…' : ACTION_LABEL[next]}
@@ -110,13 +116,25 @@ export function ContentCalendar() {
   const [busyId, setBusyId] = useState<string | null>(null);
   const [writeError, setWriteError] = useState<string | null>(null);
   const [justDrafted, setJustDrafted] = useState<ContentRow | null>(null);
+  const [checking, setChecking] = useState<ContentRow | null>(null);
 
-  const onSet = async (id: string, next: ContentStatus) => {
+  const commit = async (id: string, next: ContentStatus) => {
     setBusyId(id);
     setWriteError(null);
     const failure = await setStatus(id, next);
     setBusyId(null);
     if (failure) setWriteError(failure);
+  };
+
+  // draft -> ready is the moment a person says this can go out, so it does not fire until
+  // the values check has been ticked. Nothing is written while the checklist is open.
+  const onSet = (row: ContentRow, next: ContentStatus) => {
+    if (row.status === 'draft' && next === 'ready') {
+      setWriteError(null);
+      setChecking(row);
+      return;
+    }
+    void commit(row.id, next);
   };
 
   const rows = data?.rows ?? [];
@@ -363,6 +381,28 @@ export function ContentCalendar() {
           </>
         )}
       </div>
+
+      {/* Values check — gates draft → ready, and nothing else. */}
+      {checking && (
+        <div
+          className="fixed inset-0 z-50 bg-black/60 flex items-start justify-center overflow-y-auto p-6"
+          role="dialog"
+          aria-modal="true"
+          aria-label={`Values check before marking "${checking.title}" ready`}
+        >
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-2xl my-8">
+            <ValuesCheck
+              contentType="text"
+              onValidationComplete={(passed) => {
+                const row = checking;
+                setChecking(null);
+                if (passed && row) void commit(row.id, 'ready');
+              }}
+              onCancel={() => setChecking(null)}
+            />
+          </div>
+        </div>
+      )}
     </Layout>
   );
 }

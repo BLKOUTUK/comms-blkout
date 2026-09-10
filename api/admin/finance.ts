@@ -3,7 +3,7 @@
 // Finance is one system, not two. The ledger is the bookkeeping pipeline in
 // ~/blkout/projects/financial-management/ (bank CSVs → accounts-map.json →
 // build-finance.mjs → finance.json), written monthly through Mission Control's statement
-// upload; build-finance.mjs publishes nine `finance.*` measures into metrics.snapshots.
+// upload; build-finance.mjs publishes ten `finance.*` measures into metrics.snapshots.
 // The metrics schema is not exposed over PostgREST and metrics.* has no grant to any API
 // role, so the browser cannot reach those rows at all. This route calls
 // public.admin_finance_snapshot() (migration 017, service_role-only, SECURITY DEFINER)

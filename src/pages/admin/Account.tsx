@@ -1,7 +1,52 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { Layout } from '@/components/layout/Layout';
 import { useAuth } from '@/hooks/useAuth';
-import { KeyRound, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
+import { KeyRound, CheckCircle2, AlertCircle, Loader2, ExternalLink, ArrowRight } from 'lucide-react';
+
+// "Where things live" arrived here on 10 September 2026 when the Settings page was
+// retired. Settings held six agent toggles that wrote a column nothing outside the admin
+// read, and this card. The card is the part that was doing a job: it answers "I used to
+// do that here — where is it now?", which is the only question the old page could answer.
+const HOMES: { what: string; where: string; href?: string; internal?: boolean }[] = [
+  { what: 'What is scheduled, ready and posted', where: 'the content register', href: '/admin/calendar', internal: true },
+  { what: 'The books — cash, funds, income', where: 'the finance page; the ledger itself is built by build-finance.mjs', href: '/admin/finance', internal: true },
+  { what: 'Adding a bank statement to the books', where: 'the Finance panel in Mission Control (localhost:8765)' },
+  { what: 'Writing and sending a newsletter', where: 'the blkout-newsletter skill; sending is SendFox', href: 'https://sendfox.com' },
+  { what: 'Branded images and video', where: 'the blkout-image-gen skill' },
+  { what: 'Posting to social platforms', where: 'the Zapier routines — see the posting playbook' },
+];
+
+function Homes() {
+  return (
+    <div className="bg-white border border-gray-200 rounded-2xl shadow-sm p-6">
+      <h2 className="font-medium text-gray-900 mb-1">Where things live</h2>
+      <p className="text-sm text-gray-600 mb-4">
+        The admin pages show the record. The work itself happens in the places below.
+      </p>
+      <ul className="space-y-3">
+        {HOMES.map((h) => (
+          <li key={h.what} className="flex items-start justify-between gap-4 text-sm">
+            <div>
+              <p className="font-medium text-gray-900">{h.what}</p>
+              <p className="text-gray-600">{h.where}</p>
+            </div>
+            {h.href && (h.internal ? (
+              <Link to={h.href} className="text-blkout-600 hover:underline inline-flex items-center gap-1 shrink-0">
+                <ArrowRight size={14} /> Open
+              </Link>
+            ) : (
+              <a href={h.href} target="_blank" rel="noopener noreferrer"
+                 className="text-blkout-600 hover:underline inline-flex items-center gap-1 shrink-0">
+                <ExternalLink size={14} /> Open
+              </a>
+            ))}
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
 
 export function Account() {
   const { user, updatePassword } = useAuth();
@@ -117,6 +162,8 @@ export function Account() {
             {isSaving ? 'Saving…' : 'Change password'}
           </button>
         </form>
+
+        <Homes />
       </div>
     </Layout>
   );

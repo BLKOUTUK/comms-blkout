@@ -12,7 +12,7 @@
  * One ledger → one publish step → one read surface. The ledger is unchanged: bank CSVs in
  * ~/blkout/projects/financial-management/ledger/, mapped by accounts-map.json, built by
  * build-finance.mjs, uploaded monthly through Mission Control. build-finance.mjs now also
- * publishes nine `finance.*` measures to metrics.snapshots, and this page reads the latest
+ * publishes ten `finance.*` measures to metrics.snapshots, and this page reads the latest
  * of each through the guarded service-role route (migration 017).
  *
  * The one rule this page must not break: a position it did not fetch is not a position.

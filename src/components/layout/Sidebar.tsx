@@ -4,8 +4,6 @@ import { NavLink } from 'react-router-dom';
 import {
   LayoutDashboard,
   Calendar,
-  Bot,
-  Settings,
   UserCircle,
   Mail,
   Banknote,
@@ -21,9 +19,7 @@ const navigation = [
   { name: 'Content', href: '/admin/calendar', icon: Calendar },
   { name: 'Funding', href: '/admin/fundraising', icon: Banknote },
   { name: 'Finance', href: '/admin/finance', icon: PoundSterling },
-  { name: 'Agents', href: '/admin/agents', icon: Bot },
   { name: 'Newsletters', href: '/admin/newsletters', icon: Mail },
-  { name: 'Settings', href: '/admin/settings', icon: Settings },
   { name: 'Account', href: '/admin/account', icon: UserCircle },
 ];
 

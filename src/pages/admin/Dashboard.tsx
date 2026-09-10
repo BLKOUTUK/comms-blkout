@@ -1,12 +1,8 @@
 
 import { Link } from 'react-router-dom';
 import { Layout } from '@/components/layout/Layout';
-import { AgentCard } from '@/components/shared/AgentCard';
 import { StatCard } from '@/components/shared/StatCard';
 import { OrgIdentityCard } from '@/components/admin/OrgIdentityCard';
-import { useAgents } from '@/hooks/useAgents';
-import { useAgentTasks } from '@/hooks/useAgentTasks';
-import { useAgentActivity } from '@/hooks/useAgentActivity';
 import { useIvorDashboard } from '@/hooks/useIvorDashboard';
 import {
   useAdminDashboard,
@@ -16,28 +12,24 @@ import {
 import {
   CalendarCheck,
   ShieldAlert,
-  FileText,
   Banknote,
   Users,
-  Clock,
   HeartHandshake,
 } from 'lucide-react';
-import { formatDistanceToNow } from 'date-fns';
 
 // Until 3 Sep 2026 three of the four tiles here were mock values ("Community
 // Members: 2,847", "↑ 5.2%"). Tiles now show real counts or say "unavailable" — never a
 // number that isn't one. Four states, visibly distinct: "…" loading · the number · "none"
 // · "unavailable" with the error text beneath the row.
+//
+// 10 September 2026: the AI Agents cards, the Recent Activity panel and the "Agent content
+// awaiting approval" tile are gone with the agents page. Nothing had written an agent task
+// since 29 January 2026, so all three read a queue that had stopped moving.
 const unavailable = 'unavailable';
 
 export function Dashboard() {
-  const { agents, isLoading: agentsLoading } = useAgents();
-  const { pendingApproval } = useAgentTasks();
-  const { activities } = useAgentActivity(5);
   const ivor = useIvorDashboard();
   const admin = useAdminDashboard();
-
-  const awaitingApproval = pendingApproval.length;
 
   // ivor-core tiles
   const ivorTile = (n: number | undefined) =>
@@ -81,7 +73,7 @@ export function Dashboard() {
         />
 
         {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <StatCard
             title="Events added, last 7 days"
             value={ivorTile(ivor.events7d?.total)}
@@ -93,13 +85,6 @@ export function Dashboard() {
             icon={ShieldAlert}
             iconColor="text-amber-600"
             iconBg="bg-amber-100"
-          />
-          <StatCard
-            title="Agent content awaiting approval"
-            value={awaitingApproval}
-            icon={FileText}
-            iconColor="text-blkout-600"
-            iconBg="bg-blkout-100"
           />
           <div title={LIVE_BIDS_TOOLTIP}>
             <StatCard
@@ -260,56 +245,12 @@ export function Dashboard() {
           )}
         </div>
 
-        {/* Agent Status Cards */}
-        <div>
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">AI Agents</h2>
-          {agentsLoading ? (
-            <div className="text-center py-8">
-              <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blkout-600"></div>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {agents.map((agent) => (
-                <AgentCard key={agent.id} agent={agent} />
-              ))}
-            </div>
-          )}
-        </div>
-
-        {/* Activity Log */}
-        <div className="card">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-semibold text-gray-900">Recent Activity</h2>
-            <div className="flex items-center gap-2">
-              <Clock size={20} className="text-gray-400" />
-            </div>
-          </div>
-          <div className="space-y-3">
-            {activities.map((log) => (
-              <div key={log.id} className="pb-3 border-b border-gray-100 last:border-0">
-                <div className="flex items-start gap-3">
-                  <div className="w-2 h-2 bg-blkout-600 rounded-full mt-2"></div>
-                  <div className="flex-1">
-                    <p className="text-sm text-gray-900">{log.description}</p>
-                    <p className="text-xs text-gray-500 mt-1">
-                      {formatDistanceToNow(new Date(log.timestamp), { addSuffix: true })}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            ))}
-            {activities.length === 0 && (
-              <p className="text-sm text-gray-500 text-center py-4">No recent activity</p>
-            )}
-          </div>
-        </div>
-
         {/* Quick Actions */}
         <div className="card">
           <h2 className="text-xl font-semibold text-gray-900 mb-4">Quick Actions</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Link to="/admin/calendar" className="btn btn-primary text-center">Create New Content</Link>
-            <Link to="/admin/agents" className="btn btn-outline text-center">Review agent content</Link>
+            <Link to="/admin/calendar" className="btn btn-outline text-center">Content register</Link>
           </div>
         </div>
       </div>

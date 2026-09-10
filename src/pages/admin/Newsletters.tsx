@@ -1,19 +1,16 @@
 
 import { useState } from 'react';
 import { Layout } from '@/components/layout/Layout';
-import { useNewsletter, SubscriberTier, NewsletterEdition } from '@/hooks/useNewsletter';
-import { useAgentIntelligence } from '@/hooks/useAgentIntelligence';
+import { useNewsletter, EditionType, NewsletterEdition } from '@/hooks/useNewsletter';
 import { useSendFoxStatus } from '@/hooks/useSendFoxStatus';
 import { SendFoxStatusPanel } from '@/components/integrations/SendFoxStatusPanel';
 import { SegmentSelector } from '@/components/newsletters/SegmentSelector';
 import { ContentEditor } from '@/components/newsletters/ContentEditor';
 import { SchedulePublisher, ScheduleBadge } from '@/components/newsletters/SchedulePublisher';
 import { PerformanceAnalytics, PerformanceStatBadge } from '@/components/newsletters/PerformanceAnalytics';
-import { TemplateLibrary, TemplateQuickSelect, NewsletterTemplate } from '@/components/newsletters/TemplateLibrary';
 import { apiFetch, openWithSession } from '@/lib/apiFetch';
 import {
   Mail,
-  Users,
   FileText,
   Send,
   Plus,
@@ -21,7 +18,6 @@ import {
   CheckCircle,
   Eye,
   Copy,
-  Lightbulb,
   ExternalLink,
   Sparkles,
   Download,
@@ -31,34 +27,43 @@ import {
   Archive,
   Filter,
   XCircle,
+  AlertTriangle,
   Edit3,
   Calendar,
-  BookTemplate,
-  X,
 } from 'lucide-react';
 import { formatDistanceToNow, format } from 'date-fns';
+
+/**
+ * Newsletters — /admin/newsletters
+ *
+ * Cut to the working core on 10 September 2026. What went: the subscriber-tiers panel
+ * (newsletter_subscribers, 0 rows — SendFox holds the list), the template library (a
+ * bundled set of starter HTML nothing had used), and the IVOR intelligence panel, which
+ * read the agent feed that stopped moving in January. What stayed is everything that
+ * persists to newsletter_editions or reaches SendFox: the editions list, Generate,
+ * Editorial, Edit, Schedule, Preview, Copy, Export and Send to SendFox.
+ */
 
 type FilterMode = 'all' | 'drafts' | 'archive';
 
 export function Newsletters() {
   const {
     editions,
-    subscriberCounts,
     draftEditions,
     sentEditions,
     isLoading,
+    error: editionsError,
     createEdition,
     updateEdition,
     refetch: refetchEditions,
   } = useNewsletter();
-  const { highPriorityIntel } = useAgentIntelligence('herald');
   const { isConnected: sendFoxConnected, isLoading: sendFoxLoading, totalSubscribers: sendFoxSubscribers } = useSendFoxStatus();
 
   const [filterMode, setFilterMode] = useState<FilterMode>('all');
   const [showSendFoxPanel, setShowSendFoxPanel] = useState(false);
   const [_selectedEdition, setSelectedEdition] = useState<NewsletterEdition | null>(null);
-  const [newEditionTier, setNewEditionTier] = useState<SubscriberTier>('weekly_engaged');
-  const [newSubject, setNewSubject] = useState('');
+  const [newEditionType, setNewEditionType] = useState<EditionType>('weekly');
+  const [newTitle, setNewTitle] = useState('');
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [isGenerating, setIsGenerating] = useState<string | null>(null);
   const [generationError, setGenerationError] = useState<string | null>(null);
@@ -74,8 +79,6 @@ export function Newsletters() {
   const [isSendingToSendFox, setIsSendingToSendFox] = useState(false);
   const [editingEdition, setEditingEdition] = useState<NewsletterEdition | null>(null);
   const [schedulingEdition, setSchedulingEdition] = useState<NewsletterEdition | null>(null);
-  const [showTemplateLibrary, setShowTemplateLibrary] = useState(false);
-  const [selectedTemplate, setSelectedTemplate] = useState<NewsletterTemplate | null>(null);
   const [sendFoxResult, setSendFoxResult] = useState<{
     success: boolean;
     html_content?: string;
@@ -237,7 +240,8 @@ export function Newsletters() {
     }
   };
 
-  // Save edited content
+  // Save edited content. The editor speaks of "subject" and "preheader"; the table's
+  // columns are subject_line and preview_text, and the hook maps between them.
   const handleSaveContent = async (updates: {
     htmlContent?: string;
     subject?: string;
@@ -245,27 +249,15 @@ export function Newsletters() {
   }) => {
     if (!editingEdition) return { success: false, error: 'No edition selected' };
 
-    const result = await updateEdition(editingEdition.id, updates);
+    const result = await updateEdition(editingEdition.id, {
+      htmlContent: updates.htmlContent,
+      subjectLine: updates.subject,
+      previewText: updates.preheaderText,
+    });
     if (result.success) {
       await refetchEditions();
     }
     return result;
-  };
-
-  // Apply template to edition
-  const handleApplyTemplate = async (template: NewsletterTemplate) => {
-    // If we have an edition being edited, apply template to it
-    if (editingEdition) {
-      const result = await updateEdition(editingEdition.id, {
-        htmlContent: template.htmlContent,
-        preheaderText: template.preheaderText || undefined,
-      });
-      if (result.success) {
-        await refetchEditions();
-        setEditingEdition(null);
-      }
-    }
-    setShowTemplateLibrary(false);
   };
 
   // Schedule newsletter
@@ -282,30 +274,29 @@ export function Newsletters() {
     return result;
   };
 
-  const handleCreateEdition = async () => {
-    if (!newSubject.trim()) return;
+  const [createError, setCreateError] = useState<string | null>(null);
 
-    const result = await createEdition(newEditionTier, newSubject);
+  const handleCreateEdition = async () => {
+    if (!newTitle.trim()) return;
+    setCreateError(null);
+
+    const result = await createEdition(newEditionType, newTitle.trim());
     if (result.success && result.edition) {
-      // If a template was selected, apply it to the new edition
-      if (selectedTemplate) {
-        await updateEdition(result.edition.id, {
-          htmlContent: selectedTemplate.htmlContent,
-          preheaderText: selectedTemplate.preheaderText || undefined,
-        });
-        await refetchEditions();
-      }
       setSelectedEdition(result.edition);
       setFilterMode('drafts'); // Show drafts tab after creating
       setShowCreateModal(false);
-      setNewSubject('');
-      setSelectedTemplate(null);
+      setNewTitle('');
+      return;
     }
+    // The insert is the only thing that makes an edition exist. If it did not land,
+    // the modal says so rather than closing as though it had.
+    setCreateError(result.error || 'The edition was not created.');
   };
 
   const getStatusBadge = (status: string) => {
     const styles: Record<string, string> = {
       draft: 'bg-yellow-100 text-yellow-700',
+      approved: 'bg-teal-100 text-teal-700',
       scheduled: 'bg-blue-100 text-blue-700',
       sent: 'bg-green-100 text-green-700',
       cancelled: 'bg-gray-100 text-gray-700',
@@ -338,44 +329,17 @@ export function Newsletters() {
               Create and manage community newsletters with Herald agent
             </p>
           </div>
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => setShowTemplateLibrary(true)}
-              className="btn btn-outline"
-            >
-              <BookTemplate size={18} />
-              Templates
-            </button>
-            <button
-              onClick={() => setShowCreateModal(true)}
-              className="btn btn-primary"
-            >
-              <Plus size={18} />
-              New Edition
-            </button>
-          </div>
+          <button
+            onClick={() => setShowCreateModal(true)}
+            className="btn btn-primary"
+          >
+            <Plus size={18} />
+            New Edition
+          </button>
         </div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
-          <div className="card">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600 mb-1">Weekly Subscribers</p>
-                <p className="text-3xl font-bold text-blkout-600">{subscriberCounts.weeklyEngaged}</p>
-              </div>
-              <Users className="text-blkout-600" size={32} />
-            </div>
-          </div>
-          <div className="card">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600 mb-1">Monthly Circle</p>
-                <p className="text-3xl font-bold text-purple-600">{subscriberCounts.monthlyCircle}</p>
-              </div>
-              <Mail className="text-purple-600" size={32} />
-            </div>
-          </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="card">
             <div className="flex items-center justify-between">
               <div>
@@ -428,6 +392,19 @@ export function Newsletters() {
           <SendFoxStatusPanel showLists={true} />
         )}
 
+        {/* The editions read failed — say so, rather than rendering an empty list. */}
+        {editionsError && (
+          <div className="card border-l-4 border-red-500 bg-red-50">
+            <div className="flex items-start gap-3">
+              <AlertTriangle className="text-red-600 shrink-0 mt-0.5" size={18} />
+              <div>
+                <p className="font-medium text-red-900">The editions could not be read.</p>
+                <p className="text-sm text-red-800 mt-1 font-mono break-all">{editionsError}</p>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Generation Error Alert */}
         {generationError && (
           <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex items-start gap-3">
@@ -439,30 +416,6 @@ export function Newsletters() {
             >
               ✕
             </button>
-          </div>
-        )}
-
-        {/* Intelligence Suggestions */}
-        {highPriorityIntel.length > 0 && (
-          <div className="card border-l-4 border-yellow-500 bg-yellow-50">
-            <h3 className="text-lg font-semibold text-gray-900 mb-3 flex items-center gap-2">
-              <Lightbulb size={20} className="text-yellow-600" />
-              Content Suggestions from IVOR
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {highPriorityIntel.slice(0, 4).map((intel) => (
-                <div key={intel.id} className="bg-white rounded-lg p-3 border border-yellow-200">
-                  <p className="text-sm font-medium text-gray-900 mb-2">{intel.summary}</p>
-                  <div className="flex flex-wrap gap-1">
-                    {intel.tags.slice(0, 3).map((tag, idx) => (
-                      <span key={idx} className="text-xs bg-yellow-100 text-yellow-700 px-1.5 py-0.5 rounded">
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              ))}
-            </div>
           </div>
         )}
 
@@ -585,23 +538,26 @@ export function Newsletters() {
                           <ScheduleBadge scheduledFor={edition.scheduledFor} />
                         )}
                         <span className={`text-xs px-2 py-0.5 rounded ${
-                          edition.subscriberTier === 'weekly_engaged'
+                          edition.editionType === 'weekly'
                             ? 'bg-blkout-100 text-blkout-700'
                             : 'bg-purple-100 text-purple-700'
                         }`}>
-                          {edition.subscriberTier === 'weekly_engaged' ? 'Weekly' : 'Monthly'}
+                          {edition.editionType === 'weekly' ? 'Weekly' : 'Monthly'}
                         </span>
                       </div>
-                      <h3 className="font-medium text-gray-900 mb-1">{edition.subject}</h3>
-                      {edition.preheaderText && (
-                        <p className="text-sm text-gray-600 mb-2">{edition.preheaderText}</p>
+                      <h3 className="font-medium text-gray-900 mb-1">{edition.title}</h3>
+                      <p className="text-sm text-gray-600 mb-2">
+                        Subject: {edition.subjectLine}
+                      </p>
+                      {edition.previewText && (
+                        <p className="text-sm text-gray-500 mb-2">{edition.previewText}</p>
                       )}
                       <div className="flex items-center gap-4 text-xs text-gray-500">
                         <span className="flex items-center gap-1">
                           <Clock size={12} />
                           {formatDistanceToNow(edition.createdAt, { addSuffix: true })}
                         </span>
-                        <span>{edition.contentItems.length} content blocks</span>
+                        <span>{edition.contentItemCount} content blocks</span>
                         {edition.sentAt && (
                           <span className="flex items-center gap-1 text-green-600">
                             <CheckCircle size={12} />
@@ -613,10 +569,7 @@ export function Newsletters() {
                     <div className="flex items-center gap-2">
                       {/* Generate Content Button */}
                       <button
-                        onClick={() => handleGenerateContent(
-                          edition.id,
-                          edition.subscriberTier === 'weekly_engaged' ? 'weekly' : 'monthly'
-                        )}
+                        onClick={() => handleGenerateContent(edition.id, edition.editionType)}
                         disabled={isGenerating === edition.id}
                         className="btn btn-primary btn-sm"
                         title="Generate newsletter content with AI"
@@ -656,10 +609,7 @@ export function Newsletters() {
                       {/* SendFox Button - only show if HTML exists */}
                       {edition.htmlContent && (
                         <button
-                          onClick={() => handleOpenSendFoxModal(
-                            edition.id,
-                            edition.subscriberTier === 'weekly_engaged' ? 'weekly' : 'monthly'
-                          )}
+                          onClick={() => handleOpenSendFoxModal(edition.id, edition.editionType)}
                           className="btn btn-sm bg-gradient-to-r from-orange-500 to-red-500 text-white hover:from-orange-600 hover:to-red-600"
                           title="Send to SendFox"
                         >
@@ -748,7 +698,7 @@ export function Newsletters() {
                       />
                       <div className="text-gray-500">
                         <span className="text-gray-500">Unsubscribes:</span>{' '}
-                        <span className="font-medium text-gray-700">{edition.unsubscribes || 0}</span>
+                        <span className="font-medium text-gray-700">{edition.unsubscribes}</span>
                       </div>
                     </div>
                   )}
@@ -773,9 +723,9 @@ export function Newsletters() {
             <div>
               <h3 className="font-semibold text-gray-900 mb-1">SendFox Integration</h3>
               <p className="text-sm text-gray-700">
-                Newsletters are composed here, then the HTML is copied to SendFox for delivery.
-                SendFox's API doesn't support programmatic campaign sending, so the final send
-                step is done through their web dashboard.
+                Newsletters are composed here. "SendFox" creates a <strong>draft</strong> campaign
+                against the list you pick — nothing is sent from this page. The send itself is
+                always a deliberate act in SendFox's own dashboard.
               </p>
               <a
                 href="https://sendfox.com/dashboard"
@@ -804,9 +754,9 @@ export function Newsletters() {
                 </label>
                 <div className="flex gap-2">
                   <button
-                    onClick={() => setNewEditionTier('weekly_engaged')}
+                    onClick={() => setNewEditionType('weekly')}
                     className={`flex-1 p-3 rounded-lg border text-left ${
-                      newEditionTier === 'weekly_engaged'
+                      newEditionType === 'weekly'
                         ? 'border-blkout-600 bg-blkout-50'
                         : 'border-gray-200'
                     }`}
@@ -815,9 +765,9 @@ export function Newsletters() {
                     <div className="text-xs text-gray-600">For engaged members</div>
                   </button>
                   <button
-                    onClick={() => setNewEditionTier('monthly_circle')}
+                    onClick={() => setNewEditionType('monthly')}
                     className={`flex-1 p-3 rounded-lg border text-left ${
-                      newEditionTier === 'monthly_circle'
+                      newEditionType === 'monthly'
                         ? 'border-purple-600 bg-purple-50'
                         : 'border-gray-200'
                     }`}
@@ -830,37 +780,28 @@ export function Newsletters() {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Subject Line
+                  Title
                 </label>
                 <input
                   type="text"
-                  value={newSubject}
-                  onChange={(e) => setNewSubject(e.target.value)}
+                  value={newTitle}
+                  onChange={(e) => setNewTitle(e.target.value)}
                   placeholder={
-                    newEditionTier === 'weekly_engaged'
-                      ? 'This Week at BLKOUT: ...'
-                      : 'BLKOUT Monthly: ...'
+                    newEditionType === 'weekly'
+                      ? 'BLKOUT Weekly — 17 September 2026'
+                      : 'BLKOUT October 2026 — ...'
                   }
                   className="input w-full"
                 />
+                <p className="text-xs text-gray-500 mt-1">
+                  The subject line starts as a copy of this. Change it in Edit before sending.
+                </p>
               </div>
 
-              {/* Template Selection */}
-              <TemplateQuickSelect
-                editionType={newEditionTier === 'weekly_engaged' ? 'weekly' : 'monthly'}
-                onSelect={(template) => setSelectedTemplate(template)}
-              />
-              {selectedTemplate && (
-                <div className="flex items-center gap-2 p-2 bg-blkout-50 rounded-lg text-sm">
-                  <BookTemplate size={14} className="text-blkout-600" />
-                  <span className="text-blkout-700">Using: {selectedTemplate.name}</span>
-                  <button
-                    onClick={() => setSelectedTemplate(null)}
-                    className="ml-auto text-blkout-600 hover:text-blkout-800"
-                  >
-                    <X size={14} />
-                  </button>
-                </div>
+              {createError && (
+                <p className="text-sm text-red-700 bg-red-50 border border-red-200 rounded-lg px-3 py-2 font-mono break-all">
+                  {createError}
+                </p>
               )}
             </div>
 
@@ -868,7 +809,7 @@ export function Newsletters() {
               <button
                 onClick={() => {
                   setShowCreateModal(false);
-                  setSelectedTemplate(null);
+                  setCreateError(null);
                 }}
                 className="btn btn-outline"
               >
@@ -876,7 +817,7 @@ export function Newsletters() {
               </button>
               <button
                 onClick={handleCreateEdition}
-                disabled={!newSubject.trim()}
+                disabled={!newTitle.trim()}
                 className="btn btn-primary"
               >
                 Create Edition
@@ -884,20 +825,6 @@ export function Newsletters() {
             </div>
           </div>
         </div>
-      )}
-
-      {/* Template Library Modal */}
-      {showTemplateLibrary && (
-        <TemplateLibrary
-          onSelectTemplate={handleApplyTemplate}
-          onClose={() => setShowTemplateLibrary(false)}
-          currentContent={editingEdition ? {
-            htmlContent: editingEdition.htmlContent || '',
-            subject: editingEdition.subject,
-            preheaderText: editingEdition.preheaderText || undefined,
-            editionType: editingEdition.subscriberTier === 'weekly_engaged' ? 'weekly' : 'monthly',
-          } : undefined}
-        />
       )}
 
       {/* Editorial Modal */}
@@ -1106,8 +1033,8 @@ export function Newsletters() {
       {editingEdition && editingEdition.htmlContent && (
         <ContentEditor
           content={editingEdition.htmlContent}
-          subject={editingEdition.subject}
-          preheaderText={editingEdition.preheaderText}
+          subject={editingEdition.subjectLine}
+          preheaderText={editingEdition.previewText}
           onSave={handleSaveContent}
           onClose={() => setEditingEdition(null)}
           isLoading={isLoading}
@@ -1117,8 +1044,8 @@ export function Newsletters() {
       {/* Schedule Publisher Modal */}
       {schedulingEdition && schedulingEdition.htmlContent && (
         <SchedulePublisher
-          editionType={schedulingEdition.subscriberTier === 'weekly_engaged' ? 'weekly' : 'monthly'}
-          subject={schedulingEdition.subject}
+          editionType={schedulingEdition.editionType}
+          subject={schedulingEdition.title}
           currentSchedule={schedulingEdition.scheduledFor}
           onSchedule={handleSchedule}
           onClose={() => setSchedulingEdition(null)}

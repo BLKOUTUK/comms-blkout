@@ -222,9 +222,9 @@ export function PerformanceAnalytics({ editions, compact = false }: PerformanceA
                 className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
               >
                 <div className="flex-1 min-w-0">
-                  <p className="font-medium text-gray-900 truncate">{edition.subject}</p>
+                  <p className="font-medium text-gray-900 truncate">{edition.title}</p>
                   <p className="text-xs text-gray-500">
-                    #{edition.editionNumber} • {edition.subscriberTier === 'weekly_engaged' ? 'Weekly' : 'Monthly'}
+                    #{edition.editionNumber} • {edition.editionType === 'weekly' ? 'Weekly' : 'Monthly'}
                   </p>
                 </div>
                 <div className="flex items-center gap-6 text-sm">
@@ -259,7 +259,7 @@ export function PerformanceAnalytics({ editions, compact = false }: PerformanceA
             </div>
             <div>
               <h4 className="font-semibold text-green-800 mb-1">Best Performing Newsletter</h4>
-              <p className="text-gray-900 font-medium">{metrics.bestPerforming.subject}</p>
+              <p className="text-gray-900 font-medium">{metrics.bestPerforming.title}</p>
               <div className="flex items-center gap-4 mt-2 text-sm">
                 <span className="text-green-700">
                   <Eye size={14} className="inline mr-1" />
