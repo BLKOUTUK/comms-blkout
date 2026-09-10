@@ -10,6 +10,7 @@ import { ContentEditor } from '@/components/newsletters/ContentEditor';
 import { SchedulePublisher, ScheduleBadge } from '@/components/newsletters/SchedulePublisher';
 import { PerformanceAnalytics, PerformanceStatBadge } from '@/components/newsletters/PerformanceAnalytics';
 import { TemplateLibrary, TemplateQuickSelect, NewsletterTemplate } from '@/components/newsletters/TemplateLibrary';
+import { apiFetch, openWithSession } from '@/lib/apiFetch';
 import {
   Mail,
   Users,
@@ -91,7 +92,7 @@ export function Newsletters() {
     setGenerationError(null);
 
     try {
-      const response = await fetch('/api/herald/generate', {
+      const response = await apiFetch('/api/herald/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -116,14 +117,30 @@ export function Newsletters() {
     }
   };
 
-  // Preview newsletter HTML
-  const handlePreview = (editionId: string) => {
-    window.open(`/api/herald/generate?action=preview&id=${editionId}`, '_blank');
+  // Preview newsletter HTML. /api/herald/generate is behind the session guard and
+  // window.open cannot carry an Authorization header, so fetch it with the session and
+  // open the response as a blob.
+  const handlePreview = async (editionId: string) => {
+    setGenerationError(null);
+    try {
+      await openWithSession(`/api/herald/generate?action=preview&id=${editionId}`);
+    } catch (error) {
+      setGenerationError(error instanceof Error ? error.message : 'Preview failed');
+    }
   };
 
-  // Export newsletter
-  const handleExport = (editionId: string, format: 'html' | 'json' | 'text') => {
-    window.open(`/api/herald/generate?action=export&id=${editionId}&format=${format}`, '_blank');
+  // Export newsletter — same reason, saved rather than opened.
+  const handleExport = async (editionId: string, format: 'html' | 'json' | 'text') => {
+    setGenerationError(null);
+    const ext = format === 'text' ? 'txt' : format;
+    try {
+      await openWithSession(
+        `/api/herald/generate?action=export&id=${editionId}&format=${format}`,
+        { download: `newsletter-${editionId}.${ext}` }
+      );
+    } catch (error) {
+      setGenerationError(error instanceof Error ? error.message : 'Export failed');
+    }
   };
 
   // Submit editorial note
@@ -132,7 +149,7 @@ export function Newsletters() {
 
     setIsSubmittingEditorial(true);
     try {
-      const response = await fetch('/api/herald/generate', {
+      const response = await apiFetch('/api/herald/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -184,7 +201,7 @@ export function Newsletters() {
     setIsSendingToSendFox(true);
 
     try {
-      const response = await fetch('/api/herald/generate', {
+      const response = await apiFetch('/api/herald/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
