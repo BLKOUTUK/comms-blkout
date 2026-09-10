@@ -37,7 +37,8 @@ import { formatDistanceToNow, format } from 'date-fns';
  * Newsletters — /admin/newsletters
  *
  * Cut to the working core on 10 September 2026. What went: the subscriber-tiers panel
- * (newsletter_subscribers, 0 rows — SendFox holds the list), the template library (a
+ * (newsletter_subscribers, 0 rows — SendFox holds the list; the table itself was dropped
+ * on 10 September 2026, crm migration 020_drop_orphan_tables.sql), the template library (a
  * bundled set of starter HTML nothing had used), and the IVOR intelligence panel, which
  * read the agent feed that stopped moving in January. What stayed is everything that
  * persists to newsletter_editions or reaches SendFox: the editions list, Generate,
@@ -114,7 +115,7 @@ export function Newsletters() {
       window.location.reload();
     } catch (error) {
       console.error('Generation error:', error);
-      setGenerationError(error instanceof Error ? error.message : 'Generation failed');
+      setGenerationError(error instanceof Error ? error.message : String(error));
     } finally {
       setIsGenerating(null);
     }

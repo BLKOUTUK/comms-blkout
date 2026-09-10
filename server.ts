@@ -167,7 +167,10 @@ app.get('/api/health', async (_req, res) => {
   let db = 'FAILED: SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY not set';
   if (supabaseUrl && serviceKey) {
     try {
-      const r = await fetch(`${supabaseUrl}/rest/v1/agent_configurations?select=id&limit=1`, {
+      // Probes newsletter_editions. Until 10 September 2026 it probed the agent-config
+      // table, which was dropped as an orphan (crm migration 020_drop_orphan_tables.sql);
+      // a 404 there would have read as "database unreachable" on every health check.
+      const r = await fetch(`${supabaseUrl}/rest/v1/newsletter_editions?select=id&limit=1`, {
         headers: { apikey: serviceKey, Authorization: `Bearer ${serviceKey}` },
         signal: AbortSignal.timeout(5000),
       });

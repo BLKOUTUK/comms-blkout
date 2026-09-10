@@ -12,11 +12,12 @@
 // drafted:false. What it must never do is invent a caption, or return a partial body that
 // leaves the person thinking their brief was saved when it was not.
 //
-// Why not `callAI` from api/herald/cron/jobs.ts: that helper returns the literal strings
-// '[Demo Mode] Content would be generated here' and 'Generation failed' when the key is
-// absent or the call fails. Those parse as a draft. It takes no system message, no
-// temperature, and returns no token counts. The endpoint, headers and key accessor here are
-// the same as the herald's; the failure behaviour deliberately is not.
+// Why not `callAI` from api/herald/cron/jobs.ts: it takes no system message, no
+// temperature, and returns no token counts. Since 10 September 2026 it does at least fail
+// honestly — it throws HeraldGenerationError naming the cause rather than returning a
+// placeholder that parses as a draft — but its callers drop the work, and this route must
+// not: the brief is kept either way. The endpoint, headers and key accessor here are the
+// same as the herald's; what happens on failure deliberately is not.
 //
 // The session guard is applied in server.ts ('/api/admin' prefix), so an unauthenticated
 // POST is answered 401 before this runs. OPENROUTER_API_KEY is read from the server

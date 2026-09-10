@@ -13,7 +13,8 @@ import { supabase, isSupabaseConfigured } from '@/lib/supabase';
 //    edition wrote columns Postgres rejects. `get_next_edition_number` was called with
 //    `p_tier` when its parameter is `p_edition_type`, so New Edition could not work either.
 // 2. It read `newsletter_subscribers`, a table with zero rows, to draw a subscriber-tiers
-//    panel. SendFox holds the list; that panel could only ever show 0.
+//    panel. SendFox holds the list; that panel could only ever show 0. The table was
+//    dropped on 10 September 2026 (crm migration 020_drop_orphan_tables.sql).
 //
 // The tier vocabulary ('weekly_engaged' / 'monthly_circle') went with the panel. The table
 // has only ever had `edition_type`, which is what the Herald API and SendFox both take.

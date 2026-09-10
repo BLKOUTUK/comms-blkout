@@ -1,34 +1,111 @@
 /**
  * Cron Jobs
  * Individual job runners for scheduled tasks
+ *
+ * NOTHING HERE IS SCHEDULED. `handleCronJob` is exported and reachable at
+ * GET /api/herald/generate?job=<type>, but no cron, workflow or timer calls it.
+ * These jobs only run when someone hits that URL by hand.
+ *
+ * NO FALLBACK THAT PARSES AS A RESULT. `callAI` used to return a demo-mode placeholder
+ * when the key was absent and a two-word failure label when the call went wrong. Both
+ * were ordinary strings: a caller stored them, a preview showed them, and a newsletter
+ * that was never generated looked generated. It now throws HeraldGenerationError naming
+ * the cause, every job logs `HERALD NOT GENERATED — <reason>` and records nothing, and
+ * the dispatcher answers 502 with the reason.
  */
 
-import { supabase, OPENROUTER_API_KEY } from '../config.js';
+import { OPENROUTER_API_KEY } from '../config.js';
 import { fetchIntelligence } from '../content/intelligence.js';
 
 /**
- * Helper for AI calls in cron jobs
+ * Thrown when herald content could not be generated. `reason` names the cause and is
+ * safe to log and to return to an admin caller — it never carries the API key.
+ */
+export class HeraldGenerationError extends Error {
+  readonly reason: string;
+
+  constructor(reason: string) {
+    super(reason);
+    this.name = 'HeraldGenerationError';
+    this.reason = reason;
+  }
+}
+
+/** The reason string for any thrown value, for logging and for the 502 body. */
+export function generationFailureReason(error: unknown): string {
+  if (error instanceof HeraldGenerationError) return error.reason;
+  if (error instanceof Error) return error.message;
+  return String(error);
+}
+
+/**
+ * Helper for AI calls in cron jobs.
+ * Returns generated content or throws HeraldGenerationError. It never returns a
+ * placeholder, an empty string, or an error message dressed as content.
  */
 export async function callAI(prompt: string, maxTokens = 1500): Promise<string> {
-  if (!OPENROUTER_API_KEY) return '[Demo Mode] Content would be generated here';
+  if (!OPENROUTER_API_KEY) {
+    throw new HeraldGenerationError('OPENROUTER_API_KEY is not set on this server');
+  }
 
-  const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
-      'Content-Type': 'application/json',
-      'HTTP-Referer': 'https://comms-blkout.vercel.app',
-      'X-Title': 'BLKOUT Agent Cron',
-    },
-    body: JSON.stringify({
-      model: 'anthropic/claude-3.5-haiku',
-      messages: [{ role: 'user', content: prompt }],
-      max_tokens: maxTokens,
-    }),
-  });
+  let response: Response;
+  try {
+    response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
+        'Content-Type': 'application/json',
+        'HTTP-Referer': 'https://comms-blkout.vercel.app',
+        'X-Title': 'BLKOUT Agent Cron',
+      },
+      body: JSON.stringify({
+        model: 'anthropic/claude-3.5-haiku',
+        messages: [{ role: 'user', content: prompt }],
+        max_tokens: maxTokens,
+      }),
+    });
+  } catch (error) {
+    throw new HeraldGenerationError(
+      `OpenRouter request failed: ${error instanceof Error ? error.message : String(error)}`
+    );
+  }
 
-  const data = await response.json();
-  return data.choices?.[0]?.message?.content || 'Generation failed';
+  if (!response.ok) {
+    const body = await response.text().catch(() => '');
+    throw new HeraldGenerationError(
+      `OpenRouter returned HTTP ${response.status}${body ? `: ${body.slice(0, 300)}` : ''}`
+    );
+  }
+
+  let data: { choices?: { message?: { content?: string } }[] };
+  try {
+    data = await response.json();
+  } catch (error) {
+    throw new HeraldGenerationError(
+      `OpenRouter returned a body that is not JSON: ${error instanceof Error ? error.message : String(error)}`
+    );
+  }
+
+  const content = data.choices?.[0]?.message?.content?.trim();
+  if (!content) {
+    throw new HeraldGenerationError('OpenRouter returned no content in its response');
+  }
+
+  return content;
+}
+
+/**
+ * Generate for a named job. On failure: log `HERALD NOT GENERATED — <reason>`,
+ * record nothing, and rethrow so the caller can answer 502.
+ */
+async function generateFor(job: string, prompt: string, maxTokens?: number): Promise<string> {
+  try {
+    return await callAI(prompt, maxTokens);
+  } catch (error) {
+    const reason = generationFailureReason(error);
+    console.error(`HERALD NOT GENERATED — ${job}: ${reason}`);
+    throw error instanceof HeraldGenerationError ? error : new HeraldGenerationError(reason);
+  }
 }
 
 /**
@@ -55,20 +132,16 @@ Create a warm, engaging weekly newsletter with:
 
 Keep it concise. Center Black queer joy.`;
 
-  const content = await callAI(prompt);
+  const content = await generateFor('herald-weekly', prompt);
   const dateStr = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
 
-  await supabase!.from('socialsync_agent_tasks').insert({
-    agent_type: 'herald',
-    title: `Weekly Newsletter - ${dateStr}`,
-    description: 'Automated weekly newsletter',
-    priority: 'high',
-    status: 'completed',
-    target_platform: 'email',
-    suggested_config: { edition_type: 'weekly', automated: true },
-    generated_content: content,
-    execution_metadata: { cron_triggered: true, triggered_at: new Date().toISOString(), intelligence },
-  });
+  // The agent-task queue this used to write to has been retired. Nothing consumed the
+  // rows, so the job now logs what it would have queued and returns the content to its
+  // caller. A real destination for this output is still to be chosen.
+  console.log(
+    `[Herald] Weekly newsletter generated, not stored — would have queued "Weekly Newsletter - ${dateStr}" ` +
+    `(${content.length} chars, email, high priority)`
+  );
 
   return content;
 }
@@ -89,19 +162,12 @@ STATS:
 
 Create a comprehensive monthly digest celebrating achievements, highlighting events, and previewing next month. Make it inspiring for our Black queer community.`;
 
-  const content = await callAI(prompt, 2000);
+  const content = await generateFor('herald-monthly', prompt, 2000);
 
-  await supabase!.from('socialsync_agent_tasks').insert({
-    agent_type: 'herald',
-    title: `Monthly Digest - ${monthName}`,
-    description: 'Automated monthly digest',
-    priority: 'high',
-    status: 'completed',
-    target_platform: 'email',
-    suggested_config: { edition_type: 'monthly', automated: true },
-    generated_content: content,
-    execution_metadata: { cron_triggered: true, triggered_at: new Date().toISOString() },
-  });
+  console.log(
+    `[Herald] Monthly digest generated, not stored — would have queued "Monthly Digest - ${monthName}" ` +
+    `(${content.length} chars, email, high priority)`
+  );
 
   return content;
 }
@@ -132,20 +198,13 @@ Provide:
 
 Be specific and actionable for Black queer community.`;
 
-  const content = await callAI(prompt, 1000);
+  const content = await generateFor('listener-research', prompt, 1000);
   const dateStr = new Date().toLocaleDateString('en-GB');
 
-  await supabase!.from('socialsync_agent_tasks').insert({
-    agent_type: 'listener',
-    title: `Daily Research - ${dateStr}`,
-    description: 'Automated daily research',
-    priority: 'medium',
-    status: 'completed',
-    target_platform: 'all',
-    suggested_config: { research_type: 'daily', automated: true },
-    generated_content: content,
-    execution_metadata: { cron_triggered: true, triggered_at: new Date().toISOString(), snapshot },
-  });
+  console.log(
+    `[Herald] Listener research generated, not stored — would have queued "Daily Research - ${dateStr}" ` +
+    `(${content.length} chars, all platforms, medium priority, snapshot ${JSON.stringify(snapshot)})`
+  );
 
   return content;
 }

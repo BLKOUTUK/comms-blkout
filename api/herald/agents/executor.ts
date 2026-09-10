@@ -46,20 +46,13 @@ export async function handleAgentExecution(req: VercelRequest, res: VercelRespon
 
     const prompt = promptBuilder(intelligence, task);
 
-    // Generate content using AI
+    // Generate content using AI. No placeholder: a missing key is a failure, not a
+    // result, and an agent that cannot generate must never answer 200 with something
+    // that reads as content.
     if (!OPENROUTER_API_KEY) {
-      return res.status(200).json({
-        success: true,
-        agent: agent_type,
-        task: title,
-        content: `[Demo Mode] ${agent_type.charAt(0).toUpperCase() + agent_type.slice(1)} would generate content for: ${title}`,
-        intelligence_used: true,
-        community_context: {
-          members: intelligence.communitySize,
-          events: intelligence.upcomingEventCount,
-          articles: intelligence.weeklyArticleCount,
-        },
-      });
+      const reason = 'OPENROUTER_API_KEY is not set on this server';
+      console.error(`HERALD NOT GENERATED — ${agent_type}: ${reason}`);
+      return res.status(502).json({ success: false, agent: agent_type, task: title, error: reason });
     }
 
     const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
@@ -79,13 +72,20 @@ export async function handleAgentExecution(req: VercelRequest, res: VercelRespon
     });
 
     if (!response.ok) {
-      const error = await response.text();
-      console.error(`[Agent:${agent_type}] AI error:`, error);
-      return res.status(500).json({ error: 'AI generation failed' });
+      const body = await response.text().catch(() => '');
+      const reason = `OpenRouter returned HTTP ${response.status}${body ? `: ${body.slice(0, 300)}` : ''}`;
+      console.error(`HERALD NOT GENERATED — ${agent_type}: ${reason}`);
+      return res.status(502).json({ success: false, agent: agent_type, task: title, error: reason });
     }
 
     const data = await response.json();
     const generatedContent = data.choices?.[0]?.message?.content?.trim() || '';
+
+    if (!generatedContent) {
+      const reason = 'OpenRouter returned no content in its response';
+      console.error(`HERALD NOT GENERATED — ${agent_type}: ${reason}`);
+      return res.status(502).json({ success: false, agent: agent_type, task: title, error: reason });
+    }
 
     // Store result in intelligence if it's substantial
     if (generatedContent.length > 100 && supabase) {
