@@ -6,6 +6,11 @@
  * recognizable BLKOUT brand voice/visual identity.
  *
  * Philosophy: "AI is creative assistant, not publisher" - human verification required.
+ *
+ * Moved here from components/shared on 10 September 2026, when the agents page was
+ * retired. It was the one thing on that page worth keeping, and it now gates the only
+ * transition on the content register that means "this can go out": draft -> ready.
+ * The checklist wording is unchanged.
  */
 
 import { useState } from 'react';

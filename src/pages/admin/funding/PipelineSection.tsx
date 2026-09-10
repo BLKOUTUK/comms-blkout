@@ -1,16 +1,12 @@
 import { AlertCircle, CheckCircle2, FileText, Search, ArrowRight, Clock } from 'lucide-react';
 import { GrantPipelineCard } from '@/components/grants/GrantPipelineCard';
-import { normalizeFunderName } from '@/hooks/useGrants';
 import type { Grant } from '@/types';
-import type { CfOutreachSummary } from '@/components/grants/CfOutreachBadge';
 
 interface Props {
   grants: Grant[];
   searchQuery: string;
   formatCurrency: (n: number) => string;
   getUrgencyClass: (d: number | null) => string;
-  cfOutreachByFunder: Map<string, CfOutreachSummary>;
-  onCfOutreachClick: (funderName: string) => void;
 }
 
 const statusColors = {
@@ -37,8 +33,6 @@ export function PipelineSection({
   searchQuery,
   formatCurrency,
   getUrgencyClass,
-  cfOutreachByFunder,
-  onCfOutreachClick,
 }: Props) {
   const q = searchQuery.trim().toLowerCase();
   const priorityGrants = grants
@@ -50,14 +44,6 @@ export function PipelineSection({
       g.title.toLowerCase().includes(q) ||
       g.funder_name.toLowerCase().includes(q),
   );
-
-  const cardProps = (grant: Grant) => {
-    const cf = cfOutreachByFunder.get(normalizeFunderName(grant.funder_name));
-    return {
-      cfOutreach: cf,
-      onCfOutreachClick: cf ? () => onCfOutreachClick(grant.funder_name) : undefined,
-    };
-  };
 
   return (
     <div className="space-y-6">
@@ -75,7 +61,6 @@ export function PipelineSection({
               statusColors={statusColors}
               priorityColors={priorityColors}
               getUrgencyClass={getUrgencyClass}
-              {...cardProps(grant)}
             />
           ))}
         </div>
@@ -92,7 +77,6 @@ export function PipelineSection({
               statusColors={statusColors}
               priorityColors={priorityColors}
               getUrgencyClass={getUrgencyClass}
-              {...cardProps(grant)}
             />
           ))}
         </div>

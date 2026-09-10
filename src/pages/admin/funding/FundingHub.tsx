@@ -1,32 +1,38 @@
 /**
  * Funding Hub
- * Unified surface for BLKOUT funding work — bid pipeline + Critical Frequency outreach.
- * Replaces the separate Grants and Fundraising admin pages.
+ * Unified surface for BLKOUT funding work — the bid pipeline, live opportunities, and
+ * the income that has actually arrived. Replaces the separate Grants and Fundraising
+ * admin pages.
+ *
+ * 10 September 2026: two tabs went and one arrived.
+ *  - Bid Writing rendered the bid_writing_progress view against a set of templates last
+ *    touched in December 2025; nothing had been written from it since.
+ *  - CF Outreach rendered cf_fundraising_drafts — 17 rows, all still 'draft', last
+ *    touched 21 May 2026. The per-funder badges it fed on the other two tabs went with it.
+ *  - Income is new (Rob: "a tab that includes subscriptions and earned income"). Every
+ *    page here now answers a question about money that is currently true.
  */
 
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import {
   Banknote,
   Target,
   Calendar,
   FileText,
-  Send,
   Plus,
   Search,
   Filter,
   Sparkles,
   ExternalLink,
+  PoundSterling,
 } from 'lucide-react';
 import { Layout } from '@/components/layout/Layout';
 import { useGrants, useFunderRelationships, normalizeFunderName } from '@/hooks/useGrants';
-import { useFundraisingDrafts } from '@/hooks/useFundraisingDrafts';
 import { PipelineSection } from './PipelineSection';
 import { OpportunitiesSection } from './OpportunitiesSection';
-import { BidWritingSection } from './BidWritingSection';
-import { OutreachSection } from './OutreachSection';
-import type { CfOutreachSummary } from '@/components/grants/CfOutreachBadge';
+import { IncomeSection } from './IncomeSection';
 
-type Tab = 'pipeline' | 'opportunities' | 'writing' | 'outreach';
+type Tab = 'pipeline' | 'opportunities' | 'income';
 
 // Canonical materials surfaced across all tabs — the pitch decks / governing docs
 // shared with funders. Append to this list as new authoritative documents land.
@@ -45,9 +51,8 @@ const KEY_DOCUMENTS: Array<{
 ];
 
 export default function FundingHub() {
-  const { grants, opportunities, bidProgress, pipelineSummary } = useGrants();
+  const { grants, opportunities, pipelineSummary } = useGrants();
   const { relationships: funderRelationships } = useFunderRelationships();
-  const { drafts } = useFundraisingDrafts();
 
   const [activeTab, setActiveTab] = useState<Tab>('pipeline');
   const [searchQuery, setSearchQuery] = useState('');
@@ -56,7 +61,6 @@ export default function FundingHub() {
   const [categoryFilter, setCategoryFilter] = useState('all');
   const [urgencyFilter, setUrgencyFilter] = useState('all');
   const [relationshipOnly, setRelationshipOnly] = useState(false);
-  const [outreachPartnerFilter, setOutreachPartnerFilter] = useState<string | undefined>();
 
   const filteredOpportunities = opportunities.filter((opp) => {
     const q = searchQuery.trim().toLowerCase();
@@ -74,52 +78,6 @@ export default function FundingHub() {
     (categoryFilter !== 'all' ? 1 : 0) +
     (urgencyFilter !== 'all' ? 1 : 0) +
     (relationshipOnly ? 1 : 0);
-
-  // Outreach KPIs from CF drafts
-  const outreachStats = useMemo(() => {
-    const inFlight = drafts.filter((d) => d.status === 'draft' || d.status === 'reviewed').length;
-    const startOfMonth = new Date();
-    startOfMonth.setDate(1);
-    startOfMonth.setHours(0, 0, 0, 0);
-    const sentThisMonth = drafts.filter((d) => {
-      if (!d.sent_at) return false;
-      return new Date(d.sent_at) >= startOfMonth;
-    }).length;
-    return { inFlight, sentThisMonth };
-  }, [drafts]);
-
-  // Per-funder CF outreach summary — keyed by normalized funder name.
-  // Matches via either draft.partner_name or draft.org_name, so a draft for
-  // "Wellcome Mental Health" surfaces on the "Wellcome Trust" grant card iff
-  // either name normalises to the same key. Names that drift will simply not
-  // cross-link — preferable to false positives.
-  const cfOutreachByFunder = useMemo(() => {
-    const map = new Map<string, CfOutreachSummary>();
-    drafts.forEach((d) => {
-      const keys = new Set<string>();
-      if (d.partner_name) keys.add(normalizeFunderName(d.partner_name));
-      if (d.org_name) keys.add(normalizeFunderName(d.org_name));
-      keys.forEach((key) => {
-        if (!key) return;
-        const existing = map.get(key) ?? { draftCount: 0, sentCount: 0 };
-        if (d.status === 'draft' || d.status === 'reviewed') existing.draftCount += 1;
-        else if (d.status === 'sent' || d.status === 'responded') existing.sentCount += 1;
-        if (d.sent_at) {
-          const date = d.sent_at.slice(0, 10);
-          if (!existing.lastSentAt || date > existing.lastSentAt) {
-            existing.lastSentAt = date;
-          }
-        }
-        map.set(key, existing);
-      });
-    });
-    return map;
-  }, [drafts]);
-
-  const handleCfOutreachClick = (funderName: string) => {
-    setActiveTab('outreach');
-    setOutreachPartnerFilter(funderName);
-  };
 
   const formatCurrency = (amount: number) =>
     new Intl.NumberFormat('en-GB', {
@@ -140,8 +98,7 @@ export default function FundingHub() {
   const tabs: Array<{ id: Tab; label: string; icon: typeof Target }> = [
     { id: 'pipeline', label: 'Pipeline', icon: Target },
     { id: 'opportunities', label: 'Opportunities', icon: Sparkles },
-    { id: 'writing', label: 'Bid Writing', icon: FileText },
-    { id: 'outreach', label: 'CF Outreach', icon: Send },
+    { id: 'income', label: 'Income', icon: PoundSterling },
   ];
 
   return (
@@ -164,8 +121,8 @@ export default function FundingHub() {
               </button>
             </div>
 
-            {/* Unified KPI strip — 6 stats across pipeline + outreach */}
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 mt-8">
+            {/* KPI strip — the pipeline at a glance */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-8">
               <KpiTile
                 label="Pipeline Value"
                 value={formatCurrency(pipelineSummary?.totalRequested || 0)}
@@ -180,16 +137,6 @@ export default function FundingHub() {
                 label="Upcoming Deadlines"
                 value={`${pipelineSummary?.upcomingDeadlines || 0}`}
                 icon={Calendar}
-              />
-              <KpiTile
-                label="Drafts in Flight"
-                value={`${outreachStats.inFlight}`}
-                icon={FileText}
-              />
-              <KpiTile
-                label="Sent This Month"
-                value={`${outreachStats.sentThisMonth}`}
-                icon={Send}
               />
               <KpiTile
                 label="Cultivated Funders"
@@ -265,11 +212,7 @@ export default function FundingHub() {
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
               <input
                 type="text"
-                placeholder={
-                  activeTab === 'outreach'
-                    ? 'Search drafts (partner, org, path)…'
-                    : 'Search grants, funders, or opportunities…'
-                }
+                placeholder="Search grants, funders, or opportunities…"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full pl-10 pr-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-shadow"
@@ -387,8 +330,6 @@ export default function FundingHub() {
             searchQuery={searchQuery}
             formatCurrency={formatCurrency}
             getUrgencyClass={getUrgencyClass}
-            cfOutreachByFunder={cfOutreachByFunder}
-            onCfOutreachClick={handleCfOutreachClick}
           />
         )}
 
@@ -398,22 +339,10 @@ export default function FundingHub() {
             filteredOpportunities={filteredOpportunities}
             funderRelationships={funderRelationships}
             formatCurrency={formatCurrency}
-            cfOutreachByFunder={cfOutreachByFunder}
-            onCfOutreachClick={handleCfOutreachClick}
           />
         )}
 
-        {activeTab === 'writing' && (
-          <BidWritingSection bidProgress={bidProgress} formatCurrency={formatCurrency} />
-        )}
-
-        {activeTab === 'outreach' && (
-          <OutreachSection
-            searchQuery={searchQuery}
-            partnerFilter={outreachPartnerFilter}
-            onClearPartnerFilter={() => setOutreachPartnerFilter(undefined)}
-          />
-        )}
+        {activeTab === 'income' && <IncomeSection grants={grants} />}
 
         {/* Quick Actions Footer */}
         <div className="bg-gradient-to-r from-slate-50 to-teal-50 rounded-xl p-6 border border-slate-200">

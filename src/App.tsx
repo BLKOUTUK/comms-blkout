@@ -10,8 +10,6 @@ import { DiscoverPage } from '@/pages/discover/DiscoverPage';
 import { NewsletterDetail } from '@/pages/discover/NewsletterDetail';
 import { Dashboard } from '@/pages/admin/Dashboard';
 import { ContentCalendar } from '@/pages/admin/ContentCalendar';
-import { Agents } from '@/pages/admin/Agents';
-import { Settings } from '@/pages/admin/Settings';
 import { Newsletters } from '@/pages/admin/Newsletters';
 import Grants from '@/pages/admin/Grants';
 import { Finance } from '@/pages/admin/Finance';
@@ -50,14 +48,9 @@ function App() {
               </ProtectedRoute>
             }
           />
-          <Route
-            path="/admin/agents"
-            element={
-              <ProtectedRoute>
-                <Agents />
-              </ProtectedRoute>
-            }
-          />
+          {/* Retired 10 Sep 2026. Kept as redirects so bookmarks and old links land
+              somewhere real instead of bouncing to /discover via the 404 rule. */}
+          <Route path="/admin/agents" element={<Navigate to="/admin/calendar" replace />} />
           <Route
             path="/admin/account"
             element={
@@ -66,14 +59,7 @@ function App() {
               </ProtectedRoute>
             }
           />
-          <Route
-            path="/admin/settings"
-            element={
-              <ProtectedRoute>
-                <Settings />
-              </ProtectedRoute>
-            }
-          />
+          <Route path="/admin/settings" element={<Navigate to="/admin/account" replace />} />
           <Route
             path="/admin/newsletters"
             element={

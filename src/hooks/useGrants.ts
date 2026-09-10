@@ -17,7 +17,6 @@ import type {
   FunderType,
   Priority,
   OpportunityPipeline,
-  BidWritingProgress,
   FunderRelationship,
 } from '@/types';
 
@@ -120,7 +119,6 @@ const toGrant = (row: PipelineRow): Grant => ({
 export function useGrants() {
   const [grants, setGrants] = useState<Grant[]>([]);
   const [opportunities, setOpportunities] = useState<OpportunityPipeline[]>([]);
-  const [bidProgress, setBidProgress] = useState<BidWritingProgress[]>([]);
   const [pipelineSummary, setPipelineSummary] = useState<PipelineSummary | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -153,35 +151,30 @@ export function useGrants() {
     setLoading(true);
     setError(null);
     if (!isSupabaseConfigured()) {
-      setGrants([]); setOpportunities([]); setBidProgress([]); setPipelineSummary(null);
+      setGrants([]); setOpportunities([]); setPipelineSummary(null);
       setError(NOT_CONFIGURED);
       setLoading(false);
       return;
     }
     try {
-      const [pipeline, opps, bids] = await Promise.all([
+      const [pipeline, opps] = await Promise.all([
         supabase
           .from('grant_pipeline')
           .select('id, grant_name, grant_program, description, amount_requested, amount_awarded, stage, probability, deadline, submitted_at, decision_expected, decision_received, grant_start_date, grant_end_date, application_document_url, notes, updated_at, funder:organizations(name, org_type)')
           .order('deadline', { ascending: true, nullsFirst: false }),
         supabase.from('opportunity_pipeline').select('*'),
-        supabase.from('bid_writing_progress').select('*'),
       ]);
       if (pipeline.error) throw pipeline.error;
       const list = ((pipeline.data || []) as unknown as PipelineRow[]).map(toGrant);
       setGrants(list);
       setPipelineSummary(summarise(list));
-      // The two views are secondary; a failure there is reported, not papered over.
-      const secondary: string[] = [];
-      if (opps.error) { secondary.push(`opportunities: ${opps.error.message}`); setOpportunities([]); }
+      // opportunity_pipeline is secondary; a failure there is reported, not papered over.
+      if (opps.error) { setError(`opportunities: ${opps.error.message}`); setOpportunities([]); }
       else setOpportunities((opps.data || []) as OpportunityPipeline[]);
-      if (bids.error) { secondary.push(`bid progress: ${bids.error.message}`); setBidProgress([]); }
-      else setBidProgress((bids.data || []) as BidWritingProgress[]);
-      if (secondary.length) setError(secondary.join(' · '));
     } catch (err) {
       console.error('Error fetching grant pipeline:', err);
       setError(err instanceof Error ? err.message : 'Failed to fetch grant pipeline');
-      setGrants([]); setOpportunities([]); setBidProgress([]); setPipelineSummary(null);
+      setGrants([]); setOpportunities([]); setPipelineSummary(null);
     } finally {
       setLoading(false);
     }
@@ -211,7 +204,6 @@ export function useGrants() {
   return {
     grants,
     opportunities,
-    bidProgress,
     pipelineSummary,
     loading,
     error,

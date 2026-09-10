@@ -22,6 +22,24 @@ export interface BookMeasureDetail {
   // finance.needs_attention only
   unmapped?: UnmappedRow[];
   flags?: FlagRow[];
+  // finance.income_by_code only
+  fy_start?: string;
+  fy_end?: string;
+  codes?: IncomeCodeRow[];
+  /** Code 1100. `null` means nobody has recorded it — never treat it as zero. */
+  zeffy_receivable?: number | null;
+  unrestricted_earned?: number;
+  donations?: number;
+  subscriptions?: number;
+}
+
+/** One income code from chart-of-accounts.md, with what the ledger has against it. */
+export interface IncomeCodeRow {
+  code: string;
+  name: string;
+  restricted: boolean;
+  total_to_date: number;
+  this_fy: number;
 }
 
 export interface BookMeasure {
@@ -147,7 +165,7 @@ export function useAdminFinance(): UseAdminFinance {
   return state;
 }
 
-// The nine measures build-finance.mjs publishes. Named here so the page reads one place.
+// The ten measures build-finance.mjs publishes. Named here so the pages read one place.
 export const MEASURE = {
   cash: 'finance.cash',
   receivable: 'finance.receivable',
@@ -158,4 +176,5 @@ export const MEASURE = {
   monthsUnchecked: 'finance.months_unchecked',
   funds: 'finance.funds',
   needsAttention: 'finance.needs_attention',
+  incomeByCode: 'finance.income_by_code',
 } as const;
