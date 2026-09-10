@@ -1,1038 +1,367 @@
 /**
- * Merged Content Calendar
- * Combines Campaign Dashboard and Content Calendar functionality
+ * Content — /admin/calendar
  *
- * Features:
- * - Calendar View: Month grid with generous space (scrollable day cells for 5+ posts)
- * - List View: Sortable table with filters
- * - Campaign filter/selector
- * - Pipeline health panel
- * - Quick actions (newsletter brief, ICS export, status report)
- * - ContentEditor integration for editing content
+ * What this page was until 10 September 2026: a month grid, a list view, campaign tabs, a
+ * platform filter, a pipeline-health panel that graded four JSON files against a checklist,
+ * and a content editor that saved into a table nothing read. All of it drew on four campaign
+ * files compiled into this bundle. It could not show a single real scheduled post, because
+ * the register those posts live in was not wired to it.
  *
- * Design inspiration: Hootsuite, PostSyncer, Sked Social
- * https://blog.hootsuite.com/social-media-calendar/
- * https://postsyncer.com/blog/social-media-content-calendar-examples
+ * What it is now: one read of public.content_calendar through the guarded route, shown as
+ * the three questions a person actually has — what is ready to post, what is coming, what
+ * went out. Every control that could not answer one of those is gone.
+ *
+ * The route stays /admin/calendar so nothing external breaks; the sidebar says "Content".
  */
 
-import { useState, useMemo, useCallback } from 'react';
+import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Layout } from '@/components/layout/Layout';
-import { useIvorDashboard } from '@/hooks/useIvorDashboard';
+import { Mail, Download, AlertTriangle, ImageOff } from 'lucide-react';
 import {
-  Calendar,
-  List,
-  ChevronLeft,
-  ChevronRight,
-  Filter,
-  Download,
-  Mail,
-  FileDown,
-  RefreshCw,
-  CheckCircle2,
-  AlertTriangle,
-  XCircle,
-  Clock,
-  Image,
-  Instagram,
-  Twitter,
-  Linkedin,
-  Facebook,
-  Video,
-  PlayCircle,
-  FileText,
-  Edit,
-  Eye,
-  ArrowUpDown,
-  Loader2,
-  Activity,
-  Zap,
-} from 'lucide-react';
-import {
-  format,
-  startOfMonth,
-  endOfMonth,
-  eachDayOfInterval,
-  isSameMonth,
-  isSameDay,
-  isToday,
-  addMonths,
-  subMonths,
-  parseISO,
-  isValid,
-  startOfWeek,
-  endOfWeek,
-} from 'date-fns';
-import { useCampaigns, usePipelineHealth } from '@/hooks/useCampaign';
-import { useContentEditor } from '@/hooks/useContentEditor';
-import { ContentEditor } from '@/components/campaigns/ContentEditor';
-import type {
-  CampaignContentItem,
-  ContentItemStatus,
-} from '@/types/campaign';
+  useAdminContent,
+  NEXT_STATUS,
+  CONTENT_STATUSES,
+  type ContentRow,
+  type ContentStatus,
+} from '@/hooks/useAdminContent';
+import { NewItemForm } from '@/components/content/NewItemForm';
 
-// View modes
-type ViewMode = 'calendar' | 'list';
-type SortField = 'date' | 'title' | 'platform' | 'status' | 'campaign';
-type SortDirection = 'asc' | 'desc';
-
-// Platform configuration
-const platformIcons: Record<string, React.ComponentType<{ size?: number; className?: string }>> = {
-  instagram: Instagram,
-  twitter: Twitter,
-  linkedin: Linkedin,
-  facebook: Facebook,
-  tiktok: Video,
-  youtube: PlayCircle,
-  email: Mail,
-  newsletter: Mail,
-  website: FileText,
-  internal: FileText,
-  all: Activity,
+const STATUS_CHIP: Record<string, string> = {
+  draft: 'bg-gray-100 text-gray-700 border-gray-200',
+  ready: 'bg-blue-100 text-blue-800 border-blue-200',
+  scheduled: 'bg-amber-100 text-amber-800 border-amber-200',
+  posted: 'bg-green-100 text-green-800 border-green-200',
+  skipped: 'bg-rose-50 text-rose-700 border-rose-200',
 };
 
-const platformColors: Record<string, string> = {
-  instagram: 'bg-gradient-to-r from-purple-500 to-pink-500',
-  twitter: 'bg-sky-500',
-  linkedin: 'bg-blue-700',
-  facebook: 'bg-blue-600',
-  tiktok: 'bg-black',
-  youtube: 'bg-red-600',
-  email: 'bg-green-600',
-  newsletter: 'bg-emerald-600',
-  website: 'bg-gray-700',
-  internal: 'bg-gray-500',
-  all: 'bg-blkout-600',
+const ACTION_LABEL: Record<ContentStatus, string> = {
+  draft: 'Back to draft',
+  ready: 'Mark ready',
+  scheduled: 'Schedule',
+  posted: 'Posted',
+  skipped: 'Skip',
 };
 
-const platformDotColors: Record<string, string> = {
-  instagram: 'bg-pink-500',
-  twitter: 'bg-sky-500',
-  linkedin: 'bg-blue-700',
-  facebook: 'bg-blue-600',
-  tiktok: 'bg-purple-600',
-  youtube: 'bg-red-600',
-  email: 'bg-green-600',
-  newsletter: 'bg-emerald-600',
-  website: 'bg-gray-700',
-  internal: 'bg-gray-500',
-  all: 'bg-blkout-600',
-};
+const DAY_FMT = new Intl.DateTimeFormat('en-GB', {
+  weekday: 'short', day: 'numeric', month: 'short', timeZone: 'Europe/London',
+});
+const TIME_FMT = new Intl.DateTimeFormat('en-GB', {
+  hour: '2-digit', minute: '2-digit', timeZone: 'Europe/London',
+});
 
-const platformLabels: Record<string, string> = {
-  instagram: 'Instagram',
-  twitter: 'X/Twitter',
-  linkedin: 'LinkedIn',
-  facebook: 'Facebook',
-  tiktok: 'TikTok',
-  youtube: 'YouTube',
-  email: 'Email',
-  newsletter: 'Newsletter',
-  website: 'Website',
-  internal: 'Internal',
-  all: 'All Platforms',
-};
+const dayKey = (iso: string) => iso.slice(0, 10);
 
-const statusConfig: Record<ContentItemStatus, { bg: string; text: string; label: string; icon: React.ComponentType<{ size?: number; className?: string }> }> = {
-  draft: { bg: 'bg-gray-100', text: 'text-gray-700', label: 'Draft', icon: FileText },
-  ready: { bg: 'bg-blue-100', text: 'text-blue-700', label: 'Ready', icon: CheckCircle2 },
-  scheduled: { bg: 'bg-yellow-100', text: 'text-yellow-700', label: 'Scheduled', icon: Clock },
-  published: { bg: 'bg-green-100', text: 'text-green-700', label: 'Published', icon: CheckCircle2 },
-};
+function StatusChip({ status }: { status: string }) {
+  return (
+    <span className={`inline-block px-2 py-0.5 rounded-full text-xs font-medium border ${
+      STATUS_CHIP[status] || 'bg-gray-100 text-gray-700 border-gray-200'}`}>
+      {status}
+    </span>
+  );
+}
 
-// Extended content item with campaign info
-interface ContentWithCampaign extends CampaignContentItem {
-  campaignId: string;
-  campaignName: string;
+function Channels({ row }: { row: ContentRow }) {
+  const channels = row.metadata?.channels;
+  if (!channels || !channels.length) return <span className="text-xs text-gray-400">no channel</span>;
+  return <span className="text-xs text-gray-600">{channels.join(' · ')}</span>;
+}
+
+/** The first media URL, or an explicit "no image" — never a grey box that could be either. */
+function Thumb({ row }: { row: ContentRow }) {
+  const url = (row.media_urls || [])[0];
+  if (!url) {
+    return (
+      <span className="w-10 h-10 rounded bg-gray-50 border border-gray-200 flex items-center justify-center text-gray-300 shrink-0"
+            title="No media on this row">
+        <ImageOff size={14} />
+      </span>
+    );
+  }
+  return (
+    <img src={url} alt="" loading="lazy"
+         className="w-10 h-10 rounded object-cover border border-gray-200 shrink-0" />
+  );
+}
+
+function StatusControl({
+  row, onSet, busy,
+}: { row: ContentRow; onSet: (id: string, s: ContentStatus) => void; busy: boolean }) {
+  const moves = NEXT_STATUS[row.status] ?? [];
+  if (!moves.length) return null;
+  return (
+    <span className="flex gap-1 shrink-0">
+      {moves.map((next) => (
+        <button
+          key={next}
+          disabled={busy}
+          onClick={() => onSet(row.id, next)}
+          className="text-xs px-2 py-1 rounded border border-gray-200 hover:border-blkout-400 hover:bg-blkout-50 disabled:opacity-40"
+        >
+          {busy ? '…' : ACTION_LABEL[next]}
+        </button>
+      ))}
+    </span>
+  );
 }
 
 export function ContentCalendar() {
-  // View state
-  const [viewMode, setViewMode] = useState<ViewMode>('calendar');
-  const [currentMonth, setCurrentMonth] = useState(new Date());
-  const [selectedCampaign, setSelectedCampaign] = useState<string>('all');
-  const [selectedPlatform, setSelectedPlatform] = useState<string>('all');
-  const [selectedStatus, setSelectedStatus] = useState<string>('all');
-  const [showPipelineHealth, setShowPipelineHealth] = useState(true);
+  const { data, error, isLoading, setStatus, refresh } = useAdminContent();
+  const [busyId, setBusyId] = useState<string | null>(null);
+  const [writeError, setWriteError] = useState<string | null>(null);
+  const [justDrafted, setJustDrafted] = useState<ContentRow | null>(null);
 
-  // List view sorting
-  const [sortField, setSortField] = useState<SortField>('date');
-  const [sortDirection, setSortDirection] = useState<SortDirection>('asc');
+  const onSet = async (id: string, next: ContentStatus) => {
+    setBusyId(id);
+    setWriteError(null);
+    const failure = await setStatus(id, next);
+    setBusyId(null);
+    if (failure) setWriteError(failure);
+  };
 
-  // Selected content for detail view
-  const [selectedContent, setSelectedContent] = useState<ContentWithCampaign | null>(null);
+  const rows = data?.rows ?? [];
 
-  // Load campaigns and health checks
-  const { campaigns, isLoading, error, refresh } = useCampaigns();
-  const { checks, isRunning, lastRun, overallStatus, runChecks } = usePipelineHealth(campaigns);
+  const ready = useMemo(
+    () => rows.filter((r) => r.status === 'ready'),
+    [rows]);
 
-  // Content editor
-  const contentEditor = useContentEditor();
-  const ivor = useIvorDashboard();
-
-  // Get all content items across campaigns
-  const allContentItems = useMemo((): ContentWithCampaign[] => {
-    return campaigns.flatMap((c) =>
-      c.contentItems.map((item) => ({
-        ...item,
-        campaignId: c.id,
-        campaignName: c.name,
-      }))
-    );
-  }, [campaigns]);
-
-  // Filter content items
-  const filteredContent = useMemo(() => {
-    return allContentItems.filter((item) => {
-      const matchesCampaign = selectedCampaign === 'all' || item.campaignId === selectedCampaign;
-      const matchesPlatform = selectedPlatform === 'all' || item.platform === selectedPlatform || item.platform === 'all';
-      const matchesStatus = selectedStatus === 'all' || item.status === selectedStatus;
-      return matchesCampaign && matchesPlatform && matchesStatus;
-    });
-  }, [allContentItems, selectedCampaign, selectedPlatform, selectedStatus]);
-
-  // Calendar date calculations
-  const monthStart = startOfMonth(currentMonth);
-  const monthEnd = endOfMonth(currentMonth);
-  const calendarStart = startOfWeek(monthStart);
-  const calendarEnd = endOfWeek(monthEnd);
-  const calendarDays = eachDayOfInterval({ start: calendarStart, end: calendarEnd });
-
-  // Get content for a specific day
-  const getContentForDay = useCallback((day: Date): ContentWithCampaign[] => {
-    return filteredContent.filter((item) => {
-      if (!item.scheduledFor && !item.timing) return false;
-
-      // Try to parse scheduledFor date
-      if (item.scheduledFor) {
-        const itemDate = item.scheduledFor instanceof Date
-          ? item.scheduledFor
-          : parseISO(String(item.scheduledFor));
-        if (isValid(itemDate) && isSameDay(itemDate, day)) {
-          return true;
-        }
-      }
-
-      // Try to parse timing string (e.g., "Week 1", "Feb 14")
-      if (item.timing) {
-        const timingMatch = item.timing.match(/(\w+ \d+)/);
-        if (timingMatch) {
-          const timingDate = new Date(`${timingMatch[1]}, 2026`);
-          if (isValid(timingDate) && isSameDay(timingDate, day)) {
-            return true;
-          }
-        }
-      }
-
-      return false;
-    });
-  }, [filteredContent]);
-
-  // Sort content for list view
-  const sortedContent = useMemo(() => {
-    const sorted = [...filteredContent].sort((a, b) => {
-      let comparison = 0;
-
-      switch (sortField) {
-        case 'date':
-          const dateA = a.scheduledFor ? new Date(a.scheduledFor).getTime() : 0;
-          const dateB = b.scheduledFor ? new Date(b.scheduledFor).getTime() : 0;
-          comparison = dateA - dateB;
-          break;
-        case 'title':
-          comparison = a.title.localeCompare(b.title);
-          break;
-        case 'platform':
-          comparison = a.platform.localeCompare(b.platform);
-          break;
-        case 'status':
-          comparison = a.status.localeCompare(b.status);
-          break;
-        case 'campaign':
-          comparison = a.campaignName.localeCompare(b.campaignName);
-          break;
-      }
-
-      return sortDirection === 'asc' ? comparison : -comparison;
-    });
-
-    return sorted;
-  }, [filteredContent, sortField, sortDirection]);
-
-  // Handle sort change
-  const handleSort = (field: SortField) => {
-    if (sortField === field) {
-      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
-    } else {
-      setSortField(field);
-      setSortDirection('asc');
+  // The window: everything with a date inside it, whatever its status. Undated drafts are
+  // in `drafts` below instead, because a day-grouped list has nowhere to put them.
+  const byDay = useMemo(() => {
+    const groups = new Map<string, ContentRow[]>();
+    for (const r of rows) {
+      if (!r.scheduled_for) continue;
+      const key = dayKey(r.scheduled_for);
+      if (data && (key < data.window.from || key > data.window.to)) continue;
+      const list = groups.get(key) ?? [];
+      list.push(r);
+      groups.set(key, list);
     }
-  };
+    return [...groups.entries()].sort(([a], [b]) => a.localeCompare(b));
+  }, [rows, data]);
 
-  // Handle edit content
-  const handleEditContent = (item: ContentWithCampaign) => {
-    contentEditor.openEditor(item, item.campaignId);
-  };
+  const drafts = useMemo(
+    () => rows.filter((r) => r.status === 'draft' && !r.scheduled_for),
+    [rows]);
 
-  // Calculate stats
-  const stats = useMemo(() => {
-    const total = filteredContent.length;
-    const scheduled = filteredContent.filter(i => i.status === 'scheduled').length;
-    const published = filteredContent.filter(i => i.status === 'published').length;
-    const draft = filteredContent.filter(i => i.status === 'draft').length;
-    const ready = filteredContent.filter(i => i.status === 'ready').length;
-
-    const platforms = new Set(filteredContent.map(i => i.platform));
-
-    return { total, scheduled, published, draft, ready, platformCount: platforms.size };
-  }, [filteredContent]);
-
-  // Health checks grouped by status
-  const healthSummary = useMemo(() => {
-    const pass = checks.filter(c => c.status === 'pass').length;
-    const warning = checks.filter(c => c.status === 'warning').length;
-    const fail = checks.filter(c => c.status === 'fail').length;
-    return { pass, warning, fail, total: checks.length };
-  }, [checks]);
-
-  // Loading state
-  if (isLoading) {
-    return (
-      <Layout>
-        <div className="flex items-center justify-center min-h-[60vh]">
-          <div className="text-center">
-            <Loader2 size={48} className="animate-spin text-blkout-600 mx-auto mb-4" />
-            <p className="text-gray-600">Loading content calendar...</p>
-          </div>
-        </div>
-      </Layout>
-    );
-  }
-
-  // Error state
-  if (error) {
-    return (
-      <Layout>
-        <div className="flex items-center justify-center min-h-[60vh]">
-          <div className="text-center">
-            <XCircle size={48} className="text-red-500 mx-auto mb-4" />
-            <h2 className="text-xl font-semibold text-gray-900 mb-2">Failed to load content</h2>
-            <p className="text-gray-600 mb-4">{error?.message || 'Unknown error'}</p>
-            <button onClick={refresh} className="btn btn-primary inline-flex items-center gap-2">
-              <RefreshCw size={18} />
-              Retry
-            </button>
-          </div>
-        </div>
-      </Layout>
-    );
-  }
+  const posted = useMemo(
+    () => rows.filter((r) => r.status === 'posted' && r.published_at)
+             .sort((a, b) => (b.published_at || '').localeCompare(a.published_at || '')),
+    [rows]);
 
   return (
     <Layout>
       <div className="space-y-6">
-        {/* Header */}
-        <div className="flex items-start justify-between">
-          <div>
-            <h1 className="text-3xl font-display font-bold text-gray-900">Content Calendar</h1>
-            <p className="text-gray-600 mt-1">Schedule, manage, and track content across campaigns</p>
-            <div className="flex items-center gap-4 mt-3">
-              <span className="inline-flex items-center gap-2 text-sm text-gray-600">
-                <FileText size={16} />
-                {stats.total} items
-              </span>
-              <span className="inline-flex items-center gap-2 text-sm text-gray-600">
-                <Clock size={16} />
-                {stats.scheduled} scheduled
-              </span>
-              <span className="inline-flex items-center gap-2 text-sm text-green-600">
-                <CheckCircle2 size={16} />
-                {stats.published} published
-              </span>
-            </div>
-          </div>
-          <div className="flex gap-3">
-            <button
-              onClick={refresh}
-              disabled={isLoading}
-              className="btn btn-secondary inline-flex items-center gap-2"
-            >
-              <RefreshCw size={18} className={isLoading ? 'animate-spin' : ''} />
-              Refresh
-            </button>
-          </div>
-        </div>
+        <header>
+          <h1 className="text-2xl font-bold text-gray-900">Content</h1>
+          <p className="text-sm text-gray-600 mt-1">
+            What is scheduled, ready, and posted. The register is <code className="text-xs bg-gray-100 px-1 rounded">content_calendar</code>;
+            {' '}<code className="text-xs bg-gray-100 px-1 rounded">/post</code> publishes from it and writes back.
+          </p>
+        </header>
 
-        {/* Filters & View Toggle */}
-        <div className="card">
-          <div className="flex flex-wrap items-center justify-between gap-4">
-            {/* Filters */}
-            <div className="flex flex-wrap items-center gap-3">
-              <div className="flex items-center gap-2">
-                <Filter size={16} className="text-gray-400" />
-                <span className="text-sm font-medium text-gray-700">Filters:</span>
-              </div>
+        {isLoading && <p className="text-gray-500">…</p>}
 
-              {/* Campaign Filter */}
-              <select
-                value={selectedCampaign}
-                onChange={(e) => setSelectedCampaign(e.target.value)}
-                className="input min-w-[180px] text-sm"
-              >
-                <option value="all">All Campaigns</option>
-                {campaigns.map((c) => (
-                  <option key={c.id} value={c.id}>{c.name}</option>
-                ))}
-              </select>
-
-              {/* Platform Filter */}
-              <select
-                value={selectedPlatform}
-                onChange={(e) => setSelectedPlatform(e.target.value)}
-                className="input min-w-[150px] text-sm"
-              >
-                <option value="all">All Platforms</option>
-                <option value="instagram">Instagram</option>
-                <option value="linkedin">LinkedIn</option>
-                <option value="twitter">X/Twitter</option>
-                <option value="facebook">Facebook</option>
-                <option value="tiktok">TikTok</option>
-                <option value="email">Email</option>
-                <option value="newsletter">Newsletter</option>
-              </select>
-
-              {/* Status Filter */}
-              <select
-                value={selectedStatus}
-                onChange={(e) => setSelectedStatus(e.target.value)}
-                className="input min-w-[130px] text-sm"
-              >
-                <option value="all">All Status</option>
-                <option value="draft">Draft</option>
-                <option value="ready">Ready</option>
-                <option value="scheduled">Scheduled</option>
-                <option value="published">Published</option>
-              </select>
-            </div>
-
-            {/* View Toggle */}
-            <div className="flex items-center gap-2 bg-gray-100 p-1 rounded-lg">
-              <button
-                onClick={() => setViewMode('calendar')}
-                className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
-                  viewMode === 'calendar'
-                    ? 'bg-white text-blkout-600 shadow-sm'
-                    : 'text-gray-600 hover:text-gray-900'
-                }`}
-              >
-                <Calendar size={16} />
-                Calendar
-              </button>
-              <button
-                onClick={() => setViewMode('list')}
-                className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
-                  viewMode === 'list'
-                    ? 'bg-white text-blkout-600 shadow-sm'
-                    : 'text-gray-600 hover:text-gray-900'
-                }`}
-              >
-                <List size={16} />
-                List
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <div className="flex gap-6">
-          {/* Main Content Area */}
-          <div className={`flex-1 ${showPipelineHealth ? 'w-2/3' : 'w-full'}`}>
-            {/* Calendar View */}
-            {viewMode === 'calendar' && (
-              <div className="card">
-                {/* Calendar Controls */}
-                <div className="flex items-center justify-between mb-6">
-                  <div className="flex items-center gap-4">
-                    <button
-                      onClick={() => setCurrentMonth(subMonths(currentMonth, 1))}
-                      className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-                      aria-label="Previous month"
-                    >
-                      <ChevronLeft size={20} />
-                    </button>
-                    <h2 className="text-xl font-semibold text-gray-900 min-w-[180px] text-center">
-                      {format(currentMonth, 'MMMM yyyy')}
-                    </h2>
-                    <button
-                      onClick={() => setCurrentMonth(addMonths(currentMonth, 1))}
-                      className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-                      aria-label="Next month"
-                    >
-                      <ChevronRight size={20} />
-                    </button>
-                    <button
-                      onClick={() => setCurrentMonth(new Date())}
-                      className="btn btn-secondary text-sm"
-                    >
-                      Today
-                    </button>
-                  </div>
-
-                  {/* Platform Legend */}
-                  <div className="flex items-center gap-3 text-xs">
-                    {['instagram', 'linkedin', 'twitter', 'tiktok', 'email'].map((platform) => (
-                      <div key={platform} className="flex items-center gap-1">
-                        <div className={`w-2.5 h-2.5 rounded-full ${platformDotColors[platform]}`} />
-                        <span className="text-gray-600 capitalize">{platform}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Day Headers */}
-                <div className="grid grid-cols-7 gap-2 mb-2">
-                  {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day) => (
-                    <div key={day} className="text-center text-sm font-semibold text-gray-700 py-2">
-                      {day}
-                    </div>
-                  ))}
-                </div>
-
-                {/* Calendar Grid - Generous day cells with scroll */}
-                <div className="grid grid-cols-7 gap-2">
-                  {calendarDays.map((day) => {
-                    const dayContent = getContentForDay(day);
-                    const isCurrentMonth = isSameMonth(day, currentMonth);
-                    const isDayToday = isToday(day);
-                    const hasOverflow = dayContent.length > 4;
-
-                    return (
-                      <div
-                        key={day.toISOString()}
-                        className={`min-h-[180px] max-h-[220px] border rounded-lg p-2 flex flex-col ${
-                          isCurrentMonth ? 'bg-white' : 'bg-gray-50 opacity-60'
-                        } ${isDayToday ? 'border-blkout-600 border-2 ring-2 ring-blkout-100' : 'border-gray-200'}`}
-                      >
-                        {/* Day Number */}
-                        <div className="flex items-center justify-between mb-2 flex-shrink-0">
-                          <div
-                            className={`text-sm font-medium ${
-                              isDayToday
-                                ? 'bg-blkout-600 text-white w-7 h-7 rounded-full flex items-center justify-center'
-                                : 'text-gray-700'
-                            }`}
-                          >
-                            {format(day, 'd')}
-                          </div>
-                          {dayContent.length > 0 && (
-                            <span className="text-xs text-gray-400 font-medium">
-                              {dayContent.length} post{dayContent.length !== 1 ? 's' : ''}
-                            </span>
-                          )}
-                        </div>
-
-                        {/* Content Items - Scrollable */}
-                        <div className={`flex-1 space-y-1.5 ${hasOverflow ? 'overflow-y-auto pr-1' : ''}`}>
-                          {dayContent.map((item) => (
-                              <div
-                                key={item.id}
-                                onClick={() => setSelectedContent(item)}
-                                className={`p-2 rounded-md border-l-3 hover:shadow-sm cursor-pointer transition-all group ${
-                                  selectedContent?.id === item.id
-                                    ? 'bg-blkout-50 border-l-blkout-600'
-                                    : 'bg-gray-50 border-l-transparent hover:bg-gray-100 hover:border-l-gray-300'
-                                }`}
-                                style={{ borderLeftWidth: '3px', borderLeftColor: selectedContent?.id === item.id ? undefined : platformDotColors[item.platform]?.replace('bg-', '') }}
-                              >
-                                <div className="flex items-start gap-1.5">
-                                  {/* Platform Indicator */}
-                                  <div className="flex gap-0.5 mt-0.5 flex-shrink-0">
-                                    <div
-                                      className={`w-2 h-2 rounded-full ${platformDotColors[item.platform]}`}
-                                      title={platformLabels[item.platform]}
-                                    />
-                                  </div>
-
-                                  {/* Content Title */}
-                                  <div className="flex-1 min-w-0">
-                                    <p className="text-xs font-medium text-gray-900 truncate">
-                                      {item.title}
-                                    </p>
-                                    <p className="text-[10px] text-gray-500 truncate">
-                                      {item.campaignName}
-                                    </p>
-                                  </div>
-
-                                  {/* Quick Actions */}
-                                  <div className="opacity-0 group-hover:opacity-100 flex gap-0.5 flex-shrink-0">
-                                    <button
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        handleEditContent(item);
-                                      }}
-                                      className="p-0.5 hover:bg-blkout-100 rounded text-blkout-600"
-                                      title="Edit"
-                                    >
-                                      <Edit size={10} />
-                                    </button>
-                                  </div>
-                                </div>
-
-                                {/* Status Badge */}
-                                <div className="flex items-center gap-1 mt-1">
-                                  {Boolean(item.metadata?.hasMedia) && (
-                                    <Image size={8} className="text-gray-400" />
-                                  )}
-                                  <span className={`text-[9px] px-1 py-0.5 rounded ${statusConfig[item.status].bg} ${statusConfig[item.status].text}`}>
-                                    {statusConfig[item.status].label}
-                                  </span>
-                                </div>
-                              </div>
-                          ))}
-                        </div>
-
-                        {/* Overflow indicator */}
-                        {hasOverflow && (
-                          <div className="text-[10px] text-gray-400 text-center pt-1 flex-shrink-0 border-t border-gray-100 mt-1">
-                            Scroll for more
-                          </div>
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
-
-            {/* List View */}
-            {viewMode === 'list' && (
-              <div className="card overflow-hidden">
-                <div className="overflow-x-auto">
-                  <table className="w-full">
-                    <thead>
-                      <tr className="border-b border-gray-200">
-                        <th className="text-left py-3 px-4">
-                          <button
-                            onClick={() => handleSort('title')}
-                            className="flex items-center gap-1 text-xs font-semibold text-gray-600 uppercase tracking-wider hover:text-gray-900"
-                          >
-                            Title
-                            <ArrowUpDown size={12} className={sortField === 'title' ? 'text-blkout-600' : ''} />
-                          </button>
-                        </th>
-                        <th className="text-left py-3 px-4">
-                          <button
-                            onClick={() => handleSort('campaign')}
-                            className="flex items-center gap-1 text-xs font-semibold text-gray-600 uppercase tracking-wider hover:text-gray-900"
-                          >
-                            Campaign
-                            <ArrowUpDown size={12} className={sortField === 'campaign' ? 'text-blkout-600' : ''} />
-                          </button>
-                        </th>
-                        <th className="text-left py-3 px-4">
-                          <button
-                            onClick={() => handleSort('platform')}
-                            className="flex items-center gap-1 text-xs font-semibold text-gray-600 uppercase tracking-wider hover:text-gray-900"
-                          >
-                            Platform
-                            <ArrowUpDown size={12} className={sortField === 'platform' ? 'text-blkout-600' : ''} />
-                          </button>
-                        </th>
-                        <th className="text-left py-3 px-4">
-                          <button
-                            onClick={() => handleSort('date')}
-                            className="flex items-center gap-1 text-xs font-semibold text-gray-600 uppercase tracking-wider hover:text-gray-900"
-                          >
-                            Date
-                            <ArrowUpDown size={12} className={sortField === 'date' ? 'text-blkout-600' : ''} />
-                          </button>
-                        </th>
-                        <th className="text-left py-3 px-4">
-                          <button
-                            onClick={() => handleSort('status')}
-                            className="flex items-center gap-1 text-xs font-semibold text-gray-600 uppercase tracking-wider hover:text-gray-900"
-                          >
-                            Status
-                            <ArrowUpDown size={12} className={sortField === 'status' ? 'text-blkout-600' : ''} />
-                          </button>
-                        </th>
-                        <th className="text-right py-3 px-4">
-                          <span className="text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                            Actions
-                          </span>
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-gray-100">
-                      {sortedContent.map((item) => {
-                        const Icon = platformIcons[item.platform] || FileText;
-                        return (
-                          <tr
-                            key={item.id}
-                            className={`hover:bg-gray-50 transition-colors ${
-                              selectedContent?.id === item.id ? 'bg-blkout-50' : ''
-                            }`}
-                          >
-                            <td className="py-3 px-4">
-                              <div className="flex items-center gap-3">
-                                <div
-                                  className={`w-8 h-8 rounded-lg ${platformColors[item.platform]} flex items-center justify-center text-white flex-shrink-0`}
-                                >
-                                  <Icon size={14} />
-                                </div>
-                                <div className="min-w-0">
-                                  <p className="font-medium text-gray-900 truncate max-w-[250px]">
-                                    {item.title}
-                                  </p>
-                                  {item.timing && (
-                                    <p className="text-xs text-gray-500">{item.timing}</p>
-                                  )}
-                                </div>
-                              </div>
-                            </td>
-                            <td className="py-3 px-4">
-                              <span className="text-sm text-gray-600">{item.campaignName}</span>
-                            </td>
-                            <td className="py-3 px-4">
-                              <div className="flex items-center gap-2">
-                                <div className={`w-2.5 h-2.5 rounded-full ${platformDotColors[item.platform]}`} />
-                                <span className="text-sm text-gray-600 capitalize">
-                                  {platformLabels[item.platform] || item.platform}
-                                </span>
-                              </div>
-                            </td>
-                            <td className="py-3 px-4">
-                              <div className="flex items-center gap-1.5 text-sm text-gray-600">
-                                <Clock size={14} className="text-gray-400" />
-                                {item.scheduledFor
-                                  ? format(new Date(item.scheduledFor), 'MMM d, yyyy')
-                                  : item.timing || '—'}
-                              </div>
-                            </td>
-                            <td className="py-3 px-4">
-                              <span
-                                className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${statusConfig[item.status].bg} ${statusConfig[item.status].text}`}
-                              >
-                                {statusConfig[item.status].label}
-                              </span>
-                            </td>
-                            <td className="py-3 px-4 text-right">
-                              <div className="flex items-center justify-end gap-2">
-                                <button
-                                  onClick={() => setSelectedContent(item)}
-                                  className="p-1.5 hover:bg-gray-100 rounded-lg text-gray-500 hover:text-gray-700"
-                                  title="View details"
-                                >
-                                  <Eye size={16} />
-                                </button>
-                                <button
-                                  onClick={() => handleEditContent(item)}
-                                  className="p-1.5 hover:bg-blkout-50 rounded-lg text-blkout-600 hover:text-blkout-700"
-                                  title="Edit content"
-                                >
-                                  <Edit size={16} />
-                                </button>
-                              </div>
-                            </td>
-                          </tr>
-                        );
-                      })}
-                    </tbody>
-                  </table>
-                </div>
-
-                {sortedContent.length === 0 && (
-                  <div className="text-center py-12">
-                    <FileText size={48} className="mx-auto text-gray-300 mb-4" />
-                    <h3 className="text-lg font-semibold text-gray-900 mb-2">No content found</h3>
-                    <p className="text-gray-600">
-                      Try adjusting your filters or create new content.
-                    </p>
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
-
-          {/* Right Panel - Pipeline Health & Quick Actions */}
-          {showPipelineHealth && (
-            <div className="w-80 space-y-4 flex-shrink-0">
-              {/* Selected Content Detail */}
-              {selectedContent && (
-                <div className="card">
-                  <div className="flex items-start justify-between mb-4">
-                    <h3 className="font-semibold text-gray-900">Content Details</h3>
-                    <button
-                      onClick={() => setSelectedContent(null)}
-                      className="text-gray-400 hover:text-gray-600 text-xl leading-none"
-                    >
-                      ×
-                    </button>
-                  </div>
-
-                  {/* Platform Badge */}
-                  <div className="flex items-center gap-2 mb-3">
-                    {(() => {
-                      const Icon = platformIcons[selectedContent.platform] || FileText;
-                      return (
-                        <div className={`w-8 h-8 rounded-lg ${platformColors[selectedContent.platform]} flex items-center justify-center text-white`}>
-                          <Icon size={16} />
-                        </div>
-                      );
-                    })()}
-                    <div>
-                      <span className="text-sm font-medium text-gray-900 capitalize">
-                        {platformLabels[selectedContent.platform]}
-                      </span>
-                      <p className="text-xs text-gray-500">{selectedContent.campaignName}</p>
-                    </div>
-                  </div>
-
-                  {/* Title & Content */}
-                  <h4 className="font-medium text-gray-900 mb-2">{selectedContent.title}</h4>
-                  <p className="text-sm text-gray-600 mb-4 line-clamp-4">
-                    {Array.isArray(selectedContent.content)
-                      ? selectedContent.content.join('\n')
-                      : selectedContent.content}
-                  </p>
-
-                  {/* Status & Timing */}
-                  <div className="flex items-center gap-2 mb-4">
-                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${statusConfig[selectedContent.status].bg} ${statusConfig[selectedContent.status].text}`}>
-                      {statusConfig[selectedContent.status].label}
-                    </span>
-                    {selectedContent.timing && (
-                      <span className="text-xs text-gray-500 flex items-center gap-1">
-                        <Clock size={12} />
-                        {selectedContent.timing}
-                      </span>
-                    )}
-                  </div>
-
-                  {/* Hashtags */}
-                  {selectedContent.hashtags && selectedContent.hashtags.length > 0 && (
-                    <div className="mb-4">
-                      <p className="text-xs font-medium text-gray-500 mb-1">Hashtags</p>
-                      <div className="flex flex-wrap gap-1">
-                        {selectedContent.hashtags.slice(0, 5).map((tag, i) => (
-                          <span key={i} className="text-xs text-blkout-600">
-                            #{tag}
-                          </span>
-                        ))}
-                        {selectedContent.hashtags.length > 5 && (
-                          <span className="text-xs text-gray-400">
-                            +{selectedContent.hashtags.length - 5}
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Actions */}
-                  <div className="flex gap-2 pt-3 border-t border-gray-100">
-                    <button
-                      onClick={() => handleEditContent(selectedContent)}
-                      className="btn btn-primary flex-1 text-sm"
-                    >
-                      <Edit size={14} className="mr-1" />
-                      Edit
-                    </button>
-                  </div>
-                </div>
-              )}
-
-              {/* Pipeline Health */}
-              <div className="card">
-                <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center gap-2">
-                    <Activity size={18} className="text-blkout-600" />
-                    <h3 className="font-semibold text-gray-900">Pipeline Health</h3>
-                  </div>
-                  <button
-                    onClick={runChecks}
-                    disabled={isRunning}
-                    className="text-blkout-600 hover:text-blkout-700 p-1"
-                    title="Run health checks"
-                  >
-                    <RefreshCw size={16} className={isRunning ? 'animate-spin' : ''} />
-                  </button>
-                </div>
-
-                {/* Overall Status */}
-                <div className={`p-3 rounded-lg mb-4 ${
-                  overallStatus === 'healthy' ? 'bg-green-50' :
-                  overallStatus === 'warning' ? 'bg-yellow-50' :
-                  overallStatus === 'critical' ? 'bg-red-50' : 'bg-gray-50'
-                }`}>
-                  <div className="flex items-center gap-2">
-                    {overallStatus === 'healthy' && <CheckCircle2 size={20} className="text-green-600" />}
-                    {overallStatus === 'warning' && <AlertTriangle size={20} className="text-yellow-600" />}
-                    {overallStatus === 'critical' && <XCircle size={20} className="text-red-600" />}
-                    {overallStatus === 'unknown' && <Activity size={20} className="text-gray-600" />}
-                    <span className={`font-medium capitalize ${
-                      overallStatus === 'healthy' ? 'text-green-700' :
-                      overallStatus === 'warning' ? 'text-yellow-700' :
-                      overallStatus === 'critical' ? 'text-red-700' : 'text-gray-700'
-                    }`}>
-                      {overallStatus} Status
-                    </span>
-                  </div>
-                </div>
-
-                {/* Health Summary */}
-                <div className="grid grid-cols-3 gap-2 mb-4">
-                  <div className="text-center p-2 bg-green-50 rounded-lg">
-                    <div className="text-lg font-bold text-green-600">{healthSummary.pass}</div>
-                    <div className="text-xs text-green-700">Passed</div>
-                  </div>
-                  <div className="text-center p-2 bg-yellow-50 rounded-lg">
-                    <div className="text-lg font-bold text-yellow-600">{healthSummary.warning}</div>
-                    <div className="text-xs text-yellow-700">Warnings</div>
-                  </div>
-                  <div className="text-center p-2 bg-red-50 rounded-lg">
-                    <div className="text-lg font-bold text-red-600">{healthSummary.fail}</div>
-                    <div className="text-xs text-red-700">Failed</div>
-                  </div>
-                </div>
-
-                {lastRun && (
-                  <p className="text-xs text-gray-500 text-center">
-                    Last checked: {format(lastRun, 'h:mm a')}
-                  </p>
-                )}
-              </div>
-
-              {/* Quick Actions — each does what it says (3 Sep 2026); the four before had no handlers */}
-              <div className="card">
-                <h3 className="font-semibold text-gray-900 mb-4">Quick Actions</h3>
-                <div className="space-y-2">
-                  <Link to="/admin/newsletters" className="w-full flex items-center gap-3 p-3 rounded-lg border border-gray-200 hover:border-blkout-300 hover:bg-blkout-50 transition-colors text-left">
-                    <div className="w-8 h-8 rounded-lg bg-green-100 flex items-center justify-center text-green-600">
-                      <Mail size={16} />
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium text-gray-900">Newsletter Brief</p>
-                      <p className="text-xs text-gray-500">Generate on the Newsletters page</p>
-                    </div>
-                  </Link>
-
-                  <a href="https://events.blkoutuk.com/api/calendar" download="blkout-events.ics" className="w-full flex items-center gap-3 p-3 rounded-lg border border-gray-200 hover:border-blkout-300 hover:bg-blkout-50 transition-colors text-left">
-                    <div className="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center text-blue-600">
-                      <Download size={16} />
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium text-gray-900">Export ICS</p>
-                      <p className="text-xs text-gray-500">Approved events, live from events.blkoutuk.com</p>
-                    </div>
-                  </a>
-
-                  <div className="w-full flex items-center gap-3 p-3 rounded-lg border border-gray-200">
-                    <div className="w-8 h-8 rounded-lg bg-purple-100 flex items-center justify-center text-purple-600">
-                      <FileDown size={16} />
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium text-gray-900">Status Report</p>
-                      <p className="text-xs text-gray-500">
-                        {ivor.isLoading
-                          ? 'Loading…'
-                          : ivor.error
-                            ? `unavailable — ${ivor.error}`
-                            : `Last 7 days: ${ivor.events7d?.total ?? '?'} events added, ${ivor.events7d?.approved ?? '?'} approved · moderation queue ${ivor.moderation?.total ?? '?'}`}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="w-full p-3 rounded-lg border border-gray-200">
-                    <div className="flex items-center gap-3 mb-2">
-                      <div className="w-8 h-8 rounded-lg bg-teal-100 flex items-center justify-center text-teal-600">
-                        <Zap size={16} />
-                      </div>
-                      <div>
-                        <p className="text-sm font-medium text-gray-900">Next scheduled</p>
-                        <p className="text-xs text-gray-500">Scheduling is the routines' job — this is what is queued</p>
-                      </div>
-                    </div>
-                    {(() => {
-                      const next = sortedContent
-                        .filter((i) => i.status === 'scheduled' && i.scheduledFor && new Date(i.scheduledFor as string | Date).getTime() >= Date.now())
-                        .slice(0, 5);
-                      return next.length === 0 ? (
-                        <p className="text-xs text-gray-400 pl-11">Nothing scheduled</p>
-                      ) : (
-                        <ul className="text-xs text-gray-700 pl-11 space-y-1">
-                          {next.map((i) => (
-                            <li key={i.id}>{format(new Date(i.scheduledFor as string | Date), 'd MMM')} · {i.title}</li>
-                          ))}
-                        </ul>
-                      );
-                    })()}
-                  </div>
-                </div>
-              </div>
-
-              {/* Toggle Panel Button */}
-              <button
-                onClick={() => setShowPipelineHealth(false)}
-                className="w-full text-center text-sm text-gray-500 hover:text-gray-700 py-2"
-              >
-                Hide panel
-              </button>
-            </div>
-          )}
-
-          {/* Show Panel Button (when hidden) */}
-          {!showPipelineHealth && (
-            <button
-              onClick={() => setShowPipelineHealth(true)}
-              className="fixed right-4 top-1/2 -translate-y-1/2 bg-white border border-gray-200 rounded-lg p-2 shadow-lg hover:shadow-xl transition-shadow"
-              title="Show pipeline health"
-            >
-              <ChevronLeft size={20} />
-            </button>
-          )}
-        </div>
-
-        {/* Platform Legend (bottom) */}
-        {viewMode === 'calendar' && (
-          <div className="card">
-            <div className="flex flex-wrap items-center justify-between gap-4">
-              <div className="flex items-center gap-6">
-                <span className="text-sm font-medium text-gray-700">Platforms:</span>
-                {Object.entries(platformDotColors)
-                  .filter(([key]) => !['all', 'internal', 'website'].includes(key))
-                  .map(([platform, color]) => (
-                    <div key={platform} className="flex items-center gap-1.5">
-                      <div className={`w-3 h-3 rounded-full ${color}`} />
-                      <span className="text-sm text-gray-600">
-                        {platformLabels[platform] || platform}
-                      </span>
-                    </div>
-                  ))}
-              </div>
-              <div className="flex items-center gap-4">
-                <span className="text-sm font-medium text-gray-700">Status:</span>
-                {Object.entries(statusConfig).map(([status, config]) => (
-                  <div key={status} className="flex items-center gap-1.5">
-                    <span className={`w-2 h-2 rounded-full ${config.bg.replace('bg-', 'bg-').replace('-100', '-500')}`} />
-                    <span className="text-sm text-gray-600">{config.label}</span>
-                  </div>
-                ))}
+        {error && (
+          <div className="card border-l-4 border-red-500 bg-red-50">
+            <div className="flex items-start gap-3">
+              <AlertTriangle className="text-red-600 shrink-0 mt-0.5" size={18} />
+              <div>
+                <p className="font-medium text-red-900">The register could not be read.</p>
+                <p className="text-sm text-red-800 mt-1 font-mono break-all">{error}</p>
               </div>
             </div>
           </div>
         )}
-      </div>
 
-      {/* Content Editor Modal */}
-      <ContentEditor
-        content={contentEditor.selectedContent}
-        isOpen={contentEditor.isOpen}
-        onClose={contentEditor.closeEditor}
-        onSave={async (record) => {
-          await contentEditor.saveAndClose(record);
-          refresh();
-        }}
-        campaignId={contentEditor.contentRecord?.campaignId || ''}
-      />
+        {data && (
+          <>
+            <NewItemForm
+              campaigns={data.campaigns ?? []}
+              onDrafted={(row) => { setJustDrafted(row); refresh(); }}
+            />
+
+            {justDrafted && (
+              <div className={`card border-l-4 ${
+                justDrafted.generated_by_agent
+                  ? 'border-green-500 bg-green-50'
+                  : 'border-amber-500 bg-amber-50'}`}>
+                <p className={`text-sm font-medium ${
+                  justDrafted.generated_by_agent ? 'text-green-900' : 'text-amber-900'}`}>
+                  {justDrafted.generated_by_agent
+                    ? 'Drafted by Sonnet — review before marking ready'
+                    : `Saved without a draft: ${String(justDrafted.internal_notes || 'no reason given')}`}
+                </p>
+                <p className="text-sm text-gray-800 mt-2 font-medium">{justDrafted.title}</p>
+                <p className="text-sm text-gray-700 mt-1 whitespace-pre-wrap">{justDrafted.primary_content}</p>
+                {!!(justDrafted.hashtags || []).length && (
+                  <p className="text-xs text-gray-600 mt-2">{justDrafted.hashtags.join(' ')}</p>
+                )}
+              </div>
+            )}
+
+            {/* Counts. Every word in the vocabulary is shown, including the ones at zero —
+                an absent chip reads as "not a thing", which is not what zero means. */}
+            <div className="flex flex-wrap gap-2">
+              {CONTENT_STATUSES.map((s) => (
+                <span key={s} className={`px-3 py-1.5 rounded-lg border text-sm ${STATUS_CHIP[s]}`}>
+                  <span className="font-semibold">{data.counts[s] ?? 0}</span> {s}
+                </span>
+              ))}
+            </div>
+
+            {writeError && (
+              <p className="text-sm text-red-700 font-mono">{writeError}</p>
+            )}
+
+            {/* ── Ready to post ─────────────────────────────────────────────────── */}
+            <section className="card">
+              <h2 className="font-semibold text-gray-900 mb-1">Ready to post</h2>
+              <p className="text-xs text-gray-500 mb-4">
+                Cleared and waiting. Run <code className="bg-gray-100 px-1 rounded">/post</code> to publish one.
+              </p>
+              {ready.length === 0 ? (
+                <p className="text-sm text-gray-500">Nothing in the register for this window.</p>
+              ) : (
+                <ul className="divide-y divide-gray-100">
+                  {ready.map((r) => (
+                    <li key={r.id} className="py-2 flex items-center gap-3">
+                      <Thumb row={r} />
+                      <span className="flex-1 min-w-0">
+                        <span className="block text-sm text-gray-900 truncate">{r.title}</span>
+                        <span className="block text-xs text-gray-500">
+                          {r.metadata?.campaign || 'no campaign'} · <Channels row={r} /> ·{' '}
+                          {(r.media_urls || []).length} media
+                          {r.scheduled_for && ` · ${DAY_FMT.format(new Date(r.scheduled_for))}`}
+                        </span>
+                      </span>
+                      <StatusControl row={r} onSet={onSet} busy={busyId === r.id} />
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </section>
+
+            {/* ── This week + next four weeks ───────────────────────────────────── */}
+            <section className="card">
+              <h2 className="font-semibold text-gray-900 mb-1">This week and the next four</h2>
+              <p className="text-xs text-gray-500 mb-4">{data.window.from} to {data.window.to}</p>
+              {byDay.length === 0 ? (
+                <p className="text-sm text-gray-500">Nothing in the register for this window.</p>
+              ) : (
+                <div className="space-y-4">
+                  {byDay.map(([day, items]) => (
+                    <div key={day}>
+                      <h3 className="text-sm font-medium text-gray-700 border-b border-gray-100 pb-1 mb-2">
+                        {DAY_FMT.format(new Date(`${day}T12:00:00Z`))}
+                      </h3>
+                      <ul className="space-y-2">
+                        {items.map((r) => (
+                          <li key={r.id} className="flex items-center gap-3">
+                            <span className="text-xs text-gray-400 w-11 shrink-0">
+                              {r.scheduled_for ? TIME_FMT.format(new Date(r.scheduled_for)) : ''}
+                            </span>
+                            <Thumb row={r} />
+                            <span className="flex-1 min-w-0">
+                              <span className="block text-sm text-gray-900 truncate">{r.title}</span>
+                              <span className="block text-xs text-gray-500">
+                                {r.metadata?.campaign || 'no campaign'} · <Channels row={r} />
+                              </span>
+                            </span>
+                            <StatusChip status={r.status} />
+                            <StatusControl row={r} onSet={onSet} busy={busyId === r.id} />
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </section>
+
+            {/* ── Undated drafts ────────────────────────────────────────────────────
+                Written, no date. Without their own section they would be invisible on a
+                page organised by day, which is how a draft gets forgotten. */}
+            {drafts.length > 0 && (
+              <section className="card">
+                <h2 className="font-semibold text-gray-900 mb-1">Drafts with no date</h2>
+                <p className="text-xs text-gray-500 mb-4">{drafts.length} written, none scheduled.</p>
+                <ul className="divide-y divide-gray-100">
+                  {drafts.map((r) => (
+                    <li key={r.id} className="py-2 flex items-center gap-3">
+                      <Thumb row={r} />
+                      <span className="flex-1 min-w-0">
+                        <span className="block text-sm text-gray-900 truncate">{r.title}</span>
+                        <span className="block text-xs text-gray-500">
+                          {r.metadata?.campaign || 'no campaign'} · <Channels row={r} />
+                        </span>
+                      </span>
+                      <StatusControl row={r} onSet={onSet} busy={busyId === r.id} />
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            )}
+
+            {/* ── Posted ────────────────────────────────────────────────────────── */}
+            <section className="card">
+              <h2 className="font-semibold text-gray-900 mb-1">Posted, last 30 days</h2>
+              {posted.length === 0 ? (
+                <p className="text-sm text-gray-500">Nothing in the register for this window.</p>
+              ) : (
+                <ul className="divide-y divide-gray-100">
+                  {posted.map((r) => {
+                    const links = Object.entries(r.metadata?.posted || {});
+                    return (
+                      <li key={r.id} className="py-2 flex items-center gap-3">
+                        <span className="text-xs text-gray-400 w-24 shrink-0">
+                          {r.published_at ? DAY_FMT.format(new Date(r.published_at)) : ''}
+                        </span>
+                        <span className="flex-1 min-w-0">
+                          <span className="block text-sm text-gray-900 truncate">{r.title}</span>
+                          <span className="block text-xs text-gray-500">
+                            {r.metadata?.campaign || 'no campaign'}
+                          </span>
+                        </span>
+                        <span className="flex gap-2 shrink-0">
+                          {links.length === 0 && <span className="text-xs text-gray-400">no link recorded</span>}
+                          {links.map(([channel, info]) => (
+                            info?.url
+                              ? <a key={channel} href={info.url} target="_blank" rel="noreferrer"
+                                   className="text-xs text-blkout-600 hover:underline">{channel}</a>
+                              : <span key={channel} className="text-xs text-gray-400"
+                                      title={info?.error || 'no url recorded'}>{channel}</span>
+                          ))}
+                        </span>
+                      </li>
+                    );
+                  })}
+                </ul>
+              )}
+            </section>
+
+            {/* ── Quick actions ─────────────────────────────────────────────────── */}
+            <section className="card">
+              <h2 className="font-semibold text-gray-900 mb-3">Quick actions</h2>
+              <div className="flex flex-wrap gap-2">
+                <Link to="/admin/newsletters"
+                      className="flex items-center gap-2 px-3 py-2 rounded-lg border border-gray-200 hover:border-blkout-300 hover:bg-blkout-50 text-sm">
+                  <Mail size={15} /> Newsletters
+                </Link>
+                <a href="https://events.blkoutuk.com/api/calendar" download="blkout-events.ics"
+                   className="flex items-center gap-2 px-3 py-2 rounded-lg border border-gray-200 hover:border-blkout-300 hover:bg-blkout-50 text-sm">
+                  <Download size={15} /> Export ICS
+                </a>
+              </div>
+            </section>
+
+            <p className="text-xs text-gray-500">
+              Automated routines — the weekly AIvor news digest and its Reel — publish on their
+              own schedule and are not in this register.
+            </p>
+          </>
+        )}
+      </div>
     </Layout>
   );
 }

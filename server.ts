@@ -41,6 +41,42 @@ app.all('/api/admin/finance', async (req, res) => {
   }
 });
 
+// The content register. Three shapes on two paths, all behind the same '/api/admin'
+// guard: GET the window, POST a status change, POST a new row (an approved agent draft,
+// or the new-item form's Sonnet draft). One handler, registered on both paths, because
+// express does not prefix-match a route the way the guard does.
+app.all('/api/admin/content', async (req, res) => {
+  try {
+    const handler = await import('./api/admin/content.js');
+    await handler.default(req as any, res as any);
+  } catch (error) {
+    console.error('[Server] Admin content error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// The new-item form's "Draft with Sonnet". Registered before the :id/status route because
+// 'draft' is not a uuid and must not be read as one.
+app.all('/api/admin/content/draft', async (req, res) => {
+  try {
+    const handler = await import('./api/admin/content-draft.js');
+    await handler.default(req as any, res as any);
+  } catch (error) {
+    console.error('[Server] Admin content draft error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+app.all('/api/admin/content/:id/status', async (req, res) => {
+  try {
+    const handler = await import('./api/admin/content.js');
+    await handler.default(req as any, res as any);
+  } catch (error) {
+    console.error('[Server] Admin content status error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 app.all('/api/herald/generate', async (req, res) => {
   try {
     const handler = await import('./api/herald/generate.js');
@@ -165,7 +201,7 @@ app.get('*', (_req, res) => {
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`[Server] BLKOUT Comms running on port ${PORT}`);
   console.log(`[Server] API: /api/herald/generate`);
-  console.log(`[Server] Admin: /api/admin/dashboard, /api/admin/finance (session required)`);
+  console.log(`[Server] Admin: /api/admin/dashboard, /api/admin/finance, /api/admin/content (session required)`);
   console.log(`[Server] Guarded: ${GUARDED_PATHS.join(' ')}`);
   console.log(`[Server] Health: /api/health`);
   console.log(`[Server] Static: /dist`);

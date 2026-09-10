@@ -11,7 +11,7 @@ import { ValuesCheck } from '@/components/shared/ValuesCheck';
 
 interface ApprovalQueueProps {
   tasks: AgentTask[];
-  onApprove: (taskId: string, notes?: string) => Promise<{ success: boolean; error?: string }>;
+  onApprove: (taskId: string, notes?: string) => Promise<{ success: boolean; error?: string; contentId?: string }>;
   onReject: (taskId: string, notes: string) => Promise<{ success: boolean; error?: string }>;
   onRequestRevision: (taskId: string, notes: string) => Promise<{ success: boolean; error?: string }>;
   onRefresh?: () => void;
@@ -275,7 +275,7 @@ export function ApprovalQueue({
                       {isProcessing ? 'Processing...' : 'Approve'}
                     </button>
                     <p className="text-xs text-gray-500 text-center -mt-1">
-                      Runs the values check, then marks the content approved. Posting happens through the routines, not from here.
+                      Runs the values check, then puts the approved draft in the content register as `ready`. It shows up on Content, and `/post` publishes it.
                     </p>
 
                     {/* Revision Request */}
