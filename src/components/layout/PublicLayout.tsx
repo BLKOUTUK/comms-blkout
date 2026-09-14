@@ -93,7 +93,7 @@ export function PublicLayout({ children }: PublicLayoutProps) {
                 AIvor
               </a>
               <a
-                href="https://voices.blkoutuk.cloud"
+                href="https://voices.blkoutuk.com"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="px-4 py-2 text-base font-signature font-black uppercase tracking-tight transition-colors duration-200 border-b-2 border-transparent text-gray-200 hover:text-liberation-pan-african-green hover:border-liberation-pan-african-green/60 flex items-center gap-2"
