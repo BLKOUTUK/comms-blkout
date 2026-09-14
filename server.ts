@@ -205,6 +205,38 @@ app.use((req, res, next) => {
   next();
 });
 
+// /sitemap.xml: every prerendered page in dist, deduplicated by canonical. Newsletter archive
+// pages are still client-rendered and are deliberately not listed until they are prerendered.
+import { readdirSync, statSync, readFileSync } from 'fs';
+app.get('/sitemap.xml', (_req, res) => {
+  try {
+    const DIST_DIR = join(APP_ROOT, 'dist');
+    const urls: string[] = [];
+    const seen = new Set<string>();
+    const walk = (dir: string, depth: number) => {
+      for (const name of readdirSync(dir)) {
+        const p = join(dir, name);
+        const st = statSync(p);
+        if (st.isDirectory()) { if (depth < 4 && name !== 'assets') walk(p, depth + 1); continue; }
+        if (name !== 'index.html') continue;
+        const html = readFileSync(p, 'utf8');
+        if (!html.includes('name="prerendered"')) continue;
+        const canon = html.match(/<link rel="canonical" href="([^"]+)"/);
+        const loc = canon ? canon[1] : `https://comms.blkoutuk.com/${dir.slice(DIST_DIR.length + 1).split(sep).join('/')}`;
+        if (seen.has(loc)) continue;
+        seen.add(loc);
+        urls.push(`  <url><loc>${loc}</loc><lastmod>${st.mtime.toISOString().slice(0, 10)}</lastmod></url>`);
+      }
+    };
+    walk(DIST_DIR, 0);
+    res.set('Content-Type', 'application/xml; charset=utf-8');
+    res.send(`<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.join('\n')}\n</urlset>`);
+  } catch (error) {
+    console.error('SITEMAP FAILED:', error);
+    res.status(500).send('Error generating sitemap');
+  }
+});
+
 // The public front door is /discover; the client would redirect anyway, so do it here.
 app.get('/', (_req, res) => res.redirect(302, '/discover'));
 

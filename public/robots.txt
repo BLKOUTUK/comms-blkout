@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /admin
+Disallow: /login
+Disallow: /preferences
+
+Sitemap: https://comms.blkoutuk.com/sitemap.xml
