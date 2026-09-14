@@ -1,0 +1,7 @@
+{
+  "origin": "https://comms.blkoutuk.com",
+  "routes": [
+    { "path": "/discover", "title": "Discover BLKOUT — borough doors, newsletters and places", "description": "Find your borough door, the newsletter archive and everything BLKOUT publishes for Black queer men in the UK, in one place." },
+    { "path": "/10years", "title": "BLKOUT at ten", "description": "Celebrating ten years of BLKOUT: the moments, the people and what Black queer men built together." }
+  ]
+}

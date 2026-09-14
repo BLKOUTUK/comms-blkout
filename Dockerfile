@@ -4,6 +4,10 @@ FROM node:22-alpine AS builder
 
 WORKDIR /app
 
+# Headless Chromium for the build-time prerender (scripts/prerender.mjs). Builder stage only.
+RUN apk add --no-cache chromium nss freetype harfbuzz ca-certificates ttf-freefont
+ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser
+
 # Cache bust - forces full rebuild when changed (fixes corrupted cached layers)
 LABEL build.date="2026-09-03"
 
@@ -52,6 +56,9 @@ ENV VITE_HEARTBEAT_NEWS_CHANNEL_ID=$VITE_HEARTBEAT_NEWS_CHANNEL_ID
 
 # Build frontend (Vite) and server (Express + API)
 RUN npm run build
+
+# Prerender the public routes into dist/<route>/index.html (keeps dist/shell.html for the SPA fallback)
+RUN npm run prerender
 
 # Production stage. Node 22: @supabase/supabase-js needs native WebSocket, and on
 # Node 20 every /api/* route threw at import time and returned 500.

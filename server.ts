@@ -5,7 +5,8 @@
  */
 
 import express from 'express';
-import { join } from 'path';
+import { join, normalize, extname, sep } from 'path';
+import { existsSync } from 'fs';
 import { GUARDED_PATHS, requireSessionMiddleware } from './api/_auth.js';
 
 const APP_ROOT = process.cwd();  // /app in Docker (WORKDIR)
@@ -191,14 +192,26 @@ app.get('/api/health', async (_req, res) => {
 });
 
 // Static file serving (Vite build output)
+// The public front door is /discover; the client would redirect anyway, so do it here.
+app.get('/', (_req, res) => res.redirect(302, '/discover'));
+
 app.use(express.static(join(APP_ROOT, 'dist'), {
   maxAge: '1d',
   etag: true,
+  redirect: false,
 }));
 
-// SPA fallback - serve index.html for all non-API routes
-app.get('*', (_req, res) => {
-  res.sendFile(join(APP_ROOT, 'dist', 'index.html'));
+// Prerendered routes (scripts/prerender.mjs) live at dist/<route>/index.html and the bare
+// shell at dist/shell.html. An extensionless GET gets its prerendered page if one exists,
+// otherwise the shell — never another route's prerendered content.
+const DIST = join(APP_ROOT, 'dist');
+app.get('*', (req, res) => {
+  const clean = normalize(req.path).replace(/\/+$/, '');
+  const prerendered = join(DIST, clean, 'index.html');
+  if (clean && prerendered.startsWith(DIST + sep) && !extname(clean) && existsSync(prerendered)) {
+    return res.sendFile(prerendered);
+  }
+  res.sendFile(join(DIST, existsSync(join(DIST, 'shell.html')) ? 'shell.html' : 'index.html'));
 });
 
 // Graceful shutdown. node runs as PID 1 in the container with no wrapper, and without
