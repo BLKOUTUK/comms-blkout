@@ -130,8 +130,8 @@ export function DiscoverPage() {
           <div className="flex flex-col md:flex-row md:items-center gap-6">
             <div className="flex-shrink-0 text-center">
               <div className="bg-liberation-gold-divine/10 border border-liberation-gold-divine/30 rounded-xl px-5 py-3">
-                <p className="text-liberation-gold-divine text-xs font-bold uppercase tracking-widest">Black History Month</p>
-                <p className="text-white text-lg font-bold">All October</p>
+                <p className="text-liberation-gold-divine text-xs font-bold uppercase tracking-widest">From 24 September</p>
+                <p className="text-white text-lg font-bold">Runs to 31 Oct</p>
                 <p className="text-gray-400 text-xs">One draw, 31 October</p>
               </div>
             </div>
