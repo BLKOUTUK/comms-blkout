@@ -119,10 +119,10 @@ export function DiscoverPage() {
         </div>
       </div>
 
-      {/* Featured Event: BLKOUT Annual Picnic 2026 */}
+      {/* Featured: AIvor Black History Month Quiz */}
       <section className="mb-12">
         <a
-          href="https://commons.blkoutuk.com/picnic.html"
+          href="https://blkoutuk.com/intro"
           target="_blank"
           rel="noopener noreferrer"
           className="block bg-gradient-to-r from-gray-900 via-black to-gray-900 rounded-2xl p-8 border-2 border-liberation-gold-divine/40 shadow-lg hover:border-liberation-gold-divine/70 hover:shadow-2xl transition-all duration-300 group"
@@ -130,23 +130,23 @@ export function DiscoverPage() {
           <div className="flex flex-col md:flex-row md:items-center gap-6">
             <div className="flex-shrink-0 text-center">
               <div className="bg-liberation-gold-divine/10 border border-liberation-gold-divine/30 rounded-xl px-5 py-3">
-                <p className="text-liberation-gold-divine text-xs font-bold uppercase tracking-widest">Sun 16 August</p>
-                <p className="text-white text-lg font-bold">1:00 – 7:30pm</p>
-                <p className="text-gray-400 text-xs">Regent's Park · Free</p>
+                <p className="text-liberation-gold-divine text-xs font-bold uppercase tracking-widest">Black History Month</p>
+                <p className="text-white text-lg font-bold">All October</p>
+                <p className="text-gray-400 text-xs">One draw, 31 October</p>
               </div>
             </div>
             <div className="flex-1">
-              <p className="text-liberation-gold-divine text-xs font-bold uppercase tracking-widest mb-2">BLKOUT Annual Picnic 2026</p>
+              <p className="text-liberation-gold-divine text-xs font-bold uppercase tracking-widest mb-2">AIvor's Icons Quiz</p>
               <h3 className="text-2xl md:text-3xl font-bold text-white group-hover:text-liberation-gold-divine transition-colors mb-3">
-                Bring what we need. Come as you are.
+                Four questions. One word. A BLKOUT Icons tee.
               </h3>
               <p className="text-gray-300 text-sm leading-relaxed mb-3">
-                One long afternoon in the sun — food, music, games and each other. The gathering of the BLKOUT year, and everyone who saves a spot helps us plan the welcome.
+                Ask AIvor about the four BLKOUT Icons — Ivor Cummings, Berto Pasuka, Pearl Alcock, Justin Fashanu. Every right answer gives you a letter; unscramble the word to enter the end-of-month draw.
               </p>
             </div>
             <div className="flex-shrink-0 text-center">
               <span className="inline-flex items-center gap-2 bg-liberation-gold-divine text-black font-bold py-3 px-6 rounded-lg text-sm group-hover:bg-white group-hover:text-black transition-colors shadow-md">
-                Save your spot →
+                Ask AIvor →
               </span>
             </div>
           </div>
