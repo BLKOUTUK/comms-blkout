@@ -70,8 +70,11 @@ export function DiscoverPage() {
           </p>
 
           <p className="text-lg text-gray-400 max-w-3xl mx-auto text-balance mb-8">
-            Built by and for our communities with sovereignty, safety, and collective power at the
-            core.
+            BLKOUT is the Black Queer Men's Liberation Collective. We host gatherings, build space for
+            dialogue, and create community-owned technology for the health, wealth and happiness of Black
+            gay, bi and trans men across the UK. Through local chapters, cooperative membership, creative
+            events, shared learning, and digital media, we turn connection into individual well-being and
+            collective power &mdash; owned by and accountable to the people we serve.
           </p>
 
           {/* Values badges */}

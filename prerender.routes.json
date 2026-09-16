@@ -1,7 +1,47 @@
 {
   "origin": "https://comms.blkoutuk.com",
   "routes": [
-    { "path": "/discover", "title": "Discover BLKOUT — borough doors, newsletters and places", "description": "Find your borough door, the newsletter archive and everything BLKOUT publishes for Black queer men in the UK, in one place." },
-    { "path": "/10years", "title": "BLKOUT at ten", "description": "Celebrating ten years of BLKOUT: the moments, the people and what Black queer men built together." }
+    {
+      "path": "/discover",
+      "title": "Discover BLKOUT — borough doors, newsletters and places",
+      "description": "Find your borough door, the newsletter archive and everything BLKOUT publishes for Black queer men in the UK, in one place.",
+      "jsonld": {
+        "@context": "https://schema.org",
+        "@graph": [
+          {
+            "@type": "Organization",
+            "@id": "https://blkoutuk.com/#org",
+            "name": "BLKOUT UK",
+            "alternateName": [
+              "BLKOUT",
+              "BLKOUT CBS"
+            ],
+            "legalName": "BLKOUT Creative Ltd",
+            "url": "https://blkoutuk.com",
+            "logo": "https://blkoutuk.com/blkout-logo.png",
+            "description": "BLKOUT is the Black Queer Men's Liberation Collective. We host gatherings, build space for dialogue, and create community-owned technology for the health, wealth and happiness of Black gay, bi and trans men across the UK. Through local chapters, cooperative membership, creative events, shared learning, and digital media, we turn connection into individual well-being and collective power — owned by and accountable to the people we serve."
+          },
+          {
+            "@type": "WebPage",
+            "@id": "https://comms.blkoutuk.com/discover#page",
+            "url": "https://comms.blkoutuk.com/discover",
+            "name": "Discover BLKOUT — borough doors, newsletters and places",
+            "description": "Find your borough door, the newsletter archive and everything BLKOUT publishes for Black queer men in the UK, in one place.",
+            "about": {
+              "@id": "https://blkoutuk.com/#org"
+            },
+            "publisher": {
+              "@id": "https://blkoutuk.com/#org"
+            },
+            "dateModified": "2026-09-16"
+          }
+        ]
+      }
+    },
+    {
+      "path": "/10years",
+      "title": "BLKOUT at ten",
+      "description": "Celebrating ten years of BLKOUT: the moments, the people and what Black queer men built together."
+    }
   ]
 }
