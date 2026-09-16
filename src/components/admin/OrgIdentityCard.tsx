@@ -106,6 +106,9 @@ export function OrgIdentityCard({ identifiers, identifiersState }: OrgIdentityCa
         </div>
       </div>
 
+      {/* The mission, verbatim — the standard descriptor from platform/COMMS.md. */}
+      <p className="text-sm text-gray-700 leading-relaxed mb-6 max-w-3xl">{ORG_IDENTITY.mission}</p>
+
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="space-y-6">
           <FactList facts={ORG_IDENTITY.registration} />
