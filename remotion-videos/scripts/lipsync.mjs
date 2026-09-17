@@ -98,6 +98,10 @@ async function uploadFile(filePath, key) {
   const res = await fetch(url, {
     method: "POST",
     headers: {
+      // Both header forms: classic JWT service keys authenticate via
+      // Authorization; new sb_secret_ keys authenticate via apikey and are
+      // rejected as "Invalid Compact JWS" if sent as Bearer alone.
+      apikey: SUPABASE_SERVICE_ROLE_KEY,
       Authorization: `Bearer ${SUPABASE_SERVICE_ROLE_KEY}`,
       "Content-Type": guessContentType(filePath),
       "x-upsert": "true",

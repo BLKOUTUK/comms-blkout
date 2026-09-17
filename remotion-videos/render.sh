@@ -14,7 +14,7 @@ WEEK_TAG=$(date +%Y-W%V)
 
 for ASPECT in 9x16 1x1 16x9; do
   COMP="IVORMessage${ASPECT}"
-  OUT="out/ivor-${WEEK_TAG}-${ASPECT}.mp4"
+  OUT="out/weekly-${WEEK_TAG}-${ASPECT}.mp4"
   echo "→ Rendering $COMP → $OUT"
   npx remotion render src/index.ts "$COMP" \
     --output="$OUT" \
