@@ -15,13 +15,10 @@
  *
  * Step 3 is the one everything else omits.
  */
-import { readFile } from "node:fs/promises";
-import { stat, appendFile } from "node:fs/promises";
-import { resolve } from "node:path";
+import { appendFile } from "node:fs/promises";
 import { parseArgs } from "node:util";
-import { isoWeekTag, buildCaption, uploadToStorage } from "./lib/digest-common.mjs";
+import { isoWeekTag } from "./lib/digest-common.mjs";
 
-const ROOT = resolve(import.meta.dirname, "..");
 const GRAPH = "https://graph.facebook.com/v21.0";
 
 const { values: args } = parseArgs({
@@ -33,23 +30,33 @@ const { values: args } = parseArgs({
   strict: true,
 });
 
-const REQUIRED = ["IG_USER_ID", "IG_ACCESS_TOKEN", "SUPABASE_URL",
-                  "SUPABASE_SERVICE_ROLE_KEY", "SUPABASE_BUCKET"];
+const REQUIRED = ["IG_USER_ID", "IG_ACCESS_TOKEN", "SUPABASE_URL", "SUPABASE_BUCKET"];
 const missing = REQUIRED.filter((k) => !process.env[k]);
 if (missing.length) {
   console.error(`✗ Missing: ${missing.join(", ")}. Refusing to publish.`);
   process.exit(1);
 }
-const { IG_USER_ID, IG_ACCESS_TOKEN, SUPABASE_URL,
-        SUPABASE_SERVICE_ROLE_KEY, SUPABASE_BUCKET } = process.env;
+const { IG_USER_ID, IG_ACCESS_TOKEN, SUPABASE_URL, SUPABASE_BUCKET } = process.env;
 
 const weekTag = args["week-label"] || isoWeekTag();
-const videoPath = resolve(ROOT, `out/weekly-${weekTag}-${args.aspect}.mp4`);
-const propsPath = resolve(ROOT, `props/weekly-${weekTag}.json`);
 
-// caption + storage upload live in lib/digest-common.mjs, shared with
-// host-digest.mjs so the routine-published Reel and this direct path can
-// never drift apart.
+// Runs as a separate, environment-gated job from the render/host job, so it
+// has no local render artifacts to work from — it reads the ALREADY-HOSTED
+// manifest host-digest.mjs produced (same source the Monday distribution
+// routine reads) rather than re-deriving caption/video from local files and
+// re-uploading a second time. One hosted artifact, two publish paths.
+async function loadHostedManifest() {
+  const url = `${SUPABASE_URL.replace(/\/$/, "")}/storage/v1/object/public/${SUPABASE_BUCKET}/digests/weekly-${weekTag}.json`;
+  const res = await fetch(`${url}?t=${Date.now()}`);
+  if (!res.ok) {
+    throw new Error(`Hosted manifest not found at ${url} (HTTP ${res.status}) — run host-digest.mjs first`);
+  }
+  const manifest = await res.json();
+  if (manifest.week_tag !== weekTag) {
+    throw new Error(`Hosted manifest is for ${manifest.week_tag}, expected ${weekTag}`);
+  }
+  return manifest;
+}
 
 // ---- 2. create container -------------------------------------------------
 async function createContainer(videoUrl, caption) {
@@ -107,26 +114,16 @@ async function publish(containerId) {
 }
 
 // ---- run -----------------------------------------------------------------
-try {
-  await stat(videoPath);
-} catch {
-  console.error(`✗ No video at ${videoPath}`);
-  process.exit(1);
-}
-const props = JSON.parse(await readFile(propsPath, "utf8"));
-const caption = buildCaption(props, weekTag);
+const manifest = await loadHostedManifest();
+const publicUrl = manifest.video_url;
+const caption = manifest.caption;
 
 if (args["dry-run"]) {
-  console.log(`▶ DRY RUN — would publish ${videoPath}\n---\n${caption}\n---`);
+  console.log(`▶ DRY RUN — would publish ${publicUrl}\n---\n${caption}\n---`);
   process.exit(0);
 }
 
-console.log(`→ Publishing ${weekTag} to Instagram as a Reel`);
-const publicUrl = await uploadToStorage(videoPath, `digests/weekly-${weekTag}-${args.aspect}.mp4`, {
-  supabaseUrl: SUPABASE_URL.replace(/\/$/, ""),
-  serviceKey: SUPABASE_SERVICE_ROLE_KEY,
-  bucket: SUPABASE_BUCKET,
-});
+console.log(`→ Publishing ${weekTag} to Instagram as a Reel (from hosted manifest)`);
 const containerId = await createContainer(publicUrl, caption);
 await waitForContainer(containerId);
 const postId = await publish(containerId);

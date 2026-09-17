@@ -1,7 +1,12 @@
 name: Weekly News Video
 
-# Sunday 02:00 UTC = 03:00 BST. Pipeline runs ~25 min and publishes to YouTube
-# PUBLIC by default — the digest ships every week without a human gate.
+# Sunday 02:00 UTC = 03:00 BST. Render/host/YouTube (~25 min) run straight
+# through on schedule. Instagram is a SEPARATE job gated on a GitHub
+# environment approval (see repo Settings → Environments →
+# instagram-approval) — the render job notifies Bayard2 (Telegram +
+# agent_bridge) the moment it's ready, Rob approves from that message, then
+# the Instagram job runs. No step of the Instagram job executes before
+# approval — the whole job is held, not just skipped.
 # Still manual: pasting the block the upload step prints into
 # news-blkout/src/config/aivorDigest.ts so the news site panel tracks it.
 
@@ -35,8 +40,8 @@ on:
         required: false
         type: boolean
         default: false
-      publish_instagram:
-        description: "Also publish to Instagram as a Reel (PUBLIC — no undo)"
+      skip_instagram:
+        description: "Skip the Instagram approval job entirely (e.g. a test render)"
         required: false
         type: boolean
         default: false
@@ -104,25 +109,6 @@ jobs:
           if-no-files-found: warn
           retention-days: 30
 
-      # Instagram is where BLKOUT's people actually are; YouTube is the warehouse.
-      # OFF by default and never on the schedule: a Reel is public with no undo,
-      # and the digest's content is not reviewed before it renders.
-      - name: Publish to Instagram (Reel)
-        if: ${{ inputs.publish_instagram == true }}
-        env:
-          IG_USER_ID: ${{ secrets.IG_USER_ID }}
-          IG_ACCESS_TOKEN: ${{ secrets.IG_ACCESS_TOKEN }}
-          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
-          SUPABASE_BUCKET: ${{ secrets.SUPABASE_BUCKET }}
-          WEEK_LABEL: ${{ inputs.week_label }}
-        run: |
-          set -e
-          ARGS=(--aspect 9x16)
-          [ -n "$WEEK_LABEL" ] && ARGS+=(--week-label "$WEEK_LABEL")
-          node scripts/publish-instagram.mjs "${ARGS[@]}"
-
-
       - name: Upload to YouTube
         if: ${{ !inputs.skip_upload }}
         env:
@@ -148,6 +134,8 @@ jobs:
       # Zapier's own connection — no Meta credential needed in this repo. The
       # routine reads digests/latest.json and refuses manifests older than 8
       # days, so a failure here surfaces Monday as NO-REPORT, never a stale post.
+      # Also the source the publish-instagram job reads from (below) — one
+      # hosted artifact, two publish paths, never re-derived twice.
       - name: Host digest for distribution
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
@@ -172,6 +160,39 @@ jobs:
           ARGS=()
           [ -n "$WEEK_LABEL" ] && ARGS+=(--week-label "$WEEK_LABEL")
           node scripts/register-content.mjs "${ARGS[@]}"
+
+      # Runs only if everything above succeeded (GitHub Actions' implicit
+      # default — no `if:` needed). Posts to the agent_bridge so Bayard2's
+      # own ops loop is aware, AND pings the same Telegram bot immediately
+      # so Rob doesn't wait for Bayard2's daily cron to surface it. The
+      # Instagram job below is genuinely PAUSED until approved — this step
+      # exists because a paused job's own steps never run pre-approval, so
+      # it can't announce itself.
+      - name: Notify Bayard2 — Instagram approval pending
+        if: ${{ !inputs.skip_instagram }}
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          WEEK_LABEL: ${{ inputs.week_label }}
+        run: |
+          set -e
+          WEEK_TAG="${WEEK_LABEL:-$(date -u +%Y-W%V)}"
+          BODY="This week's ($WEEK_TAG) news digest is rendered, uploaded to YouTube, and hosted — awaiting approval to post as an Instagram Reel. Approve or reject: ${RUN_URL}"
+          curl -fsS -X POST "${SUPABASE_URL}/rest/v1/agent_bridge" \
+            -H "apikey: ${SUPABASE_SERVICE_ROLE_KEY}" \
+            -H "Authorization: Bearer ${SUPABASE_SERVICE_ROLE_KEY}" \
+            -H "Content-Type: application/json" \
+            -d "$(node -e "console.log(JSON.stringify({sender:'claude',to_agent:'bayard2',kind:'task',body:process.argv[1],refs:process.argv[2],status:'open'}))" "$BODY" "$RUN_URL")" \
+            > /dev/null
+          if [ -n "$TELEGRAM_BOT_TOKEN" ] && [ -n "$TELEGRAM_CHAT_ID" ]; then
+            curl -fsS -X POST "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" \
+              --data-urlencode "chat_id=${TELEGRAM_CHAT_ID}" \
+              --data-urlencode "text=${BODY}" > /dev/null
+          fi
+          echo "Bayard2 + Telegram notified"
 
       - name: Failure summary
         if: failure()
@@ -198,3 +219,46 @@ jobs:
             --data-urlencode "chat_id=${TELEGRAM_CHAT_ID}" \
             --data-urlencode "text=${MSG}" > /dev/null
           echo "telegram sent"
+
+  # Instagram is where BLKOUT's people actually are; YouTube is the warehouse.
+  # This job is genuinely PAUSED (not merely conditional) until approved in
+  # the `instagram-approval` environment (repo Settings → Environments) — a
+  # Reel is public with no undo, and the digest's content is not reviewed
+  # before it renders. Reads the manifest render-and-upload already hosted;
+  # does not re-render or re-upload anything.
+  publish-instagram:
+    needs: render-and-upload
+    if: ${{ !inputs.skip_instagram && needs.render-and-upload.result == 'success' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment: instagram-approval
+    defaults:
+      run:
+        working-directory: remotion-videos
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: remotion-videos/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Publish to Instagram (Reel)
+        env:
+          IG_USER_ID: ${{ secrets.IG_USER_ID }}
+          IG_ACCESS_TOKEN: ${{ secrets.IG_ACCESS_TOKEN }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_BUCKET: ${{ secrets.SUPABASE_BUCKET }}
+          WEEK_LABEL: ${{ inputs.week_label }}
+        run: |
+          set -e
+          ARGS=(--aspect 9x16)
+          [ -n "$WEEK_LABEL" ] && ARGS+=(--week-label "$WEEK_LABEL")
+          node scripts/publish-instagram.mjs "${ARGS[@]}"
