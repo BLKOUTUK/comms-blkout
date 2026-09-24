@@ -2,6 +2,7 @@ import React from "react";
 import { Composition } from "remotion";
 import { IVORMessage } from "./compositions/IVORMessage";
 import { ivorMessagePropsSchema } from "./schemas/ivor-message";
+import { BHMSizzleReel, FPS as BHM_FPS, TOTAL_FRAMES as BHM_TOTAL_FRAMES } from "./compositions/BHMSizzleReel";
 
 const FPS = 30;
 
@@ -92,6 +93,22 @@ export const RemotionRoot: React.FC = () => {
         height={1080}
         schema={ivorMessagePropsSchema}
         defaultProps={{ ...sampleNewsDigest, aspect: "16:9" as const }}
+      />
+      <Composition
+        id="BHMSizzleReel1x1"
+        component={BHMSizzleReel}
+        durationInFrames={BHM_TOTAL_FRAMES}
+        fps={BHM_FPS}
+        width={1080}
+        height={1080}
+      />
+      <Composition
+        id="BHMSizzleReel9x16"
+        component={BHMSizzleReel}
+        durationInFrames={BHM_TOTAL_FRAMES}
+        fps={BHM_FPS}
+        width={1080}
+        height={1920}
       />
     </>
   );
