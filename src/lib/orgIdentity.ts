@@ -53,17 +53,12 @@ export const ORG_IDENTITY = {
 
   officers: [
     { label: 'Chair', value: 'Peter Fleming' },
-    { label: 'Secretary and Vice-Chair', value: 'Lanre Jackson-Cole' },
+    { label: 'Co-Chair', value: 'Lanre Jackson-Cole' },
+    { label: 'Secretary', value: 'Robert Berkeley — not a Director (Rule 107 permits this)' },
     {
       label: 'Directors',
       value:
         'Nathan Lewis · Lloyd Young · Jean-Eric Nkurikiye · Peter Fleming · Reuben Silungwe · Lanre Jackson-Cole (assumed office 18 Mar 2026)',
-    },
-    {
-      label: 'To reconcile',
-      value:
-        'FCA registration (16 Oct 2025) names Robert Berkeley as Secretary — reconcile with the board return before the Rule 126 register is signed off.',
-      flag: true,
     },
   ] as IdentityFact[],
 
