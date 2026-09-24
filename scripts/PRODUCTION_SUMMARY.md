@@ -9,7 +9,7 @@
 
 ## 📋 Production Documents Created
 
-All documents located in: `/home/robbe/blkout-platform/apps/comms-blkout/scripts/`
+All documents located in: `/home/robbe/blkout/platform/apps/comms-blkout/scripts/`
 
 1. **THEORY_OF_CHANGE_PHOTO_REQUIREMENTS.md**
    - 40 cards with specific background photo needs
@@ -97,16 +97,16 @@ All documents located in: `/home/robbe/blkout-platform/apps/comms-blkout/scripts
 ## 📍 Key File Locations
 
 **Production Documents:**
-- `/home/robbe/blkout-platform/apps/comms-blkout/scripts/THEORY_OF_CHANGE_PHOTO_REQUIREMENTS.md`
-- `/home/robbe/blkout-platform/apps/comms-blkout/scripts/THEORY_OF_CHANGE_CTA_STRATEGY.md`
-- `/home/robbe/blkout-platform/apps/comms-blkout/scripts/VIDEO_2_HEROES_PRODUCTION_PROMPTS.md`
-- `/home/robbe/blkout-platform/apps/comms-blkout/scripts/PRODUCTION_SUMMARY.md` (this file)
+- `/home/robbe/blkout/platform/apps/comms-blkout/scripts/THEORY_OF_CHANGE_PHOTO_REQUIREMENTS.md`
+- `/home/robbe/blkout/platform/apps/comms-blkout/scripts/THEORY_OF_CHANGE_CTA_STRATEGY.md`
+- `/home/robbe/blkout/platform/apps/comms-blkout/scripts/VIDEO_2_HEROES_PRODUCTION_PROMPTS.md`
+- `/home/robbe/blkout/platform/apps/comms-blkout/scripts/PRODUCTION_SUMMARY.md` (this file)
 
 **Wan API Service:**
-- `/home/robbe/blkout-platform/apps/comms-blkout/scripts/services/wan-direct.ts`
+- `/home/robbe/blkout/platform/apps/comms-blkout/scripts/services/wan-direct.ts`
 
 **Visual Generator:**
-- `/home/robbe/blkout-platform/apps/comms-blkout/scripts/generate-theory-of-change-visuals.ts` (Gemini-based, for reference)
+- `/home/robbe/blkout/platform/apps/comms-blkout/scripts/generate-theory-of-change-visuals.ts` (Gemini-based, for reference)
 - **To create**: `generate-theory-wan-hybrid.ts` (Wan-based hybrid generator)
 
 **TheoryOfChange Component:**

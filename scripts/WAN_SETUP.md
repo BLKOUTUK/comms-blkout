@@ -9,7 +9,7 @@
 
 ## Configure API Key
 
-Add to `/home/robbe/blkout-platform/apps/comms-blkout/.env`:
+Add to `/home/robbe/blkout/platform/apps/comms-blkout/.env`:
 
 ```bash
 FAL_KEY=your_actual_fal_api_key_here
@@ -20,7 +20,7 @@ FAL_KEY=your_actual_fal_api_key_here
 Run a test generation:
 
 ```bash
-cd /home/robbe/blkout-platform/apps/comms-blkout
+cd /home/robbe/blkout/platform/apps/comms-blkout
 FAL_KEY=your_key_here npx tsx scripts/test-wan-api.ts
 ```
 

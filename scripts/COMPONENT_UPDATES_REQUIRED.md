@@ -138,7 +138,7 @@ import HorizontalCTAScroll from './HorizontalCTAScroll'
 ```
 
 **Component location**:
-- Copy from `/home/robbe/blkout-platform/apps/comms-blkout/scripts/ACT5_HORIZONTAL_CTA_COMPONENT.tsx`
+- Copy from `/home/robbe/blkout/platform/apps/comms-blkout/scripts/ACT5_HORIZONTAL_CTA_COMPONENT.tsx`
 - To: `/home/robbe/blkout-website/src/components/movement/HorizontalCTAScroll.tsx`
 
 ---

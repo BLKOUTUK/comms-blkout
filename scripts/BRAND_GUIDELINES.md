@@ -9,7 +9,7 @@
 ## 🎨 Official Logo Assets
 
 ### Primary Logos
-**Location**: `/home/robbe/blkout-platform/apps/comms-blkout/assets/brand/`
+**Location**: `/home/robbe/blkout/platform/apps/comms-blkout/assets/brand/`
 
 1. **Main Logo**
    - File: `LOGOBLKOUT0725.png` (438 KB)
@@ -286,8 +286,8 @@ Before finalizing any graphic:
 - When in doubt, keep it simple and use official assets
 
 **Asset Locations:**
-- Official logos: `/home/robbe/blkout-platform/apps/comms-blkout/assets/brand/`
-- Campaign graphics: `/home/robbe/blkout-platform/apps/comms-blkout/generated-campaign-assets-v2/`
+- Official logos: `/home/robbe/blkout/platform/apps/comms-blkout/assets/brand/`
+- Campaign graphics: `/home/robbe/blkout/platform/apps/comms-blkout/generated-campaign-assets-v2/`
 - Website assets: `/home/robbe/blkout-website/public/images/`
 
 ---

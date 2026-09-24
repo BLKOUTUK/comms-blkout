@@ -1,6 +1,6 @@
 # Background Photo to Card Mapping
 
-**Source**: `/home/robbe/blkout-platform/apps/scrollytelling/public/images/Scroll background/`
+**Source**: `/home/robbe/blkout/platform/apps/scrollytelling/public/images/Scroll background/`
 **Total Backgrounds**: 29 PNG files
 
 ## Mapping (Based on Visual Review)

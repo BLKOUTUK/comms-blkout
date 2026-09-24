@@ -7,7 +7,7 @@
  * Shot 4: Overhead — fire encircled by figures (the logo shot)
  *
  * Usage:
- *   cd /home/robbe/blkout-platform/apps/comms-blkout
+ *   cd /home/robbe/blkout/platform/apps/comms-blkout
  *   npx tsx scripts/generate-cookout-fire.ts
  *   npx tsx scripts/generate-cookout-fire.ts --shot 4   # single shot only
  */
