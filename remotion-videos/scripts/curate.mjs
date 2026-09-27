@@ -121,9 +121,20 @@ function buildCtaUrl(weekTag) {
 //
 // Retries transient failures only — network errors, 429, and 5xx. A 404 or a 401
 // will not fix itself on a second attempt, so those still fail fast.
-const FETCH_ATTEMPTS = 4;
+//
+// 6 Sep and 27 Sep 2026: all 4 attempts failed inside ~50s while the server was
+// provably fine, and "fetch failed" alone could not say why. So the window is now
+// ~4 minutes, and every failure logs Node's underlying cause (DNS, refused, reset).
+const FETCH_ATTEMPTS = 6;
 const FETCH_TIMEOUT_MS = 20_000;
-const BACKOFF_MS = [2_000, 5_000, 12_000];
+const BACKOFF_MS = [5_000, 15_000, 30_000, 60_000, 120_000];
+
+// undici's "fetch failed" hides the real error in err.cause.
+const describe = (err) => {
+  const c = err?.cause;
+  const cause = c ? ` [cause: ${[c.code, c.message].filter(Boolean).join(" ")}]` : "";
+  return `${err?.message ?? err}${cause}`;
+};
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
@@ -159,14 +170,14 @@ async function fetchStoriesForPeriod(period, fetchLimit = 20) {
     if (attempt < FETCH_ATTEMPTS) {
       const wait = BACKOFF_MS[attempt - 1] + Math.floor(Math.random() * 750);
       console.warn(
-        `  ! ${period} stories attempt ${attempt}/${FETCH_ATTEMPTS} failed (${lastErr?.message ?? lastErr}) — retrying in ${Math.round(wait / 1000)}s`
+        `  ! ${period} stories attempt ${attempt}/${FETCH_ATTEMPTS} failed (${describe(lastErr)}) — retrying in ${Math.round(wait / 1000)}s`
       );
       await sleep(wait);
     }
   }
 
   throw new Error(
-    `GET ${url} failed after ${FETCH_ATTEMPTS} attempts. Last error: ${lastErr?.message ?? lastErr}`
+    `GET ${url} failed after ${FETCH_ATTEMPTS} attempts. Last error: ${describe(lastErr)}`
   );
 }
 
