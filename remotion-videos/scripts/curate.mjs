@@ -50,6 +50,16 @@ function formatDate(date = new Date()) {
   });
 }
 
+// A "2026-W40" override must date the edition to that week, not to today.
+function weekTagDate(tag) {
+  const m = /^(\d{4})-W(\d{2})$/.exec(tag || "");
+  if (!m) return new Date();
+  const jan4 = new Date(Date.UTC(Number(m[1]), 0, 4));
+  const monday = new Date(jan4);
+  monday.setUTCDate(jan4.getUTCDate() - ((jan4.getUTCDay() || 7) - 1) + (Number(m[2]) - 1) * 7);
+  return new Date(monday.getUTCFullYear(), monday.getUTCMonth(), monday.getUTCDate());
+}
+
 function isoWeekRange(date = new Date()) {
   const d = new Date(
     Date.UTC(date.getFullYear(), date.getMonth(), date.getDate())
@@ -241,7 +251,7 @@ function buildProps(stories, { weekTag, weekLabel }) {
         : undefined,
   }));
 
-  const { from, to } = isoWeekRange();
+  const { from, to } = isoWeekRange(weekTagDate(args["week-label"]));
   const range = formatRangeShort(from, to);
 
   return {
