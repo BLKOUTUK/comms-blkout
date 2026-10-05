@@ -127,7 +127,9 @@ async function tts(text, outPath) {
     VOICE_REFERENCE.split("/").pop()
   );
   const controller = new AbortController();
-  const ttsTimeoutMs = 15 * 60 * 1000;
+  // CPU-only Chatterbox runs ~1.5s per sampling step; a contended request can
+  // pass 15 min. 55 min still leaves the 90-min job room for lipsync + render.
+  const ttsTimeoutMs = 55 * 60 * 1000;
   const t = setTimeout(() => controller.abort(), ttsTimeoutMs);
   let res;
   try {
