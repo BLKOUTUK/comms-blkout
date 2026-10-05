@@ -68,7 +68,7 @@ async function exists(path) {
   }
 }
 
-const weekTag = isoWeekTag();
+const weekTag = args["week-label"] || isoWeekTag();
 const propsPath = resolve(ROOT, `props/weekly-${weekTag}.json`);
 const outDir = resolve(ROOT, "out");
 const talkingHeadPath = resolve(
