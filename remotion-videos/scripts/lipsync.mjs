@@ -2,6 +2,7 @@
 import { writeFile, readFile, mkdir, copyFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { parseArgs } from "node:util";
+import { execFileSync } from "node:child_process";
 import { Agent, setGlobalDispatcher } from "undici";
 
 setGlobalDispatcher(
@@ -157,8 +158,14 @@ async function tts(text, outPath) {
 // CPU-only box (5 Oct 2026: three W40 attempts died in TTS). $0.025/1k chars.
 async function ttsReplicate(text, outPath, stamp) {
   console.log(`→ TTS via Replicate Chatterbox (${text.length} chars)`);
-  const ext = VOICE_REFERENCE.split(".").pop();
-  const voiceUrl = await uploadFile(VOICE_REFERENCE, `runs/${stamp}/voice-ref.${ext}`);
+  // Replicate's Chatterbox only accepts a WAV reference.
+  let ref = VOICE_REFERENCE;
+  if (!/\.wav$/i.test(ref)) {
+    ref = `/tmp/aivor-lipsync/voice-ref-${stamp}.wav`;
+    await mkdir(dirname(ref), { recursive: true });
+    execFileSync("ffmpeg", ["-y", "-loglevel", "error", "-i", VOICE_REFERENCE, "-ac", "1", "-ar", "24000", ref]);
+  }
+  const voiceUrl = await uploadFile(ref, `runs/${stamp}/voice-ref.wav`);
   const submit = await fetch(
     "https://api.replicate.com/v1/models/resemble-ai/chatterbox/predictions",
     {
