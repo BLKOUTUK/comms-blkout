@@ -153,6 +153,43 @@ async function tts(text, outPath) {
   return outPath;
 }
 
+// Same Chatterbox model, on Replicate's GPUs: ~1 min instead of 15-60 on our
+// CPU-only box (5 Oct 2026: three W40 attempts died in TTS). $0.025/1k chars.
+async function ttsReplicate(text, outPath, stamp) {
+  console.log(`→ TTS via Replicate Chatterbox (${text.length} chars)`);
+  const ext = VOICE_REFERENCE.split(".").pop();
+  const voiceUrl = await uploadFile(VOICE_REFERENCE, `runs/${stamp}/voice-ref.${ext}`);
+  const submit = await fetch(
+    "https://api.replicate.com/v1/models/resemble-ai/chatterbox/predictions",
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Token ${REPLICATE_TOKEN}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        input: { prompt: text, audio_prompt: voiceUrl, exaggeration: 0.5, cfg_weight: 0.5, temperature: 0.8 },
+      }),
+    }
+  );
+  const { id, error } = await submit.json();
+  if (!id) throw new Error(`Replicate TTS submit failed: ${error || submit.status}`);
+  for (let i = 0; i < 60; i++) {
+    await new Promise((r) => setTimeout(r, 5000));
+    const poll = await (await fetch(`https://api.replicate.com/v1/predictions/${id}`, {
+      headers: { Authorization: `Token ${REPLICATE_TOKEN}` },
+    })).json();
+    if (poll.status === "succeeded") {
+      await downloadFile(Array.isArray(poll.output) ? poll.output[0] : poll.output, outPath);
+      return outPath;
+    }
+    if (poll.status === "failed" || poll.status === "canceled") {
+      throw new Error(`Replicate TTS ${poll.status}: ${poll.error}`);
+    }
+  }
+  throw new Error("Replicate TTS still running after 5 min");
+}
+
 async function sadtalker({ imageUrl, audioUrl, useEnhancer }) {
   console.log(`→ SadTalker via Replicate (enhancer=${useEnhancer})`);
   const submit = await fetch("https://api.replicate.com/v1/predictions", {
@@ -247,7 +284,12 @@ async function main() {
   } else {
     await resolveVoiceReference();
     const scriptText = await fetchScriptText(args.script);
-    await tts(scriptText, audioPath);
+    try {
+      await ttsReplicate(scriptText, audioPath, stamp);
+    } catch (e) {
+      console.log(`✗ ${e.message} — falling back to self-hosted Chatterbox`);
+      await tts(scriptText, audioPath);
+    }
   }
   console.log("→ Uploading audio to Supabase storage");
   const audioUrl = await uploadFile(audioPath, `runs/${stamp}/voice.wav`);
