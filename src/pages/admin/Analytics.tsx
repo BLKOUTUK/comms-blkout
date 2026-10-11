@@ -291,7 +291,6 @@ export function Analytics() {
                 ['gestures.in_month', 'First gestures in the month'],
                 ['gestures.total', 'First gestures held, to date'],
                 ['gestures.met', 'Met, to date'],
-                ['gestures.median_hours_to_met_90d', 'Median hours to meet (last 90 days)'],
                 ['events.interest.picnic-2026', 'Picnic interest signups'],
                 ['events.rsvps', 'Event RSVPs'],
                 ['news.voting.votes', 'News votes cast'],
