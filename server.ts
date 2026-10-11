@@ -260,13 +260,22 @@ app.use(express.static(join(APP_ROOT, 'dist'), {
 // shell at dist/shell.html. An extensionless GET gets its prerendered page if one exists,
 // otherwise the shell — never another route's prerendered content.
 const DIST = join(APP_ROOT, 'dist');
+// Paths the SPA renders — keep in step with the <Route path> list in src/App.tsx (its '*' route
+// only redirects to /discover in the browser). Anything else still gets the shell, with a real
+// 404 so search engines don't index made-up addresses (SEO plan K2, 11 Oct 2026).
+const SPA_ROUTES = new Set(['', '10years', 'admin', 'discover', 'login', 'preferences', 'subscribe', 'unsubscribe']);
+const knownRoute = (route: string) =>
+  SPA_ROUTES.has(route) || route.startsWith('admin/') || /^discover\/newsletters\/[^/]+$/.test(route);
 app.get('*', (req, res) => {
   const clean = normalize(req.path).replace(/\/+$/, '');
   const prerendered = join(DIST, clean, 'index.html');
   if (clean && prerendered.startsWith(DIST + sep) && !extname(clean) && existsSync(prerendered)) {
     return res.sendFile(prerendered);
   }
-  res.sendFile(join(DIST, existsSync(join(DIST, 'shell.html')) ? 'shell.html' : 'index.html'));
+  const route = clean.replace(/^\/+/, '');
+  const known = knownRoute(route);
+  if (!known && extname(clean)) return res.status(404).send('Not found');
+  res.status(known ? 200 : 404).sendFile(join(DIST, existsSync(join(DIST, 'shell.html')) ? 'shell.html' : 'index.html'));
 });
 
 // Graceful shutdown. node runs as PID 1 in the container with no wrapper, and without
