@@ -13,6 +13,7 @@ import { ContentCalendar } from '@/pages/admin/ContentCalendar';
 import { Newsletters } from '@/pages/admin/Newsletters';
 import Grants from '@/pages/admin/Grants';
 import { Finance } from '@/pages/admin/Finance';
+import { Analytics } from '@/pages/admin/Analytics';
 import { EventModeration } from '@/pages/admin/EventModeration';
 import { NewsModeration } from '@/pages/admin/NewsModeration';
 import { NewsletterPreferences } from '@/pages/preferences/NewsletterPreferences';
@@ -73,6 +74,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <Grants />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/analytics"
+            element={
+              <ProtectedRoute>
+                <Analytics />
               </ProtectedRoute>
             }
           />

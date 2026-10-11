@@ -10,10 +10,12 @@ import {
   CalendarCheck,
   Newspaper,
   PoundSterling,
+  BarChart3,
 } from 'lucide-react';
 
 const navigation = [
   { name: 'Dashboard', href: '/admin', icon: LayoutDashboard },
+  { name: 'Analytics', href: '/admin/analytics', icon: BarChart3 },
   { name: 'Event Moderation', href: '/admin/events', icon: CalendarCheck },
   { name: 'News Moderation', href: '/admin/news', icon: Newspaper },
   { name: 'Content', href: '/admin/calendar', icon: Calendar },
