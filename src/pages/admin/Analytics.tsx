@@ -10,7 +10,8 @@
  * - a figure that was not collected is a gap ("—", with the reason on hover), never a 0;
  * - web figures are GB visitors (crawlers filtered out by the collector's country rule);
  * - newsletter opens are inflated by Apple Mail, so clicks sit beside them;
- * - no "unmet" count: the RPC does not return one (Rob, 28 Aug 2026).
+ * - no "unmet" / 48-hour-window count: that measure was retired on 29 Sep 2026 (Rob), so the
+ *   RPC does not return it.
  */
 
 import { Globe, Instagram, Users, Mail, HeartHandshake } from 'lucide-react';
