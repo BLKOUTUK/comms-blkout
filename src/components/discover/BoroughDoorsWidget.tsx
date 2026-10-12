@@ -25,6 +25,7 @@ const OPEN_DOORS: Record<string, string> = {
   lewisham: 'Lewisham',
   newham: 'Newham',
   southwark: 'Southwark',
+  'tower-hamlets': 'Tower Hamlets',
   'waltham-forest': 'Waltham Forest',
   westminster: 'Westminster',
 };
