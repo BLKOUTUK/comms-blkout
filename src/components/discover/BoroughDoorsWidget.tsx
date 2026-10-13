@@ -21,6 +21,7 @@ const OPEN_DOORS: Record<string, string> = {
   enfield: 'Enfield',
   hackney: 'Hackney',
   haringey: 'Haringey',
+  islington: 'Islington',
   lambeth: 'Lambeth',
   lewisham: 'Lewisham',
   newham: 'Newham',
