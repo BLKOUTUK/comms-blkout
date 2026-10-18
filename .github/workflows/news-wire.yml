@@ -1,0 +1,72 @@
+name: The Wire (news voting Reels)
+
+# Daily 08:00 UTC. scripts/news-wire.mjs decides from live news data whether a moment is due
+# (open / have you voted / last call / results) and is silent otherwise. When one is due it
+# renders the NewsWire Reel, posts to Instagram + the Facebook Page via the direct Graph
+# route, records the post in content_calendar and tells Rob on Telegram.
+on:
+  schedule:
+    - cron: "0 8 * * *"
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "dry-run renders and hosts the Reel but posts nothing"
+        type: choice
+        options: [dry-run, normal]
+        default: dry-run
+      moment:
+        description: "Force a moment (testing). Leave blank to let the script decide."
+        type: choice
+        options: ["", open, voted, lastcall, results]
+        default: ""
+
+permissions:
+  contents: read
+
+concurrency:
+  group: news-wire
+  cancel-in-progress: false
+
+jobs:
+  wire:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    defaults:
+      run:
+        working-directory: remotion-videos
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: remotion-videos/package-lock.json
+      - name: Install ffmpeg
+        run: sudo apt-get update && sudo apt-get install -y ffmpeg
+      - name: Install dependencies
+        run: npm ci
+      - name: Post today's moment, if one is due
+        env:
+          META_PAGE_TOKEN: ${{ secrets.META_PAGE_TOKEN }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          SUPABASE_BUCKET: ${{ secrets.SUPABASE_BUCKET }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          MODE: ${{ inputs.mode || 'normal' }}
+          MOMENT: ${{ inputs.moment }}
+        run: |
+          ARGS=()
+          [ "$MODE" = "dry-run" ] && ARGS+=(--dry-run)
+          [ -n "$MOMENT" ] && ARGS+=(--moment "$MOMENT")
+          node scripts/news-wire.mjs "${ARGS[@]}"
+      - name: Tell Rob if it broke
+        if: failure()
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          curl -fsS -X POST "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" \
+            --data-urlencode "chat_id=${TELEGRAM_CHAT_ID}" \
+            --data-urlencode "text=The Wire FAILED $(date -u '+%a %d %b %H:%M') UTC. $RUN_URL" > /dev/null
