@@ -1,0 +1,47 @@
+name: 7-11-4 snapshot (monthly)
+
+# Re-measures BLKOUT against Priestley's 7-11-4 every month (Rob, 18 Oct 2026) and writes
+# brand.7114.* rows into metrics.snapshots; /impact reads them for the trend. Runs on the 2nd,
+# after the metrics-monthly collector on the 1st. Telegram summary to Rob either way.
+on:
+  schedule:
+    - cron: "0 7 2 * *"
+  workflow_dispatch:
+    inputs:
+      period:
+        description: "YYYY-MM to measure (blank = last month)"
+        type: string
+        default: ""
+      dry_run:
+        description: "Print only; write nothing, no Telegram"
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  snapshot:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Install yt-dlp
+        run: pip install --quiet yt-dlp
+      - name: Measure and record
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          META_PAGE_TOKEN: ${{ secrets.META_PAGE_TOKEN }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          PERIOD: ${{ inputs.period }}
+          DRY: ${{ inputs.dry_run }}
+        run: |
+          ARGS=()
+          [ -n "$PERIOD" ] && ARGS+=(--period "$PERIOD")
+          [ "$DRY" = "true" ] && ARGS+=(--dry-run)
+          node scripts/collect-7114.mjs "${ARGS[@]}"
