@@ -2,6 +2,7 @@ import React from "react";
 import { Composition } from "remotion";
 import { IVORMessage } from "./compositions/IVORMessage";
 import { NewsWire, newsWireSchema } from "./compositions/NewsWire";
+import { NewsStories, newsStoriesSchema, storiesDuration } from "./compositions/NewsStories";
 import { ivorMessagePropsSchema } from "./schemas/ivor-message";
 import { BHMSizzleReel, FPS as BHM_FPS, TOTAL_FRAMES as BHM_TOTAL_FRAMES } from "./compositions/BHMSizzleReel";
 
@@ -55,6 +56,24 @@ const sampleNewsDigest = {
 export const RemotionRoot: React.FC = () => {
   return (
     <>
+      <Composition
+        id="NewsStories"
+        component={NewsStories}
+        durationInFrames={storiesDuration(3)}
+        calculateMetadata={({ props }) => ({ durationInFrames: storiesDuration(props.stories.length) })}
+        fps={FPS}
+        width={1080}
+        height={1920}
+        schema={newsStoriesSchema}
+        defaultProps={{
+          closesOn: "Sat 31 Oct",
+          stories: [
+            { title: "Sample headline one about a story that matters", source: "Source One" },
+            { title: "A second sample headline, a little longer, to check how two and three line titles wrap", source: "Source Two" },
+            { title: "Third sample", source: "Source Three" },
+          ],
+        }}
+      />
       <Composition
         id="NewsWire"
         component={NewsWire}

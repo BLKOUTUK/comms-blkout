@@ -9,7 +9,9 @@
  *   results  — the Sunday a fortnight closes, ONLY if votes or an editor decided it.
  *              No results Reel when nobody voted (Rob, 18 Oct).
  *   lastcall — the Friday before the fortnight closes (Saturday midnight).
- *   open     — the first day the new fortnight has stories that can take votes.
+ *   open     — the first day the new fortnight has stories that can take votes. Posts the
+ *              NewsStories Reel: every story numbered, "comment the number to vote";
+ *              news-comment-votes.mjs turns those comments into votes.
  *   voted    — the middle Sunday ("have you voted?").
  * At most one post a day; each (fortnight, moment) posts once, keyed in content_calendar.
  *
@@ -63,7 +65,8 @@ const period = (await getJson(`${NEWS}/api/voting-period`)).data;
 if (!period) { console.error("✗ FAILED: no active voting period"); process.exit(1); }
 const start = period.startDate.slice(0, 10), end = period.endDate.slice(0, 10);
 const news = (await getJson(`${NEWS}/api/news?limit=100`)).data;
-const openStories = news.articles.filter((a) => a.votingOpen !== false).length;
+const openList = news.articles.filter((a) => a.votingOpen !== false);
+const openStories = openList.length;
 const posted = await sb(`content_calendar?select=metadata&metadata->>campaign=eq.news-wire&metadata->>period_id=eq.${period.id}`);
 const done = new Set(posted.map((r) => r.metadata.moment));
 
@@ -88,12 +91,23 @@ if (!moment) { console.log(`Nothing due today (${today}): fortnight ${start}→$
 const closesOn = moment === "lastcall" ? `midnight, ${longDate(end)}` : longDate(end);
 const scale = moment === "voted" || moment === "lastcall" ? "street" : "global";
 const props = { scale, moment, closesOn, ...(pickedBy ? { pickedBy } : {}) }; // no counts on screen (Rob, 18 Oct)
+// Voting open carries the vote itself: the stories, numbered, newest first, at most 10.
+const newestFirst = (list) => [...list].sort((a, b) => String(b.published_at).localeCompare(String(a.published_at))).slice(0, 10);
+let storyList = moment === "open" ? newestFirst(openList) : [];
+if (moment === "open" && !storyList.length) {
+  if (!DRY) { console.error("✗ FAILED: 'open' with no stories that can take votes. Refusing to post."); process.exit(1); }
+  storyList = newestFirst(news.articles); // dry run only: render something real to check
+}
+const composition = moment === "open" ? "NewsStories" : "NewsWire";
+const renderProps = moment === "open"
+  ? { closesOn, stories: storyList.map((a) => ({ title: a.title, source: a.source_name || a.sourceName || undefined })) }
+  : props;
 console.log(`Due today (${today}): ${moment} · ${JSON.stringify(props)}`);
 
 // ---- caption -----------------------------------------------------------------------
 const SIGN = "News for us. Curated by you.\nBLKOUT\nAre you in?\n\nVote at news.blkoutuk.com (link in bio). No login.\n\n#BLKOUT #BlackQueer #BlackQueerMen #QueerUK";
 const caption = {
-  open: `Haven't you heard?\n\nThe stories are in, and you decide which three lead our news digest. Vote before ${longDate(end)}. One tap, no login.\n\n${SIGN}`,
+  open: `Haven't you heard?\n\nYou decide which stories lead our news digest. Comment the number of each story you back (one vote per story), before ${longDate(end)}:\n\n${storyList.map((a, i) => `${i + 1}. ${a.title}`).join("\n")}\n\n${SIGN}`,
   voted: `Have you voted?\n\nThe stories that matter to you lead the digest, but only if you say so. Vote before ${longDate(end)}.\n\n${SIGN}`,
   lastcall: `Last call. Voting closes at midnight, ${longDate(end)}.\n\nThe three stories with the most votes lead this week's digest. Yours could be one.\n\n${SIGN}`,
   results: `The results are in.\n\n${pickedBy === "editor" ? "No clear winner, so an editor picked this fortnight's top three:" : "You chose the top three:"}\n${topStories.map((t, i) => `${i + 1}. ${t}`).join("\n")}\n\nThey lead this week's digest.\n\n${SIGN}`,
@@ -103,12 +117,12 @@ if (caption.length > 2200) { console.error(`✗ FAILED: caption ${caption.length
 // ---- render + upload ---------------------------------------------------------------
 mkdirSync("out", { recursive: true });
 const file = `out/news-wire-${periodForPost.slice(0, 8)}-${moment}.mp4`;
-execFileSync("npx", ["remotion", "render", "NewsWire", file, `--props=${JSON.stringify(props)}`, "--crf=20", "--concurrency=2"], { stdio: "inherit" });
+execFileSync("npx", ["remotion", "render", composition, file, `--props=${JSON.stringify(renderProps)}`, "--crf=20", "--concurrency=2"], { stdio: "inherit" });
 const videoUrl = await uploadToStorage(file, `news-wire/${periodForPost}/${moment}.mp4`, {
   supabaseUrl: env.SUPABASE_URL, serviceKey: env.SUPABASE_SERVICE_ROLE_KEY, bucket: env.SUPABASE_BUCKET,
 });
 if (DRY) {
-  console.log(`DRY RUN: rendered and hosted at ${videoUrl}. Nothing posted.\n--- caption ---\n${caption}`);
+  console.log(`DRY RUN: rendered ${composition} and hosted at ${videoUrl}. Nothing posted.\n--- caption ---\n${caption}`);
   process.exit(0);
 }
 
@@ -126,6 +140,7 @@ try {
   }
   if (status !== "FINISHED") throw new Error(`IG container ${container} not ready after 4 min`);
   const { id: media } = await getJson(`${GRAPH}/${IG_ID}/media_publish`, { method: "POST", body: form({ creation_id: container }) });
+  results.instagram_media_id = media;
   results.instagram = (await getJson(`${GRAPH}/${media}?fields=permalink&access_token=${token}`)).permalink;
 } catch (e) { results.instagram = `FAILED: ${e.message}`; }
 try {
@@ -134,7 +149,8 @@ try {
 } catch (e) { results.facebook = `FAILED: ${e.message}`; }
 
 // ---- record + tell Rob -------------------------------------------------------------
-const ok = Object.values(results).some((v) => !v.startsWith("FAILED"));
+const channels = [results.instagram, results.facebook];
+const ok = channels.some((v) => !v.startsWith("FAILED"));
 if (ok) {
   await sb("content_calendar", {
     method: "POST", headers: { Prefer: "return=minimal" },
@@ -142,11 +158,16 @@ if (ok) {
       title: `The Wire — ${moment} (${longDate(start)}–${longDate(end)})`,
       content_type: "video", status: "posted", published_at: new Date().toISOString(),
       primary_content: caption, media_urls: [videoUrl], generated_by_agent: "news-wire",
-      metadata: { campaign: "news-wire", period_id: periodForPost, moment, props, posted: results, source: `routine:news-wire#${periodForPost}:${moment}` },
+      metadata: {
+        campaign: "news-wire", period_id: periodForPost, moment, props, posted: results,
+        source: `routine:news-wire#${periodForPost}:${moment}`,
+        // Comment-number → story mapping, for news-comment-votes.mjs.
+        ...(storyList.length ? { story_ids: storyList.map((a) => a.id) } : {}),
+      },
     }),
   });
 }
 const report = `The Wire · ${moment}\nInstagram: ${results.instagram}\nFacebook: ${results.facebook}${ok ? "" : "\nNOT recorded: nothing posted."}`;
 console.log(report);
 await telegram(report);
-if (!ok || Object.values(results).some((v) => v.startsWith("FAILED"))) process.exit(1);
+if (!ok || channels.some((v) => v.startsWith("FAILED"))) process.exit(1);
