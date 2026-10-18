@@ -12,10 +12,9 @@
  * fails writes status "failed" with the error, never a 0 that reads as a result.
  *
  * Flags: --period YYYY-MM (default: last month)   --dry-run (print, write nothing, no Telegram)
- * Needs: SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, META_PAGE_TOKEN, yt-dlp on PATH;
+ * Needs: SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, META_PAGE_TOKEN, YT_CLIENT_ID/SECRET/REFRESH_TOKEN;
  *        TELEGRAM_BOT_TOKEN + TELEGRAM_CHAT_ID for the summary.
  */
-import { execFileSync } from "node:child_process";
 import { parseArgs } from "node:util";
 
 const { values: args } = parseArgs({ options: { period: { type: "string" }, "dry-run": { type: "boolean", default: false } }, strict: true });
@@ -45,22 +44,38 @@ const rows = []; // { measure, value, detail, status }
 const put = (measure, value, method, extra = {}) => rows.push({ measure: `brand.7114.${measure}`, value, detail: { method, ...extra }, status: "ok" });
 const fail = (measure, err) => { rows.push({ measure: `brand.7114.${measure}`, value: null, detail: { error: String(err.message || err).slice(0, 300) }, status: "failed" }); console.error(`✗ ${measure}: ${err.message || err}`); };
 
-// ---- YouTube (yt-dlp, public metadata) ---------------------------------------------
+// ---- YouTube (Data API, the same OAuth client the digest uploads with) --------------
+// yt-dlp is blocked from GitHub's data-centre IPs, so use the official API.
 let ytMinutes12 = null;
+const isoSecs = (d) => { const m = d.match(/P(?:(\d+)D)?T?(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/) || []; return (+m[1] || 0) * 86400 + (+m[2] || 0) * 3600 + (+m[3] || 0) * 60 + (+m[4] || 0); };
 try {
+  if (!env.YT_CLIENT_ID || !env.YT_CLIENT_SECRET || !env.YT_REFRESH_TOKEN) throw new Error("YT_CLIENT_ID / YT_CLIENT_SECRET / YT_REFRESH_TOKEN not set");
+  const { access_token } = await getJson("https://oauth2.googleapis.com/token", {
+    method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: new URLSearchParams({ client_id: env.YT_CLIENT_ID, client_secret: env.YT_CLIENT_SECRET, refresh_token: env.YT_REFRESH_TOKEN, grant_type: "refresh_token" }),
+  });
+  const auth = { headers: { Authorization: `Bearer ${access_token}` } };
+  const YT = "https://www.googleapis.com/youtube/v3";
+  const ch = await getJson(`${YT}/channels?part=contentDetails&mine=true`, auth);
+  const uploads = ch.items?.[0]?.contentDetails?.relatedPlaylists?.uploads;
+  if (!uploads) throw new Error("no uploads playlist on the authorised channel");
+  const ids = [];
+  let pageToken = "";
+  do {
+    const page = await getJson(`${YT}/playlistItems?part=contentDetails&maxResults=50&playlistId=${uploads}${pageToken ? `&pageToken=${pageToken}` : ""}`, auth);
+    const recent = page.items.filter((i) => inYear(i.contentDetails.videoPublishedAt || "1970-01-01"));
+    ids.push(...recent.map((i) => i.contentDetails.videoId));
+    const oldest = page.items[page.items.length - 1]?.contentDetails.videoPublishedAt;
+    pageToken = oldest && new Date(oldest) >= yearStart ? page.nextPageToken : ""; // newest first: stop once older than the window
+  } while (pageToken);
   const vids = [];
-  for (const tab of ["videos", "shorts"]) {
-    const out = execFileSync("yt-dlp", ["--playlist-end", "60", "--ignore-errors", "--print", "%(upload_date)s|%(duration)s",
-      `https://www.youtube.com/@BLKOUTUK/${tab}`], { encoding: "utf8", maxBuffer: 1 << 24, stdio: ["ignore", "pipe", "ignore"] });
-    for (const line of out.trim().split("\n")) {
-      const [d, s] = line.split("|");
-      if (/^\d{8}$/.test(d) && /^\d+(\.\d+)?$/.test(s)) vids.push({ at: `${d.slice(0, 4)}-${d.slice(4, 6)}-${d.slice(6)}T12:00:00Z`, secs: Number(s) });
-    }
+  for (let i = 0; i < ids.length; i += 50) {
+    const v = await getJson(`${YT}/videos?part=contentDetails,status,snippet&id=${ids.slice(i, i + 50).join(",")}`, auth);
+    vids.push(...v.items.filter((x) => x.status.privacyStatus === "public").map((x) => ({ at: x.snippet.publishedAt, secs: isoSecs(x.contentDetails.duration) })));
   }
-  if (!vids.length) throw new Error("yt-dlp returned no dated videos");
   ytMinutes12 = vids.filter((v) => inYear(v.at)).reduce((a, v) => a + v.secs, 0) / 60;
-  put("youtube.uploads", vids.filter((v) => inMonth(v.at)).length, "measured");
-  put("youtube.minutes_12m", Math.round(ytMinutes12 * 10) / 10, "measured");
+  put("youtube.uploads", vids.filter((v) => inMonth(v.at)).length, "measured", { basis: "public videos only" });
+  put("youtube.minutes_12m", Math.round(ytMinutes12 * 10) / 10, "measured", { basis: "public videos only" });
 } catch (e) { fail("youtube.uploads", e); }
 
 // ---- Instagram + Facebook (Graph, our own accounts) --------------------------------
@@ -72,7 +87,7 @@ try {
   while (url) {
     const page = await getJson(url);
     media.push(...page.data);
-    url = page.data.length && inYear(page.data[page.data.length - 1].timestamp) ? page.paging?.next : null;
+    url = page.data.length && new Date(page.data[page.data.length - 1].timestamp) >= yearStart ? page.paging?.next : null; // newest first
   }
   igMonth = media.filter((m) => inMonth(m.timestamp));
   reels12 = media.filter((m) => inYear(m.timestamp) && m.media_type === "VIDEO").length;
@@ -88,7 +103,7 @@ try {
   while (url) {
     const page = await getJson(url);
     posts.push(...page.data);
-    url = page.data.length && inYear(page.data[page.data.length - 1].created_time) ? page.paging?.next : null;
+    url = page.data.length && new Date(page.data[page.data.length - 1].created_time) >= yearStart ? page.paging?.next : null; // newest first
   }
   put("facebook.posts", posts.filter((p) => inMonth(p.created_time)).length, "measured", { note: "largely cross-posted from Instagram; don't add the two" });
 } catch (e) { fail("facebook.posts", e); }
