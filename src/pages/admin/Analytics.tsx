@@ -304,6 +304,39 @@ export function Analytics() {
           </table>
         </div>
 
+        {/* Reach: Priestley's 7-11-4, measured monthly by comms-blkout brand-7114.yml */}
+        <div className="card">
+          <h2 className="text-xl font-bold text-gray-900 mb-1">Reach: 7-11-4</h2>
+          <p className="text-sm text-gray-500 mb-4">Can someone spend 7 hours with BLKOUT, across 11 interactions, on 4 platforms? Hours count long-form media published in the last 12 months; Reels and reading time are estimates.</p>
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="text-left text-gray-500 border-b">
+                <th className="py-2 pr-3">Measure</th>
+                {months.map((m) => <th key={m} className="py-2 px-3 text-right">{monthName(m)}</th>)}
+              </tr>
+            </thead>
+            <tbody>
+              {[
+                ['brand.7114.hours_12m', 'Hours of media, last 12 months (target 7)'],
+                ['brand.7114.touches_per_fortnight', 'Touches per fortnight (target 11)'],
+                ['brand.7114.platforms_active', 'Platforms active (target 4)'],
+                ['brand.7114.youtube.minutes_12m', 'YouTube minutes, last 12 months'],
+                ['brand.7114.voices.minutes_12m', 'Voices reading minutes, last 12 months'],
+                ['brand.7114.youtube.uploads', 'YouTube uploads'],
+                ['brand.7114.instagram.posts', 'Instagram posts'],
+                ['brand.7114.instagram.avg_comments', 'Instagram comments per post'],
+                ['brand.7114.voices.essays', 'Voices essays'],
+                ['brand.7114.digest.editions', 'AIvor digests'],
+              ].map(([m, label]) => (
+                <tr key={m} className="border-b border-gray-100">
+                  <td className="py-2 pr-3">{label}</td>
+                  {months.map((p) => <Cell key={p} idx={idx} measure={m} period={p} />)}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
         {gaps.length > 0 && (
           <div className="card">
             <h2 className="text-lg font-bold text-gray-900 mb-2">Sources that did not answer</h2>
