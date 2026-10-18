@@ -14,7 +14,6 @@ import streetGeo from "./wire/street-wire.json";
 export const newsWireSchema = z.object({
   scale: z.enum(["global", "street"]).default("global"),
   moment: z.enum(["open", "voted", "lastcall", "results"]),
-  storyCount: z.number().int().optional(),
   // The deadline people act on; no round numbers on screen (Rob, 18 Oct 2026).
   closesOn: z.string(), // e.g. "Sat 31 Oct"; last call uses e.g. "midnight tomorrow"
   // Results only. There is no results Reel when nobody voted: that Sunday posts the next
@@ -75,7 +74,7 @@ function traffic(moment: Props["moment"], nodes: Node[], edges: Edge[]) {
   }
 }
 
-export const NewsWire: React.FC<Props> = ({ scale = "global", moment, storyCount, closesOn, pickedBy }) => {
+export const NewsWire: React.FC<Props> = ({ scale = "global", moment, closesOn, pickedBy }) => {
   const geo = scale === "street" ? streetGeo : globalGeo;
   const nodes = geo.nodes as Node[];
   const edges = geo.edges as Edge[];
@@ -87,7 +86,7 @@ export const NewsWire: React.FC<Props> = ({ scale = "global", moment, storyCount
   const [vx, vy, vw, vh] = geo.viewBox;
   const { cx, cy, r } = geo.globe;
   const sub = {
-    open: `Vote before ${closesOn}${storyCount ? ` · ${storyCount} stories` : ""}`,
+    open: `Vote before ${closesOn}`,
     voted: `Have you voted? Vote before ${closesOn}`,
     lastcall: `Last call · vote before ${closesOn}`,
     results: "The results are in",

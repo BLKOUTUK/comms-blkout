@@ -63,7 +63,7 @@ export const RemotionRoot: React.FC = () => {
         width={1080}
         height={1920}
         schema={newsWireSchema}
-        defaultProps={{ scale: "global" as const, moment: "open" as const, storyCount: 12, closesOn: "Sat 31 Oct" }}
+        defaultProps={{ scale: "global" as const, moment: "open" as const, closesOn: "Sat 31 Oct" }}
       />
       <Composition
         id="IVORMessage"

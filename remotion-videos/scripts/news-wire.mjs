@@ -87,13 +87,13 @@ if (!moment) { console.log(`Nothing due today (${today}): fortnight ${start}→$
 
 const closesOn = moment === "lastcall" ? `midnight, ${longDate(end)}` : longDate(end);
 const scale = moment === "voted" || moment === "lastcall" ? "street" : "global";
-const props = { scale, moment, closesOn, ...(moment === "open" ? { storyCount: openStories } : {}), ...(pickedBy ? { pickedBy } : {}) };
+const props = { scale, moment, closesOn, ...(pickedBy ? { pickedBy } : {}) }; // no counts on screen (Rob, 18 Oct)
 console.log(`Due today (${today}): ${moment} · ${JSON.stringify(props)}`);
 
 // ---- caption -----------------------------------------------------------------------
 const SIGN = "News for us. Curated by you.\nBLKOUT\nAre you in?\n\nVote at news.blkoutuk.com (link in bio). No login.\n\n#BLKOUT #BlackQueer #BlackQueerMen #QueerUK";
 const caption = {
-  open: `Haven't you heard?\n\n${openStories} stories are in, and you decide which three lead our news digest. Vote before ${longDate(end)}. One tap, no login.\n\n${SIGN}`,
+  open: `Haven't you heard?\n\nThe stories are in, and you decide which three lead our news digest. Vote before ${longDate(end)}. One tap, no login.\n\n${SIGN}`,
   voted: `Have you voted?\n\nThe stories that matter to you lead the digest, but only if you say so. Vote before ${longDate(end)}.\n\n${SIGN}`,
   lastcall: `Last call. Voting closes at midnight, ${longDate(end)}.\n\nThe three stories with the most votes lead this week's digest. Yours could be one.\n\n${SIGN}`,
   results: `The results are in.\n\n${pickedBy === "editor" ? "No clear winner, so an editor picked this fortnight's top three:" : "You chose the top three:"}\n${topStories.map((t, i) => `${i + 1}. ${t}`).join("\n")}\n\nThey lead this week's digest.\n\n${SIGN}`,
