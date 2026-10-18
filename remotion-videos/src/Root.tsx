@@ -1,6 +1,7 @@
 import React from "react";
 import { Composition } from "remotion";
 import { IVORMessage } from "./compositions/IVORMessage";
+import { NewsWire, newsWireSchema } from "./compositions/NewsWire";
 import { ivorMessagePropsSchema } from "./schemas/ivor-message";
 import { BHMSizzleReel, FPS as BHM_FPS, TOTAL_FRAMES as BHM_TOTAL_FRAMES } from "./compositions/BHMSizzleReel";
 
@@ -54,6 +55,16 @@ const sampleNewsDigest = {
 export const RemotionRoot: React.FC = () => {
   return (
     <>
+      <Composition
+        id="NewsWire"
+        component={NewsWire}
+        durationInFrames={10 * FPS}
+        fps={FPS}
+        width={1080}
+        height={1920}
+        schema={newsWireSchema}
+        defaultProps={{ scale: "global" as const, moment: "open" as const, storyCount: 12, closesOn: "Sat 31 Oct" }}
+      />
       <Composition
         id="IVORMessage"
         component={IVORMessage}
