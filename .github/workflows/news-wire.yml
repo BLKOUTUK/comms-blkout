@@ -7,6 +7,7 @@ name: The Wire (news voting Reels)
 on:
   schedule:
     - cron: "0 8 * * *"
+    - cron: "30 */3 * * *"   # every 3 hours: count comment-votes (posting only ever happens on the 08:00 run)
   workflow_dispatch:
     inputs:
       mode:
@@ -46,6 +47,7 @@ jobs:
       - name: Install dependencies
         run: npm ci
       - name: Post today's moment, if one is due
+        if: github.event_name == 'workflow_dispatch' || github.event.schedule == '0 8 * * *'
         env:
           META_PAGE_TOKEN: ${{ secrets.META_PAGE_TOKEN }}
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
@@ -60,6 +62,17 @@ jobs:
           [ "$MODE" = "dry-run" ] && ARGS+=(--dry-run)
           [ -n "$MOMENT" ] && ARGS+=(--moment "$MOMENT")
           node scripts/news-wire.mjs "${ARGS[@]}"
+      - name: Count comment-votes on this fortnight's stories Reel
+        if: always()
+        env:
+          META_PAGE_TOKEN: ${{ secrets.META_PAGE_TOKEN }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          MODE: ${{ inputs.mode || 'normal' }}
+        run: |
+          ARGS=()
+          [ "$MODE" = "dry-run" ] && ARGS+=(--dry-run)
+          node scripts/news-comment-votes.mjs "${ARGS[@]}"
       - name: Tell Rob if it broke
         if: failure()
         env:
