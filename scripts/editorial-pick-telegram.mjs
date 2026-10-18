@@ -43,7 +43,7 @@ if (!period) {
 
 const endsOn = String(period.end_date).slice(0, 10);
 const today = new Date().toISOString().slice(0, 10);
-if (endsOn !== today && !FORCE) {
+if (endsOn !== today && !FORCE && !DRY_RUN) {
   console.log(`Round ${period.period_number} closes ${endsOn}, not today (${today}). Nothing to send.`);
   process.exit(0);
 }
