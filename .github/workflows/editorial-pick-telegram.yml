@@ -1,0 +1,36 @@
+name: Editorial pick (Telegram)
+
+# News voting rounds close 23:59 Saturday, fortnightly. On the closing Saturday
+# morning this sends Rob the round's stories with a signed link to pick up to 3.
+# Runs every Saturday; the script stays silent unless the round ends today.
+on:
+  schedule:
+    - cron: "0 7 * * 6"   # 07:00 UTC Saturday = 08:00 BST / 07:00 GMT
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "dry-run prints without sending; force sends even if the round isn't closing today"
+        type: choice
+        options: [normal, dry-run, force]
+        default: normal
+
+jobs:
+  send:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Send pick list if the round closes today
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          MODE: ${{ inputs.mode || 'normal' }}
+        run: |
+          FLAG=""
+          [ "$MODE" = "dry-run" ] && FLAG="--dry-run"
+          [ "$MODE" = "force" ] && FLAG="--force"
+          node scripts/editorial-pick-telegram.mjs $FLAG
