@@ -40,7 +40,7 @@ export function buildCaption(props, fallbackWeekTag) {
       : weekEndingLabel(props.weekLabel || fallbackWeekTag);
   const lines = [`BLKOUT News — ${label}`, ""];
   for (const s of storyItems(props)) lines.push(`• ${s.title}`);
-  lines.push("", "You're the editor. Vote on the stories that matter to you:",
+  lines.push("", "You're the editor. Vote on the stories that matter to you: co-create our Black queer agenda",
              props?.cta?.displayUrl || "news.blkoutuk.com", "",
              "#BlackQueer #BLKOUT #MakingSpaceForUs #BlackQueerMen #QueerUK");
   let caption = lines.join("\n");
