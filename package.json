@@ -52,7 +52,7 @@
     "tsx": "^4.21.0",
     "typescript": "~5.7.2",
     "typescript-eslint": "^8.31.0",
-    "vite": "^7.2.2"
+    "vite": "^7.3.7"
   },
   "description": "A comprehensive Vite + React application for managing BLKOUT UK's content calendar and community communications system, featuring AI-powered content creation with four specialized agents.",
   "main": "eslint.config.js",
