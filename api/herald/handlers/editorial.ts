@@ -153,6 +153,9 @@ Guidelines:
 Write ONLY the paragraph text, nothing else.`;
 
   let editorNote = '';
+  // Why the model's note wasn't used, if it wasn't. Reported in the response so a fallback is
+  // never mistaken for a generated note.
+  let aiError: string | null = OPENROUTER_API_KEY ? null : 'OPENROUTER_API_KEY missing';
 
   if (OPENROUTER_API_KEY) {
     try {
@@ -175,13 +178,18 @@ Write ONLY the paragraph text, nothing else.`;
       if (response.ok) {
         const data = await response.json();
         editorNote = data.choices?.[0]?.message?.content?.trim() || '';
+        if (!editorNote) aiError = 'model returned no text';
+      } else {
+        aiError = `OpenRouter HTTP ${response.status}`;
       }
     } catch (err) {
       console.error('[Herald] AI generation error:', err);
+      aiError = err instanceof Error ? err.message : String(err);
     }
   }
 
   if (!editorNote) {
+    console.warn(`[Herald] Editor note NOT generated (${aiError}); using the editor's own words`);
     editorNote = `${topic} ${key_takeaway || 'I hope you find something in this edition that speaks to you.'}`;
   }
 
@@ -238,6 +246,8 @@ Write ONLY the paragraph text, nothing else.`;
   return res.status(200).json({
     success: true,
     editor_note: editorNote,
+    editor_note_source: aiError ? 'editor_words' : 'ai',
+    ai_error: aiError,
     edition_id
   });
 }

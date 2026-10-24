@@ -61,6 +61,10 @@ interface DiscoveredEvent {
 }
 
 
+// Failures during the current run. A missing key or a failed call must show up in the result,
+// not pass as "0 events found".
+let runFailures: string[] = [];
+
 // Generate a simple hash for URL deduplication
 function generateUrlHash(url: string): string {
   let hash = 0;
@@ -76,6 +80,7 @@ function generateUrlHash(url: string): string {
 async function searchTavily(query: string): Promise<TavilyResult[]> {
   if (!TAVILY_API_KEY) {
     console.error('[Tavily] Missing API key');
+    runFailures.push('tavily: TAVILY_API_KEY missing');
     return [];
   }
 
@@ -95,6 +100,7 @@ async function searchTavily(query: string): Promise<TavilyResult[]> {
 
     if (!response.ok) {
       console.error(`[Tavily] Search failed: ${response.status}`);
+      runFailures.push(`tavily: HTTP ${response.status} for "${query}"`);
       return [];
     }
 
@@ -103,6 +109,7 @@ async function searchTavily(query: string): Promise<TavilyResult[]> {
     return data.results || [];
   } catch (error) {
     console.error('[Tavily] Error:', error);
+    runFailures.push(`tavily: ${error instanceof Error ? error.message : String(error)}`);
     return [];
   }
 }
@@ -111,6 +118,7 @@ async function searchTavily(query: string): Promise<TavilyResult[]> {
 async function curateEventsWithAI(searchResults: TavilyResult[]): Promise<DiscoveredEvent[]> {
   if (!OPENROUTER_API_KEY) {
     console.error('[OpenRouter] Missing API key');
+    runFailures.push('curation: OPENROUTER_API_KEY missing');
     return [];
   }
 
@@ -189,6 +197,7 @@ Return ONLY the JSON array, no additional text or markdown.`;
     if (!response.ok) {
       const errorText = await response.text();
       console.error(`[OpenRouter] API error: ${response.status}`, errorText);
+      runFailures.push(`curation: HTTP ${response.status}`);
       return [];
     }
 
@@ -197,6 +206,7 @@ Return ONLY the JSON array, no additional text or markdown.`;
 
     if (!content) {
       console.error('[OpenRouter] No content in response');
+      runFailures.push('curation: no content in model response');
       return [];
     }
 
@@ -213,17 +223,23 @@ Return ONLY the JSON array, no additional text or markdown.`;
     } catch (parseError) {
       console.error('[OpenRouter] Failed to parse JSON:', parseError);
       console.log('[OpenRouter] Raw content:', content);
+      runFailures.push('curation: model response was not valid JSON');
       return [];
     }
   } catch (error) {
     console.error('[OpenRouter] Error:', error);
+    runFailures.push(`curation: ${error instanceof Error ? error.message : String(error)}`);
     return [];
   }
 }
 
 // Save events to Supabase
 async function saveEventsToSupabase(events: DiscoveredEvent[]): Promise<number> {
-  if (!supabase || events.length === 0) {
+  if (events.length === 0) {
+    return 0;
+  }
+  if (!supabase) {
+    runFailures.push('save: Supabase client not configured');
     return 0;
   }
 
@@ -257,6 +273,7 @@ async function saveEventsToSupabase(events: DiscoveredEvent[]): Promise<number> 
 
     if (error) {
       console.error('[Supabase] Insert error:', JSON.stringify(error));
+      runFailures.push(`save: ${error.message || JSON.stringify(error)}`);
       return 0;
     }
 
@@ -264,6 +281,7 @@ async function saveEventsToSupabase(events: DiscoveredEvent[]): Promise<number> 
     return data?.length || 0;
   } catch (error) {
     console.error('[Supabase] Exception:', error instanceof Error ? error.message : error);
+    runFailures.push(`save: ${error instanceof Error ? error.message : String(error)}`);
     return 0;
   }
 }
@@ -309,6 +327,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   console.log('[Social Diary] Starting research run...');
+  runFailures = [];
 
   try {
     // Step 1: Search for events using multiple sources
@@ -381,9 +400,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       topEvents: curatedEvents.sort((a, b) => b.relevance_score - a.relevance_score)
     });
 
-    return res.status(200).json({
-      success: true,
-      message: 'Social Diary research complete',
+    // Partial failures still return what was found, but never as a clean success.
+    const failed = runFailures.length > 0;
+    return res.status(failed && savedCount === 0 ? 502 : 200).json({
+      success: !failed,
+      message: failed ? `Social Diary research ran with ${runFailures.length} failure(s)` : 'Social Diary research complete',
+      failures: runFailures,
       stats: {
         tavilyResults: allResults.length,
         curatedEvents: curatedEvents.length,
