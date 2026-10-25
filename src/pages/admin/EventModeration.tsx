@@ -57,7 +57,20 @@ interface Opening {
 }
 
 type StatusFilter = 'all' | 'pending' | 'approved' | 'rejected';
-type ContentType = 'events' | 'openings';
+type ContentType = 'events' | 'openings' | 'images';
+
+// A picture the events-calendar image finder took from an event's own page, waiting for a
+// person to say it really is that event (Rob, 25 Oct 2026). Approving sets the event's image.
+interface ImageCandidate {
+  id: string;
+  event_id: string;
+  source_page: string;
+  stored_url: string;
+  width: number | null;
+  height: number | null;
+  found_at: string;
+  events: { title: string; date: string | null; organizer: string | null; url: string | null } | null;
+}
 
 // The events-calendar app owns the openings table and its moderation API —
 // both endpoints accept any valid Supabase session bearer token (same auth
@@ -80,11 +93,20 @@ export function EventModeration() {
   const [expandedOpening, setExpandedOpening] = useState<string | null>(null);
   const [openingActionLoading, setOpeningActionLoading] = useState<string | null>(null);
 
+  const [images, setImages] = useState<ImageCandidate[]>([]);
+  const [imagesLoading, setImagesLoading] = useState(true);
+  const [imagesError, setImagesError] = useState<string | null>(null);
+  const [imageActionLoading, setImageActionLoading] = useState<string | null>(null);
+  const [scanning, setScanning] = useState(false);
+  const [scanNote, setScanNote] = useState<string | null>(null);
+
   useEffect(() => {
     if (contentType === 'events') {
       fetchEvents();
-    } else {
+    } else if (contentType === 'openings') {
       fetchOpenings();
+    } else {
+      fetchImages();
     }
   }, [contentType, statusFilter]);
 
@@ -92,6 +114,7 @@ export function EventModeration() {
   // before the tab has ever been clicked.
   useEffect(() => {
     fetchOpenings();
+    fetchImages();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -135,6 +158,12 @@ export function EventModeration() {
         .eq('id', eventId);
 
       if (updateError) throw updateError;
+
+      // A newly approved event gets looked at for a picture straight away; anything found
+      // lands in the Images tab. Fire and forget: the nightly pass catches any miss.
+      if (newStatus === 'approved') {
+        imageRequest({ action: 'scan' }).then(() => fetchImages()).catch(() => {});
+      }
 
       // Update local state
       setEvents(prev => prev.map(event =>
@@ -206,6 +235,61 @@ export function EventModeration() {
     }
   };
 
+  const imageRequest = async (body?: Record<string, unknown>) => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) throw new Error('Sign in required');
+    const response = await fetch(`${EVENTS_CALENDAR_API}/api/image-candidates`, {
+      method: body ? 'POST' : 'GET',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session.access_token}` },
+      ...(body ? { body: JSON.stringify(body) } : {}),
+    });
+    const result = await response.json();
+    if (!response.ok || !result.success) throw new Error(result.error || 'Image request failed');
+    return result;
+  };
+
+  const fetchImages = async () => {
+    setImagesLoading(true);
+    setImagesError(null);
+    try {
+      const result = await imageRequest();
+      setImages(result.candidates || []);
+    } catch (err) {
+      setImagesError(err instanceof Error ? err.message : 'Failed to fetch images');
+    } finally {
+      setImagesLoading(false);
+    }
+  };
+
+  const decideImage = async (id: string, action: 'approve' | 'reject') => {
+    setImageActionLoading(id);
+    try {
+      await imageRequest({ id, action });
+      setImages(prev => prev.filter(i => i.id !== id));
+    } catch (err) {
+      alert(`Failed to update image: ${err instanceof Error ? err.message : 'Unknown error'}`);
+    } finally {
+      setImageActionLoading(null);
+    }
+  };
+
+  const scanForImages = async () => {
+    setScanning(true);
+    setScanNote(null);
+    try {
+      const result = await imageRequest({ action: 'scan' });
+      const checked = (result.outcomes || []).length;
+      setScanNote(checked === 0
+        ? 'Nothing to look at: every upcoming event has an image or one waiting here.'
+        : `Looked at ${checked} event${checked === 1 ? '' : 's'}; found ${result.found} new picture${result.found === 1 ? '' : 's'}.`);
+      await fetchImages();
+    } catch (err) {
+      setScanNote(`FAILED: ${err instanceof Error ? err.message : 'scan failed'}`);
+    } finally {
+      setScanning(false);
+    }
+  };
+
   const formatDeadline = (dateStr: string | null) => {
     if (!dateStr) return 'Rolling';
     return new Date(dateStr).toLocaleDateString('en-GB', {
@@ -252,15 +336,19 @@ export function EventModeration() {
           <div>
             <h1 className="text-3xl font-display font-bold text-gray-900">Event Moderation</h1>
             <p className="text-gray-600 mt-1">
-              {contentType === 'events' ? 'Review and approve community events' : 'Review and approve openings — jobs, commissions, bursaries, funds'}
+              {contentType === 'events'
+                ? 'Review and approve community events'
+                : contentType === 'openings'
+                  ? 'Review and approve openings — jobs, commissions, bursaries, funds'
+                  : 'Pictures found on organisers’ own event pages. Approve only if it really is that event.'}
             </p>
           </div>
           <button
-            onClick={contentType === 'events' ? fetchEvents : fetchOpenings}
+            onClick={contentType === 'events' ? fetchEvents : contentType === 'openings' ? fetchOpenings : fetchImages}
             className="btn-secondary flex items-center gap-2"
-            disabled={contentType === 'events' ? isLoading : openingsLoading}
+            disabled={contentType === 'events' ? isLoading : contentType === 'openings' ? openingsLoading : imagesLoading}
           >
-            {(contentType === 'events' ? isLoading : openingsLoading)
+            {(contentType === 'events' ? isLoading : contentType === 'openings' ? openingsLoading : imagesLoading)
               ? <Loader2 className="animate-spin" size={16} />
               : <Filter size={16} />}
             Refresh
@@ -272,6 +360,7 @@ export function EventModeration() {
           {([
             { key: 'events' as ContentType, label: 'Events' },
             { key: 'openings' as ContentType, label: `Openings (${openings.length})` },
+            { key: 'images' as ContentType, label: `Images (${images.length})` },
           ]).map(({ key, label }) => (
             <button
               key={key}
@@ -631,6 +720,80 @@ export function EventModeration() {
                     </div>
                   </div>
                 )}
+              </div>
+            ))}
+          </div>
+        )}
+        </>
+        )}
+
+        {contentType === 'images' && (
+        <>
+        <div className="flex flex-wrap items-center gap-3">
+          <button onClick={scanForImages} disabled={scanning} className="btn-secondary flex items-center gap-2">
+            {scanning ? <Loader2 className="animate-spin" size={16} /> : <Eye size={16} />}
+            {scanning ? 'Looking… (up to a few minutes)' : 'Look for images now'}
+          </button>
+          <p className="text-sm text-gray-500">Also runs every night, and whenever you approve an event.</p>
+        </div>
+        {scanNote && (
+          <p className={`text-sm ${scanNote.startsWith('FAILED') ? 'text-red-700' : 'text-gray-700'}`}>{scanNote}</p>
+        )}
+
+        {imagesError && (
+          <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex items-center gap-3">
+            <AlertCircle className="text-red-500" size={20} />
+            <p className="text-red-700">{imagesError}</p>
+          </div>
+        )}
+
+        {imagesLoading ? (
+          <div className="text-center py-12">
+            <Loader2 className="animate-spin mx-auto mb-4" size={48} />
+            <p className="text-gray-600">Loading images...</p>
+          </div>
+        ) : images.length === 0 ? (
+          <div className="text-center py-12 card">
+            <Calendar size={48} className="mx-auto text-gray-400 mb-4" />
+            <p className="text-gray-600 text-lg">No images waiting</p>
+          </div>
+        ) : (
+          <div className="grid gap-4 md:grid-cols-2">
+            {images.map((img) => (
+              <div key={img.id} className="card overflow-hidden">
+                <a href={img.stored_url} target="_blank" rel="noopener noreferrer" className="block bg-gray-100">
+                  <img src={img.stored_url} alt="" className="w-full aspect-video object-contain" />
+                </a>
+                <div className="p-4">
+                  <h3 className="font-semibold text-gray-900">{img.events?.title || 'Event'}</h3>
+                  <p className="text-sm text-gray-600">
+                    {[img.events?.organizer, img.events?.date ? formatDate(img.events.date) : null].filter(Boolean).join(' · ')}
+                  </p>
+                  <p className="text-xs text-gray-500 mt-1">
+                    {img.width && img.height ? `${img.width}×${img.height} · ` : ''}from{' '}
+                    <a href={img.source_page} target="_blank" rel="noopener noreferrer" className="underline">
+                      {(() => { try { return new URL(img.source_page).hostname.replace(/^www\./, ''); } catch { return 'the organiser’s page'; } })()}
+                    </a>
+                  </p>
+                  <div className="flex gap-2 mt-3">
+                    <button
+                      onClick={() => decideImage(img.id, 'approve')}
+                      disabled={imageActionLoading === img.id}
+                      className="flex-1 flex items-center justify-center gap-1 px-3 py-2 text-sm font-medium text-green-700 bg-green-50 hover:bg-green-100 rounded-lg disabled:opacity-50"
+                    >
+                      {imageActionLoading === img.id ? <Loader2 className="animate-spin" size={16} /> : <Check size={16} />}
+                      Use this image
+                    </button>
+                    <button
+                      onClick={() => decideImage(img.id, 'reject')}
+                      disabled={imageActionLoading === img.id}
+                      className="flex-1 flex items-center justify-center gap-1 px-3 py-2 text-sm font-medium text-red-700 bg-red-50 hover:bg-red-100 rounded-lg disabled:opacity-50"
+                    >
+                      <X size={16} />
+                      Not this event
+                    </button>
+                  </div>
+                </div>
               </div>
             ))}
           </div>
