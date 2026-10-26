@@ -2,15 +2,23 @@ name: Weekly Events Video
 
 # AIvor events digest, "BLKOUT What's On" (spec:
 # ~/blkout/projects/aivor-media/docs/events-digest-spec-2026-10-24.md).
-# REVIEW ONLY for now (26 Oct 2026): run by hand, renders the 9:16 video from
-# gatherings_live and attaches it with its script as an artifact. Nothing is
-# uploaded, hosted, registered or posted. The Thursday 10:00 schedule, YouTube
-# upload, aivor_digests/content_calendar rows and failure alert come in build
-# step 4, after Rob has seen a render.
+# Thursdays 10:00 UK: render from gatherings_live, upload to YouTube UNLISTED, record it in
+# aivor_event_digests and send it to Rob on Telegram with a signed approve link
+# (scripts/events-video.mjs). Nothing goes public here: publish-events-video.yml does that
+# from 18:00, and only once Rob has approved (Rob, 26 Oct 2026). No Zapier, no Instagram yet.
+# A manual run is review-only (artifact) unless send_for_signoff is ticked.
 
 on:
+  schedule:
+    # 10:00 UTC = 10:00 GMT. During BST (from 28 Mar 2027) this is 11:00; move to 09:00 then.
+    - cron: "0 10 * * 4"
   workflow_dispatch:
     inputs:
+      send_for_signoff:
+        description: "Upload unlisted and send to Rob on Telegram (otherwise review artifact only)"
+        required: false
+        type: boolean
+        default: false
       skip_lipsync:
         description: "Skip lipsync (layout check only, still avatar)"
         required: false
@@ -81,3 +89,33 @@ jobs:
             remotion-videos/props/events-*.json
           if-no-files-found: warn
           retention-days: 30
+
+      - name: Upload unlisted and send to Rob for sign-off
+        if: ${{ github.event_name == 'schedule' || inputs.send_for_signoff }}
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          YT_CLIENT_ID: ${{ secrets.YT_CLIENT_ID }}
+          YT_CLIENT_SECRET: ${{ secrets.YT_CLIENT_SECRET }}
+          YT_REFRESH_TOKEN: ${{ secrets.YT_REFRESH_TOKEN }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: node scripts/events-video.mjs upload
+
+      # A failed Thursday must reach Rob the same morning, not be found in the Actions log.
+      - name: Tell Rob on Telegram
+        if: failure()
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          if [ -z "$TELEGRAM_BOT_TOKEN" ] || [ -z "$TELEGRAM_CHAT_ID" ]; then
+            echo "::error::TELEGRAM_BOT_TOKEN or TELEGRAM_CHAT_ID missing — nobody was told about this failure."
+            exit 1
+          fi
+          MSG="BLKOUT What's On video FAILED — $(date -u '+%a %d %b %H:%M') UTC. No events video this week unless re-run. $RUN_URL"
+          curl -fsS -X POST "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" \
+            --data-urlencode "chat_id=${TELEGRAM_CHAT_ID}" \
+            --data-urlencode "text=${MSG}" > /dev/null
+          echo "telegram sent"

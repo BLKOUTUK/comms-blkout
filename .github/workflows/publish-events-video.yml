@@ -1,0 +1,67 @@
+name: Publish Events Video
+
+# Makes the week's "BLKOUT What's On" video public once Rob has approved it from Telegram
+# (scripts/events-video.mjs publish). Hourly from 18:00 Thursday to the end of Friday, so a
+# late yes still goes out within the hour; already-public weeks are left alone. The 18:00 run
+# reminds Rob if he hasn't approved. Unapproved means it stays unlisted (Rob, 26 Oct 2026).
+
+on:
+  schedule:
+    # UTC = GMT. During BST these run an hour later; shift by one then.
+    - cron: "0 18-23 * * 4"
+    - cron: "0 * * * 5"
+  workflow_dispatch:
+    inputs:
+      week_label:
+        description: "ISO week tag override (e.g. 2026-W44). Empty = current."
+        required: false
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: publish-events-video
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: remotion-videos
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Publish if approved
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          YT_CLIENT_ID: ${{ secrets.YT_CLIENT_ID }}
+          YT_CLIENT_SECRET: ${{ secrets.YT_CLIENT_SECRET }}
+          YT_REFRESH_TOKEN: ${{ secrets.YT_REFRESH_TOKEN }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          WEEK_LABEL: ${{ inputs.week_label }}
+          SCHEDULE: ${{ github.event.schedule }}
+        run: |
+          set -e
+          ARGS=()
+          [ -n "$WEEK_LABEL" ] && ARGS+=(--week-label "$WEEK_LABEL")
+          # One reminder: the first Thursday evening run.
+          [ "$SCHEDULE" = "0 18-23 * * 4" ] && [ "$(date -u +%H)" = "18" ] && ARGS+=(--remind)
+          node scripts/events-video.mjs publish "${ARGS[@]}"
+      - name: Tell Rob on Telegram
+        if: failure()
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          MSG="BLKOUT What's On: publishing FAILED — $(date -u '+%a %d %b %H:%M') UTC. It stays unlisted. $RUN_URL"
+          curl -fsS -X POST "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" \
+            --data-urlencode "chat_id=${TELEGRAM_CHAT_ID}" \
+            --data-urlencode "text=${MSG}" > /dev/null
