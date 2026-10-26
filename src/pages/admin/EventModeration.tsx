@@ -176,6 +176,32 @@ export function EventModeration() {
     }
   };
 
+  // Adults-only: the events site shows the bold 18+ banner on any event carrying one of these
+  // tags (GatheringCard.tsx). '18+' is the one we add; switching off removes them all.
+  const ADULTS_ONLY_TAGS = ['18+', 'adults only', 'adult', '18 plus', 'over 18', 'kink', 'fetish', 'play party', 'nsfw'];
+  const isAdultsOnly = (event: Event) => (event.tags || []).some(t => ADULTS_ONLY_TAGS.includes(t.toLowerCase()));
+
+  const toggleAdultsOnly = async (event: Event) => {
+    setActionLoading(event.id);
+    try {
+      const tags = isAdultsOnly(event)
+        ? (event.tags || []).filter(t => !ADULTS_ONLY_TAGS.includes(t.toLowerCase()))
+        : [...(event.tags || []), '18+'];
+      const { data, error: updateError } = await supabase
+        .from('events')
+        .update({ tags })
+        .eq('id', event.id)
+        .select('id, tags');
+      if (updateError) throw updateError;
+      if (!data || data.length !== 1) throw new Error('the change was not saved');
+      setEvents(prev => prev.map(e => (e.id === event.id ? { ...e, tags: data[0].tags } : e)));
+    } catch (err) {
+      alert(`Failed to change 18+: ${err instanceof Error ? err.message : 'Unknown error'}`);
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
   const fetchOpenings = async () => {
     setOpeningsLoading(true);
     setOpeningsError(null);
@@ -490,6 +516,18 @@ export function EventModeration() {
                         <ExternalLink size={20} />
                       </a>
                     )}
+                    <button
+                      onClick={() => toggleAdultsOnly(event)}
+                      disabled={actionLoading === event.id}
+                      className={`px-2 py-1 text-xs font-bold rounded-lg border transition-colors disabled:opacity-50 ${
+                        isAdultsOnly(event)
+                          ? 'bg-purple-600 border-purple-700 text-white hover:bg-purple-700'
+                          : 'border-gray-300 text-gray-500 hover:bg-gray-100'
+                      }`}
+                      title={isAdultsOnly(event) ? 'Marked 18+: click to remove' : 'Mark as adults-only (18+)'}
+                    >
+                      18+
+                    </button>
                     {event.status === 'pending' && (
                       <>
                         <button
