@@ -127,6 +127,40 @@ function hookFor(g) {
   if (/^free\b/i.test(String(g.cost || "").trim()) && !/free/i.test(hook)) hook = /[…!?]$/.test(hook) ? `${hook} Free.` : `${hook.replace(/\.$/, "")}. Free.`;
   return hook.slice(0, 180);
 }
+// A word or two on what the gathering offers (Rob, 26 Oct: the script named events without
+// saying what they were). Read from the listing's own title and description; first match wins,
+// and no match means nothing is said rather than a guess.
+const KINDS = [
+  [/\b(march|rally|vigil|protest)\b/i, "a march"],
+  [/\b(hiv|sti|sexual health|condoms)\b/i, "sexual health testing and advice"],
+  [/narcotics anonymous|\bpeer support\b|support group|recovery/i, "a peer support meeting"],
+  [/\bconference\b/i, "a conference"],
+  [/\b(destination|getaway|weekend away|holiday)\b/i, "a weekend away"],
+  [/\b(screening|film|documentary|cinema)\b/i, "a screening"],
+  [/\b(workshop|craft|crafty|clay|stitch\w*|painting|making)\b/i, "a craft session"],
+  [/\b(writers?|writing|poetry|book club)\b/i, "a writing group"],
+  [/\b(somatic|yoga|movement|meditation)\b/i, "a rest and movement session"],
+  [/\b(club night|dance|dj|djs|party|bash|amapiano|dancehall|house music|rave)\b/i, "a night out"],
+  [/\bcelebrat/i, "a celebration"],
+  [/\b(talk|panel|discussion|town hall)\b/i, "a conversation"],
+  [/\b(performance|theatre|cabaret|drag|gig|concert)\b/i, "a performance"],
+  [/\bexhibition\b/i, "an exhibition"],
+];
+function kindFor(g) {
+  const text = `${clean(g.title)} ${clean(g.description)}`;
+  const adults = (g.tags || []).some((t) => /^(18\+|adults only|over 18)$/i.test(t));
+  const hit = adults ? [null, "an adults-only night"] : KINDS.find(([re]) => re.test(text));
+  if (!hit) return null;
+  let kind = hit[1];
+  if (/^free\b/i.test(String(g.cost || "").trim())) kind = kind.replace(/^(a|an) /, "a free ").replace(/^(?!a free )/, "free ");
+  // Who it's for, when the listing says so plainly ("for LGBT Africans, asylum seekers…").
+  const forWhom = clean(g.description).split(/(?<=[.!?])\s+/)[0].match(/\bfor ((?:[A-Z][\w+-]*|LGBT\w*|queer|trans|black|gay|bi)[^,.;:!?]{0,40})/);
+  // Kept to a few words, cut at the first clause that runs on ("aged 16+ to connect…").
+  const who = forWhom && forWhom[1].split(/\s(?:to|aged|at|on|who|from|in|across|with)\s/)[0].split(" ").slice(0, 5).join(" ");
+  if (who && /lgbt|queer|trans|black|gay|bi\b|men|women|people|african|caribbean/i.test(who)) kind += ` for ${who.trim()}`;
+  return kind;
+}
+
 const dayLabel = (g) => `${short(g.date, { weekday: "long" })}${g.start_time ? ` ${(() => { let [h, m] = g.start_time.split(":").map(Number); const p = h >= 12 ? "pm" : "am"; h = h % 12 || 12; return m ? `${h}.${String(m).padStart(2, "0")}${p}` : `${h}${p}`; })()}` : ""}`;
 
 const addYours = picked.length <= 1;
@@ -138,6 +172,7 @@ const teases = picked.map((g, i) => ({
   rank: i + 1,
   // For the spoken script (weekly-render.mjs); not part of the on-screen schema.
   where: online(g) ? "online" : String(g.location),
+  ...(kindFor(g) ? { kind: kindFor(g) } : {}),
   blkout: isBlkout(g),
 }));
 if (addYours) {

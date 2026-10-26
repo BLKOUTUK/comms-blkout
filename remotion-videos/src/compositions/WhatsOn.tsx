@@ -205,6 +205,11 @@ export const WhatsOn: React.FC<IvorMessageProps> = ({
             >
               {item.title.replace(/\.{2,}/g, " ")}
             </div>
+            {item.kind && (
+              <div style={{ fontFamily: FONTS.italic, fontStyle: "italic", fontSize: 40, color: COLORS.cream, marginTop: 12 }}>
+                {item.kind[0].toUpperCase() + item.kind.slice(1)}
+              </div>
+            )}
           </div>
 
           {/* Beside AIvor: where, and how many of how many. */}

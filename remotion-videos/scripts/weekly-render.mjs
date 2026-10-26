@@ -181,14 +181,18 @@ function buildEventsSegments(props) {
     const day = t.hook.split(". ")[0];
     const where = (t.where || "").split(",")[0];
     const name = spokenTitle(t.title);
-    const at = where ? `${/[!?]$/.test(name) ? "" : ","} at ${where}` : "";
-    const line = `${day}: ${name}${at}${/[!?]$/.test(name) && !at ? "" : "."}`;
+    // "Friday: Congregational, at Brighton Dome." / "…: AfroYanga, a free celebration for LGBT
+    // Africans, at Poplar Union." A name ending ! or ? starts a new sentence instead of a comma.
+    const bang = /[!?]$/.test(name);
+    const kind = t.kind ? (bang ? ` ${t.kind[0].toUpperCase()}${t.kind.slice(1)}` : `, ${t.kind}`) : "";
+    const at = where ? `${bang || kind ? "" : ","} at ${where}` : "";
+    const line = `${day}: ${name}${kind}${at}${bang && !kind && !at ? "" : "."}`;
     lines.push(t.blkout ? `${line} We'll be there. Will you?` : line);
   }
   lines.push(
     addYours
       ? `Running something for Black queer people? Add it at ${props.cta?.spokenUrl}, and we'll help people find it.`
-      : `Everything's at ${props.cta?.spokenUrl}. And if your night isn't there, add it.`
+      : `The full list is at ${props.cta?.spokenUrl}. And if you're running something for Black queer people, put it on the list. It's free, and we'll help your people find you.`
   );
   return lines;
 }

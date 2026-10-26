@@ -10,6 +10,7 @@ export const teaseSchema = z.object({
   rank: z.number().int().min(1).max(99).optional(),
   // Events digest: the venue, shown beside AIvor.
   where: z.string().optional(),
+  kind: z.string().optional(),
   blkout: z.boolean().optional(),
 });
 
