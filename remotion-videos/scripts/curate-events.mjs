@@ -136,6 +136,9 @@ const teases = picked.map((g, i) => ({
   url: pageUrl(g),
   ...(g.image_url ? { thumbnail: g.image_url } : {}),
   rank: i + 1,
+  // For the spoken script (weekly-render.mjs); not part of the on-screen schema.
+  where: online(g) ? "online" : String(g.location),
+  blkout: isBlkout(g),
 }));
 if (addYours) {
   teases.push({

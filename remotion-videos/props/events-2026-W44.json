@@ -7,19 +7,25 @@
       "title": "Congregational",
       "hook": "Friday. Fatt Butcher in collaboration with Nicky Harris & Tobre, Brighton Dome.",
       "url": "https://events.blkoutuk.com/e/dec3fc4e-e737-4476-8a03-f35bf3a73cee/congregational?utm_source=video&utm_medium=reel&utm_campaign=events-digest-2026-W44",
-      "rank": 1
+      "rank": 1,
+      "where": "Brighton Dome",
+      "blkout": false
+    },
+    {
+      "title": "Pumpkin Painting & Spooky Treats!",
+      "hook": "Saturday 12pm. Join us for a fun-filled day of pumpkin painting and spooky treats to get into the Halloween spirit!. Free.",
+      "url": "https://events.blkoutuk.com/e/05c69b45-fbf0-451d-83ba-11caf69fd245/pumpkin-painting-spooky-treats?utm_source=video&utm_medium=reel&utm_campaign=events-digest-2026-W44",
+      "rank": 2,
+      "where": "The Proud Trust, 49-51 Sidney Street, Manchester, M1 7HB, Manchester",
+      "blkout": false
     },
     {
       "title": "Category is......AfroYanga 2026: Black History Month x Halloween Special",
       "hook": "Saturday 5pm. The annual AfroYanga celebration for LGBT Africans, asylum seekers and allies, this year a Black History Month x… Free.",
       "url": "https://events.blkoutuk.com/e/09d1579b-d42e-4561-9871-6eb391db008b/category-is-afroyanga-2026-black-history-month-x-halloween-s?utm_source=video&utm_medium=reel&utm_campaign=events-digest-2026-W44",
-      "rank": 2
-    },
-    {
-      "title": "United Friends & Family Campaign annual rally",
-      "hook": "Saturday. A march on Downing Street in memory of loved ones who have died at the hands of the state.",
-      "url": "https://events.blkoutuk.com/e/125d2254-8910-4b8b-a3a0-d05cd6d5b00f/united-friends-family-campaign-annual-rally?utm_source=video&utm_medium=reel&utm_campaign=events-digest-2026-W44",
-      "rank": 3
+      "rank": 3,
+      "where": "Poplar Union, 2 Cotall Street, London E14 6TL",
+      "blkout": false
     }
   ],
   "cta": {

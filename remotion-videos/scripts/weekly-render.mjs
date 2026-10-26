@@ -6,6 +6,7 @@ import { parseArgs } from "node:util";
 
 const ROOT = resolve(import.meta.dirname, "..");
 const CURATOR_SCRIPT = resolve(import.meta.dirname, "curate.mjs");
+const EVENTS_CURATOR_SCRIPT = resolve(import.meta.dirname, "curate-events.mjs");
 const PLATFORM_ENV =
   process.env.BLKOUT_PLATFORM_ENV || "/home/robbe/blkout-platform/.env";
 
@@ -30,6 +31,9 @@ const { values: args } = parseArgs({
     "skip-render": { type: "boolean", default: false },
     "no-enhancer": { type: "boolean", default: false },
     aspects: { type: "string", default: "9x16,1x1,16x9" },
+    // "events" = the AIvor events digest, "BLKOUT What's On" (spec:
+    // ~/blkout/projects/aivor-media/docs/events-digest-spec-2026-10-24.md).
+    property: { type: "string", default: "news" },
   },
   strict: true,
 });
@@ -68,12 +72,16 @@ async function exists(path) {
   }
 }
 
+const EVENTS = args.property === "events";
+if (!["news", "events"].includes(args.property)) throw new Error(`Unknown --property ${args.property}`);
 const weekTag = args["week-label"] || isoWeekTag();
-const propsPath = resolve(ROOT, `props/weekly-${weekTag}.json`);
+const stem = EVENTS ? "events" : "weekly";
+const avatarStem = EVENTS ? "aivor-events" : "aivor-news";
+const propsPath = resolve(ROOT, `props/${stem}-${weekTag}.json`);
 const outDir = resolve(ROOT, "out");
 const talkingHeadPath = resolve(
   ROOT,
-  `public/assets/aivor-news-${weekTag}-talking.mp4`
+  `public/assets/${avatarStem}-${weekTag}-talking.mp4`
 );
 
 const OPENERS = [
@@ -141,7 +149,51 @@ function buildScript(props) {
   return lines.join(" ");
 }
 
+// Events digest script: lighter and more playful than the news (Rob, 24 Oct), but only in
+// the opener and the close. Each item is said plainly — day, name, where — because a week
+// can hold a memorial march as easily as a party, and nothing playful may land on it.
+// "Brothers" is left out: the listings are for every Black queer person.
+const EVENT_OPENERS = ["My dear friends", "Beloved community", "Now then", "Listen"];
+const EVENT_HOOKS = [
+  "the weekend has plans for you.",
+  "clear a little space in your diary.",
+  "here's where we gather this week.",
+];
+
+function spokenTitle(title) {
+  const t = title.replace(/\.{2,}/g, " ").replace(/\b20\d\d\b/g, "").replace(/\s+/g, " ").trim();
+  const head = t.split(/:\s| — | - /)[0].trim();
+  return (head.split(" ").length >= 2 ? head : t).replace(/[.,;:]+$/, "");
+}
+
+function buildEventsScript(props) {
+  const seed = Math.floor(Date.parse(new Date().toISOString().slice(0, 10)) / 86400000);
+  const opener = pick(EVENT_OPENERS, seed);
+  const real = props.teases.filter((t) => !/\/add\b/.test(t.url));
+  const addYours = real.length < props.teases.length;
+  const lines = [addYours ? `${opener}, it's a quiet week, and that's where you come in.` : `${opener}, ${pick(EVENT_HOOKS, seed)}`];
+  for (const t of real) {
+    // The curator writes hooks as "Saturday 5pm. <line>"; the day is the spoken lead.
+    const day = t.hook.split(". ")[0];
+    const where = (t.where || "").split(",")[0];
+    const name = spokenTitle(t.title);
+    const at = where ? `${/[!?]$/.test(name) ? "" : ","} at ${where}` : "";
+    const line = `${day}: ${name}${at}${/[!?]$/.test(name) && !at ? "" : "."}`;
+    lines.push(t.blkout ? `${line} We'll be there. Will you?` : line);
+  }
+  lines.push(
+    addYours
+      ? `Running something for Black queer people? Add it at ${props.cta?.spokenUrl}, and we'll help people find it.`
+      : `Everything's at ${props.cta?.spokenUrl}. And if your night isn't there, add it.`
+  );
+  return lines.join(" ");
+}
+
 async function curate() {
+  if (EVENTS) {
+    await run("node", [EVENTS_CURATOR_SCRIPT, "--out", propsPath]);
+    return;
+  }
   await run("node", [
     CURATOR_SCRIPT,
     "--week-label",
@@ -157,13 +209,13 @@ async function lipsync() {
     return;
   }
   const props = JSON.parse(await readFile(propsPath, "utf8"));
-  const script = buildScript(props);
+  const script = EVENTS ? buildEventsScript(props) : buildScript(props);
   const wordCount = script.split(/\s+/).length;
   console.log(`\n— Script (${wordCount} words, ~${(wordCount / 2.5).toFixed(0)}s) —`);
   console.log(script);
   console.log(`—`);
 
-  const scriptPath = resolve(ROOT, `out/weekly-${weekTag}-script.txt`);
+  const scriptPath = resolve(ROOT, `out/${stem}-${weekTag}-script.txt`);
   await mkdir(dirname(scriptPath), { recursive: true });
   await writeFile(scriptPath, script, "utf8");
 
@@ -172,13 +224,13 @@ async function lipsync() {
     "--script",
     `@${scriptPath}`,
     "--image",
-    resolve(ROOT, "public/assets/aivor-news.jpg"),
+    resolve(ROOT, `public/assets/${avatarStem}.jpg`),
     "--out",
     talkingHeadPath,
     ...(args["no-enhancer"] ? ["--enhancer", "false"] : []),
   ]);
 
-  props.avatarVideo = `assets/aivor-news-${weekTag}-talking.mp4`;
+  props.avatarVideo = `assets/${avatarStem}-${weekTag}-talking.mp4`;
   await writeFile(propsPath, JSON.stringify(props, null, 2) + "\n", "utf8");
   console.log(`  patched props.avatarVideo → ${props.avatarVideo}`);
 }
@@ -194,7 +246,7 @@ async function render() {
   console.log(`  props.weekNumber → ${props.weekNumber} (theme rotates on week % 5)`);
   for (const aspect of args.aspects.split(",")) {
     const compId = `IVORMessage${aspect}`;
-    const out = resolve(outDir, `weekly-${weekTag}-${aspect}.mp4`);
+    const out = resolve(outDir, `${stem}-${weekTag}-${aspect}.mp4`);
     await run("npx", [
       "remotion",
       "render",

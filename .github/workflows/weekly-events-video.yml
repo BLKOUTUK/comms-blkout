@@ -1,0 +1,80 @@
+name: Weekly Events Video
+
+# AIvor events digest, "BLKOUT What's On" (spec:
+# ~/blkout/projects/aivor-media/docs/events-digest-spec-2026-10-24.md).
+# REVIEW ONLY for now (26 Oct 2026): run by hand, renders the 9:16 video from
+# gatherings_live and attaches it with its script as an artifact. Nothing is
+# uploaded, hosted, registered or posted. The Thursday 10:00 schedule, YouTube
+# upload, aivor_digests/content_calendar rows and failure alert come in build
+# step 4, after Rob has seen a render.
+
+on:
+  workflow_dispatch:
+    inputs:
+      skip_lipsync:
+        description: "Skip lipsync (layout check only, still avatar)"
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+# Its own group: the news digest runs Sundays on a separate runner, so the two
+# never share a machine. One events render at a time.
+concurrency:
+  group: weekly-events-video
+  cancel-in-progress: false
+
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    defaults:
+      run:
+        working-directory: remotion-videos
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: remotion-videos/package-lock.json
+
+      - name: Install ffmpeg
+        run: sudo apt-get update && sudo apt-get install -y ffmpeg
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Curate → lipsync → render (9:16)
+        env:
+          REPLICATE_API_TOKEN: ${{ secrets.REPLICATE_API_TOKEN }}
+          CHATTERBOX_URL: ${{ secrets.CHATTERBOX_URL }}
+          AIVOR_VOICE_REFERENCE: ${{ secrets.AIVOR_VOICE_REFERENCE_URL }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          SUPABASE_BUCKET: ${{ secrets.SUPABASE_BUCKET }}
+          BLKOUT_PLATFORM_ENV: /dev/null
+          SKIP_LIPSYNC: ${{ inputs.skip_lipsync }}
+        run: |
+          set -e
+          ARGS=(--property events --aspects 9x16)
+          [ "$SKIP_LIPSYNC" = "true" ] && ARGS+=(--skip-lipsync)
+          node scripts/weekly-render.mjs "${ARGS[@]}"
+
+      - name: Upload review artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: events-video-review-${{ github.run_number }}
+          path: |
+            remotion-videos/out/events-*-9x16.mp4
+            remotion-videos/out/events-*-script.txt
+            remotion-videos/props/events-*.json
+          if-no-files-found: warn
+          retention-days: 30
