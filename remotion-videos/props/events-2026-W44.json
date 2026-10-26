@@ -1,0 +1,40 @@
+{
+  "property": "ivor-events",
+  "title": "What's on",
+  "intro": "My dear friends, the weekend has plans for you.",
+  "teases": [
+    {
+      "title": "Congregational",
+      "hook": "Friday. Fatt Butcher in collaboration with Nicky Harris & Tobre, Brighton Dome.",
+      "url": "https://events.blkoutuk.com/e/dec3fc4e-e737-4476-8a03-f35bf3a73cee/congregational?utm_source=video&utm_medium=reel&utm_campaign=events-digest-2026-W44",
+      "rank": 1
+    },
+    {
+      "title": "Category is......AfroYanga 2026: Black History Month x Halloween Special",
+      "hook": "Saturday 5pm. The annual AfroYanga celebration for LGBT Africans, asylum seekers and allies, this year a Black History Month x… Free.",
+      "url": "https://events.blkoutuk.com/e/09d1579b-d42e-4561-9871-6eb391db008b/category-is-afroyanga-2026-black-history-month-x-halloween-s?utm_source=video&utm_medium=reel&utm_campaign=events-digest-2026-W44",
+      "rank": 2
+    },
+    {
+      "title": "United Friends & Family Campaign annual rally",
+      "hook": "Saturday. A march on Downing Street in memory of loved ones who have died at the hands of the state.",
+      "url": "https://events.blkoutuk.com/e/125d2254-8910-4b8b-a3a0-d05cd6d5b00f/united-friends-family-campaign-annual-rally?utm_source=video&utm_medium=reel&utm_campaign=events-digest-2026-W44",
+      "rank": 3
+    }
+  ],
+  "cta": {
+    "text": "Everything's at",
+    "url": "https://events.blkoutuk.com/gatherings?utm_source=video&utm_medium=reel&utm_campaign=events-digest-2026-W44",
+    "spokenUrl": "events dot blkoutuk dot com",
+    "displayUrl": "events.blkoutuk.com"
+  },
+  "avatarVideo": "assets/ivor-avatar.mp4",
+  "bgMusic": false,
+  "durationSeconds": 28,
+  "showName": "BLKOUT What's On",
+  "weekLabel": "Week 44",
+  "dateRangeFrom": "30 October",
+  "dateRangeTo": "5 November 2026",
+  "tickerText": "Gatherings chosen from our community listings · Add yours at events.blkoutuk.com",
+  "weekNumber": 44
+}
