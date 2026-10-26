@@ -405,7 +405,9 @@ const SidePanel: React.FC<{
     width: string;
     height: string;
   };
-}> = ({ phase, frame, layout }) => {
+  /** The news vote. Off for the events digest, which has nothing to vote on. */
+  voting?: boolean;
+}> = ({ phase, frame, layout, voting = true }) => {
   const flicker = 0.93 + 0.07 * Math.sin(frame * 0.18);
   const enter = interpolate(frame % 90, [0, 12], [0.4, 1], {
     extrapolateLeft: "clamp",
@@ -444,6 +446,7 @@ const SidePanel: React.FC<{
         >
           {phase.showName}
         </div>
+        {voting && (
         <div
           style={{
             marginTop: "auto",
@@ -460,6 +463,7 @@ const SidePanel: React.FC<{
         >
           You voted · We tally
         </div>
+        )}
       </div>
     );
   } else if (phase.kind === "tease") {
@@ -477,6 +481,7 @@ const SidePanel: React.FC<{
           opacity: enter,
         }}
       >
+        {voting && (
         <div
           style={{
             display: "inline-flex",
@@ -496,6 +501,7 @@ const SidePanel: React.FC<{
         >
           Rank #{rank}
         </div>
+        )}
         <div
           style={{
             fontFamily: FONTS.display,
@@ -535,6 +541,7 @@ const SidePanel: React.FC<{
         >
           {phase.tease.title}
         </div>
+        {voting && (
         <div
           style={{
             marginTop: "auto",
@@ -552,6 +559,7 @@ const SidePanel: React.FC<{
         >
           👍 Vote · No login
         </div>
+        )}
       </div>
     );
   } else {
@@ -658,6 +666,7 @@ export const NewsroomSet: React.FC<{
   avatarCloseupStill,
   hasExternalAudio,
   aspect,
+  propertyKey,
   presenterName = "AIvor",
   showName = "BLKOUT News",
   backdropImage,
@@ -726,7 +735,7 @@ export const NewsroomSet: React.FC<{
         totalFrames={durationInFrames}
         displayUrl={displayUrl}
       />
-      <SidePanel phase={phase} frame={frame} layout={sideLayout} />
+      <SidePanel phase={phase} frame={frame} layout={sideLayout} voting={propertyKey !== "ivor-events"} />
       <Chyron
         presenterName={presenterName}
         showName={showName}

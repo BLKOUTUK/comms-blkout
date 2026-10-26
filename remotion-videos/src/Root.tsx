@@ -53,6 +53,13 @@ const sampleNewsDigest = {
     "Community-owned journalism · Upvote the stories that matter · No login needed · We tally votes every week · Vote at blkoutuk.com/news",
 };
 
+// The events digest is as long as AIvor speaks plus a short outro (durationSeconds, set by
+// weekly-render.mjs from the voice track); every other IVORMessage keeps the composition length.
+const eventsDigestLength = ({ props }: { props: { property: string; durationSeconds?: number } }) =>
+  props.property === "ivor-events" && props.durationSeconds
+    ? { durationInFrames: Math.round(props.durationSeconds * FPS) }
+    : {};
+
 export const RemotionRoot: React.FC = () => {
   return (
     <>
@@ -92,6 +99,7 @@ export const RemotionRoot: React.FC = () => {
         width={1080}
         height={1920}
         schema={ivorMessagePropsSchema}
+        calculateMetadata={eventsDigestLength}
         defaultProps={{ ...sampleNewsDigest, aspect: "9:16" as const }}
       />
       <Composition
@@ -102,6 +110,7 @@ export const RemotionRoot: React.FC = () => {
         width={1080}
         height={1920}
         schema={ivorMessagePropsSchema}
+        calculateMetadata={eventsDigestLength}
         defaultProps={{ ...sampleNewsDigest, aspect: "9:16" as const }}
       />
       <Composition
@@ -112,6 +121,7 @@ export const RemotionRoot: React.FC = () => {
         width={1080}
         height={1080}
         schema={ivorMessagePropsSchema}
+        calculateMetadata={eventsDigestLength}
         defaultProps={{ ...sampleNewsDigest, aspect: "1:1" as const }}
       />
       <Composition
@@ -122,6 +132,7 @@ export const RemotionRoot: React.FC = () => {
         width={1920}
         height={1080}
         schema={ivorMessagePropsSchema}
+        calculateMetadata={eventsDigestLength}
         defaultProps={{ ...sampleNewsDigest, aspect: "16:9" as const }}
       />
       <Composition

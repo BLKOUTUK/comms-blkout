@@ -124,7 +124,7 @@ function hookFor(g) {
   const first = clean(g.description).split(/(?<=[.!?])\s+/)[0] || "";
   let hook = first.length >= 20 && first.length <= 120 ? first : first.length > 120 ? first.slice(0, 117).replace(/\s+\S*$/, "") + "…" : "";
   if (!hook) hook = `${g.organizer}${online(g) ? ", online" : `, ${String(g.location).split(",")[0]}`}.`;
-  if (/^free\b/i.test(String(g.cost || "").trim()) && !/free/i.test(hook)) hook = hook.endsWith("…") ? `${hook} Free.` : `${hook.replace(/\.$/, "")}. Free.`;
+  if (/^free\b/i.test(String(g.cost || "").trim()) && !/free/i.test(hook)) hook = /[…!?]$/.test(hook) ? `${hook} Free.` : `${hook.replace(/\.$/, "")}. Free.`;
   return hook.slice(0, 180);
 }
 const dayLabel = (g) => `${short(g.date, { weekday: "long" })}${g.start_time ? ` ${(() => { let [h, m] = g.start_time.split(":").map(Number); const p = h >= 12 ? "pm" : "am"; h = h % 12 || 12; return m ? `${h}.${String(m).padStart(2, "0")}${p}` : `${h}${p}`; })()}` : ""}`;

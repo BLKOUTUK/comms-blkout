@@ -231,6 +231,22 @@ async function lipsync() {
   ]);
 
   props.avatarVideo = `assets/${avatarStem}-${weekTag}-talking.mp4`;
+  if (EVENTS) {
+    // The events digest runs as long as AIvor speaks plus a short outro for the CTA card
+    // (W44 review: a fixed 35s left 13s of silence after a 22s script).
+    const probe = await new Promise((res) => {
+      const p = spawn("ffprobe", ["-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", talkingHeadPath]);
+      let out = "";
+      p.stdout.on("data", (d) => (out += d));
+      p.on("close", () => res(parseFloat(out)));
+    });
+    if (Number.isFinite(probe) && probe > 0) {
+      props.durationSeconds = Math.min(90, Math.max(15, Math.ceil(probe + 4)));
+      console.log(`  props.durationSeconds → ${props.durationSeconds} (voice ${probe.toFixed(1)}s + outro)`);
+    } else {
+      console.error("  could not read the talking-head length; keeping props.durationSeconds");
+    }
+  }
   await writeFile(propsPath, JSON.stringify(props, null, 2) + "\n", "utf8");
   console.log(`  patched props.avatarVideo → ${props.avatarVideo}`);
 }

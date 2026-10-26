@@ -230,6 +230,7 @@ export const IVORMessage: React.FC<
           startFrame={introFrames + i * teaseFrames}
           visibleFrames={teaseFrames}
           aspect={aspect}
+          showRank={property !== "ivor-events"}
         />
       ))}
 
@@ -278,7 +279,7 @@ export const IVORMessage: React.FC<
       )}
 
       <CTA cta={cta} startFrame={ctaStart} aspect={aspect} />
-      <NewsTicker text={tickerText} aspect={aspect} />
+      <NewsTicker text={tickerText} aspect={aspect} label={property === "ivor-events" ? "What's on" : undefined} />
     </AbsoluteFill>
   );
 };

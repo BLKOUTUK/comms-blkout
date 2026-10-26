@@ -9,7 +9,9 @@ export const TeaseCard: React.FC<{
   startFrame: number;
   visibleFrames: number;
   aspect: "9:16" | "1:1" | "16:9";
-}> = ({ tease, index, startFrame, visibleFrames, aspect }) => {
+  /** The news vote's "Rank #n" badge. Off for the events digest, which isn't ranked. */
+  showRank?: boolean;
+}> = ({ tease, index, startFrame, visibleFrames, aspect, showRank = true }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
@@ -64,6 +66,7 @@ export const TeaseCard: React.FC<{
           flexWrap: "wrap",
         }}
       >
+        {showRank && (
         <div
           style={{
             display: "inline-flex",
@@ -82,6 +85,7 @@ export const TeaseCard: React.FC<{
         >
           Rank #{tease.rank ?? index + 1}
         </div>
+        )}
         {/* Below 2 the badge advertises that nobody is voting — say nothing instead. */}
         {tease.voteCount != null && tease.voteCount > 1 && (
           <div

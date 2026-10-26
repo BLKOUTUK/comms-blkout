@@ -8,7 +8,8 @@ export const NewsTicker: React.FC<{
   text: string;
   aspect: "9:16" | "1:1" | "16:9";
   position?: "bottom" | "middle";
-}> = ({ text, aspect, position = "middle" }) => {
+  label?: string;
+}> = ({ text, aspect, position = "middle", label = "Community editorial" }) => {
   const frame = useCurrentFrame();
   const { width, fps } = useVideoConfig();
 
@@ -68,7 +69,7 @@ export const NewsTicker: React.FC<{
           alignItems: "center",
         }}
       >
-        Community editorial
+        {label}
       </div>
       <div
         style={{
