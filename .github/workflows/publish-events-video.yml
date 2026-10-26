@@ -4,8 +4,8 @@ name: Publish Events Video
 # (scripts/events-video.mjs publish). Hourly from 18:00 Thursday to the end of Friday, so a
 # late yes still goes out within the hour; already-public weeks are left alone. The 18:00 run
 # reminds Rob if he hasn't approved. Unapproved means it stays unlisted (Rob, 26 Oct 2026).
-# Once public it is posted to Instagram as a Reel and to the Facebook Page (direct Graph API,
-# no Zapier); a channel that fails is retried alone on the next hourly run.
+# Once public it is posted to Instagram as a Reel, the Facebook Page (direct Graph API) and the
+# LinkedIn company page (its own caption), no Zapier; a channel that fails is retried alone on the next hourly run.
 
 on:
   schedule:
@@ -29,7 +29,7 @@ concurrency:
 jobs:
   publish:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 20
     defaults:
       run:
         working-directory: remotion-videos
@@ -46,6 +46,8 @@ jobs:
           YT_CLIENT_SECRET: ${{ secrets.YT_CLIENT_SECRET }}
           YT_REFRESH_TOKEN: ${{ secrets.YT_REFRESH_TOKEN }}
           META_PAGE_TOKEN: ${{ secrets.META_PAGE_TOKEN }}
+          LINKEDIN_REFRESH_TOKEN: ${{ secrets.LINKEDIN_REFRESH_TOKEN }}
+          LINKEDIN_CLIENT_SECRET: ${{ secrets.LINKEDIN_CLIENT_SECRET }}
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
           WEEK_LABEL: ${{ inputs.week_label }}

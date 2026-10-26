@@ -5,7 +5,7 @@ name: Weekly Events Video
 # Thursdays 10:00 UK: render from gatherings_live, upload to YouTube UNLISTED, record it in
 # aivor_event_digests and send it to Rob on Telegram with a signed approve link
 # (scripts/events-video.mjs). Nothing goes public here: publish-events-video.yml does that
-# from 18:00, and only once Rob has approved (Rob, 26 Oct 2026), then posts it to Instagram and Facebook.
+# from 18:00, and only once Rob has approved (Rob, 26 Oct 2026), then posts it to Instagram, Facebook and LinkedIn.
 # No Zapier.
 # A manual run is review-only (artifact) unless send_for_signoff is ticked.
 

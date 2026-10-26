@@ -8,19 +8,22 @@
 //            so one yes covers both.
 //   publish  Thursday from 18:00, hourly: if Rob has approved, make it public on YouTube, post it
 //            to Instagram as a Reel and to the Facebook Page (direct Graph API, as news-wire.mjs
-//            does), and record it in the content register. If not, the 18:00 run reminds him once; nothing goes out.
+//            does) and the LinkedIn company page (lib/linkedin.mjs, its own caption), and record
+//            it in the content register. If not, the 18:00 run reminds him once; nothing goes out.
 //
 // The approve link is checked by events.blkoutuk.com/api/approve-events-video, which signs with
 // the same Supabase service key (same pattern as the news editorial pick).
 // Needs: SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, YT_CLIENT_ID, YT_CLIENT_SECRET,
 // YT_REFRESH_TOKEN, TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID; SUPABASE_BUCKET (upload) and
-// META_PAGE_TOKEN (publish).
+// META_PAGE_TOKEN (publish); LINKEDIN_REFRESH_TOKEN + LINKEDIN_CLIENT_SECRET for LinkedIn, which is
+// skipped (Rob told) while they are unset.
 import { readFile, stat } from "node:fs/promises";
 import { createReadStream } from "node:fs";
 import { createHmac } from "node:crypto";
 import { resolve } from "node:path";
 import { parseArgs } from "node:util";
 import { uploadToStorage } from "./lib/digest-common.mjs";
+import { linkedinToken, linkedinRefreshDaysLeft, postVideo } from "./lib/linkedin.mjs";
 
 const ROOT = resolve(import.meta.dirname, "..");
 const APPROVE_URL = "https://events.blkoutuk.com/api/approve-events-video";
@@ -43,7 +46,7 @@ if (!["upload", "publish"].includes(command)) {
 }
 
 const env = process.env;
-const live = args["dry-run"] ? [] : ["YT_CLIENT_ID", "YT_CLIENT_SECRET", "YT_REFRESH_TOKEN", command === "upload" ? "SUPABASE_BUCKET" : "META_PAGE_TOKEN"];
+const live = args["dry-run"] ? [] : ["YT_CLIENT_ID", "YT_CLIENT_SECRET", "YT_REFRESH_TOKEN", ...(command === "upload" ? ["SUPABASE_BUCKET"] : ["META_PAGE_TOKEN"])];
 for (const k of ["SUPABASE_URL", "SUPABASE_SERVICE_ROLE_KEY", "TELEGRAM_BOT_TOKEN", "TELEGRAM_CHAT_ID", ...live]) {
   if (!env[k]) {
     console.error(`✗ FAILED: ${k} not set.`);
@@ -137,11 +140,23 @@ async function upload() {
     "#BLKOUT #BlackQueer #BlackQueerMen #QueerUK #WhatsOn #BlackQueerJoy",
   ].join("\n");
   if (igCaption.length > 2200) throw new Error(`Instagram caption ${igCaption.length}/2200 characters`);
+  // LinkedIn gets its own copy: organisers first, a professional audience (Rob, 2 Aug 2026:
+  // personal stakes, not listings). The events are the evidence, not the headline.
+  const liCaption = [
+    "Every gathering in this week's BLKOUT What's On exists because someone booked the room, found the money and told people. Often on top of a day job.",
+    "",
+    "This week AIvor, our AI presenter, picks out:",
+    ...items.map((t) => `• ${t.hook.split(". ")[0]} · ${t.title.replace(/\.{2,}/g, " ")}${t.where ? `, ${t.where.split(",")[0]}` : ""}`),
+    "",
+    "If you organise for Black queer people in the UK, or host, fund or employ people who do, list it at events.blkoutuk.com. It's free, and we'll help your people find you.",
+  ].join("\n");
+  if (liCaption.length > 3000) throw new Error(`LinkedIn caption ${liCaption.length}/3000 characters`);
 
   if (args["dry-run"]) {
     console.log(`DRY RUN: would upload ${videoPath} (${(size / 1048576).toFixed(1)} MB) unlisted as "${title}"`);
     console.log(description);
     console.log(`--- Instagram caption (${igCaption.length}/2200) ---\n${igCaption}\n---`);
+    console.log(`--- LinkedIn caption (${liCaption.length}/3000) ---\n${liCaption}\n---`);
     const check = await fetch(approveLink());
     console.log(check.ok ? `✓ events server accepts the signed link (HTTP ${check.status})` : `✗ FAILED: events server refused the signed link (HTTP ${check.status})`);
     if (!check.ok) process.exit(1);
@@ -184,7 +199,7 @@ async function upload() {
   const row = await db("aivor_event_digests?on_conflict=week_tag", {
     method: "POST",
     headers: { Prefer: "resolution=merge-duplicates,return=representation" },
-    body: JSON.stringify({ week_tag: weekTag, week_label: props.weekLabel || weekTag, video_id: video.id, video_url: url, summary, privacy: "unlisted", uploaded_at: new Date().toISOString(), approved_at: null, published_at: null, media_url: mediaUrl, ig_caption: igCaption, instagram_url: null }),
+    body: JSON.stringify({ week_tag: weekTag, week_label: props.weekLabel || weekTag, video_id: video.id, video_url: url, summary, privacy: "unlisted", uploaded_at: new Date().toISOString(), approved_at: null, published_at: null, media_url: mediaUrl, ig_caption: igCaption, li_caption: liCaption, instagram_url: null, facebook_url: null, linkedin_url: null }),
   });
   if (!row.ok) throw new Error(`aivor_event_digests write failed: ${row.status} ${await row.text()}`);
 
@@ -195,7 +210,7 @@ async function upload() {
     "",
     `Unlisted on YouTube: ${url}`,
     "",
-    `Happy with it? Approve here and from 18:00 it goes public on YouTube and posts to Instagram (as a Reel) and the Facebook Page: ${approveLink()}`,
+    `Happy with it? Approve here and from 18:00 it goes public on YouTube and posts to Instagram (as a Reel), the Facebook Page and LinkedIn: ${approveLink()}`,
     "No approval, no post.",
   ].join("\n");
   const igPreview = `Instagram and Facebook caption that goes with it:\n\n${igCaption}`;
@@ -211,6 +226,7 @@ async function upload() {
   }
   await say(caption);
   await say(igPreview);
+  await say(`LinkedIn caption (company page):\n\n${liCaption}`);
   console.log("✓ Sent to Rob on Telegram for sign-off (signed link withheld from the log).");
 }
 
@@ -278,7 +294,7 @@ async function publish() {
   await say(`BLKOUT What's On ${weekTag} is public: ${row.video_url}`);
   console.log(`✓ ${weekTag} public: ${row.video_url}`);
   if (row.media_url) await postSocial(row);
-  else await say(`BLKOUT What's On ${weekTag}: no hosted copy for this week, so it was not posted to Instagram or Facebook.`);
+  else await say(`BLKOUT What's On ${weekTag}: no hosted copy for this week, so it was not posted to Instagram, Facebook or LinkedIn.`);
 }
 
 const graph = async (url, init) => {
@@ -318,10 +334,22 @@ async function facebookVideo(row) {
   return { id, url: `https://www.facebook.com/${PAGE_ID}/videos/${id}` };
 }
 
-// Same caption on both: Rob approved it in the Telegram sign-off.
+// Instagram and Facebook share a caption; LinkedIn has its own. Rob approves all of them in the
+// Telegram sign-off.
+// LinkedIn company page: its own caption, approved in the same sign-off.
+async function linkedinVideo(row) {
+  const token = await linkedinToken();
+  const days = linkedinRefreshDaysLeft();
+  if (days !== null && days < 30) await say(`LinkedIn login runs out in ${days} days. Re-run node ~/blkout/platform/scripts/linkedin-auth.mjs and update the LINKEDIN_REFRESH_TOKEN secret.`);
+  return postVideo(token, { url: row.media_url, commentary: row.li_caption || row.summary, title: `BLKOUT What's On · ${row.week_label}` });
+}
+
 const SOCIAL = [
   { key: "instagram", name: "Instagram", column: "instagram_url", post: instagramReel },
   { key: "facebook", name: "Facebook", column: "facebook_url", post: facebookVideo },
+  ...(env.LINKEDIN_REFRESH_TOKEN && env.LINKEDIN_CLIENT_SECRET
+    ? [{ key: "linkedin", name: "LinkedIn", column: "linkedin_url", post: linkedinVideo }]
+    : []),
 ];
 
 // Each channel independently. Its URL is written straight after it posts, so a retry (the next
@@ -330,6 +358,7 @@ const SOCIAL = [
 async function postSocial(row) {
   const source = `routine:weekly-events-video#${weekTag}`;
   const failed = [];
+  if (!SOCIAL.some((c) => c.key === "linkedin")) await say(`BLKOUT What's On ${weekTag}: not posted to LinkedIn, because the LINKEDIN_REFRESH_TOKEN / LINKEDIN_CLIENT_SECRET secrets aren't set.`);
   for (const c of SOCIAL.filter((c) => !row[c.column])) {
     let done;
     try {
