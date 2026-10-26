@@ -95,9 +95,44 @@ const isBlkout = (g) => /\bblkout\b/i.test(g.organizer || "");
 const online = (g) => Boolean(g.virtual_link) || /^(zoom|online|virtual)\b/i.test(String(g.location).trim());
 const pool = inWindow.filter((g) => !banned(g) && !isTest(g)).filter((g) => !online(g) || g.virtual_link);
 
-// ---- section 4: weekend first, then date and time; spread across places; BLKOUT leads ----
-const ordered = [...pool].sort((a, b) =>
-  (isWeekend(b.date) - isWeekend(a.date)) || a.date.localeCompare(b.date) || String(a.start_time || "99").localeCompare(String(b.start_time || "99")));
+const clean = (s) => String(s || "").replace(/<[^>]*>/g, " ").replace(/&#(\d+);/g, (_, n) => String.fromCodePoint(Number(n))).replace(/&amp;/g, "&").replace(/&[a-z]+;/gi, " ").replace(/\s+/g, " ").trim();
+
+// ---- for us, by us (Rob, 26 Oct 2026: "it should lean into for-us-by-us events") ----
+// Tier 1: BLKOUT, an organiser the Places directory records as centring Black queer men or
+// Black LGBTQ people, or a listing that says it is for Black queer people. Tier 2: a listing
+// that says QTIPOC / people of colour. Nothing else goes in the video (it stays on the site).
+// A Place's "qtipoc" label is not used: it includes broad LGBTQ+ youth services.
+const PLACES_URL = "https://raw.githubusercontent.com/BLKOUTUK/black-qtipoc-events-calendar/main/src/data/places.ts";
+let ourPlaces = [];
+try {
+  const r = await fetch(PLACES_URL);
+  if (!r.ok) throw new Error(String(r.status));
+  const text = await r.text();
+  const all = JSON.parse(text.slice(text.indexOf("= [") + 2, text.indexOf("\n];") + 2));
+  ourPlaces = all
+    .filter((p) => ["black-queer-men", "black-lgbtq"].includes(p.centres))
+    // "AfroYanga (Itura Events)" → "afroyanga", "itura events"; short names would match too much.
+    .flatMap((p) => p.name.toLowerCase().split(/\s*[()]\s*/).map((n) => n.trim()))
+    .filter((n) => n.length >= 6);
+} catch (e) {
+  console.error(`FAILED: Places directory unavailable (${e.message}); choosing on the listings' own words only`);
+}
+const lower = (g) => `${g.title} ${g.organizer} ${clean(g.description)}`.toLowerCase();
+const BLACK_QUEER = /\bblack (queer|gay|bi|trans|lgbt\w*|qtipoc|men who)|\b(lgbt\w*|queer|gay) (africans?|caribbeans?|black)|\bafrican lgbt|\bdl men\b|\bblack[^.]{0,40}\b(queer|gay|lgbt\w*|bi men|trans)\b/i;
+const QTIPOC = /\b(qtipoc|qtpoc|qtbipoc|people of colou?r|poc|global majority)\b/i;
+function tier(g) {
+  const text = lower(g);
+  // Directory names count only in the title or organiser: a description can name a partner
+  // or speaker ("…with African Rainbow Family") without the event being theirs.
+  const whose = `${g.title} ${g.organizer}`.toLowerCase();
+  if (isBlkout(g) || BLACK_QUEER.test(text) || ourPlaces.some((n) => whose.includes(n))) return 1;
+  if (QTIPOC.test(text)) return 2;
+  return 3;
+}
+
+// ---- section 4: ours first, then weekend first, then date and time; spread across places; BLKOUT leads ----
+const ordered = [...pool].filter((g) => tier(g) < 3).sort((a, b) =>
+  (tier(a) - tier(b)) || (isWeekend(b.date) - isWeekend(a.date)) || a.date.localeCompare(b.date) || String(a.start_time || "99").localeCompare(String(b.start_time || "99")));
 const placeKey = (g) => String(online(g) ? `online:${g.organizer}` : g.location).toLowerCase().replace(/[^a-z0-9]+/g, " ").trim().split(" ").slice(0, 3).join(" ");
 const picked = [];
 const lead = ordered.find(isBlkout);
@@ -116,7 +151,6 @@ const slug = (t) => t.toLowerCase().normalize("NFKD").replace(/[̀-ͯ]/g, "").re
 const utm = (campaign) => new URLSearchParams({ utm_source: "video", utm_medium: "reel", utm_campaign: campaign }).toString();
 const campaign = `events-digest-${weekTag}`;
 const pageUrl = (g) => `${EVENTS_SITE}/e/${g.id}/${slug(g.title)}?${utm(campaign)}`;
-const clean = (s) => String(s || "").replace(/<[^>]*>/g, " ").replace(/&#(\d+);/g, (_, n) => String.fromCodePoint(Number(n))).replace(/&amp;/g, "&").replace(/&[a-z]+;/gi, " ").replace(/\s+/g, " ").trim();
 
 function hookFor(g) {
   // One hook line from the listing's own words: its first sentence, never the full blurb,
@@ -212,7 +246,8 @@ const special = (await rest(`gatherings_live?select=id,title,date,url&date=gte.$
   .map((g) => ({ ...g, renders: !/^https?:\/\/(www\.)?events\.blkoutuk\.com\/?(\?.*)?$/.test(g.url || ""), page: pageUrl(g) }));
 
 const out = resolve(ROOT, args.out || `props/events-${weekTag}.json`);
-console.log(`Window ${from} → ${to} (${weekTag}): ${inWindow.length} in gatherings_live, ${pool.length} eligible, ${picked.length} picked${addYours ? " → ADD-YOURS edition" : ""}`);
+console.log(`Window ${from} → ${to} (${weekTag}): ${inWindow.length} in gatherings_live, ${pool.length} eligible, ${ordered.length} for us by us, ${picked.length} picked${addYours ? " → ADD-YOURS edition" : ""}`);
+for (const g of pool) console.log(`    tier ${tier(g)}: ${g.title}`);
 for (const t of teases) console.log(`  ${t.rank}. ${t.title} — ${t.hook}`);
 for (const s of special) console.log(`  SPECIAL EDITION due: ${s.title} (${s.date})${s.renders ? "" : " — FAILED: its link is the events homepage; Rob needs to give the real page"}`);
 if (args["dry-run"]) {

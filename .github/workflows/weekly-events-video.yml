@@ -67,6 +67,8 @@ jobs:
           # Slower, less hurried delivery (Rob, 26 Oct: "as if it's on the clock"). Lower
           # cfg_weight slows the pace; the server default is 0.5.
           AIVOR_TTS_CFG: "0.3"
+          # More life in the voice (Rob, 26 Oct: "too flat"). Server default 0.5.
+          AIVOR_TTS_EXAGGERATION: "0.7"
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
           SUPABASE_BUCKET: ${{ secrets.SUPABASE_BUCKET }}
