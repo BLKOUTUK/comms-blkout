@@ -206,6 +206,16 @@ function eventsTimeline(segments, voiceSeconds) {
   });
 }
 
+// The events AIvor changes outfit each week (Rob, 26 Oct 2026): Ivor Cummings's jazz-club
+// dinner jacket, then outward bound, the craft studio, a London evening. Same man, relaxed
+// pose (the raised hand looked awkward while he talked). News keeps its one look.
+const EVENT_OUTFITS = ["jazz-club", "outward-bound", "craft-studio", "city-evening"];
+function avatarImage() {
+  if (!EVENTS) return avatarStem;
+  const week = Number(weekTag.split("-W")[1]) || 0;
+  return `${avatarStem}-${EVENT_OUTFITS[week % EVENT_OUTFITS.length]}`;
+}
+
 async function curate() {
   if (EVENTS) {
     await run("node", [EVENTS_CURATOR_SCRIPT, "--out", propsPath]);
@@ -242,7 +252,7 @@ async function lipsync() {
     "--script",
     `@${scriptPath}`,
     "--image",
-    resolve(ROOT, `public/assets/${avatarStem}.jpg`),
+    resolve(ROOT, `public/assets/${avatarImage()}.jpg`),
     "--out",
     talkingHeadPath,
     ...(args["no-enhancer"] ? ["--enhancer", "false"] : []),
