@@ -155,9 +155,9 @@ function buildScript(props) {
 // "Brothers" is left out: the listings are for every Black queer person.
 const EVENT_OPENERS = ["My dear friends", "Beloved community", "Now then", "Listen"];
 const EVENT_HOOKS = [
-  "the weekend has plans for you.",
-  "clear a little space in your diary.",
-  "here's where we gather this week.",
+  "The weekend has plans for you.",
+  "Clear a little space in your diary.",
+  "Let's see where we're gathering.",
 ];
 
 function spokenTitle(title) {
@@ -166,12 +166,16 @@ function spokenTitle(title) {
   return (head.split(" ").length >= 2 ? head : t).replace(/[.,;:]+$/, "");
 }
 
-function buildEventsScript(props) {
+// Spoken in segments (intro, one per gathering, close) so the layout can move AIvor and change
+// the picture as each one starts; see eventsTimeline.
+function buildEventsSegments(props) {
   const seed = Math.floor(Date.parse(new Date().toISOString().slice(0, 10)) / 86400000);
   const opener = pick(EVENT_OPENERS, seed);
   const real = props.teases.filter((t) => !/\/add\b/.test(t.url));
   const addYours = real.length < props.teases.length;
-  const lines = [addYours ? `${opener}, it's a quiet week, and that's where you come in.` : `${opener}, ${pick(EVENT_HOOKS, seed)}`];
+  // A proper introduction (W44 review): who's speaking, what this is, who it's for.
+  const intro = `${opener}, AIvor here, with BLKOUT What's On: the gatherings worth your time this week, for Black queer people across the UK.`;
+  const lines = [addYours ? `${intro} It's a quiet week, and that's where you come in.` : `${intro} ${pick(EVENT_HOOKS, seed)}`];
   for (const t of real) {
     // The curator writes hooks as "Saturday 5pm. <line>"; the day is the spoken lead.
     const day = t.hook.split(". ")[0];
@@ -186,7 +190,20 @@ function buildEventsScript(props) {
       ? `Running something for Black queer people? Add it at ${props.cta?.spokenUrl}, and we'll help people find it.`
       : `Everything's at ${props.cta?.spokenUrl}. And if your night isn't there, add it.`
   );
-  return lines.join(" ");
+  return lines;
+}
+
+// Second each segment starts, shared out over the voice by length (the TTS speaks at an even
+// pace; each sentence break costs about the same pause).
+function eventsTimeline(segments, voiceSeconds) {
+  const weight = segments.map((s) => s.length + 12);
+  const total = weight.reduce((a, b) => a + b, 0);
+  let at = 0;
+  return weight.map((w) => {
+    const start = Number(at.toFixed(2));
+    at += (w / total) * voiceSeconds;
+    return start;
+  });
 }
 
 async function curate() {
@@ -209,7 +226,8 @@ async function lipsync() {
     return;
   }
   const props = JSON.parse(await readFile(propsPath, "utf8"));
-  const script = EVENTS ? buildEventsScript(props) : buildScript(props);
+  const segments = EVENTS ? buildEventsSegments(props) : null;
+  const script = EVENTS ? segments.join(" ") : buildScript(props);
   const wordCount = script.split(/\s+/).length;
   console.log(`\n— Script (${wordCount} words, ~${(wordCount / 2.5).toFixed(0)}s) —`);
   console.log(script);
@@ -242,6 +260,8 @@ async function lipsync() {
     });
     if (Number.isFinite(probe) && probe > 0) {
       props.durationSeconds = Math.min(90, Math.max(15, Math.ceil(probe + 4)));
+      props.timeline = eventsTimeline(segments, probe);
+      console.log(`  props.timeline → ${props.timeline.join(", ")}`);
       console.log(`  props.durationSeconds → ${props.durationSeconds} (voice ${probe.toFixed(1)}s + outro)`);
     } else {
       console.error("  could not read the talking-head length; keeping props.durationSeconds");

@@ -8,6 +8,9 @@ export const teaseSchema = z.object({
   thumbnail: z.string().optional(),
   voteCount: z.number().int().nonnegative().optional(),
   rank: z.number().int().min(1).max(99).optional(),
+  // Events digest: the venue, shown beside AIvor.
+  where: z.string().optional(),
+  blkout: z.boolean().optional(),
 });
 
 export const ctaSchema = z.object({
@@ -40,6 +43,8 @@ export const ivorMessagePropsSchema = z.object({
   // weekNumber from the ISO week tag; theme is an explicit override.
   weekNumber: z.number().int().nonnegative().optional(),
   theme: z.enum(DIGEST_THEME_KEYS).optional(),
+  // Events digest: second each spoken segment starts (intro, each gathering, close).
+  timeline: z.array(z.number().nonnegative()).optional(),
 });
 
 export type IvorMessageProps = z.infer<typeof ivorMessagePropsSchema>;

@@ -16,12 +16,17 @@ import { CTA } from "../components/CTA";
 import { NewsroomSet } from "../components/NewsroomSet";
 import { NewsTicker } from "../components/NewsTicker";
 import type { IvorMessageProps } from "../schemas/ivor-message";
+import { WhatsOn } from "./WhatsOn";
 
 const FPS = 30;
 
-export const IVORMessage: React.FC<
-  IvorMessageProps & { aspect?: "9:16" | "1:1" | "16:9" }
-> = ({
+type Props = IvorMessageProps & { aspect?: "9:16" | "1:1" | "16:9" };
+
+// The events digest has its own layout (WhatsOn); news and the rest keep the newsroom set.
+export const IVORMessage: React.FC<Props> = (props) =>
+  props.property === "ivor-events" ? <WhatsOn {...props} /> : <NewsroomMessage {...props} />;
+
+const NewsroomMessage: React.FC<Props> = ({
   property,
   title,
   teases,
