@@ -83,6 +83,16 @@ export const WhatsOn: React.FC<IvorMessageProps> = ({
   return (
     <AbsoluteFill style={{ background: `linear-gradient(165deg, ${gradient[0]} 0%, ${gradient[1]} 45%, ${COLORS.obsidian} 100%)` }}>
       {voiceTrack && <Audio src={staticFile(voiceTrack)} />}
+      <Audio
+        src={staticFile("assets/news-bed.mp3")}
+        startFrom={Math.floor(fps * 6)}
+        volume={(f) =>
+          interpolate(f, [0, fps * 1.5, durationInFrames - fps * 1.5, durationInFrames], [0, 0.4, 0.4, 0], {
+            extrapolateLeft: "clamp",
+            extrapolateRight: "clamp",
+          })
+        }
+      />
 
       <img
         src={staticFile("assets/blkoutlogo_wht_transparent.png")}
