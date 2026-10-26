@@ -4,21 +4,28 @@
 //
 //   upload   Thursday 10:00, after the render: YouTube UNLISTED, a row in aivor_event_digests,
 //            and the video to Rob on Telegram with a signed link to approve it.
-//   publish  Thursday from 18:00, hourly: if Rob has approved, make it public and record it in
-//            the content register. If not, the 18:00 run reminds him once; nothing goes out.
+//            The mp4 also goes to public storage, and the Instagram caption is in the same message,
+//            so one yes covers both.
+//   publish  Thursday from 18:00, hourly: if Rob has approved, make it public on YouTube, post it
+//            to Instagram as a Reel (direct Graph API, as news-wire.mjs does), and record it in the
+//            content register. If not, the 18:00 run reminds him once; nothing goes out.
 //
 // The approve link is checked by events.blkoutuk.com/api/approve-events-video, which signs with
 // the same Supabase service key (same pattern as the news editorial pick).
 // Needs: SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, YT_CLIENT_ID, YT_CLIENT_SECRET,
-// YT_REFRESH_TOKEN, TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID.
+// YT_REFRESH_TOKEN, TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID; SUPABASE_BUCKET (upload) and
+// META_PAGE_TOKEN (publish).
 import { readFile, stat } from "node:fs/promises";
 import { createReadStream } from "node:fs";
 import { createHmac } from "node:crypto";
 import { resolve } from "node:path";
 import { parseArgs } from "node:util";
+import { uploadToStorage } from "./lib/digest-common.mjs";
 
 const ROOT = resolve(import.meta.dirname, "..");
 const APPROVE_URL = "https://events.blkoutuk.com/api/approve-events-video";
+const GRAPH = "https://graph.facebook.com/v21.0";
+const IG_ID = "17841403920630280";
 
 const { values: args, positionals } = parseArgs({
   options: {
@@ -36,7 +43,8 @@ if (!["upload", "publish"].includes(command)) {
 }
 
 const env = process.env;
-for (const k of ["SUPABASE_URL", "SUPABASE_SERVICE_ROLE_KEY", "TELEGRAM_BOT_TOKEN", "TELEGRAM_CHAT_ID", ...(args["dry-run"] ? [] : ["YT_CLIENT_ID", "YT_CLIENT_SECRET", "YT_REFRESH_TOKEN"])]) {
+const live = args["dry-run"] ? [] : ["YT_CLIENT_ID", "YT_CLIENT_SECRET", "YT_REFRESH_TOKEN", command === "upload" ? "SUPABASE_BUCKET" : "META_PAGE_TOKEN"];
+for (const k of ["SUPABASE_URL", "SUPABASE_SERVICE_ROLE_KEY", "TELEGRAM_BOT_TOKEN", "TELEGRAM_CHAT_ID", ...live]) {
   if (!env[k]) {
     console.error(`✗ FAILED: ${k} not set.`);
     process.exit(1);
@@ -113,10 +121,27 @@ async function upload() {
     "#BLKOUT #BlackQueer #UKBlackQueer #WhatsOn #QTIPOC",
   ].join("\n");
   const summary = items.map((t) => t.title).join(" · ");
+  const igCaption = [
+    `BLKOUT What's On, ${range}. AIvor's pick of the gatherings worth your time this week, for Black queer people across the UK.`,
+    "",
+    ...items.map((t) => {
+      const where = t.where ? `, ${t.where.split(",")[0]}` : "";
+      const kind = t.kind ? `: ${t.kind}` : "";
+      return `${t.hook.split(". ")[0]} · ${t.title.replace(/\.{2,}/g, " ")}${kind}${where}`;
+    }),
+    "",
+    "Details for each at events.blkoutuk.com (link in bio).",
+    "",
+    "Running something for Black queer people? Put it on the list. It's free, and we'll help your people find you.",
+    "",
+    "#BLKOUT #BlackQueer #BlackQueerMen #QueerUK #WhatsOn #BlackQueerJoy",
+  ].join("\n");
+  if (igCaption.length > 2200) throw new Error(`Instagram caption ${igCaption.length}/2200 characters`);
 
   if (args["dry-run"]) {
     console.log(`DRY RUN: would upload ${videoPath} (${(size / 1048576).toFixed(1)} MB) unlisted as "${title}"`);
     console.log(description);
+    console.log(`--- Instagram caption (${igCaption.length}/2200) ---\n${igCaption}\n---`);
     const check = await fetch(approveLink());
     console.log(check.ok ? `✓ events server accepts the signed link (HTTP ${check.status})` : `✗ FAILED: events server refused the signed link (HTTP ${check.status})`);
     if (!check.ok) process.exit(1);
@@ -149,11 +174,17 @@ async function upload() {
   const url = `https://www.youtube.com/watch?v=${video.id}`;
   console.log(`✓ Uploaded unlisted: ${url}`);
 
+  // Instagram fetches the Reel from a public URL, so host the same file now; publish posts it.
+  const mediaUrl = await uploadToStorage(videoPath, `events-digest/${weekTag}.mp4`, {
+    supabaseUrl: env.SUPABASE_URL, serviceKey: env.SUPABASE_SERVICE_ROLE_KEY, bucket: env.SUPABASE_BUCKET,
+  });
+  console.log(`✓ Hosted for Instagram: ${mediaUrl}`);
+
   // A re-run of the week replaces the row and needs a fresh yes.
   const row = await db("aivor_event_digests?on_conflict=week_tag", {
     method: "POST",
     headers: { Prefer: "resolution=merge-duplicates,return=representation" },
-    body: JSON.stringify({ week_tag: weekTag, week_label: props.weekLabel || weekTag, video_id: video.id, video_url: url, summary, privacy: "unlisted", uploaded_at: new Date().toISOString(), approved_at: null, published_at: null }),
+    body: JSON.stringify({ week_tag: weekTag, week_label: props.weekLabel || weekTag, video_id: video.id, video_url: url, summary, privacy: "unlisted", uploaded_at: new Date().toISOString(), approved_at: null, published_at: null, media_url: mediaUrl, ig_caption: igCaption, instagram_url: null }),
   });
   if (!row.ok) throw new Error(`aivor_event_digests write failed: ${row.status} ${await row.text()}`);
 
@@ -164,21 +195,22 @@ async function upload() {
     "",
     `Unlisted on YouTube: ${url}`,
     "",
-    `Happy with it? Approve here and it goes public from 18:00: ${approveLink()}`,
+    `Happy with it? Approve here and from 18:00 it goes public on YouTube and posts to Instagram as a Reel: ${approveLink()}`,
     "No approval, no post.",
   ].join("\n");
+  const igPreview = `Instagram caption that goes with it:\n\n${igCaption}`;
   const form = new FormData();
   form.append("chat_id", env.TELEGRAM_CHAT_ID);
   form.append("supports_streaming", "true");
   form.append("video", new Blob([await readFile(videoPath)], { type: "video/mp4" }), `whats-on-${weekTag}.mp4`);
   try {
     await telegram("sendVideo", form);
-    await say(caption);
   } catch (err) {
     // The video can be too big for the bot; the link alone still lets Rob watch and approve.
     console.log(`  video send failed (${err.message}); sending the links only`);
-    await say(caption);
   }
+  await say(caption);
+  await say(igPreview);
   console.log("✓ Sent to Rob on Telegram for sign-off (signed link withheld from the log).");
 }
 
@@ -192,7 +224,13 @@ async function publish() {
     return;
   }
   if (row.published_at) {
-    console.log(`${weekTag} already public (${row.published_at}).`);
+    if (row.instagram_url || !row.media_url) {
+      console.log(`${weekTag} already public (${row.published_at}).`);
+      return;
+    }
+    // YouTube went public on an earlier run but Instagram failed: retry Instagram alone.
+    if (args["dry-run"]) return console.log(`DRY RUN: would retry Instagram for ${weekTag}.`);
+    await postInstagram(row);
     return;
   }
   if (!row.approved_at) {
@@ -201,7 +239,7 @@ async function publish() {
     return;
   }
   if (args["dry-run"]) {
-    console.log(`DRY RUN: would make ${row.video_url} public.`);
+    console.log(`DRY RUN: would make ${row.video_url} public${row.media_url ? ` and post ${row.media_url} to Instagram` : ""}.`);
     return;
   }
 
@@ -238,6 +276,48 @@ async function publish() {
 
   await say(`BLKOUT What's On ${weekTag} is public: ${row.video_url}`);
   console.log(`✓ ${weekTag} public: ${row.video_url}`);
+  if (row.media_url) await postInstagram(row);
+  else await say(`BLKOUT What's On ${weekTag}: no hosted copy for this week, so it was not posted to Instagram.`);
+}
+
+// Instagram Reel: create container, poll until FINISHED, publish, read back the permalink.
+// A failure throws (the workflow alerts Rob) and the next hourly run retries Instagram only;
+// instagram_url is written straight after the publish so it never posts twice.
+async function postInstagram(row) {
+  const token = env.META_PAGE_TOKEN;
+  const graph = async (url, init) => {
+    const r = await fetch(url, init);
+    const j = await r.json().catch(() => ({}));
+    if (!r.ok || j.error) throw new Error(`Instagram: ${j.error?.message || `HTTP ${r.status}`}`);
+    return j;
+  };
+  const form = (o) => new URLSearchParams({ ...o, access_token: token });
+  const { id: container } = await graph(`${GRAPH}/${IG_ID}/media`, {
+    method: "POST",
+    body: form({ media_type: "REELS", video_url: row.media_url, caption: row.ig_caption || row.summary, share_to_feed: "true" }),
+  });
+  let status = "";
+  for (let i = 0; i < 30 && status !== "FINISHED"; i++) {
+    await new Promise((r) => setTimeout(r, 10_000));
+    ({ status_code: status } = await graph(`${GRAPH}/${container}?fields=status_code&access_token=${token}`));
+    if (status === "ERROR" || status === "EXPIRED") throw new Error(`Instagram container ${container} ${status}`);
+  }
+  if (status !== "FINISHED") throw new Error(`Instagram container ${container} not ready after 5 min`);
+  const { id: media } = await graph(`${GRAPH}/${IG_ID}/media_publish`, { method: "POST", body: form({ creation_id: container }) });
+  const { permalink } = await graph(`${GRAPH}/${media}?fields=permalink&access_token=${token}`);
+  if (!permalink) throw new Error(`Instagram published ${media} but returned no permalink`);
+  const mark = await db(`aivor_event_digests?week_tag=eq.${weekTag}`, { method: "PATCH", body: JSON.stringify({ instagram_url: permalink }) });
+  if (!mark.ok) console.log(`⚠ instagram_url not saved (${mark.status}): a retry could post twice. Set it by hand: ${permalink}`);
+
+  const source = `routine:weekly-events-video#${weekTag}`;
+  const existing = await db(`content_calendar?select=id,metadata&metadata->>source=eq.${encodeURIComponent(source)}`);
+  const [reg] = existing.ok ? await existing.json() : [];
+  if (reg) {
+    const metadata = { ...reg.metadata, channels: [...new Set([...(reg.metadata.channels || []), "instagram"])], posted: { ...reg.metadata.posted, instagram: { id: media, url: permalink, at: new Date().toISOString() } } };
+    await db(`content_calendar?id=eq.${reg.id}`, { method: "PATCH", body: JSON.stringify({ metadata, media_urls: [row.video_url, permalink] }) });
+  }
+  await say(`BLKOUT What's On ${weekTag} is on Instagram: ${permalink}`);
+  console.log(`✓ Instagram: ${permalink}`);
 }
 
 try {

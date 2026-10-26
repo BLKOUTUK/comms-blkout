@@ -4,6 +4,8 @@ name: Publish Events Video
 # (scripts/events-video.mjs publish). Hourly from 18:00 Thursday to the end of Friday, so a
 # late yes still goes out within the hour; already-public weeks are left alone. The 18:00 run
 # reminds Rob if he hasn't approved. Unapproved means it stays unlisted (Rob, 26 Oct 2026).
+# Once public it is posted to Instagram as a Reel (direct Graph API, no Zapier); if Instagram
+# fails, the next hourly run retries Instagram alone.
 
 on:
   schedule:
@@ -43,6 +45,7 @@ jobs:
           YT_CLIENT_ID: ${{ secrets.YT_CLIENT_ID }}
           YT_CLIENT_SECRET: ${{ secrets.YT_CLIENT_SECRET }}
           YT_REFRESH_TOKEN: ${{ secrets.YT_REFRESH_TOKEN }}
+          META_PAGE_TOKEN: ${{ secrets.META_PAGE_TOKEN }}
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
           WEEK_LABEL: ${{ inputs.week_label }}
@@ -61,7 +64,7 @@ jobs:
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: |
-          MSG="BLKOUT What's On: publishing FAILED — $(date -u '+%a %d %b %H:%M') UTC. It stays unlisted. $RUN_URL"
+          MSG="BLKOUT What's On: publishing FAILED — $(date -u '+%a %d %b %H:%M') UTC. The next hourly run tries again (Instagram alone, if YouTube already went public). $RUN_URL"
           curl -fsS -X POST "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" \
             --data-urlencode "chat_id=${TELEGRAM_CHAT_ID}" \
             --data-urlencode "text=${MSG}" > /dev/null

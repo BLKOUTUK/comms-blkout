@@ -5,7 +5,8 @@ name: Weekly Events Video
 # Thursdays 10:00 UK: render from gatherings_live, upload to YouTube UNLISTED, record it in
 # aivor_event_digests and send it to Rob on Telegram with a signed approve link
 # (scripts/events-video.mjs). Nothing goes public here: publish-events-video.yml does that
-# from 18:00, and only once Rob has approved (Rob, 26 Oct 2026). No Zapier, no Instagram yet.
+# from 18:00, and only once Rob has approved (Rob, 26 Oct 2026), then posts it to Instagram.
+# No Zapier.
 # A manual run is review-only (artifact) unless send_for_signoff is ticked.
 
 on:
@@ -98,6 +99,7 @@ jobs:
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          SUPABASE_BUCKET: ${{ secrets.SUPABASE_BUCKET }}
           YT_CLIENT_ID: ${{ secrets.YT_CLIENT_ID }}
           YT_CLIENT_SECRET: ${{ secrets.YT_CLIENT_SECRET }}
           YT_REFRESH_TOKEN: ${{ secrets.YT_REFRESH_TOKEN }}
