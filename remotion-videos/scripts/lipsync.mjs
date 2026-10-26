@@ -120,6 +120,11 @@ async function tts(text, outPath) {
   console.log(`→ TTS via Chatterbox (${text.length} chars)`);
   const form = new FormData();
   form.append("input", text);
+  // Voice steadiness (W44 review: the accent drifted). Unset = the server's defaults
+  // (temperature 0.8, cfg_weight 0.5, exaggeration 0.5).
+  for (const [field, env] of [["temperature", "AIVOR_TTS_TEMPERATURE"], ["cfg_weight", "AIVOR_TTS_CFG"], ["exaggeration", "AIVOR_TTS_EXAGGERATION"]]) {
+    if (process.env[env]) form.append(field, process.env[env]);
+  }
   const voiceBuf = await readFile(VOICE_REFERENCE);
   form.append(
     "voice_file",
