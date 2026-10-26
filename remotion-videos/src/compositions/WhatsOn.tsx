@@ -68,8 +68,6 @@ export const WhatsOn: React.FC<IvorMessageProps> = ({
 
   const rectFor = (i: number) => (i === 0 ? AT_INTRO : i === segCount - 1 ? AT_CLOSE : AT_ITEM(i - 1));
   const avatar = seg === 0 ? AT_INTRO : mix(rectFor(seg - 1), rectFor(seg), enter);
-  // A slow breath so he is never quite still, even within a segment.
-  const drift = 1 + 0.015 * Math.sin(sec * 0.9);
 
   const gradient = PROPERTY_GRADIENTS[property];
   const dateRange = dateRangeFrom && dateRangeTo ? `${dateRangeFrom} – ${dateRangeTo}` : dateRangeFrom || dateRangeTo || "";
@@ -248,7 +246,6 @@ export const WhatsOn: React.FC<IvorMessageProps> = ({
           overflow: "hidden",
           border: `4px solid ${COLORS.goldRich}`,
           boxShadow: "0 24px 60px rgba(0,0,0,0.55)",
-          transform: `scale(${drift})`,
         }}
       >
         <OffthreadVideo

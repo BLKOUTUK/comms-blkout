@@ -116,7 +116,18 @@ async function uploadFile(filePath, key) {
   return `${SUPABASE_URL}/storage/v1/object/public/${SUPABASE_BUCKET}/${key}`;
 }
 
+// How AIvor says our name (Rob, 26 Oct 2026): "Blackout", and the web address as
+// "blackout U K dot com", every time. Left to itself the TTS read BLKOUTUK as "blackout UK"
+// once and spelt it out letter by letter the next.
+function speakable(text) {
+  return text
+    .replace(/\b([a-z]+)\.blkoutuk\.com\b/gi, "$1 dot blackout U K dot com")
+    .replace(/\bblkoutuk\b/gi, "blackout U K")
+    .replace(/\bBLKOUT\b/gi, "Blackout");
+}
+
 async function tts(text, outPath) {
+  text = speakable(text);
   console.log(`→ TTS via Chatterbox (${text.length} chars)`);
   const form = new FormData();
   form.append("input", text);

@@ -56,6 +56,9 @@ jobs:
           REPLICATE_API_TOKEN: ${{ secrets.REPLICATE_API_TOKEN }}
           CHATTERBOX_URL: ${{ secrets.CHATTERBOX_URL }}
           AIVOR_VOICE_REFERENCE: ${{ secrets.AIVOR_VOICE_REFERENCE_URL }}
+          # Slower, less hurried delivery (Rob, 26 Oct: "as if it's on the clock"). Lower
+          # cfg_weight slows the pace; the server default is 0.5.
+          AIVOR_TTS_CFG: "0.3"
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
           SUPABASE_BUCKET: ${{ secrets.SUPABASE_BUCKET }}
