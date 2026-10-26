@@ -7,8 +7,8 @@
 //            The mp4 also goes to public storage, and the Instagram caption is in the same message,
 //            so one yes covers both.
 //   publish  Thursday from 18:00, hourly: if Rob has approved, make it public on YouTube, post it
-//            to Instagram as a Reel (direct Graph API, as news-wire.mjs does), and record it in the
-//            content register. If not, the 18:00 run reminds him once; nothing goes out.
+//            to Instagram as a Reel and to the Facebook Page (direct Graph API, as news-wire.mjs
+//            does), and record it in the content register. If not, the 18:00 run reminds him once; nothing goes out.
 //
 // The approve link is checked by events.blkoutuk.com/api/approve-events-video, which signs with
 // the same Supabase service key (same pattern as the news editorial pick).
@@ -25,7 +25,7 @@ import { uploadToStorage } from "./lib/digest-common.mjs";
 const ROOT = resolve(import.meta.dirname, "..");
 const APPROVE_URL = "https://events.blkoutuk.com/api/approve-events-video";
 const GRAPH = "https://graph.facebook.com/v21.0";
-const IG_ID = "17841403920630280";
+const IG_ID = "17841403920630280", PAGE_ID = "252227404975585";
 
 const { values: args, positionals } = parseArgs({
   options: {
@@ -195,10 +195,10 @@ async function upload() {
     "",
     `Unlisted on YouTube: ${url}`,
     "",
-    `Happy with it? Approve here and from 18:00 it goes public on YouTube and posts to Instagram as a Reel: ${approveLink()}`,
+    `Happy with it? Approve here and from 18:00 it goes public on YouTube and posts to Instagram (as a Reel) and the Facebook Page: ${approveLink()}`,
     "No approval, no post.",
   ].join("\n");
-  const igPreview = `Instagram caption that goes with it:\n\n${igCaption}`;
+  const igPreview = `Instagram and Facebook caption that goes with it:\n\n${igCaption}`;
   const form = new FormData();
   form.append("chat_id", env.TELEGRAM_CHAT_ID);
   form.append("supports_streaming", "true");
@@ -224,13 +224,14 @@ async function publish() {
     return;
   }
   if (row.published_at) {
-    if (row.instagram_url || !row.media_url) {
+    const left = row.media_url ? SOCIAL.filter((c) => !row[c.column]) : [];
+    if (!left.length) {
       console.log(`${weekTag} already public (${row.published_at}).`);
       return;
     }
-    // YouTube went public on an earlier run but Instagram failed: retry Instagram alone.
-    if (args["dry-run"]) return console.log(`DRY RUN: would retry Instagram for ${weekTag}.`);
-    await postInstagram(row);
+    // YouTube went public on an earlier run but a channel failed: retry just those.
+    if (args["dry-run"]) return console.log(`DRY RUN: would retry ${left.map((c) => c.name).join(", ")} for ${weekTag}.`);
+    await postSocial(row);
     return;
   }
   if (!row.approved_at) {
@@ -239,7 +240,7 @@ async function publish() {
     return;
   }
   if (args["dry-run"]) {
-    console.log(`DRY RUN: would make ${row.video_url} public${row.media_url ? ` and post ${row.media_url} to Instagram` : ""}.`);
+    console.log(`DRY RUN: would make ${row.video_url} public${row.media_url ? ` and post ${row.media_url} to ${SOCIAL.map((c) => c.name).join(" and ")}` : ""}.`);
     return;
   }
 
@@ -276,48 +277,79 @@ async function publish() {
 
   await say(`BLKOUT What's On ${weekTag} is public: ${row.video_url}`);
   console.log(`✓ ${weekTag} public: ${row.video_url}`);
-  if (row.media_url) await postInstagram(row);
-  else await say(`BLKOUT What's On ${weekTag}: no hosted copy for this week, so it was not posted to Instagram.`);
+  if (row.media_url) await postSocial(row);
+  else await say(`BLKOUT What's On ${weekTag}: no hosted copy for this week, so it was not posted to Instagram or Facebook.`);
 }
 
+const graph = async (url, init) => {
+  const r = await fetch(url, init);
+  const j = await r.json().catch(() => ({}));
+  if (!r.ok || j.error) throw new Error(j.error?.message || `HTTP ${r.status}`);
+  return j;
+};
+const metaForm = (o) => new URLSearchParams({ ...o, access_token: env.META_PAGE_TOKEN });
+
 // Instagram Reel: create container, poll until FINISHED, publish, read back the permalink.
-// A failure throws (the workflow alerts Rob) and the next hourly run retries Instagram only;
-// instagram_url is written straight after the publish so it never posts twice.
-async function postInstagram(row) {
+async function instagramReel(row) {
   const token = env.META_PAGE_TOKEN;
-  const graph = async (url, init) => {
-    const r = await fetch(url, init);
-    const j = await r.json().catch(() => ({}));
-    if (!r.ok || j.error) throw new Error(`Instagram: ${j.error?.message || `HTTP ${r.status}`}`);
-    return j;
-  };
-  const form = (o) => new URLSearchParams({ ...o, access_token: token });
   const { id: container } = await graph(`${GRAPH}/${IG_ID}/media`, {
     method: "POST",
-    body: form({ media_type: "REELS", video_url: row.media_url, caption: row.ig_caption || row.summary, share_to_feed: "true" }),
+    body: metaForm({ media_type: "REELS", video_url: row.media_url, caption: row.ig_caption || row.summary, share_to_feed: "true" }),
   });
   let status = "";
   for (let i = 0; i < 30 && status !== "FINISHED"; i++) {
     await new Promise((r) => setTimeout(r, 10_000));
     ({ status_code: status } = await graph(`${GRAPH}/${container}?fields=status_code&access_token=${token}`));
-    if (status === "ERROR" || status === "EXPIRED") throw new Error(`Instagram container ${container} ${status}`);
+    if (status === "ERROR" || status === "EXPIRED") throw new Error(`container ${container} ${status}`);
   }
-  if (status !== "FINISHED") throw new Error(`Instagram container ${container} not ready after 5 min`);
-  const { id: media } = await graph(`${GRAPH}/${IG_ID}/media_publish`, { method: "POST", body: form({ creation_id: container }) });
-  const { permalink } = await graph(`${GRAPH}/${media}?fields=permalink&access_token=${token}`);
-  if (!permalink) throw new Error(`Instagram published ${media} but returned no permalink`);
-  const mark = await db(`aivor_event_digests?week_tag=eq.${weekTag}`, { method: "PATCH", body: JSON.stringify({ instagram_url: permalink }) });
-  if (!mark.ok) console.log(`⚠ instagram_url not saved (${mark.status}): a retry could post twice. Set it by hand: ${permalink}`);
+  if (status !== "FINISHED") throw new Error(`container ${container} not ready after 5 min`);
+  const { id } = await graph(`${GRAPH}/${IG_ID}/media_publish`, { method: "POST", body: metaForm({ creation_id: container }) });
+  const { permalink } = await graph(`${GRAPH}/${id}?fields=permalink&access_token=${token}`);
+  if (!permalink) throw new Error(`published ${id} but returned no permalink`);
+  return { id, url: permalink };
+}
 
+// Facebook Page video: one call, Facebook fetches the file itself (as news-wire.mjs does).
+async function facebookVideo(row) {
+  const { id } = await graph(`${GRAPH}/${PAGE_ID}/videos`, {
+    method: "POST",
+    body: metaForm({ file_url: row.media_url, title: `BLKOUT What's On · ${row.week_label}`, description: row.ig_caption || row.summary }),
+  });
+  return { id, url: `https://www.facebook.com/${PAGE_ID}/videos/${id}` };
+}
+
+// Same caption on both: Rob approved it in the Telegram sign-off.
+const SOCIAL = [
+  { key: "instagram", name: "Instagram", column: "instagram_url", post: instagramReel },
+  { key: "facebook", name: "Facebook", column: "facebook_url", post: facebookVideo },
+];
+
+// Each channel independently. Its URL is written straight after it posts, so a retry (the next
+// hourly run) only tries the channels still missing and nothing posts twice. Any failure throws
+// after the rest have been tried, so the workflow alerts Rob.
+async function postSocial(row) {
   const source = `routine:weekly-events-video#${weekTag}`;
-  const existing = await db(`content_calendar?select=id,metadata&metadata->>source=eq.${encodeURIComponent(source)}`);
-  const [reg] = existing.ok ? await existing.json() : [];
-  if (reg) {
-    const metadata = { ...reg.metadata, channels: [...new Set([...(reg.metadata.channels || []), "instagram"])], posted: { ...reg.metadata.posted, instagram: { id: media, url: permalink, at: new Date().toISOString() } } };
-    await db(`content_calendar?id=eq.${reg.id}`, { method: "PATCH", body: JSON.stringify({ metadata, media_urls: [row.video_url, permalink] }) });
+  const failed = [];
+  for (const c of SOCIAL.filter((c) => !row[c.column])) {
+    let done;
+    try {
+      done = await c.post(row);
+    } catch (err) {
+      failed.push(`${c.name}: ${err.message}`);
+      continue;
+    }
+    const mark = await db(`aivor_event_digests?week_tag=eq.${weekTag}`, { method: "PATCH", body: JSON.stringify({ [c.column]: done.url }) });
+    if (!mark.ok) console.log(`⚠ ${c.column} not saved (${mark.status}): a retry could post twice. Set it by hand: ${done.url}`);
+    const existing = await db(`content_calendar?select=id,metadata,media_urls&metadata->>source=eq.${encodeURIComponent(source)}`);
+    const [reg] = existing.ok ? await existing.json() : [];
+    if (reg) {
+      const metadata = { ...reg.metadata, channels: [...new Set([...(reg.metadata.channels || []), c.key])], posted: { ...reg.metadata.posted, [c.key]: { id: done.id, url: done.url, at: new Date().toISOString() } } };
+      await db(`content_calendar?id=eq.${reg.id}`, { method: "PATCH", body: JSON.stringify({ metadata, media_urls: [...new Set([...(reg.media_urls || []), done.url])] }) });
+    }
+    await say(`BLKOUT What's On ${weekTag} is on ${c.name}: ${done.url}`);
+    console.log(`✓ ${c.name}: ${done.url}`);
   }
-  await say(`BLKOUT What's On ${weekTag} is on Instagram: ${permalink}`);
-  console.log(`✓ Instagram: ${permalink}`);
+  if (failed.length) throw new Error(`${failed.join("; ")} (the next hourly run retries)`);
 }
 
 try {
