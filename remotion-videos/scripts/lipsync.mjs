@@ -142,23 +142,31 @@ async function tts(text, outPath) {
     new Blob([voiceBuf]),
     VOICE_REFERENCE.split("/").pop()
   );
-  const controller = new AbortController();
-  const ttsTimeoutMs = 15 * 60 * 1000;
-  const t = setTimeout(() => controller.abort(), ttsTimeoutMs);
+  // The TTS server drops out now and then (502/503 "no available server", and GitHub
+  // runners sometimes can't connect): try three times, a minute apart, before failing the week.
   let res;
-  try {
-    res = await fetch(`${CHATTERBOX_URL}/v1/audio/speech/upload`, {
-      method: "POST",
-      body: form,
-      signal: controller.signal,
-    });
-  } finally {
-    clearTimeout(t);
-  }
-  if (!res.ok) {
-    throw new Error(
-      `Chatterbox TTS failed: HTTP ${res.status} ${(await res.text()).slice(0, 200)}`
-    );
+  for (let attempt = 1; ; attempt++) {
+    const controller = new AbortController();
+    const t = setTimeout(() => controller.abort(), 15 * 60 * 1000);
+    let problem;
+    try {
+      res = await fetch(`${CHATTERBOX_URL}/v1/audio/speech/upload`, {
+        method: "POST",
+        body: form,
+        signal: controller.signal,
+      });
+      if (res.ok) break;
+      problem = `HTTP ${res.status} ${(await res.text()).slice(0, 200)}`;
+      if (res.status < 500) throw new Error(`Chatterbox TTS failed: ${problem}`);
+    } catch (err) {
+      if (String(err.message).startsWith("Chatterbox TTS failed")) throw err;
+      problem = err.message;
+    } finally {
+      clearTimeout(t);
+    }
+    if (attempt >= 3) throw new Error(`Chatterbox TTS failed after ${attempt} tries: ${problem}`);
+    console.log(`  TTS attempt ${attempt} failed (${problem}); retrying in 60s`);
+    await new Promise((r) => setTimeout(r, 60_000));
   }
   const wav = Buffer.from(await res.arrayBuffer());
   await mkdir(dirname(outPath), { recursive: true });
