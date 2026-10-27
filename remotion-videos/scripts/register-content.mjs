@@ -58,29 +58,45 @@ async function fetchDigest(weekTag) {
   return rows[0];
 }
 
-function buildRow(digest) {
+// The Reel goes out on Instagram + Facebook at 08:00 UTC the Monday after the YouTube upload,
+// posted by the register poster (scripts/post-register.mjs) from the hosted mp4 and caption that
+// host-digest.mjs wrote. Until the cutover (1 Nov 2026) the Zapier Monday routine did this.
+function nextMonday0800(iso) {
+  const d = new Date(iso);
+  d.setUTCHours(8, 0, 0, 0);
+  do d.setUTCDate(d.getUTCDate() + 1); while (d.getUTCDay() !== 1);
+  return d.toISOString();
+}
+
+async function fetchManifest() {
+  const bucket = process.env.SUPABASE_BUCKET;
+  if (!bucket) throw new Error("SUPABASE_BUCKET not set, so the hosted Reel cannot be found");
+  const res = await fetch(`${baseUrl}/storage/v1/object/public/${bucket}/digests/weekly-${weekTag}.json`);
+  if (!res.ok) throw new Error(`hosted manifest for ${weekTag}: HTTP ${res.status} (did host-digest.mjs run?)`);
+  const m = await res.json();
+  if (m.week_tag !== weekTag || !/^https:\/\/.+\.mp4/.test(m.video_url || "")) throw new Error(`hosted manifest for ${weekTag} has no mp4 video_url`);
+  return m;
+}
+
+function buildRow(digest, manifest) {
   const weekLabel = digest.week_label || weekEndingLabel(weekTag);
   return {
     title: `AIvor news digest — ${weekLabel}`,
     content_type: "video",
-    status: "posted",
-    published_at: digest.published_at,
-    primary_content: digest.summary,
-    media_urls: [digest.video_url],
+    status: "scheduled",
+    scheduled_for: nextMonday0800(digest.published_at),
+    primary_content: manifest.caption || digest.summary,
+    media_urls: [manifest.video_url],
     generated_by_agent: "aivor",
     metadata: {
       campaign: "news-digest",
-      channels: ["youtube", "instagram"],
+      channels: ["instagram", "facebook"],
       source,
       posted: {
         youtube: {
           id: digest.video_id,
           url: digest.video_url,
           at: digest.published_at,
-        },
-        instagram: {
-          via: "monday distribution routine (Zapier)",
-          recorded: false,
         },
       },
       week_tag: weekTag,
@@ -119,7 +135,7 @@ async function upsert(row, existingId) {
 
 try {
   const digest = await fetchDigest(weekTag);
-  const row = buildRow(digest);
+  const row = buildRow(digest, await fetchManifest());
 
   if (args["dry-run"]) {
     console.log(`DRY RUN — would upsert content_calendar (source=${source}):`);
@@ -128,6 +144,15 @@ try {
   }
 
   const existingId = await findExisting();
+  // A re-run of a week that has already gone out must not put it back in the queue.
+  if (existingId) {
+    const r = await fetch(buildUrl("/rest/v1/content_calendar", { id: `eq.${existingId}`, select: "status,metadata" }), { headers });
+    const [cur] = r.ok ? await r.json() : [];
+    if (cur?.status === "posted") {
+      console.log(`content_calendar row ${existingId} already posted; left as it is.`);
+      process.exit(0);
+    }
+  }
   const written = await upsert(row, existingId);
 
   console.log(

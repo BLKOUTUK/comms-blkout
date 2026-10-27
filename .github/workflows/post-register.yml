@@ -1,0 +1,60 @@
+name: Post Register
+
+# The register poster that replaces Zapier (cutover Sun 1 Nov 2026). Every 15 minutes it posts
+# content_calendar rows that are 'scheduled' and due in the last 3 hours, to Instagram, Facebook
+# and LinkedIn directly (scripts/post-register.mjs). Older 'scheduled' rows are never posted.
+# Dry run until the repo variable POSTER_LIVE is 'true': it reports what it would post to Telegram.
+# Turn it on:  gh variable set POSTER_LIVE --body true -R BLKOUTUK/comms-blkout
+# Turn it off: gh variable set POSTER_LIVE --body false -R BLKOUTUK/comms-blkout
+
+on:
+  schedule:
+    - cron: "*/15 * * * *"
+  workflow_dispatch:
+    inputs:
+      id:
+        description: "Post (or dry-run) one register row by id, ignoring the time window"
+        required: false
+        type: string
+      live:
+        description: "Post for real on this manual run"
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: post-register
+  cancel-in-progress: false
+
+jobs:
+  post:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: remotion-videos
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Post what is due
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          META_PAGE_TOKEN: ${{ secrets.META_PAGE_TOKEN }}
+          LINKEDIN_REFRESH_TOKEN: ${{ secrets.LINKEDIN_REFRESH_TOKEN }}
+          LINKEDIN_CLIENT_SECRET: ${{ secrets.LINKEDIN_CLIENT_SECRET }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          POSTER_LIVE: ${{ vars.POSTER_LIVE }}
+          ROW_ID: ${{ inputs.id }}
+          MANUAL_LIVE: ${{ inputs.live }}
+        run: |
+          ARGS=()
+          if [ "$POSTER_LIVE" = "true" ] || [ "$MANUAL_LIVE" = "true" ]; then ARGS+=(--live); fi
+          [ -n "$ROW_ID" ] && ARGS+=(--id "$ROW_ID")
+          node scripts/post-register.mjs "${ARGS[@]}"

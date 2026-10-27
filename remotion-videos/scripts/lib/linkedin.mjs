@@ -81,6 +81,33 @@ export async function uploadVideo(token, buf) {
   return video;
 }
 
+// Post a single image to the company page (the register poster). Returns { id, url }.
+export async function postImage(token, { url, commentary, altText = "" }) {
+  const buf = Buffer.from(await (await fetch(url)).arrayBuffer());
+  const { json: init } = await call(token, "images?action=initializeUpload", {
+    method: "POST",
+    body: JSON.stringify({ initializeUploadRequest: { owner: ORG_URN } }),
+  });
+  const { uploadUrl, image } = init.value;
+  const up = await fetch(uploadUrl, { method: "PUT", headers: { Authorization: `Bearer ${token}` }, body: buf });
+  if (!up.ok) throw new Error(`image upload: HTTP ${up.status}`);
+  const { res } = await call(token, "posts", {
+    method: "POST",
+    body: JSON.stringify({
+      author: ORG_URN,
+      commentary: littleText(commentary),
+      visibility: "PUBLIC",
+      distribution: { feedDistribution: "MAIN_FEED", targetEntities: [], thirdPartyDistributionChannels: [] },
+      content: { media: { id: image, altText } },
+      lifecycleState: "PUBLISHED",
+      isReshareDisabledByAuthor: false,
+    }),
+  });
+  const id = res.headers.get("x-restli-id");
+  if (!id) throw new Error("post created but LinkedIn returned no id");
+  return { id, url: `https://www.linkedin.com/feed/update/${id}` };
+}
+
 // Post a video to the company page. Returns { id, url }.
 export async function postVideo(token, { file, url, commentary, title }) {
   const buf = file ? await readFile(file) : Buffer.from(await (await fetch(url)).arrayBuffer());
