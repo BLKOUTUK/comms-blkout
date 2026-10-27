@@ -159,6 +159,8 @@ async function main() {
     if (!info.channels.length) { failures.push(`${label}: no channels in metadata.channels`); continue; }
     if (!info.media.length) { failures.push(`${label}: no https media to post`); continue; }
     if (!info.caption) { failures.push(`${label}: empty caption`); continue; }
+    // A caption still carrying a {{PLACEHOLDER}} (e.g. a link not yet known) never posts.
+    if (/\{\{[A-Z_]+\}\}/.test([info.caption, info.fbCaption, info.liCaption].join(" "))) { failures.push(`${label}: caption still has a {{PLACEHOLDER}}, not posted`); continue; }
 
     const todo = info.channels.filter((c) => !info.posted[c]);
     // Live gate: every URL in metadata.live_gate must answer 200 itself (an unpublished Voices
