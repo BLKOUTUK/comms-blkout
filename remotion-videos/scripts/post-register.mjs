@@ -195,7 +195,9 @@ async function main() {
   const failures = [];
   for (const row of rows) {
     const info = readRow(row);
-    info.title = row.title;
+    // Public title / alt text: metadata.media_title, else the first line of the post (never the
+    // register's internal row title, which reads like "Shop 1: brother-to-brother").
+    info.title = (row.metadata?.media_title || info.liCaption.split("\n")[0] || info.caption.split("\n")[0]).slice(0, 100);
     const label = `"${row.title}" (${row.scheduled_for.slice(0, 16).replace("T", " ")} UTC)`;
     if (!info.channels.length) { failures.push(`${label}: no channels in metadata.channels`); continue; }
     if (!info.media.length) { failures.push(`${label}: no https media to post`); continue; }
