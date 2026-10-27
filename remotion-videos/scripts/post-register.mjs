@@ -60,8 +60,9 @@ function readRow(row) {
   const tags = (row.hashtags || []).map((h) => (h.startsWith("#") ? h : `#${h}`)).join(" ");
   const caption = [row.primary_content, tags].filter(Boolean).join("\n\n").trim();
   const liCaption = (m.content_linkedin || item.content_linkedin || item.linkedin || row.primary_content || "").trim();
+  const fbCaption = (m.content_facebook || caption).trim();
   const media = (row.media_urls || []).filter((u) => /^https:\/\//.test(u));
-  return { channels, caption, liCaption, media, posted: m.posted || {} };
+  return { channels, caption, fbCaption, liCaption, media, gate: m.live_gate || [], posted: m.posted || {} };
 }
 
 // Instagram: one image, a carousel, or a Reel. Poll the container, publish, read back the permalink.
@@ -99,7 +100,7 @@ async function instagram({ caption, media }) {
 }
 
 // Facebook Page: a video, one photo, or several photos attached to one post.
-async function facebook({ caption, media }) {
+async function facebook({ fbCaption: caption, media }) {
   if (isVideo(media[0])) {
     const { id } = await graph(`${GRAPH}/${PAGE_ID}/videos`, { method: "POST", body: metaForm({ file_url: media[0], description: caption }) });
     return { id, url: `https://www.facebook.com/${PAGE_ID}/videos/${id}` };
@@ -160,6 +161,18 @@ async function main() {
     if (!info.caption) { failures.push(`${label}: empty caption`); continue; }
 
     const todo = info.channels.filter((c) => !info.posted[c]);
+    // Live gate: every URL in metadata.live_gate must answer 200 itself (an unpublished Voices
+    // article 302s to the homepage). If not, post nothing now; the next run inside the window retries.
+    const closed = [];
+    for (const u of info.gate) {
+      const g = await fetch(u, { method: "GET", redirect: "manual" }).catch(() => null);
+      if (!g || g.status !== 200) closed.push(`${u} → ${g ? g.status : "no answer"}`);
+    }
+    if (closed.length && todo.length) {
+      console.log(`${label}: live gate closed (${closed.join("; ")}); will retry next run`);
+      if (now - Date.parse(row.scheduled_for) <= 15 * 60_000) await say(`Poster: ${label} not posted yet, its live gate is closed (${closed.join("; ")}). It retries every 15 minutes for 3 hours.`);
+      continue;
+    }
     if (!LIVE) {
       const plan = todo.map((c) => `${LANES[c].name}${LANES[c].ready() ? "" : " (NOT READY: missing secret)"}`).join(", ") || "nothing left";
       console.log(`would post ${label} → ${plan}; ${info.media.length} media`);
