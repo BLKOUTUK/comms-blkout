@@ -55,6 +55,12 @@ jobs:
           MANUAL_LIVE: ${{ inputs.live }}
         run: |
           ARGS=()
-          if [ "$POSTER_LIVE" = "true" ] || [ "$MANUAL_LIVE" = "true" ]; then ARGS+=(--live); fi
-          [ -n "$ROW_ID" ] && ARGS+=(--id "$ROW_ID")
+          # A manual run that names one row is a dry run unless "live" is ticked, even when the poster
+          # is live: --id ignores the time window, so it could otherwise re-post an old row.
+          if [ -n "$ROW_ID" ]; then
+            ARGS+=(--id "$ROW_ID")
+            [ "$MANUAL_LIVE" = "true" ] && ARGS+=(--live)
+          elif [ "$POSTER_LIVE" = "true" ] || [ "$MANUAL_LIVE" = "true" ]; then
+            ARGS+=(--live)
+          fi
           node scripts/post-register.mjs "${ARGS[@]}"
