@@ -56,13 +56,14 @@ function readRow(row) {
   const m = row.metadata || {};
   const item = m.legacy?.item_metadata || {};
   const channels = (m.channels || item.platforms || []).map((c) => String(c).toLowerCase())
-    .filter((c) => ["instagram", "facebook", "linkedin"].includes(c));
+    .filter((c) => ["instagram", "facebook", "linkedin", "hub"].includes(c));
   const tags = (row.hashtags || []).map((h) => (h.startsWith("#") ? h : `#${h}`)).join(" ");
   const caption = [row.primary_content, tags].filter(Boolean).join("\n\n").trim();
   const liCaption = (m.content_linkedin || item.content_linkedin || item.linkedin || row.primary_content || "").trim();
   const fbCaption = (m.content_facebook || caption).trim();
+  const hubCaption = (m.content_hub || fbCaption).trim();
   const media = (row.media_urls || []).filter((u) => /^https:\/\//.test(u));
-  return { channels, caption, fbCaption, liCaption, media, gate: m.live_gate || [], posted: m.posted || {} };
+  return { channels, caption, fbCaption, hubCaption, liCaption, media, gate: m.live_gate || [], posted: m.posted || {} };
 }
 
 // Instagram: one image, a carousel, or a Reel. Poll the container, publish, read back the permalink.
@@ -133,10 +134,50 @@ async function linkedin({ liCaption, media, title }) {
     : postImage(token, { url: media[0], commentary: liCaption, altText: title });
 }
 
+// BLKOUTHUB (Heartbeat): a thread in the forum channel, posted as Hub Editor (an admin) and signed
+// Rob. The API has no image attach, so images go in as links. The news channel emails every member,
+// so the poster never posts there (Rob's per-post choice only).
+const HUB_API = "https://api.heartbeat.chat/v0";
+const HUB_FORUM = "e73dcfdf-1a84-4500-b9a4-6b4a0bd72483";
+const HUB_NEWS = "d19644dc-192f-402d-bb38-66981ffba131";
+const HUB_EDITOR_EMAIL = "blkoutuk@gmail.com";
+async function hubCall(method, path, body) {
+  const r = await fetch(`${HUB_API}${path}`, {
+    method,
+    headers: { Authorization: `Bearer ${env.HEARTBEAT_API_KEY}`, accept: "application/json", "content-type": "application/json" },
+    body: body ? JSON.stringify(body) : undefined,
+  });
+  const text = await r.text();
+  if (!r.ok) throw new Error(`${path}: HTTP ${r.status} ${text.slice(0, 200)}`);
+  return text ? JSON.parse(text) : {};
+}
+const hubList = (x) => (Array.isArray(x) ? x : x?.data || x?.items || x?.threads || []);
+const escHtml = (t) => t.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+const hubHtml = (caption, media) =>
+  escHtml(caption).split(/\n{2,}/).map((para) => `<p>${para.replace(/\n/g, "<br>").replace(/(https:\/\/[^\s<]+)/g, '<a href="$1">$1</a>')}</p>`).join("")
+  + (media.length ? `<p>${media.map((u, i) => `<a href="${u}">${media.length > 1 ? `Image ${i + 1}` : "See the image"}</a>`).join(" · ")}</p>` : "")
+  + "<p>Rob</p>";
+async function hub({ hubCaption, media }, channelID = HUB_FORUM) {
+  if (channelID === HUB_NEWS) throw new Error("refusing the news channel: it emails every member");
+  const found = await hubCall("GET", `/find/users?email=${encodeURIComponent(HUB_EDITOR_EMAIL)}`);
+  const editor = hubList(found)[0] || (found.id ? found : null);
+  if (!editor?.id) throw new Error("Hub Editor account not found");
+  const text = hubHtml(hubCaption, media);
+  const made = await hubCall("PUT", "/threads", { text, channelID, userID: editor.id });
+  // Read back from the channel: the thread must exist, and the channel's own record gives its url.
+  const madeId = made.id || made.thread?.id || made.data?.id;
+  const threads = hubList(await hubCall("GET", `/channels/${channelID}/threads`));
+  const probe = escHtml(hubCaption.slice(0, 40));
+  const t = threads.find((x) => (madeId && x.id === madeId) || String(x.content || x.text || "").includes(probe));
+  if (!t) throw new Error("thread created but not found on read-back");
+  return { id: t.id, url: t.url || `https://blkouthub.com (thread ${t.id})` };
+}
+
 const LANES = {
   instagram: { name: "Instagram", post: instagram, ready: () => !!env.META_PAGE_TOKEN },
   facebook: { name: "Facebook", post: facebook, ready: () => !!env.META_PAGE_TOKEN },
   linkedin: { name: "LinkedIn", post: linkedin, ready: () => !!(env.LINKEDIN_REFRESH_TOKEN && env.LINKEDIN_CLIENT_SECRET) },
+  hub: { name: "BLKOUTHUB", post: hub, ready: () => !!env.HEARTBEAT_API_KEY },
 };
 
 async function main() {
