@@ -144,9 +144,10 @@ jobs:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
           # inputs.privacy only exists on workflow_dispatch; on a `schedule`
-          # trigger it is always empty. This fallback IS the weekly default —
-          # it was 'unlisted', so every scheduled digest published to nobody.
-          YT_PRIVACY: ${{ inputs.privacy || 'public' }}
+          # trigger it is always empty. This fallback IS the weekly default.
+          # 31 Oct 2026: unlisted again, now that Rob signs off on Telegram and
+          # publish-news-video.yml makes it public (it no longer publishes to nobody).
+          YT_PRIVACY: ${{ inputs.privacy || 'unlisted' }}
           WEEK_LABEL: ${{ inputs.week_label }}
         run: |
           set -e
@@ -171,19 +172,23 @@ jobs:
           [ -n "$WEEK_LABEL" ] && ARGS+=(--week-label "$WEEK_LABEL")
           node scripts/host-digest.mjs "${ARGS[@]}"
 
-      # Rob, 10 Sep 2026: the digest is content and belongs on the calendar —
-      # record it as a posted row, not just a side-table the news site reads.
-      - name: Record in the content register
+      # 31 Oct 2026 (Rob: "full What's On flow for the news digest too"): ask Rob to approve on
+      # Telegram. The content register row is written when it goes public (publish-news-video.yml),
+      # no longer here, because an unapproved digest has not been posted.
+      - name: Ask Rob to approve on Telegram
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
           SUPABASE_BUCKET: ${{ secrets.SUPABASE_BUCKET }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          APPROVALS_BOT_TOKEN: ${{ secrets.APPROVALS_BOT_TOKEN }}
           WEEK_LABEL: ${{ inputs.week_label }}
         run: |
           set -e
-          ARGS=()
-          [ -n "$WEEK_LABEL" ] && ARGS+=(--week-label "$WEEK_LABEL")
-          node scripts/register-content.mjs "${ARGS[@]}"
+          # Same week rule as upload-youtube.mjs and host-digest.mjs: the ISO week of today.
+          WEEK="${WEEK_LABEL:-$(date -u +%G-W%V)}"
+          node scripts/events-video.mjs request --kind news --week-label "$WEEK"
 
       - name: Failure summary
         if: failure()

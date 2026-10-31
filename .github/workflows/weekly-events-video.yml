@@ -105,6 +105,7 @@ jobs:
           YT_REFRESH_TOKEN: ${{ secrets.YT_REFRESH_TOKEN }}
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          APPROVALS_BOT_TOKEN: ${{ secrets.APPROVALS_BOT_TOKEN }}
         run: node scripts/events-video.mjs upload
 
       # A failed Thursday must reach Rob the same morning, not be found in the Actions log.

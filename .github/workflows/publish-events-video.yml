@@ -50,6 +50,7 @@ jobs:
           LINKEDIN_CLIENT_SECRET: ${{ secrets.LINKEDIN_CLIENT_SECRET }}
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          APPROVALS_BOT_TOKEN: ${{ secrets.APPROVALS_BOT_TOKEN }}
           WEEK_LABEL: ${{ inputs.week_label }}
           SCHEDULE: ${{ github.event.schedule }}
         run: |

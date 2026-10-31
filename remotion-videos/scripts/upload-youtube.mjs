@@ -201,7 +201,8 @@ async function publishToSupabase() {
         format: "short",
         summary: digestSummary,
         privacy: args.privacy,
-        published_at: new Date().toISOString(),
+        // Unlisted waits for Rob's sign-off (events-video.mjs publish --kind news sets it then).
+        published_at: args.privacy === "public" ? new Date().toISOString() : null,
       }),
     }
   );

@@ -1,0 +1,71 @@
+name: Publish News Video
+
+# Makes the week's BLKOUT News digest public once Rob has approved it on Telegram (a reply
+# "approved" to the approvals bot, or the signed link): YouTube, then Instagram as a Reel, the
+# Facebook Page and LinkedIn (events-video.mjs publish --kind news; same code as What's On).
+# Hourly all Sunday and Monday, so a yes goes out within the hour; the 18:00 Sunday run reminds
+# Rob once if he hasn't approved. Unapproved means it stays unlisted (Rob, 31 Oct 2026).
+
+on:
+  schedule:
+    - cron: "0 * * * 0"
+    - cron: "0 * * * 1"
+  workflow_dispatch:
+    inputs:
+      week_label:
+        description: "ISO week tag override (e.g. 2026-W44). Empty = current."
+        required: false
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: publish-news-video
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: remotion-videos
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Publish if approved
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          YT_CLIENT_ID: ${{ secrets.YT_CLIENT_ID }}
+          YT_CLIENT_SECRET: ${{ secrets.YT_CLIENT_SECRET }}
+          YT_REFRESH_TOKEN: ${{ secrets.YT_REFRESH_TOKEN }}
+          META_PAGE_TOKEN: ${{ secrets.META_PAGE_TOKEN }}
+          LINKEDIN_REFRESH_TOKEN: ${{ secrets.LINKEDIN_REFRESH_TOKEN }}
+          LINKEDIN_CLIENT_SECRET: ${{ secrets.LINKEDIN_CLIENT_SECRET }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          APPROVALS_BOT_TOKEN: ${{ secrets.APPROVALS_BOT_TOKEN }}
+          WEEK_LABEL: ${{ inputs.week_label }}
+          SCHEDULE: ${{ github.event.schedule }}
+        run: |
+          set -e
+          ARGS=()
+          [ -n "$WEEK_LABEL" ] && ARGS+=(--week-label "$WEEK_LABEL")
+          # One reminder: the 18:00 Sunday run.
+          [ "$SCHEDULE" = "0 * * * 0" ] && [ "$(date -u +%H)" = "18" ] && ARGS+=(--remind)
+          node scripts/events-video.mjs publish --kind news "${ARGS[@]}"
+      - name: Tell Rob on Telegram
+        if: failure()
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          MSG="BLKOUT News digest: publishing FAILED — $(date -u '+%a %d %b %H:%M') UTC. The next hourly run tries again (only the channels still missing, if YouTube already went public). $RUN_URL"
+          curl -fsS -X POST "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" \
+            --data-urlencode "chat_id=${TELEGRAM_CHAT_ID}" \
+            --data-urlencode "text=${MSG}" > /dev/null
