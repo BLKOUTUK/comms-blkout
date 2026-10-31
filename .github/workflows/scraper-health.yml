@@ -1,0 +1,33 @@
+name: Events Scraper Health
+
+# Sunday after the weekly events scrape (06:00 UTC on events.blkoutuk.com): tells Rob on Telegram
+# when a source has been parked after failing twice, or when the scrape has stopped running.
+# Silent when nothing changed (scripts/scraper-health.mjs). Built 31 Oct 2026 after QX had been
+# blocked for four months without anyone knowing.
+on:
+  schedule:
+    - cron: "0 10 * * 0"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  health:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    defaults:
+      run:
+        working-directory: remotion-videos
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Check scraper source health
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: node scripts/scraper-health.mjs
