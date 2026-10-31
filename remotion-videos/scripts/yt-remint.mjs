@@ -37,6 +37,9 @@ const REPO = "BLKOUTUK/comms-blkout";
 const SCOPES = [
   "https://www.googleapis.com/auth/youtube.upload",
   "https://www.googleapis.com/auth/youtube.readonly",
+  // videos.update (events-video.mjs publish: unlisted -> public) needs the full youtube scope;
+  // without it the publish step fails 403 ACCESS_TOKEN_SCOPE_INSUFFICIENT (31 Oct 2026).
+  "https://www.googleapis.com/auth/youtube",
 ].join(" ");
 
 async function loadEnv() {
