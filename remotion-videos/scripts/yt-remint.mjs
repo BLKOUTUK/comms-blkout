@@ -11,7 +11,7 @@
 //   1. GCP Console → OAuth client → add http://localhost:8779/callback
 //      to "Authorised redirect URIs" alongside the existing Playground URI.
 //      (Port 8779 avoids collision with missioncontrol's 8765.)
-//   2. /home/robbe/blkout-platform/.env contains YT_CLIENT_ID and YT_CLIENT_SECRET.
+//   2. /home/robbe/blkout/platform/.env contains YT_CLIENT_ID and YT_CLIENT_SECRET.
 //
 // What it does:
 //   - Opens browser to Google consent URL (forces refresh_token issuance)
@@ -32,7 +32,7 @@ import { readFile, writeFile } from "node:fs/promises";
 
 const PORT = 8779;
 const REDIRECT_URI = `http://localhost:${PORT}/callback`;
-const ENV_PATH = "/home/robbe/blkout-platform/.env";
+const ENV_PATH = "/home/robbe/blkout/platform/.env";
 const REPO = "BLKOUTUK/comms-blkout";
 const SCOPES = [
   "https://www.googleapis.com/auth/youtube.upload",
