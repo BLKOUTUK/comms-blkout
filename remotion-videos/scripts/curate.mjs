@@ -3,11 +3,6 @@ import { writeFile, mkdir } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { parseArgs } from "node:util";
 
-// news.blkoutuk.com — the public host, matching every other reference in this
-// repo (article links, CTA, spoken URL, YouTube description). The .cloud alias
-// serves the identical Express app; having one caller on a different hostname
-// was an outlier, not a convention.
-const DEFAULT_API = "https://news.blkoutuk.com";
 const DEFAULT_OUT_BASE =
   "/home/robbe/blkout/platform/apps/comms-blkout/remotion-videos/props";
 const HOOK_MAX = 175;
@@ -17,7 +12,6 @@ const { values: args } = parseArgs({
     limit: { type: "string", default: "3" },
     "week-label": { type: "string" },
     out: { type: "string" },
-    api: { type: "string", default: DEFAULT_API },
     "dry-run": { type: "boolean", default: false },
   },
   strict: true,
@@ -25,7 +19,6 @@ const { values: args } = parseArgs({
 });
 
 const limit = Math.max(1, Math.min(4, Number.parseInt(args.limit, 10) || 3));
-const apiBase = args.api.replace(/\/+$/, "");
 
 function isoWeekTag(date = new Date()) {
   const d = new Date(
@@ -124,122 +117,51 @@ function buildCtaUrl(weekTag) {
   return `https://news.blkoutuk.com?${params}`;
 }
 
-// The whole 25-minute weekly pipeline used to die on a single unretried fetch:
-// run 32662674715 (23 Aug 2026) failed after 53s with a bare "fetch failed", and
-// it took three manual dispatches to get that week's video out. The schedule is
-// weekly, so one blip at 02:00 on a Sunday costs a whole edition.
-//
-// Retries transient failures only — network errors, 429, and 5xx. A 404 or a 401
-// will not fix itself on a second attempt, so those still fail fast.
-//
-// 6 Sep and 27 Sep 2026: all 4 attempts failed inside ~50s while the server was
-// provably fine, and "fetch failed" alone could not say why. So the window is now
-// ~4 minutes, and every failure logs Node's underlying cause (DNS, refused, reset).
-const FETCH_ATTEMPTS = 6;
-const FETCH_TIMEOUT_MS = 20_000;
-const BACKOFF_MS = [5_000, 15_000, 30_000, 60_000, 120_000];
-
-// undici's "fetch failed" hides the real error in err.cause.
-const describe = (err) => {
-  const c = err?.cause;
-  const cause = c ? ` [cause: ${[c.code, c.message].filter(Boolean).join(" ")}]` : "";
-  return `${err?.message ?? err}${cause}`;
-};
-
-const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
-
-async function fetchStoriesForPeriod(period, fetchLimit = 20) {
-  const url = `${apiBase}/api/top-stories?period=${period}&limit=${fetchLimit}`;
+// Stories come straight from the database (1 Nov 2026), not the public site: GitHub's runners
+// repeatedly couldn't connect to news.blkoutuk.com (23 Aug, 6 Sep, 27 Sep, 25 Oct), and each
+// time a whole edition was lost. Rounds are weekly and carry the last 7 days' stories forward,
+// so the open round always has stories, and the old previous-round / month / all-time fallbacks
+// are gone. Rule: the open round's published stories, most votes first, then the editor's
+// Saturday pick, then relevance, then newest.
+async function db(path) {
+  const url = (process.env.SUPABASE_URL || "").replace(/\/$/, "");
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY || "";
+  if (!url || !key) throw new Error("SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are required");
   let lastErr;
-
-  for (let attempt = 1; attempt <= FETCH_ATTEMPTS; attempt++) {
+  for (let attempt = 1; attempt <= 3; attempt++) {
     try {
-      // fetch has no default timeout — a hung connection would stall the job
-      // as surely as a refused one.
-      const res = await fetch(url, {
-        headers: { Accept: "application/json" },
-        signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
+      const res = await fetch(`${url}/rest/v1/${path}`, {
+        headers: { apikey: key, Authorization: `Bearer ${key}` },
+        signal: AbortSignal.timeout(20_000),
       });
-
-      if (res.ok) {
-        const json = await res.json();
-        return json?.data?.topStories || json?.topStories || json?.data || [];
-      }
-
-      const retriable = res.status === 429 || res.status >= 500;
-      lastErr = new Error(`GET ${url} → HTTP ${res.status} ${res.statusText}.`);
-      if (!retriable) throw lastErr;
+      if (res.ok) return res.json();
+      lastErr = new Error(`Supabase ${res.status}: ${await res.text()}`);
+      if (res.status < 500) throw lastErr;
     } catch (err) {
-      // AbortError, network failure, or a retriable HTTP status rethrown above.
-      if (err instanceof Error && err.message.startsWith("GET ") && !/HTTP (429|5\d\d)/.test(err.message)) {
-        throw err;
-      }
       lastErr = err;
+      if (String(err?.message || "").startsWith("Supabase 4")) throw err;
     }
-
-    if (attempt < FETCH_ATTEMPTS) {
-      const wait = BACKOFF_MS[attempt - 1] + Math.floor(Math.random() * 750);
-      console.warn(
-        `  ! ${period} stories attempt ${attempt}/${FETCH_ATTEMPTS} failed (${describe(lastErr)}) — retrying in ${Math.round(wait / 1000)}s`
-      );
-      await sleep(wait);
-    }
+    if (attempt < 3) await new Promise((r) => setTimeout(r, attempt * 10_000));
   }
-
-  throw new Error(
-    `GET ${url} failed after ${FETCH_ATTEMPTS} attempts. Last error: ${describe(lastErr)}`
-  );
-}
-
-function dedupeById(stories, alreadySeen) {
-  const seen = new Set(alreadySeen);
-  const out = [];
-  for (const s of stories) {
-    const key = s.id ?? s.slug;
-    if (key && !seen.has(key)) {
-      seen.add(key);
-      out.push(s);
-    }
-  }
-  return out;
+  throw lastErr;
 }
 
 async function fetchTopStories() {
-  const weekStories = await fetchStoriesForPeriod("week", limit);
-  if (Array.isArray(weekStories) && weekStories.length >= limit) {
-    return weekStories.slice(0, limit);
-  }
-
-  const weekCount = weekStories?.length ?? 0;
-  console.log(
-    `→ Week has ${weekCount}/${limit} stories. Backfilling with editor's picks from a wider window.`
+  const [round] = await db("voting_periods?status=eq.active&order=period_number.desc&limit=1&select=id,period_number");
+  if (!round) throw new Error("No open voting round: nothing people can vote on.");
+  const stories = await db(
+    `news_articles?voting_period_id=eq.${round.id}&status=eq.published&select=id,title,excerpt,upvote_count,total_votes` +
+      `&order=upvote_count.desc.nullslast,is_featured.desc.nullslast,interest_score.desc.nullslast,published_at.desc&limit=${limit}`
   );
-
-  const seenKeys = (weekStories || []).map((s) => s.id ?? s.slug).filter(Boolean);
-  const monthStories = await fetchStoriesForPeriod("month");
-  const monthBackfill = dedupeById(monthStories, seenKeys);
-  let combined = [...(weekStories || []), ...monthBackfill];
-
-  if (combined.length < limit) {
-    console.log(`→ Month window also light. Backfilling further from all-time.`);
-    const combinedKeys = combined.map((s) => s.id ?? s.slug).filter(Boolean);
-    const allStories = await fetchStoriesForPeriod("all");
-    const allBackfill = dedupeById(allStories, combinedKeys);
-    combined = [...combined, ...allBackfill];
+  if (stories.length < limit) {
+    throw new Error(`Round ${round.period_number} has ${stories.length} published stories; the video needs ${limit}.`);
   }
-
-  if (combined.length < limit) {
-    throw new Error(
-      `Editor's-pick backfill exhausted: got ${combined.length} stories total (need ${limit}).`
-    );
-  }
-
-  return combined.slice(0, limit);
+  return stories;
 }
 
 function buildProps(stories, { weekTag, weekLabel }) {
   const teases = stories.slice(0, limit).map((s, i) => ({
-    title: (s.title || "Untitled").slice(0, 80),
+    title: truncateAtWord(s.title || "Untitled", 80),
     // RSS excerpts end "The post <title> appeared first on <site>." — never on screen.
     hook: truncateAtWord(stripHtml(s.excerpt || "").replace(/\s*The post\b[\s\S]*?appeared first on[\s\S]*$/, "").trim(), HOOK_MAX) || s.title,
     url: buildStoryUrl(s.id ?? s.slug ?? i + 1, weekTag),
@@ -295,7 +217,7 @@ async function main() {
   const outPath =
     args.out || resolve(DEFAULT_OUT_BASE, `weekly-${week.tag}.json`);
 
-  console.log(`→ Fetching top ${limit} stories from ${apiBase}/api/top-stories`);
+  console.log(`→ Fetching the open round's top ${limit} stories from the database`);
   const stories = await fetchTopStories();
   const props = buildProps(stories, { weekTag: week.tag, weekLabel });
 

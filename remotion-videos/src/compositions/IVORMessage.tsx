@@ -32,8 +32,6 @@ const NewsroomMessage: React.FC<Props> = ({
   teases,
   cta,
   avatarVideo,
-  avatarSideStill,
-  avatarCloseupStill,
   voiceTrack,
   bgMusic,
   durationSeconds,
@@ -200,8 +198,6 @@ const NewsroomMessage: React.FC<Props> = ({
 
       <NewsroomSet
         avatarSrc={avatarVideo}
-        avatarSideStill={avatarSideStill}
-        avatarCloseupStill={avatarCloseupStill}
         hasExternalAudio={!!voiceTrack}
         aspect={aspect}
         propertyKey={property}

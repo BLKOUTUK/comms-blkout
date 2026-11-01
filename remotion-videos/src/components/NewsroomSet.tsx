@@ -65,8 +65,6 @@ const Defs: React.FC = () => (
 
 const AvatarPortrait: React.FC<{
   avatarSrc: string;
-  avatarSideStill?: string;
-  avatarCloseupStill?: string;
   hasExternalAudio: boolean;
   backdropVideo?: string;
   backdropImage?: string;
@@ -81,8 +79,6 @@ const AvatarPortrait: React.FC<{
   displayUrl?: string;
 }> = ({
   avatarSrc,
-  avatarSideStill,
-  avatarCloseupStill,
   hasExternalAudio,
   backdropVideo,
   backdropImage,
@@ -96,24 +92,8 @@ const AvatarPortrait: React.FC<{
   totalFrames,
   displayUrl,
 }) => {
-  const sideFlashFrames = Math.floor(fps * 2.5);
-  const sideFlashWindows = teaseStartFrames.map((s) => {
-    const cutawayCenter = s + Math.floor(teaseFrames / 2);
-    return {
-      from: Math.max(0, cutawayCenter - Math.floor(sideFlashFrames / 2)),
-      to: cutawayCenter + Math.floor(sideFlashFrames / 2),
-    };
-  });
-  const inSideFlash = avatarSideStill
-    ? sideFlashWindows.some((w) => frame >= w.from && frame < w.to)
-    : false;
-  const inClosePhase = !!avatarCloseupStill && frame >= ctaStart;
-
-  const activeSrc = inClosePhase
-    ? avatarCloseupStill!
-    : inSideFlash
-    ? avatarSideStill!
-    : avatarSrc;
+  // (1 Nov 2026) The side-angle and close-up cutaway stills were never supplied by any run; removed.
+  const activeSrc = avatarSrc;
   const isStill = /\.(jpe?g|png|webp|avif)$/i.test(activeSrc);
 
   const introEnd = introFrames;
@@ -645,8 +625,6 @@ const SidePanel: React.FC<{
 
 export const NewsroomSet: React.FC<{
   avatarSrc: string;
-  avatarSideStill?: string;
-  avatarCloseupStill?: string;
   hasExternalAudio: boolean;
   aspect: "9:16" | "1:1" | "16:9";
   propertyKey: PropertyKey;
@@ -662,8 +640,6 @@ export const NewsroomSet: React.FC<{
   displayUrl?: string;
 }> = ({
   avatarSrc,
-  avatarSideStill,
-  avatarCloseupStill,
   hasExternalAudio,
   aspect,
   propertyKey,
@@ -721,8 +697,6 @@ export const NewsroomSet: React.FC<{
       <Defs />
       <AvatarPortrait
         avatarSrc={avatarSrc}
-        avatarSideStill={avatarSideStill}
-        avatarCloseupStill={avatarCloseupStill}
         hasExternalAudio={hasExternalAudio}
         backdropVideo={backdropVideo}
         backdropImage={backdropImage}

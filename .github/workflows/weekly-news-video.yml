@@ -1,25 +1,17 @@
 name: Weekly News Video
 
-# Sunday 02:00 UTC = 03:00 BST. Render/host/YouTube (~25 min) run straight
-# through on schedule. Instagram distribution is NOT in this workflow — it's
-# a separate Zapier routine (trig_01FAsewZuz6dWt3nq7iCKAdw, Mondays 08:00 UTC)
-# that reads the digests/latest.json manifest this workflow hosts below and
-# publishes the Reel through Zapier's own Instagram connection. Verified
-# working end-to-end 22 Sep 2026 (see project_video_pipeline.md).
-# REMOVED 22 Sep 2026: an in-workflow `publish-instagram` job gated behind a
-# GitHub environment approval that nobody was ever going to approve now the
-# Zapier routine does the job — it sat in `waiting` indefinitely and, because
-# of the concurrency group below, deadlocked every subsequent run behind it.
-# Still manual: pasting the block the upload step prints into
-# news-blkout/src/config/aivorDigest.ts so the news site panel tracks it.
+# The weekly BLKOUT News video (simplified 1 Nov 2026). Sunday: pick the open round's top
+# stories from the database -> AIvor's voice + lip-sync -> render, timed to the voice ->
+# YouTube (unlisted) -> record in aivor_digests -> ask Rob on Telegram. When Rob approves
+# (Telegram reply or the signed link), publish-news-video.yml makes it public and posts it
+# to Instagram, Facebook and LinkedIn. The news site's panel reads aivor_digests itself.
 
 on:
   schedule:
     - cron: "0 2 * * 0"
-    # Second and third chances the same Sunday (27 Oct 2026). Four editions (23 Aug, 6 Sep,
-    # 27 Sep, 25 Oct) were lost because GitHub's runner briefly could not connect to
-    # news.blkoutuk.com while the site was fine. A later run goes ahead only if this week's
-    # digest is not already recorded (the "already-done" job below), so it never makes two.
+    # Second and third chances the same Sunday. The voice service (Chatterbox) drops out now
+    # and then (4-6 Oct). A later run goes ahead only if this week's digest is not already
+    # recorded (the "already-done" job below), so it never makes two.
     - cron: "0 11 * * 0"
     - cron: "0 17 * * 0"
   workflow_dispatch:
@@ -155,11 +147,8 @@ jobs:
           [ -n "$WEEK_LABEL" ] && ARGS+=(--week-label "$WEEK_LABEL")
           node scripts/upload-youtube.mjs "${ARGS[@]}"
 
-      # Host the digest (video + caption manifest) at stable public URLs so the
-      # Monday distribution routine can publish the Instagram Reel through
-      # Zapier's own connection — no Meta credential needed in this repo. The
-      # routine reads digests/latest.json and refuses manifests older than 8
-      # days, so a failure here surfaces Monday as NO-REPORT, never a stale post.
+      # Host the digest (video + caption manifest) at a public URL: Instagram and Facebook
+      # fetch the video from it when Rob approves, and the approval step reads the caption here.
       - name: Host digest for distribution
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
