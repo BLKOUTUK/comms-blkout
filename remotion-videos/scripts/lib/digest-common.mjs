@@ -38,7 +38,9 @@ export function buildCaption(props, fallbackWeekTag) {
     props.weekLabel && !/^\d{4}-W\d{2}$/.test(props.weekLabel)
       ? props.weekLabel
       : weekEndingLabel(props.weekLabel || fallbackWeekTag);
-  const lines = [`BLKOUT News — ${label}`, ""];
+  // The ask comes first (Rob, 1 Nov 2026): a full URL so Facebook links it; utm so we can count it.
+  const lines = ["Vote now: https://news.blkoutuk.com/?utm_source=social&utm_medium=video&utm_campaign=news-digest", "",
+                 `BLKOUT News — ${label}`, ""];
   for (const s of storyItems(props)) lines.push(`• ${s.title}`);
   lines.push("", "You're the editor. Vote on the stories that matter to you:",
              props?.cta?.displayUrl || "news.blkoutuk.com", "",

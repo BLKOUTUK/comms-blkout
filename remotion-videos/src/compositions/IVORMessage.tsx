@@ -113,10 +113,6 @@ const NewsroomMessage: React.FC<Props> = ({
   const watermarkSize =
     aspect === "9:16" ? "55%" : aspect === "1:1" ? "60%" : "42%";
   const showLabel = weekLabel ? `${showName} · ${weekLabel}` : showName;
-  const dateRange =
-    dateRangeFrom && dateRangeTo
-      ? `${dateRangeFrom} – ${dateRangeTo}`
-      : dateRangeFrom || dateRangeTo || null;
 
   return (
     <AbsoluteFill style={{ background: bgGradient }}>
@@ -182,22 +178,24 @@ const NewsroomMessage: React.FC<Props> = ({
         >
           {title}
         </div>
-        {dateRange && (
-          <div
-            style={{
-              fontFamily: FONTS.italic,
-              fontStyle: "italic",
-              fontSize: dateSize,
-              fontWeight: 500,
-              color: COLORS.cream,
-              opacity: 0.9,
-              letterSpacing: 0,
-              marginTop: 10,
-            }}
-          >
-            {dateRange.toLowerCase()}
-          </div>
-        )}
+        {/* The ask, on screen from the first second (Rob, 1 Nov 2026: "vote would be the key ask").
+            Replaces the date line: the ask matters more than the dates. */}
+        <div
+          style={{
+            display: "inline-block",
+            marginTop: 14,
+            padding: "8px 26px",
+            borderRadius: 999,
+            background: COLORS.goldDivine,
+            fontFamily: FONTS.display,
+            fontSize: dateSize * 1.1,
+            fontWeight: 800,
+            color: "#000",
+            letterSpacing: 0,
+          }}
+        >
+          Vote now · {cta.displayUrl || "news.blkoutuk.com"}
+        </div>
       </div>
 
       <NewsroomSet

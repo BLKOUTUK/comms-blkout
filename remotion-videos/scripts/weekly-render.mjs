@@ -134,7 +134,7 @@ function buildScript(props) {
   ];
 
   const lines = [
-    `${opener}, here's what's moving in our news this week.`,
+    `${opener}, here's what's moving in our news this week, and you vote on what matters.`,
   ];
   props.teases.forEach((t, i) => {
     const headline = trimSentence(t.title, 16);
@@ -144,7 +144,7 @@ function buildScript(props) {
     lines.push(`${connectors[i]} — ${headline}${stop} ${beat}`);
   });
   lines.push(
-    `All three at ${props.cta?.spokenUrl || "news.blkoutuk.com"}, where you're the editor. Tell us which stories matter most to you.`
+    `Vote for the one that matters to you at ${props.cta?.spokenUrl || "news.blkoutuk.com"}. No login, just your voice.`
   );
   // One entry per spoken segment (intro, one per story, close), so the cards can follow the voice.
   return lines;

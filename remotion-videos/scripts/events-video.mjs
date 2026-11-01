@@ -184,6 +184,9 @@ async function upload() {
   ].join("\n");
   const summary = items.map((t) => t.title).join(" · ");
   const igCaption = [
+    // The ask comes first (Rob, 1 Nov 2026): a full URL so Facebook links it; utm so we can count it.
+    "What's on this week: https://events.blkoutuk.com/?utm_source=social&utm_medium=video&utm_campaign=whats-on",
+    "",
     `BLKOUT What's On, ${range}. AIvor's pick of the gatherings worth your time this week, for Black queer people across the UK.`,
     "",
     ...items.map((t) => {
@@ -202,6 +205,8 @@ async function upload() {
   // LinkedIn gets its own copy: organisers first, a professional audience (Rob, 2 Aug 2026:
   // personal stakes, not listings). The events are the evidence, not the headline.
   const liCaption = [
+    "What's on this week: https://events.blkoutuk.com/?utm_source=linkedin&utm_medium=video&utm_campaign=whats-on",
+    "",
     "Every gathering in this week's BLKOUT What's On exists because someone booked the room, found the money and told people. Often on top of a day job.",
     "",
     "This week AIvor, our AI presenter, picks out:",
@@ -305,6 +310,8 @@ async function request() {
   if (!manifest.video_url || !igCaption) throw new Error("manifest has no video_url or caption");
   const stories = igCaption.split("\n").filter((l) => l.startsWith("• "));
   const liCaption = [
+    "Vote now: https://news.blkoutuk.com/?utm_source=linkedin&utm_medium=video&utm_campaign=news-digest",
+    "",
     "This week's BLKOUT News, presented by AIvor, our AI presenter: the stories that matter to Black queer men in the UK, chosen by the community that reads them.",
     "",
     ...stories,
