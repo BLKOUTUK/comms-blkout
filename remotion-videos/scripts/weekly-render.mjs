@@ -146,7 +146,8 @@ function buildScript(props) {
   lines.push(
     `All three at ${props.cta?.spokenUrl || "news.blkoutuk.com"}, where you're the editor. Tell us which stories matter most to you.`
   );
-  return lines.join(" ");
+  // One entry per spoken segment (intro, one per story, close), so the cards can follow the voice.
+  return lines;
 }
 
 // Events digest script: lighter and more playful than the news (Rob, 24 Oct), but only in
@@ -240,8 +241,8 @@ async function lipsync() {
     return;
   }
   const props = JSON.parse(await readFile(propsPath, "utf8"));
-  const segments = EVENTS ? buildEventsSegments(props) : null;
-  const script = EVENTS ? segments.join(" ") : buildScript(props);
+  const segments = EVENTS ? buildEventsSegments(props) : buildScript(props);
+  const script = segments.join(" ");
   const wordCount = script.split(/\s+/).length;
   console.log(`\n— Script (${wordCount} words, ~${(wordCount / 2.5).toFixed(0)}s) —`);
   console.log(script);
@@ -263,9 +264,10 @@ async function lipsync() {
   ]);
 
   props.avatarVideo = `assets/${avatarStem}-${weekTag}-talking.mp4`;
-  if (EVENTS) {
-    // The events digest runs as long as AIvor speaks plus a short outro for the CTA card
-    // (W44 review: a fixed 35s left 13s of silence after a 22s script).
+  {
+    // Both digests run as long as AIvor speaks plus a short outro for the CTA card, with the
+    // cards timed to his voice (W44 review: a fixed 35s left 13s of silence after a 22s script;
+    // the news digest had the same fault — cards up to 10s behind the voice — until 1 Nov 2026).
     const probe = await new Promise((res) => {
       const p = spawn("ffprobe", ["-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", talkingHeadPath]);
       let out = "";

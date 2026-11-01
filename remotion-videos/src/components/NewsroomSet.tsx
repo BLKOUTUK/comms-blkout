@@ -117,8 +117,8 @@ const AvatarPortrait: React.FC<{
   const isStill = /\.(jpe?g|png|webp|avif)$/i.test(activeSrc);
 
   const introEnd = introFrames;
-  const t1End = introFrames + teaseFrames;
-  const t2End = introFrames + 2 * teaseFrames;
+  const t1End = teaseStartFrames[1] ?? introFrames + teaseFrames;
+  const t2End = teaseStartFrames[2] ?? introFrames + 2 * teaseFrames;
   const t3End = ctaStart;
   const urlEnd = Math.min(ctaStart + Math.floor(fps * 1.8), totalFrames);
   const finalEnd = totalFrames;
@@ -706,9 +706,10 @@ export const NewsroomSet: React.FC<{
   if (frame < introFrames) {
     phase = { kind: "intro", showName };
   } else if (frame < ctaStart) {
-    const teaseIndex = Math.min(
-      Math.floor((frame - introFrames) / teaseFrames),
-      teases.length - 1
+    // Follow each story's own start (voice-timed when the render supplies a timeline).
+    const teaseIndex = Math.max(
+      0,
+      teaseStartFrames.reduce((acc, s, i) => (frame >= s ? i : acc), 0)
     );
     phase = { kind: "tease", index: teaseIndex, tease: teases[teaseIndex] };
   } else {

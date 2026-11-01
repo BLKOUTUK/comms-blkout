@@ -46,6 +46,7 @@ const NewsroomMessage: React.FC<Props> = ({
   backdropVideo,
   weekNumber,
   theme,
+  timeline,
   aspect = "9:16",
 }) => {
   const frame = useCurrentFrame();
@@ -75,6 +76,16 @@ const NewsroomMessage: React.FC<Props> = ({
   );
   const introFrames = Math.floor(introSec * FPS);
   const ctaStart = durationInFrames - Math.floor(outroSec * FPS);
+
+  // props.timeline (written by weekly-render from the voice) holds the second each spoken
+  // segment starts: intro, one per story, close. When present, cards follow AIvor's voice
+  // instead of the word-count estimate above.
+  const voiced = !!timeline && timeline.length === teases.length + 2;
+  const cardStarts = voiced
+    ? timeline.slice(1, teases.length + 1).map((t) => Math.floor(t * FPS))
+    : teases.map((_, i) => introFrames + i * teaseFrames);
+  const ctaAt = voiced ? Math.floor(timeline[teases.length + 1] * FPS) : ctaStart;
+  const cardFrames = cardStarts.map((st, i) => (cardStarts[i + 1] ?? ctaAt) - st);
 
   const titleProgress = spring({
     frame: frame - 4,
@@ -203,8 +214,8 @@ const NewsroomMessage: React.FC<Props> = ({
         teases={teases}
         introFrames={introFrames}
         teaseFrames={teaseFrames}
-        teaseStartFrames={teaseStartFrames}
-        ctaStart={ctaStart}
+        teaseStartFrames={voiced ? cardStarts : teaseStartFrames}
+        ctaStart={ctaAt}
         displayUrl={cta.displayUrl}
       />
 
@@ -217,8 +228,8 @@ const NewsroomMessage: React.FC<Props> = ({
             [
               0,
               FPS * 1.5,
-              ctaStart - FPS * 1,
-              ctaStart + FPS * 0.5,
+              ctaAt - FPS * 1,
+              ctaAt + FPS * 0.5,
               durationInFrames - FPS * 1.5,
               durationInFrames,
             ],
@@ -232,14 +243,14 @@ const NewsroomMessage: React.FC<Props> = ({
           key={i}
           tease={tease}
           index={i}
-          startFrame={introFrames + i * teaseFrames}
-          visibleFrames={teaseFrames}
+          startFrame={cardStarts[i]}
+          visibleFrames={voiced ? cardFrames[i] : teaseFrames}
           aspect={aspect}
           showRank={property !== "ivor-events"}
         />
       ))}
 
-      {aspect === "9:16" && frame >= ctaStart - FPS * 0.5 && (
+      {aspect === "9:16" && frame >= ctaAt - FPS * 0.5 && (
         <div
           style={{
             position: "absolute",
@@ -249,7 +260,7 @@ const NewsroomMessage: React.FC<Props> = ({
             textAlign: "center",
             opacity: interpolate(
               frame,
-              [ctaStart - FPS * 0.5, ctaStart],
+              [ctaAt - FPS * 0.5, ctaAt],
               [0, 1],
               { extrapolateLeft: "clamp", extrapolateRight: "clamp" }
             ),
@@ -283,7 +294,7 @@ const NewsroomMessage: React.FC<Props> = ({
         </div>
       )}
 
-      <CTA cta={cta} startFrame={ctaStart} aspect={aspect} />
+      <CTA cta={cta} startFrame={ctaAt} aspect={aspect} />
       <NewsTicker text={tickerText} aspect={aspect} label={property === "ivor-events" ? "What's on" : undefined} />
     </AbsoluteFill>
   );

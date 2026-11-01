@@ -240,7 +240,8 @@ async function fetchTopStories() {
 function buildProps(stories, { weekTag, weekLabel }) {
   const teases = stories.slice(0, limit).map((s, i) => ({
     title: (s.title || "Untitled").slice(0, 80),
-    hook: truncateAtWord(stripHtml(s.excerpt || ""), HOOK_MAX) || s.title,
+    // RSS excerpts end "The post <title> appeared first on <site>." — never on screen.
+    hook: truncateAtWord(stripHtml(s.excerpt || "").replace(/\s*The post\b[\s\S]*?appeared first on[\s\S]*$/, "").trim(), HOOK_MAX) || s.title,
     url: buildStoryUrl(s.id ?? s.slug ?? i + 1, weekTag),
     rank: i + 1,
     voteCount:
