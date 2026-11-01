@@ -53,10 +53,11 @@ const sampleNewsDigest = {
     "Community-owned journalism · Upvote the stories that matter · No login needed · We tally votes every week · Vote at blkoutuk.com/news",
 };
 
-// The events digest is as long as AIvor speaks plus a short outro (durationSeconds, set by
-// weekly-render.mjs from the voice track); every other IVORMessage keeps the composition length.
-const eventsDigestLength = ({ props }: { props: { property: string; durationSeconds?: number } }) =>
-  props.property === "ivor-events" && props.durationSeconds
+// A voiced digest (events, or news with a voice timeline) is as long as AIvor speaks plus a short
+// outro (durationSeconds, set by weekly-render.mjs from the voice track); every other IVORMessage
+// keeps the composition length.
+const eventsDigestLength = ({ props }: { props: { property: string; durationSeconds?: number; timeline?: number[] } }) =>
+  (props.property === "ivor-events" || !!props.timeline?.length) && props.durationSeconds
     ? { durationInFrames: Math.round(props.durationSeconds * FPS) }
     : {};
 
