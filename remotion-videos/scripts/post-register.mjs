@@ -4,18 +4,19 @@
 // status is 'scheduled' and whose time has come, to Instagram, Facebook and LinkedIn directly.
 //
 // Safety:
-// - Only rows due in the last WINDOW_HOURS are touched. The register holds older 'scheduled'
+// - Only rows due in the last WINDOW_HOURS (12) are touched: GitHub throttles the 15-minute cron to
+//   runs hours apart (3 Nov 2026: 10:06 then 17:48, so 3h missed the 12:07 + 13:07 posts). The register holds older 'scheduled'
 //   rows that Zapier already posted from its own files and never marked; those are reported, never posted.
 // - Each channel is written to metadata.posted.<channel> the moment it posts, so a retry only tries
 //   the channels still missing and nothing posts twice. The row becomes 'posted' when all are done.
 // - Without --live it is a dry run: it reads, decides and reports to Telegram, and posts nothing.
 //
-// Usage: node scripts/post-register.mjs [--live] [--window-hours 3] [--id <row uuid>]
+// Usage: node scripts/post-register.mjs [--live] [--window-hours 12] [--id <row uuid>]
 import { parseArgs } from "node:util";
 import { linkedinToken, linkedinRefreshDaysLeft, postImage, postVideo } from "./lib/linkedin.mjs";
 
 const { values: args } = parseArgs({
-  options: { live: { type: "boolean", default: false }, "window-hours": { type: "string", default: "3" }, id: { type: "string" } },
+  options: { live: { type: "boolean", default: false }, "window-hours": { type: "string", default: "12" }, id: { type: "string" } },
 });
 const env = process.env;
 const LIVE = args.live;
