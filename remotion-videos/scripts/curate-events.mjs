@@ -97,7 +97,9 @@ const isTest = (g) => /^test$/i.test(String(g.organizer).trim()) || /health chec
 const isBlkout = (g) => /\bblkout\b/i.test(g.organizer || "");
 const online = (g) => Boolean(g.virtual_link) || /^(zoom|online|virtual)\b/i.test(String(g.location).trim());
 const eligible = (list) => list.filter((g) => !banned(g) && !isTest(g)).filter((g) => !online(g) || g.virtual_link);
-const pool = eligible(inWindow);
+// Stays on the site, left out of this edition's video (Rob, 6 Nov 2026: W45 line-up B).
+const LEFT_OUT = new Set(["01173bf2-0c68-48b1-a20c-e0ec5e141638"]);
+const pool = eligible(inWindow).filter((g) => !LEFT_OUT.has(g.id));
 
 const clean = (s) => String(s || "").replace(/<[^>]*>/g, " ").replace(/&#(\d+);/g, (_, n) => String.fromCodePoint(Number(n))).replace(/&amp;/g, "&").replace(/&[a-z]+;/gi, " ").replace(/\s+/g, " ").trim();
 
