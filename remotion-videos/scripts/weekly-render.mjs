@@ -163,7 +163,7 @@ const EVENT_HOOKS = [
 
 function spokenTitle(title) {
   const t = title.replace(/\.{2,}/g, " ").replace(/\b20\d\d\b/g, "").replace(/\s+/g, " ").trim();
-  const head = t.split(/:\s| — | - /)[0].trim();
+  const head = t.split(/:\s| — | - | \| | \(/)[0].replace(/\s+No\.\s?\d+$/i, "").trim();
   return (head.split(" ").length >= 2 ? head : t).replace(/[.,;:]+$/, "");
 }
 

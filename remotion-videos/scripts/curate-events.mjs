@@ -78,6 +78,9 @@ async function rest(path) {
 }
 const cols = "id,title,description,date,start_time,end_date,location,virtual_link,organizer,cost,url,image_url,tags";
 const inWindow = await rest(`gatherings_live?select=${cols}&date=gte.${from}&date=lte.${to}&order=date.asc,start_time.asc.nullslast`);
+// A thin week looks further ahead rather than going out with one event (Rob, 6 Nov 2026: "I'd like 3 events with a little diversity").
+const LOOKAHEAD_DAYS = 21;
+const ahead = await rest(`gatherings_live?select=${cols}&date=gt.${to}&date=lte.${addDays(to, LOOKAHEAD_DAYS)}&order=date.asc,start_time.asc.nullslast`);
 
 let never = [];
 try {
@@ -93,7 +96,8 @@ const banned = (g) => never.some((n) => `${g.title} ${g.organizer} ${g.location}
 const isTest = (g) => /^test$/i.test(String(g.organizer).trim()) || /health check/i.test(g.title) || /(^|\.)example\.com/i.test(g.url || "");
 const isBlkout = (g) => /\bblkout\b/i.test(g.organizer || "");
 const online = (g) => Boolean(g.virtual_link) || /^(zoom|online|virtual)\b/i.test(String(g.location).trim());
-const pool = inWindow.filter((g) => !banned(g) && !isTest(g)).filter((g) => !online(g) || g.virtual_link);
+const eligible = (list) => list.filter((g) => !banned(g) && !isTest(g)).filter((g) => !online(g) || g.virtual_link);
+const pool = eligible(inWindow);
 
 const clean = (s) => String(s || "").replace(/<[^>]*>/g, " ").replace(/&#(\d+);/g, (_, n) => String.fromCodePoint(Number(n))).replace(/&amp;/g, "&").replace(/&[a-z]+;/gi, " ").replace(/\s+/g, " ").trim();
 
@@ -172,6 +176,8 @@ const KINDS = [
   [/\b(destination|getaway|weekend away|holiday)\b/i, "a weekend away"],
   [/\b(screening|film|documentary|cinema)\b/i, "a screening"],
   [/\b(workshop|craft|crafty|clay|stitch\w*|painting|making)\b/i, "a craft session"],
+  [/\bin conversation\b/i, "a conversation"],
+  [/\b(meetup|meet-up|social group)\b/i, "a meetup"],
   [/\b(writers?|writing|poetry|book club)\b/i, "a writing group"],
   [/\b(somatic|yoga|movement|meditation)\b/i, "a rest and movement session"],
   [/\b(club night|dance|dj|djs|party|bash|amapiano|dancehall|house music|rave)\b/i, "a night out"],
@@ -188,14 +194,28 @@ function kindFor(g) {
   let kind = hit[1];
   if (/^free\b/i.test(String(g.cost || "").trim())) kind = kind.replace(/^(a|an) /, "a free ").replace(/^(?!a free )/, "free ");
   // Who it's for, when the listing says so plainly ("for LGBT Africans, asylum seekers…").
-  const forWhom = clean(g.description).split(/(?<=[.!?])\s+/)[0].match(/\bfor ((?:[A-Z][\w+-]*|LGBT\w*|queer|trans|black|gay|bi)[^,.;:!?]{0,40})/);
+  const forWhom = clean(g.description).split(/(?<=[.!?])\s+/)[0].match(/\bfor ((?:[A-Z][\w+-]*|LGBT\w*|queer|trans|black|gay|bi)[^,.;:!?]{0,50})/);
   // Kept to a few words, cut at the first clause that runs on ("aged 16+ to connect…").
-  const who = forWhom && forWhom[1].split(/\s(?:to|aged|at|on|who|from|in|across|with)\s/)[0].split(" ").slice(0, 5).join(" ");
+  const who = forWhom && forWhom[1].split(/\s(?:to|aged|at|on|who|from|in|across|with)\s/)[0].split(" ").slice(0, 9).join(" ");
   if (who && /lgbt|queer|trans|black|gay|bi\b|men|women|people|african|caribbean/i.test(who)) kind += ` for ${who.trim()}`;
   return kind;
 }
 
-const dayLabel = (g) => `${short(g.date, { weekday: "long" })}${g.start_time ? ` ${(() => { let [h, m] = g.start_time.split(":").map(Number); const p = h >= 12 ? "pm" : "am"; h = h % 12 || 12; return m ? `${h}.${String(m).padStart(2, "0")}${p}` : `${h}${p}`; })()}` : ""}`;
+// Fill a thin week from the weeks ahead, soonest first, preferring a different kind of gathering
+// from those already picked: all kinds of night out count as one kind.
+const sortOf = (g) => (/night/.test(kindFor(g) || "") ? "night" : kindFor(g) || g.id);
+const later = eligible(ahead).filter((g) => tier(g) < 3).sort((a, b) => a.date.localeCompare(b.date));
+for (const g of later) {
+  if (picked.length >= 3) break;
+  if (picked.includes(g) || picked.some((p) => sortOf(p) === sortOf(g))) continue;
+  picked.push(g);
+}
+for (const g of later) {
+  if (picked.length >= 3) break;
+  if (!picked.includes(g)) picked.push(g);
+}
+const dateWord = (g) => (g.date > to ? short(g.date, { weekday: "long", day: "numeric", month: "long" }) : short(g.date, { weekday: "long" }));
+const dayLabel = (g) => `${dateWord(g)}${g.start_time ? ` ${(() => { let [h, m] = g.start_time.split(":").map(Number); const p = h >= 12 ? "pm" : "am"; h = h % 12 || 12; return m ? `${h}.${String(m).padStart(2, "0")}${p}` : `${h}${p}`; })()}` : ""}`;
 
 const addYours = picked.length <= 1;
 const teases = picked.map((g, i) => ({
@@ -205,7 +225,8 @@ const teases = picked.map((g, i) => ({
   ...(g.image_url ? { thumbnail: g.image_url } : {}),
   rank: i + 1,
   // For the spoken script (weekly-render.mjs); not part of the on-screen schema.
-  where: online(g) ? "online" : String(g.location),
+  // Brackets and "·" dropped: downstream reads up to the first comma, and speaks it.
+  where: online(g) ? "online" : String(g.location).replace(/\s*\([^)]*\)/g, "").replace(/\s*·\s*/g, ", ").replace(/^secret location/i, "a secret location"),
   ...(kindFor(g) ? { kind: kindFor(g) } : {}),
   blkout: isBlkout(g),
 }));
