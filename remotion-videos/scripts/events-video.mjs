@@ -136,11 +136,22 @@ function approveLink() {
   return `${APPROVE_URL}?week=${weekTag}&exp=${exp}&sig=${sig}${args.kind === "events" ? "" : `&kind=${args.kind}`}`;
 }
 
-// How Rob says yes, written into every request.
-function howToApprove() {
-  return env.APPROVALS_BOT_TOKEN
-    ? `Happy with it? Reply "approved" to this message and it goes public ${K.when} on YouTube, Instagram (as a Reel), the Facebook Page and LinkedIn. Or use this link (valid 48 hours): ${approveLink()}`
-    : `Happy with it? Open this link and tap "Yes, publish it" (valid 48 hours); it goes public ${K.when} on YouTube, Instagram (as a Reel), the Facebook Page and LinkedIn: ${approveLink()}`;
+// How Rob says yes: a button on the message (Rob, 6 Nov 2026: "make it obvious"). It opens the
+// confirm page, so a preview or stray tap never approves. If Telegram refuses the button, the
+// same message goes as plain text with the link, so a request is never lost.
+async function askApproval(lines) {
+  const reply = env.APPROVALS_BOT_TOKEN ? ` Or reply "approved" to this message.` : "";
+  const text = [...lines, "", `Tap the button, then "Yes, publish it". It goes public ${K.when} on YouTube, Instagram (as a Reel), the Facebook Page and LinkedIn.${reply}`, "No approval, no post."].join("\n");
+  const link = approveLink();
+  try {
+    await telegram("sendMessage", new URLSearchParams({
+      chat_id: env.TELEGRAM_CHAT_ID, text, disable_web_page_preview: "true",
+      reply_markup: JSON.stringify({ inline_keyboard: [[{ text: "✅ Approve and publish", url: link }]] }),
+    }));
+  } catch (err) {
+    console.log(`  approve button failed (${err.message}); sending the link as text`);
+    await say(`${text}\n\nApprove (valid 48 hours): ${link}`);
+  }
 }
 
 // Rob's "approved" on Telegram, if he has sent one since this week's request. getUpdates without
@@ -267,16 +278,7 @@ async function upload() {
   });
   if (!row.ok) throw new Error(`${K.table} write failed: ${row.status} ${await row.text()}`);
 
-  const caption = [
-    `${TAG} (${range}) is ready.`,
-    "",
-    ...items.map((t, i) => `${i + 1}. ${t.title}`),
-    "",
-    `Unlisted on YouTube: ${url}`,
-    "",
-    howToApprove(),
-    "No approval, no post.",
-  ].join("\n");
+  const ask = [`${TAG} (${range}) is ready.`, "", ...items.map((t, i) => `${i + 1}. ${t.title}`), "", `Unlisted on YouTube: ${url}`];
   const igPreview = `Instagram and Facebook caption for ${TAG}:\n\n${igCaption}`;
   const form = new FormData();
   form.append("chat_id", env.TELEGRAM_CHAT_ID);
@@ -288,9 +290,9 @@ async function upload() {
     // The video can be too big for the bot; the link alone still lets Rob watch and approve.
     console.log(`  video send failed (${err.message}); sending the links only`);
   }
-  await say(caption);
   await say(igPreview);
   await say(`LinkedIn caption (company page) for ${TAG}:\n\n${liCaption}`);
+  await askApproval(ask); // last, so the button is at the bottom of the chat
   console.log("✓ Sent to Rob on Telegram for sign-off (signed link withheld from the log).");
 }
 
@@ -335,9 +337,9 @@ async function request() {
   } catch (err) {
     console.log(`  video send failed (${err.message}); sending the links only`);
   }
-  await say([`${TAG} is ready.`, "", ...stories, "", `${row.privacy === "public" ? "Already public" : "Unlisted"} on YouTube: ${row.video_url}`, "", howToApprove(), "No approval, no post."].join("\n"));
   await say(`Instagram and Facebook caption for ${TAG}:\n\n${igCaption}`);
   await say(`LinkedIn caption (company page) for ${TAG}:\n\n${liCaption}`);
+  await askApproval([`${TAG} is ready.`, "", ...stories, "", `${row.privacy === "public" ? "Already public" : "Unlisted"} on YouTube: ${row.video_url}`]); // last, so the button is at the bottom of the chat
   console.log("✓ Sent to Rob on Telegram for sign-off (signed link withheld from the log).");
 }
 
@@ -373,7 +375,7 @@ async function publish() {
   }
   if (!row.approved_at) {
     console.log(`${weekTag} not approved yet; staying unlisted.`);
-    if (args.remind) await say(`${TAG} is waiting for your yes: it stays unlisted until you approve. ${env.APPROVALS_BOT_TOKEN ? 'Reply "approved" here, or use' : "Use"} the link in the earlier message (valid 48 hours from when it was sent); it goes public within the hour after you approve. ${row.video_url}`);
+    if (args.remind) await askApproval([`${TAG} is waiting for your yes: it stays unlisted until you approve.`]);
     return;
   }
   if (args["dry-run"]) {
