@@ -56,12 +56,12 @@ const KINDS = {
   events: {
     name: "BLKOUT What's On", table: "aivor_event_digests", source: "routine:weekly-events-video",
     campaign: "events-digest", register: "AIvor What's On", sig: "events-video", commands: ["upload", "publish"],
-    when: "from 18:00 Thursday (or within the hour, if later)",
+    when: "in a few minutes",
   },
   news: {
     name: "BLKOUT News", table: "aivor_digests", source: "routine:weekly-news-video",
     campaign: "news-digest", register: "AIvor News Digest", sig: "news-video", commands: ["request", "publish"],
-    when: "within the hour",
+    when: "in a few minutes",
   },
 };
 const K = KINDS[args.kind];
