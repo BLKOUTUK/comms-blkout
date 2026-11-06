@@ -223,7 +223,8 @@ const dayLabel = (g) => `${dateWord(g)}${g.start_time ? ` ${(() => { let [h, m] 
 
 const addYours = picked.length <= 1;
 const teases = picked.map((g, i) => ({
-  title: clean(g.title).slice(0, 80),
+  // A trailing bracket adds a second line that pushes the description under AIvor's picture.
+  title: clean(g.title).replace(/\s*\([^)]*\)\s*$/, "").slice(0, 80),
   hook: `${dayLabel(g)}. ${hookFor(g)}`.slice(0, 180),
   url: pageUrl(g),
   ...(g.image_url ? { thumbnail: g.image_url } : {}),
