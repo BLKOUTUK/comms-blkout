@@ -124,12 +124,14 @@ try {
 const lower = (g) => `${g.title} ${g.organizer} ${clean(g.description)}`.toLowerCase();
 const BLACK_QUEER = /\bblack (queer|gay|bi|trans|lgbt\w*|qtipoc|men who)|\b(lgbt\w*|queer|gay) (africans?|caribbeans?|black)|\bafrican lgbt|\bdl men\b|\bblack[^.]{0,40}\b(queer|gay|lgbt\w*|bi men|trans)\b/i;
 const QTIPOC = /\b(qtipoc|qtpoc|qtbipoc|people of colou?r|poc|global majority)\b/i;
+// Ours though the listing doesn't say so (Rob, 6 Nov 2026, The Boy Is Mine: "black promoter and djs, playing black music... it qualifies").
+const OUR_NIGHTS = /^the boy is mine\b/i;
 function tier(g) {
   const text = lower(g);
   // Directory names count only in the title or organiser: a description can name a partner
   // or speaker ("…with African Rainbow Family") without the event being theirs.
   const whose = `${g.title} ${g.organizer}`.toLowerCase();
-  if (isBlkout(g) || BLACK_QUEER.test(text) || ourPlaces.some((n) => whose.includes(n))) return 1;
+  if (isBlkout(g) || BLACK_QUEER.test(text) || OUR_NIGHTS.test(g.title) || ourPlaces.some((n) => whose.includes(n))) return 1;
   if (QTIPOC.test(text)) return 2;
   return 3;
 }
