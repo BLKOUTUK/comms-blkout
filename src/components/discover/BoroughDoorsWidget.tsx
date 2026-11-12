@@ -37,9 +37,14 @@ const slugify = (name: string) =>
 const DOOR_URL = (slug: string) =>
   `https://events.blkoutuk.com/${slug}/?utm_source=discover&utm_medium=map&utm_campaign=borough-doors`;
 
+// Doors outside London (12 Nov 2026): not on the London map, listed as chips after the boroughs.
+const BEYOND_LONDON: Record<string, string> = {
+  birmingham: 'Birmingham',
+};
+
 export function BoroughDoorsWidget() {
   const entries = Object.entries(boroughsMap.paths as Record<string, string>);
-  const openCount = Object.keys(OPEN_DOORS).length;
+  const openCount = Object.keys(OPEN_DOORS).length + Object.keys(BEYOND_LONDON).length;
 
   return (
     <div>
@@ -61,6 +66,20 @@ export function BoroughDoorsWidget() {
         One community, many doors. Each borough door carries what&apos;s here, what&apos;s beside us,
         what&apos;s worth the journey — and the history that borough made.{' '}
         <span className="text-gray-400">The dark boroughs are the ones still to open.</span>
+      </p>
+
+      <p className="text-sm leading-relaxed mb-5 border-l-2 border-liberation-gold-divine bg-liberation-gold-divine/5 px-3 py-2 text-gray-300">
+        <strong className="text-liberation-gold-divine">New on BLKOUT Local.</strong> Every gathering on the
+        events calendar now points to its own door, and gatherings that have happened keep their page. And
+        our first door outside London is open:{' '}
+        <a
+          href={DOOR_URL('birmingham')}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-liberation-gold-divine underline underline-offset-2 hover:text-white"
+        >
+          Birmingham →
+        </a>
       </p>
 
       <svg
@@ -113,6 +132,17 @@ export function BoroughDoorsWidget() {
             className="px-3 py-1.5 text-sm font-semibold border border-liberation-gold-divine/50 text-liberation-gold-divine hover:bg-liberation-gold-divine hover:text-black transition-colors"
           >
             {name} →
+          </a>
+        ))}
+        {Object.entries(BEYOND_LONDON).map(([slug, name]) => (
+          <a
+            key={slug}
+            href={DOOR_URL(slug)}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="px-3 py-1.5 text-sm font-semibold border border-dashed border-liberation-gold-divine/70 text-liberation-gold-divine hover:bg-liberation-gold-divine hover:text-black transition-colors"
+          >
+            {name} (beyond London) →
           </a>
         ))}
       </div>
