@@ -226,21 +226,8 @@ export function FeaturedEventsWidget() {
         </div>
       )}
 
-      {/* Straight talk — honest state of the calendar until the regular rhythm lands (also serves as the empty state) */}
+      {/* Link to the full calendar (also serves as the empty state) */}
       <div className="bg-white/5 border border-liberation-gold-divine/20 rounded-xl p-6 backdrop-blur-sm">
-        <p className="text-gray-300 text-sm leading-relaxed mb-4">
-          <span className="text-liberation-gold-divine font-semibold">Straight talk:</span> this calendar isn't yet
-          the reliable, complete picture we want to give you — our regular events rhythm arrives from September.
-          Until then we share what we find and verify, and promise only what we can keep — like the{' '}
-          <a
-            href="https://commons.blkoutuk.com/picnic.html"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-liberation-gold-divine underline hover:text-white transition-colors"
-          >
-            Annual Picnic, Sunday 16 August
-          </a>.
-        </p>
         <a
           href="https://events.blkoutuk.com"
           target="_blank"
@@ -248,7 +235,7 @@ export function FeaturedEventsWidget() {
           className="inline-flex items-center gap-2 bg-gradient-to-r from-blkout-600 to-purple-600 text-white font-bold py-2.5 px-6 rounded-lg hover:from-blkout-700 hover:to-purple-700 transition-all shadow-md hover:shadow-lg"
         >
           <Calendar size={18} />
-          Browse the calendar so far
+          See the full calendar
         </a>
       </div>
     </div>

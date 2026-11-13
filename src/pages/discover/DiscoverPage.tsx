@@ -12,8 +12,32 @@ import { FeaturedEventsWidget } from '@/components/discover/FeaturedEventsWidget
 import { LearningWidget } from '@/components/discover/LearningWidget';
 import { PlaygroundWidget } from '@/components/discover/PlaygroundWidget';
 import { BoroughDoorsWidget } from '@/components/discover/BoroughDoorsWidget';
-import FoundationLayer from '@/components/foundation/FoundationLayer';
-import { Heart, Users, Sparkles, Search } from 'lucide-react';
+import { Search } from 'lucide-react';
+
+/* Dated "now" cards: each shows only between `from` and `until` (UTC), so nothing
+   stale lingers (the Icons Quiz sat here for two weeks after it ended). Add the next
+   campaign here with its end date. */
+const NOW_CARDS = [
+  {
+    from: '2026-11-13T09:07:00Z', until: '2026-12-01T00:00:00Z',
+    label: 'New on Voices · 13 Nov',
+    title: 'Jason Jones wins at the Privy Council',
+    blurb: "Five justices rule, unanimously, that Trinidad and Tobago's laws criminalising gay men cannot stand.",
+    cta: 'Read it',
+    href: 'https://voices.blkoutuk.com/articles/jason-jones-wins-at-the-privy-council?utm_source=discover&utm_medium=web&utm_campaign=now-card',
+  },
+] as const;
+
+const GATEWAY = [
+  { title: "What's on", blurb: 'Gatherings, all checked', href: 'https://events.blkoutuk.com', accent: '#ffe600' },
+  { title: 'Near you', blurb: 'Your borough, your city', href: '#near-you', accent: '#d4af37' },
+  { title: 'Voices', blurb: 'Essays and stories from us', href: 'https://voices.blkoutuk.com', accent: '#00a86b' },
+  { title: 'News', blurb: 'The week, voted up by the community', href: 'https://news.blkoutuk.com', accent: '#9b4dca' },
+  { title: 'Watch', blurb: 'Films and shorts on YouTube', href: 'https://www.youtube.com/@blkoutuk', accent: '#ff1493' },
+  { title: 'Meet AIvor', blurb: 'Our guide to the whole platform', href: 'https://blkoutuk.com/intro', accent: '#5b9bd5' },
+  { title: 'Newsletter', blurb: 'Once a month, in your inbox', href: '/preferences', accent: '#d4af37' },
+  { title: 'Join', blurb: 'Become a member-owner', href: 'https://blkoutuk.com/governance', accent: '#e31e24' },
+] as const;
 
 const SECTIONS = [
 { id: 'hub', keywords: ['hub', 'community', 'connect', 'blkouthub'] },
@@ -36,6 +60,8 @@ function matchesSearch(keywords: readonly string[], query: string): boolean {
 
 export function DiscoverPage() {
   const [searchQuery, setSearchQuery] = useState('');
+  const now = Date.now();
+  const nowCards = NOW_CARDS.filter(c => now >= Date.parse(c.from) && now < Date.parse(c.until));
 
   const visible = (id: string) => {
     const section = SECTIONS.find(s => s.id === id);
@@ -44,117 +70,91 @@ export function DiscoverPage() {
 
   return (
     <PublicLayout>
-      {/* Hero Section - dark theme + foundation imagery (joy register — discovery is welcoming) */}
-      <div className="relative mb-16 overflow-hidden">
-        <FoundationLayer category="joy" seed="comms-discover-hero" opacity={0.18} />
-        <div className="absolute inset-0 bg-black/55 pointer-events-none" />
-        <div className="relative z-10 text-center animate-fade-in py-12">
-          <div className="flex justify-center mb-6">
-            <img
-              src="/images/blkout-sigil-gold.png"
-              alt="BLKOUT"
-              className="w-36 h-36 object-contain drop-shadow-2xl"
-            />
+      {/* GATEWAY — the page people land on from every social bio (blkoutuk.com/now).
+          Phone first: who we are in one line, what's on now, then one tap to anywhere. */}
+      {/* Hero + Now: stacked on phones; side by side on desktop so the hero's right half isn't empty */}
+      <div className={`-mt-4 sm:mt-0 mb-4 grid gap-4 ${nowCards.length ? 'lg:grid-cols-[3fr_2fr]' : ''}`}>
+        <section className="relative overflow-hidden bg-[#0a0a14] border-b-4 border-[#d4af37]">
+          <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(ellipse_at_85%_0%,rgba(74,25,66,0.45),transparent_60%)]" />
+          <div className="relative px-4 py-5 sm:py-7">
+            <p className="font-['IBM_Plex_Mono'] font-medium text-[11px] tracking-[0.3em] uppercase text-[#d4af37] mb-3">
+              Discover <span className="text-[#d4af37]">·</span> start here
+            </p>
+            {/* The header already carries the wordmark; on phones the tagline leads so the tiles reach the first screen */}
+            <p aria-hidden="true" className="hidden sm:block font-['Work_Sans'] font-black uppercase leading-[0.85] tracking-[-0.04em] text-[#f5f1e8] text-[clamp(3.5rem,6vw,4.5rem)]">
+              BLKOUT<span className="text-[#d4af37]">.</span>
+            </p>
+            <h1 className="font-['Fraunces'] italic text-[#d4af37] text-2xl sm:text-3xl leading-tight sm:mt-4">
+              The Black Queer Men's Liberation Collective
+            </h1>
+            <p className="text-[#f5f1e8]/85 text-base sm:text-lg mt-2 max-w-xl">
+              Gatherings, dialogue and community-owned tech for Black gay, bi and trans men in the UK. Member-owned.
+            </p>
           </div>
+        </section>
 
-          <h1 className="text-5xl md:text-6xl font-black uppercase tracking-tight text-white mb-4">
-            Discover BLKOUT
-          </h1>
-
-          <p className="text-xl md:text-2xl text-gray-300 max-w-4xl mx-auto mb-4">
-            Your home for{' '}
-            <span className="text-liberation-gold-divine font-semibold">
-              Black queer liberation
-            </span>{' '}
-            technology
-          </p>
-
-          <p className="text-lg text-gray-400 max-w-3xl mx-auto text-balance mb-8">
-            BLKOUT is the Black Queer Men's Liberation Collective. We host gatherings, build space for
-            dialogue, and create community-owned technology for the health, wealth and happiness of Black
-            gay, bi and trans men across the UK. Through local chapters, cooperative membership, creative
-            events, shared learning, and digital media, we turn connection into individual well-being and
-            collective power &mdash; owned by and accountable to the people we serve.
-          </p>
-
-          {/* Values badges */}
-          <div className="flex flex-wrap gap-3 justify-center text-sm mb-8">
-            <span className="px-5 py-2.5 bg-liberation-gold-divine/10 text-liberation-gold-divine rounded-full font-semibold border border-liberation-gold-divine/30 flex items-center gap-2">
-              <Heart size={16} />
-              Creator Sovereignty
-            </span>
-            <span className="px-5 py-2.5 bg-emerald-500/10 text-emerald-400 rounded-full font-semibold border border-emerald-500/30 flex items-center gap-2">
-              <Users size={16} />
-              Community Power
-            </span>
-            <span className="px-5 py-2.5 bg-purple-500/10 text-purple-400 rounded-full font-semibold border border-purple-500/30 flex items-center gap-2">
-              <Sparkles size={16} />
-              Democratic Governance
-            </span>
-          </div>
-
-          {/* Search Bar */}
-          <div className="max-w-2xl mx-auto mt-2">
-            <div className="bg-white/5 border-2 border-liberation-gold-divine/40 rounded-2xl p-6 backdrop-blur-sm">
-              <p className="text-center text-gray-300 text-sm mb-3">
-                Find events, articles, newsletters, and videos across the BLKOUT platform
-              </p>
-              <div className="relative">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-liberation-gold-divine" />
-                <input
-                  type="text"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Try &quot;events&quot;, &quot;newsletter&quot;, &quot;voices&quot;, &quot;video&quot;..."
-                  className="w-full pl-12 pr-4 py-4 bg-white/10 border border-white/20 rounded-xl text-white text-lg placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-liberation-gold-divine/50 focus:border-liberation-gold-divine/50 transition-all"
-                />
-                {searchQuery && (
-                  <button
-                    onClick={() => setSearchQuery('')}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white transition-colors text-sm"
-                  >
-                    Clear
-                  </button>
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
+        {/* NOW — dated cards that switch themselves on and off; the whole card is the link */}
+        {nowCards.length > 0 && (
+          <section aria-label="On now" className="grid gap-3">
+            {nowCards.map(c => (
+              <a
+                key={c.href}
+                href={c.href}
+                className="group flex flex-col justify-start bg-[#14141f] border-l-4 border-[#d4af37] pl-3 pr-4 py-5 sm:py-7 outline-2 outline-offset-0 hover:outline active:outline outline-[#d4af37]"
+              >
+                <p className="font-['IBM_Plex_Mono'] font-medium text-[11px] tracking-[0.3em] uppercase text-[#d4af37] mb-2">{c.label}</p>
+                <p className="font-['Work_Sans'] font-black uppercase text-[#f5f1e8] text-xl sm:text-2xl leading-tight tracking-tight">{c.title}</p>
+                <p className="text-[#a8a195] text-sm sm:text-base mt-2">{c.blurb}</p>
+                <p className="mt-2 text-[#d4af37] font-semibold text-sm group-hover:underline">{c.cta} →</p>
+              </a>
+            ))}
+          </section>
+        )}
       </div>
 
-      {/* Featured: AIvor Black History Month Quiz */}
-      <section className="mb-12">
-        <a
-          href="https://blkoutuk.com/intro"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="block bg-gradient-to-r from-gray-900 via-black to-gray-900 rounded-2xl p-8 border-2 border-liberation-gold-divine/40 shadow-lg hover:border-liberation-gold-divine/70 hover:shadow-2xl transition-all duration-300 group"
-        >
-          <div className="flex flex-col md:flex-row md:items-center gap-6">
-            <div className="flex-shrink-0 text-center">
-              <div className="bg-liberation-gold-divine/10 border border-liberation-gold-divine/30 rounded-xl px-5 py-3">
-                <p className="text-liberation-gold-divine text-xs font-bold uppercase tracking-widest">From 24 September</p>
-                <p className="text-white text-lg font-bold">Runs to 31 Oct</p>
-                <p className="text-gray-400 text-xs">One draw, 31 October</p>
-              </div>
-            </div>
-            <div className="flex-1">
-              <p className="text-liberation-gold-divine text-xs font-bold uppercase tracking-widest mb-2">AIvor's Icons Quiz</p>
-              <h3 className="text-2xl md:text-3xl font-bold text-white group-hover:text-liberation-gold-divine transition-colors mb-3">
-                Four questions. One word. A BLKOUT Icons tee.
-              </h3>
-              <p className="text-gray-300 text-sm leading-relaxed mb-3">
-                Ask AIvor about the four BLKOUT Icons — Ivor Cummings, Berto Pasuka, Pearl Alcock, Justin Fashanu. Every right answer gives you a letter; unscramble the word to enter the end-of-month draw.
-              </p>
-            </div>
-            <div className="flex-shrink-0 text-center">
-              <span className="inline-flex items-center gap-2 bg-liberation-gold-divine text-black font-bold py-3 px-6 rounded-lg text-sm group-hover:bg-white group-hover:text-black transition-colors shadow-md">
-                Ask AIvor →
-              </span>
-            </div>
-          </div>
-        </a>
-      </section>
+      {/* ONE TAP — each tile wears its section's colour (DESIGN.md §2.2); the whole tile is the link */}
+      <nav aria-label="Go to" className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-10">
+        {GATEWAY.map(t => (
+          <a
+            key={t.title}
+            href={t.href}
+            className="flex flex-col min-h-[112px] lg:min-h-0 bg-[#14141f] border-t-4 p-4 lg:py-6 outline-2 outline-offset-0 hover:outline active:outline"
+            style={{ borderTopColor: t.accent, outlineColor: t.accent }}
+          >
+            <span className="flex items-start justify-between gap-2">
+              <span className="font-['Work_Sans'] font-black uppercase text-[#f5f1e8] text-lg sm:text-xl leading-none tracking-tight">{t.title}</span>
+              <span className="shrink-0 text-xl leading-none" style={{ color: t.accent }} aria-hidden="true">→</span>
+            </span>
+            <span className="text-[#a8a195] text-sm mt-2 leading-snug">{t.blurb}</span>
+          </a>
+        ))}
+      </nav>
+
+      {/* Search — filters the sections below */}
+      <div className="mb-8">
+        <label htmlFor="discover-search" className="block font-['IBM_Plex_Mono'] font-medium text-[11px] tracking-[0.3em] uppercase text-[#d4af37] mb-2">
+          Everything else <span className="text-[#d4af37]">·</span> search
+        </label>
+        <div className="relative">
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#d4af37]" />
+          <input
+            id="discover-search"
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search events, news, video"
+            className="w-full pl-12 pr-16 py-3.5 bg-[#14141f] border-2 border-[#d4af37]/40 text-[#f5f1e8] text-base placeholder-[#a8a195] focus:outline-none focus:border-[#d4af37] transition-colors"
+          />
+          {searchQuery && (
+            <button
+              onClick={() => setSearchQuery('')}
+              className="absolute right-4 top-1/2 -translate-y-1/2 text-[#a8a195] hover:text-[#f5f1e8] text-sm"
+            >
+              Clear
+            </button>
+          )}
+        </div>
+      </div>
 
       {/* BENTO GRID — asymmetric, signature aesthetic.
           Cells: dark canvas + heavy gold border + sharp edges + variable spans.
@@ -214,7 +214,7 @@ export function DiscoverPage() {
 
         {/* Borough doors — the London map as a gateway into the local pages */}
         {visible('boroughs') && (
-          <section className="md:col-span-7 border-2 border-liberation-gold-divine/40 hover:border-liberation-gold-divine/70 transition-colors p-6 md:p-8 bg-black/40 flex flex-col justify-center">
+          <section id="near-you" className="md:col-span-7 border-2 border-liberation-gold-divine/40 hover:border-liberation-gold-divine/70 transition-colors p-6 md:p-8 bg-black/40 flex flex-col justify-center">
             <BoroughDoorsWidget />
           </section>
         )}
@@ -259,7 +259,7 @@ export function DiscoverPage() {
       {/* No results */}
       {searchQuery && !SECTIONS.some(s => matchesSearch(s.keywords, searchQuery)) && (
         <div className="text-center py-16">
-          <p className="text-gray-400 text-lg">No sections match "{searchQuery}"</p>
+          <p className="text-[#a8a195] text-lg">No sections match "{searchQuery}"</p>
           <button
             onClick={() => setSearchQuery('')}
             className="mt-4 text-liberation-gold-divine hover:underline"
@@ -268,6 +268,14 @@ export function DiscoverPage() {
           </button>
         </div>
       )}
+
+      {/* About — the standard descriptor, verbatim from platform/COMMS.md (approved 16 Sep 2026) */}
+      <section className="mb-12 max-w-3xl border-t-4 border-[#d4af37] pt-6">
+        <p className="font-['IBM_Plex_Mono'] font-medium text-[11px] tracking-[0.3em] uppercase text-[#d4af37] mb-3">About BLKOUT</p>
+        <p className="text-[#f5f1e8]/85 text-base sm:text-lg leading-relaxed">
+          BLKOUT is the Black Queer Men's Liberation Collective. We host gatherings, build space for dialogue, and create community-owned technology for the health, wealth and happiness of Black gay, bi and trans men across the UK. Through local chapters, cooperative membership, creative events, shared learning, and digital media, we turn connection into individual well-being and collective power &mdash; owned by and accountable to the people we serve.
+        </p>
+      </section>
 
       {/* Stray bottom widgets removed:
           - "Follow Our Journey" Instagram/LinkedIn cards — duplicated SocialMediaFeed in bento

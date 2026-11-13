@@ -14,7 +14,7 @@ export function PublicLayout({ children }: PublicLayoutProps) {
   const showSecondRow = SECOND_ROW_ROUTES.some(r => location.pathname.startsWith(r));
 
   return (
-    <div className="min-h-screen bg-black text-white font-signature">
+    <div className="min-h-screen bg-[#0a0a14] text-[#f5f1e8] font-signature">
       {/* Skip Link for keyboard navigation - WCAG 2.4.1 */}
       <a
         href="#main-content"
@@ -24,11 +24,11 @@ export function PublicLayout({ children }: PublicLayoutProps) {
       </a>
 
       {/* Section identity bar — comms is the hub, default to gold (Round 2 chrome) */}
-      <div className="sticky top-0 z-40 h-1 bg-liberation-gold-divine" aria-hidden />
+      <div className="sticky top-0 z-40 h-1 bg-[#d4af37]" aria-hidden />
 
       {/* Header */}
       <header
-        className="sticky top-1 z-40 bg-black border-b border-liberation-gold-divine/30 shadow-lg backdrop-blur-sm"
+        className="sticky top-1 z-40 bg-[#0a0a14] border-b border-liberation-gold-divine/30 shadow-lg backdrop-blur-sm"
         role="banner"
       >
         <div className="max-w-7xl mx-auto px-6 py-3">
@@ -39,17 +39,10 @@ export function PublicLayout({ children }: PublicLayoutProps) {
               className="flex items-center gap-3"
               aria-label="BLKOUT - Go to main platform"
             >
-              <img
-                src="/images/blkout-sigil-gold.png"
-                alt="BLKOUT"
-                className="h-10 md:h-12 w-auto hover:scale-105 transition-transform drop-shadow-2xl"
-              />
-              <div className="hidden md:block border-l border-liberation-gold-divine/30 pl-3">
-                <div className="text-liberation-gold-divine font-black text-lg tracking-tight uppercase">
-                  BLKOUT
-                </div>
-                <div className="text-gray-400 text-xs font-disrupt italic">communications hub</div>
-              </div>
+              {/* The BLKOUT. wordmark (DESIGN.md §5): cream Work Sans 900, gold full stop on the front door */}
+              <span className="font-['Work_Sans'] font-black uppercase text-[#f5f1e8] text-2xl md:text-3xl leading-none tracking-[-0.04em]">
+                BLKOUT<span className="text-[#d4af37]">.</span>
+              </span>
             </a>
 
             {/* Desktop Navigation — Option C hybrid 5-button cross-app nav. Each button carries its own
@@ -60,7 +53,7 @@ export function PublicLayout({ children }: PublicLayoutProps) {
                 href="https://blkoutuk.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="px-4 py-2 text-base font-signature font-black uppercase tracking-tight transition-colors duration-200 border-b-2 border-transparent text-gray-200 hover:text-liberation-gold-divine hover:border-liberation-gold-divine/60 flex items-center gap-2"
+                className="px-4 py-2 text-base font-signature font-black uppercase tracking-tight transition-colors duration-200 border-b-2 border-transparent text-[#f5f1e8] hover:text-liberation-gold-divine hover:border-liberation-gold-divine/60 flex items-center gap-2"
               >
                 <Home size={18} />
                 Home
@@ -69,7 +62,7 @@ export function PublicLayout({ children }: PublicLayoutProps) {
                 href="https://events.blkoutuk.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="px-4 py-2 text-base font-signature font-black uppercase tracking-tight transition-colors duration-200 border-b-2 border-transparent text-gray-200 hover:text-liberation-events hover:border-liberation-events/60 flex items-center gap-2"
+                className="px-4 py-2 text-base font-signature font-black uppercase tracking-tight transition-colors duration-200 border-b-2 border-transparent text-[#f5f1e8] hover:text-liberation-events hover:border-liberation-events/60 flex items-center gap-2"
               >
                 <Calendar size={18} />
                 Events
@@ -78,7 +71,7 @@ export function PublicLayout({ children }: PublicLayoutProps) {
                 href="https://news.blkoutuk.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="px-4 py-2 text-base font-signature font-black uppercase tracking-tight transition-colors duration-200 border-b-2 border-transparent text-gray-200 hover:text-liberation-pride-purple-deep hover:border-liberation-pride-purple-deep/60 flex items-center gap-2"
+                className="px-4 py-2 text-base font-signature font-black uppercase tracking-tight transition-colors duration-200 border-b-2 border-transparent text-[#f5f1e8] hover:text-liberation-pride-purple-deep hover:border-liberation-pride-purple-deep/60 flex items-center gap-2"
               >
                 <Newspaper size={18} />
                 News
@@ -87,7 +80,7 @@ export function PublicLayout({ children }: PublicLayoutProps) {
                 href="https://blkoutuk.com/intro"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="px-4 py-2 text-base font-signature font-black uppercase tracking-tight transition-colors duration-200 border-b-2 border-transparent text-gray-200 hover:text-liberation-aivor hover:border-liberation-aivor/60 flex items-center gap-2"
+                className="px-4 py-2 text-base font-signature font-black uppercase tracking-tight transition-colors duration-200 border-b-2 border-transparent text-[#f5f1e8] hover:text-liberation-aivor hover:border-liberation-aivor/60 flex items-center gap-2"
               >
                 <Brain size={18} />
                 AIvor
@@ -96,7 +89,7 @@ export function PublicLayout({ children }: PublicLayoutProps) {
                 href="https://voices.blkoutuk.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="px-4 py-2 text-base font-signature font-black uppercase tracking-tight transition-colors duration-200 border-b-2 border-transparent text-gray-200 hover:text-liberation-pan-african-green hover:border-liberation-pan-african-green/60 flex items-center gap-2"
+                className="px-4 py-2 text-base font-signature font-black uppercase tracking-tight transition-colors duration-200 border-b-2 border-transparent text-[#f5f1e8] hover:text-liberation-pan-african-green hover:border-liberation-pan-african-green/60 flex items-center gap-2"
               >
                 <ExternalLink size={18} />
                 Voices
@@ -106,7 +99,7 @@ export function PublicLayout({ children }: PublicLayoutProps) {
             {/* Mobile - Platform link */}
             <a
               href="https://blkoutuk.com"
-              className="md:hidden px-4 py-2 bg-liberation-gold-divine/10 text-liberation-gold-divine rounded-md text-sm font-semibold border border-liberation-gold-divine/30 hover:bg-liberation-gold-divine/20 transition-colors"
+              className="md:hidden px-4 py-2 bg-[#d4af37] text-[#0a0a14] hover:bg-[#ffd700] text-sm font-semibold transition-colors"
             >
               Platform
             </a>
@@ -117,7 +110,7 @@ export function PublicLayout({ children }: PublicLayoutProps) {
             (Discover/Community = gold, Shop = orange, Membership/About = red).
             Class strings are inline (not data-driven) so Tailwind's JIT picks up every variant. */}
         {showSecondRow && (
-          <div className="border-t border-liberation-gold-divine/20 bg-black/80">
+          <div className="border-t border-liberation-gold-divine/20 bg-[#0a0a14]/80">
             <div className="max-w-7xl mx-auto px-6 py-1.5">
               <nav className="hidden md:flex items-center gap-3 justify-end" aria-label="Secondary navigation">
                 <Link
@@ -180,7 +173,7 @@ export function PublicLayout({ children }: PublicLayoutProps) {
       </main>
 
       {/* Footer - matches blkoutuk.com */}
-      <footer className="bg-black border-t border-liberation-sovereignty-gold/20 mt-16">
+      <footer className="bg-[#0a0a14] border-t border-liberation-sovereignty-gold/20 mt-16">
         <div className="max-w-7xl mx-auto px-6 py-12">
           {/* Navigation Links */}
           <div className="flex flex-wrap justify-center gap-4 mb-8">
