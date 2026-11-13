@@ -57,21 +57,21 @@ export function BoroughDoorsWidget() {
             Find your borough
           </h2>
           <span className="inline-block mt-1 px-3 py-0.5 bg-liberation-gold-divine/15 text-liberation-gold-divine border border-liberation-gold-divine/30 text-xs font-bold rounded-full uppercase tracking-wide">
-            {openCount} doors open
+            {openCount} local pages live
           </span>
         </div>
       </div>
 
       <p className="text-gray-300 text-sm leading-relaxed mb-5">
-        One community, many doors. Each borough door carries what&apos;s here, what&apos;s beside us,
+        One community, many local pages. Each one carries what&apos;s here, what&apos;s beside us,
         what&apos;s worth the journey — and the history that borough made.{' '}
         <span className="text-gray-400">The dark boroughs are the ones still to open.</span>
       </p>
 
       <p className="text-sm leading-relaxed mb-5 border-l-2 border-liberation-gold-divine bg-liberation-gold-divine/5 px-3 py-2 text-gray-300">
         <strong className="text-liberation-gold-divine">New on BLKOUT Local.</strong> Every gathering on the
-        events calendar now points to its own door, and gatherings that have happened keep their page. And
-        our first door outside London is open:{' '}
+        events calendar now links to the local page for where it&apos;s happening, and gatherings that have happened keep their page. And
+        our first local page outside London is live:{' '}
         <a
           href={DOOR_URL('birmingham')}
           target="_blank"
@@ -85,7 +85,7 @@ export function BoroughDoorsWidget() {
       <svg
         viewBox={boroughsMap.viewBox}
         role="img"
-        aria-label={`Map of the 33 London boroughs. Doors are currently open in ${Object.values(
+        aria-label={`Map of the 33 London boroughs. Local pages are live for ${Object.values(
           OPEN_DOORS
         ).join(', ')}.`}
         className="w-full h-auto mb-4"
@@ -103,7 +103,7 @@ export function BoroughDoorsWidget() {
               }
               style={{ strokeLinejoin: 'round' }}
             >
-              <title>{isOpen ? `${name} — door open` : name}</title>
+              <title>{isOpen ? `${name} — page live` : name}</title>
             </path>
           );
           return isOpen ? (
@@ -112,7 +112,7 @@ export function BoroughDoorsWidget() {
               href={DOOR_URL(slug)}
               target="_blank"
               rel="noopener noreferrer"
-              aria-label={`${name} — open the borough door`}
+              aria-label={`${name} — open the local page`}
             >
               {shape}
             </a>
