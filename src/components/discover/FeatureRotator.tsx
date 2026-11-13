@@ -65,7 +65,7 @@ export function FeatureRotator({
       role="region"
       aria-roledescription="carousel"
       aria-label={label}
-      className={`relative min-w-0 bg-[#14141f] ${className}`}
+      className={`relative min-w-0 flex flex-col ${className}`}
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
       onFocusCapture={() => setPaused(true)}
@@ -79,7 +79,7 @@ export function FeatureRotator({
           const first = el.children[0] as HTMLElement | undefined;
           setIndex(Math.round(el.scrollLeft / Math.max(first?.offsetWidth ?? el.clientWidth, 1)));
         }}
-        className={`flex h-full overflow-x-auto snap-x snap-mandatory [scrollbar-width:none] [&::-webkit-scrollbar]:hidden ${threeUpOnDesktop ? 'lg:gap-3 lg:bg-[#0a0a14]' : ''}`}
+        className={`flex flex-1 overflow-x-auto snap-x snap-mandatory [scrollbar-width:none] [&::-webkit-scrollbar]:hidden ${threeUpOnDesktop ? 'lg:gap-3 lg:bg-[#0a0a14]' : ''}`}
       >
         {slides.map((s, i) => {
           const img = s.image && !broken[s.key] ? s.image : null;
@@ -90,7 +90,7 @@ export function FeatureRotator({
               role="group"
               aria-roledescription="slide"
               aria-label={`${i + 1} of ${slides.length}: ${s.title}`}
-              className={`relative flex w-full ${threeUpOnDesktop ? 'lg:w-[calc((100%-1.5rem)/3)] lg:bg-[#14141f]' : ''} h-full shrink-0 snap-start flex-col justify-end min-h-[340px] border-l-4 border-[#d4af37] pl-5 pr-6 pt-6 ${threeUpOnDesktop ? 'pb-7' : 'pb-14'} outline-2 -outline-offset-2 hover:outline focus-visible:outline outline-[#ffd700]`}
+              className={`relative flex w-full ${threeUpOnDesktop ? 'lg:w-[calc((100%-1.5rem)/3)]' : ''} h-full shrink-0 snap-start flex-col justify-end min-h-[340px] bg-[#14141f] border-l-4 border-[#d4af37] pl-5 pr-6 pt-6 pb-7 outline-2 -outline-offset-2 hover:outline focus-visible:outline outline-[#ffd700]`}
             >
               {s.fit === 'contain' && (
                 <span className="absolute inset-0 bg-[radial-gradient(ellipse_at_20%_10%,rgba(74,25,66,0.6),transparent_65%)]" aria-hidden="true" />
@@ -136,16 +136,13 @@ export function FeatureRotator({
             <span className={`block h-2 rounded-full transition-all ${i === index ? 'w-6 bg-[#d4af37]' : 'w-2 bg-[#f5f1e8]/50'}`} />
           </button>
         ));
-        if (!threeUpOnDesktop) {
-          return <div className="absolute bottom-0 left-0 right-4 h-11 flex items-center">{dots}</div>;
-        }
-        // Row of cards: controls sit in their own row below, not inside a card
+        // Controls sit centred in their own row under the carousel, never inside a slide
         const step = (d: number) => { setStopped(true); go((index + d + slides.length) % slides.length); };
         return (
-          <div className={`flex items-center justify-center gap-2 bg-[#0a0a14] pt-4 ${slides.length <= 3 ? 'lg:hidden' : ''}`}>
-            <button type="button" onClick={() => step(-1)} aria-label="Previous" className="hidden lg:flex h-10 w-10 items-center justify-center border border-[#d4af37]/40 text-[#d4af37] hover:text-[#ffd700] hover:border-[#ffd700]">←</button>
+          <div className={`flex items-center justify-center gap-2 pt-3 ${threeUpOnDesktop && slides.length <= 3 ? 'lg:hidden' : ''}`}>
+            {threeUpOnDesktop && <button type="button" onClick={() => step(-1)} aria-label="Previous" className="hidden lg:flex h-10 w-10 items-center justify-center border border-[#d4af37]/40 text-[#d4af37] hover:text-[#ffd700] hover:border-[#ffd700]">←</button>}
             <div className="flex items-center">{dots}</div>
-            <button type="button" onClick={() => step(1)} aria-label="Next" className="hidden lg:flex h-10 w-10 items-center justify-center border border-[#d4af37]/40 text-[#d4af37] hover:text-[#ffd700] hover:border-[#ffd700]">→</button>
+            {threeUpOnDesktop && <button type="button" onClick={() => step(1)} aria-label="Next" className="hidden lg:flex h-10 w-10 items-center justify-center border border-[#d4af37]/40 text-[#d4af37] hover:text-[#ffd700] hover:border-[#ffd700]">→</button>}
           </div>
         );
       })()}
