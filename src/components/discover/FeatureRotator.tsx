@@ -90,7 +90,7 @@ export function FeatureRotator({
               role="group"
               aria-roledescription="slide"
               aria-label={`${i + 1} of ${slides.length}: ${s.title}`}
-              className={`relative flex w-full ${threeUpOnDesktop ? 'lg:w-[calc((100%-1.5rem)/3)] lg:bg-[#14141f]' : ''} h-full shrink-0 snap-start flex-col justify-end min-h-[300px] border-l-4 border-[#d4af37] pl-3 pr-4 pt-5 pb-12 ${threeUpOnDesktop && slides.length <= 3 ? 'lg:pb-6' : ''} outline-2 -outline-offset-2 hover:outline focus-visible:outline outline-[#ffd700]`}
+              className={`relative flex w-full ${threeUpOnDesktop ? 'lg:w-[calc((100%-1.5rem)/3)] lg:bg-[#14141f]' : ''} h-full shrink-0 snap-start flex-col justify-end min-h-[300px] border-l-4 border-[#d4af37] pl-3 pr-4 pt-5 ${threeUpOnDesktop ? 'pb-6' : 'pb-12'} outline-2 -outline-offset-2 hover:outline focus-visible:outline outline-[#ffd700]`}
             >
               {s.fit === 'contain' && (
                 <span className="absolute inset-0 bg-[radial-gradient(ellipse_at_20%_10%,rgba(74,25,66,0.6),transparent_65%)]" aria-hidden="true" />
@@ -108,7 +108,7 @@ export function FeatureRotator({
                       : 'absolute inset-0 w-full h-full object-cover'}
                   />
                   {s.fit !== 'contain' && (
-                    <span className="absolute inset-0 bg-gradient-to-t from-[#0a0a14] from-30% via-[#0a0a14]/90 via-55% to-transparent" aria-hidden="true" />
+                    <span className="absolute inset-0 bg-gradient-to-t from-[#0a0a14] from-35% via-[#0a0a14]/90 via-60% to-transparent" aria-hidden="true" />
                   )}
                 </>
               )}
@@ -123,22 +123,32 @@ export function FeatureRotator({
         })}
       </div>
 
-      {slides.length > 1 && (
-        <div className={`absolute bottom-0 left-0 right-4 h-11 flex items-center ${threeUpOnDesktop && slides.length <= 3 ? 'lg:hidden' : ''}`}>
-          {slides.map((s, i) => (
-            <button
-              key={s.key}
-              type="button"
-              onClick={() => { setStopped(true); go(i); }}
-              aria-label={`Show ${i + 1} of ${slides.length}`}
-              aria-current={i === index}
-              className="h-11 w-11 flex items-center justify-center"
-            >
-              <span className={`block h-2 rounded-full transition-all ${i === index ? 'w-6 bg-[#d4af37]' : 'w-2 bg-[#f5f1e8]/50'}`} />
-            </button>
-          ))}
-        </div>
-      )}
+      {slides.length > 1 && (() => {
+        const dots = slides.map((s, i) => (
+          <button
+            key={s.key}
+            type="button"
+            onClick={() => { setStopped(true); go(i); }}
+            aria-label={`Show ${i + 1} of ${slides.length}`}
+            aria-current={i === index}
+            className="h-11 w-11 flex items-center justify-center"
+          >
+            <span className={`block h-2 rounded-full transition-all ${i === index ? 'w-6 bg-[#d4af37]' : 'w-2 bg-[#f5f1e8]/50'}`} />
+          </button>
+        ));
+        if (!threeUpOnDesktop) {
+          return <div className="absolute bottom-0 left-0 right-4 h-11 flex items-center">{dots}</div>;
+        }
+        // Row of cards: controls sit in their own row below, not inside a card
+        const step = (d: number) => { setStopped(true); go((index + d + slides.length) % slides.length); };
+        return (
+          <div className={`flex items-center justify-center gap-2 bg-[#0a0a14] pt-2 ${slides.length <= 3 ? 'lg:hidden' : ''}`}>
+            <button type="button" onClick={() => step(-1)} aria-label="Previous" className="hidden lg:flex h-10 w-10 items-center justify-center border border-[#d4af37]/40 text-[#d4af37] hover:text-[#ffd700] hover:border-[#ffd700]">←</button>
+            <div className="flex items-center">{dots}</div>
+            <button type="button" onClick={() => step(1)} aria-label="Next" className="hidden lg:flex h-10 w-10 items-center justify-center border border-[#d4af37]/40 text-[#d4af37] hover:text-[#ffd700] hover:border-[#ffd700]">→</button>
+          </div>
+        );
+      })()}
     </section>
   );
 }

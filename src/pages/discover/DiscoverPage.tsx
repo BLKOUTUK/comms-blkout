@@ -36,11 +36,14 @@ const NOW_CARDS: readonly NowCard[] = [
   },
 ];
 
-/* Explore: the lasting things worth a visit, rotating under the tiles. Add Ten Years,
-   Liberation and the latest Drop here once their addresses are confirmed. */
+/* Explore: the lasting things worth a visit, rotating under the tiles. Addresses come from
+   the sites' own sitemaps (blkoutuk.com/sitemap.xml etc.); swap the drop when a new one lands. */
 const EXPLORE: FeatureSlide[] = [
   { key: 'hub', eyebrow: 'BLKOUTHUB', title: 'Where we meet online', blurb: 'Our members-first community platform: forums, groups, events.', href: 'https://blkouthub.com', image: '/images/blkouthub_logo.png', fit: 'contain', cta: 'Visit the Hub' },
+  { key: 'movement', eyebrow: 'The Movement', title: 'How connection becomes collective power', blurb: "BLKOUT's theory of change, card by card.", href: 'https://blkoutuk.com/movement', image: '/images/foundation/joy-05.jpg', focus: '50% 25%', cta: 'Read the theory' },
   { key: 'oomf', eyebrow: 'Play · OOMF', title: "We're the heroes we've been waiting for", blurb: 'Put yourself in the story: an interactive Afrofuturist comic.', href: 'https://oomf.blkoutuk.com/', image: 'https://blkoutuk.com/images/theory-of-change/the%20oomf%20crew.jpg', focus: '50% 20%', cta: 'Play' },
+  { key: 'ten', eyebrow: 'Ten Years', title: 'Ten years of revolutionary love', blurb: 'Four shapes, one commitment, and a great deal of joy taken seriously.', href: 'https://blkoutuk.com/ten-years', image: '/images/ten-still.png', cta: 'Look back' },
+  { key: 'drop', eyebrow: 'Latest drop · 01', title: "Ivor's Compass journal", blurb: 'Print run pending: register your interest.', href: 'https://blkoutuk.com/shop/drops/compass-journal', image: '/images/june2026-compass-hero.jpg', cta: 'Register interest' },
   { key: 'commons', eyebrow: 'The Commons', title: 'Shared ground, shared ambition', blurb: 'Where Black queer men co-create the digital world we deserve.', href: 'https://commons.blkoutuk.com/', image: '/images/foundation/joy-08.jpg', focus: '50% 30%', cta: 'Step in' },
 ];
 
