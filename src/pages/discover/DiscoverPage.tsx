@@ -35,8 +35,8 @@ const GATEWAY = [
   { title: 'News', blurb: 'The week, voted up by the community', href: 'https://news.blkoutuk.com', accent: '#9b4dca' },
   { title: 'Watch', blurb: 'Films and shorts on YouTube', href: 'https://www.youtube.com/@blkoutuk', accent: '#ff1493' },
   { title: 'Meet AIvor', blurb: 'Our guide to the whole platform', href: 'https://blkoutuk.com/intro', accent: '#5b9bd5' },
-  { title: 'Newsletter', blurb: 'Once a month, in your inbox', href: '/preferences', accent: '#d4af37' },
-  { title: 'Join', blurb: 'Become a member-owner', href: 'https://blkoutuk.com/governance', accent: '#e31e24' },
+  { title: 'Newsletter', blurb: 'Once a month, in your inbox', href: '/preferences', accent: '#d4af37', invert: '#0a0a14' },
+  { title: 'Join', blurb: 'Become a member‑owner', href: 'https://blkoutuk.com/governance', accent: '#e31e24', invert: '#f5f1e8', fill: '#a3151a' },
 ] as const;
 
 const SECTIONS = [
@@ -114,20 +114,25 @@ export function DiscoverPage() {
 
       {/* ONE TAP — each tile wears its section's colour (DESIGN.md §2.2); the whole tile is the link */}
       <nav aria-label="Go to" className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-10">
-        {GATEWAY.map(t => (
-          <a
-            key={t.title}
-            href={t.href}
-            className="flex flex-col min-h-[112px] lg:min-h-0 bg-[#14141f] border-t-4 p-4 lg:py-6 outline-2 outline-offset-0 hover:outline active:outline"
-            style={{ borderTopColor: t.accent, outlineColor: t.accent }}
-          >
-            <span className="flex items-start justify-between gap-2">
-              <span className="font-['Work_Sans'] font-black uppercase text-[#f5f1e8] text-lg sm:text-xl leading-none tracking-tight">{t.title}</span>
-              <span className="shrink-0 text-xl leading-none" style={{ color: t.accent }} aria-hidden="true">→</span>
-            </span>
-            <span className="text-[#a8a195] text-sm mt-2 leading-snug">{t.blurb}</span>
-          </a>
-        ))}
+        {GATEWAY.map(t => {
+          /* Action tiles (newsletter, join) are inverted: filled in their accent so they stand out
+             from the navigation tiles. Text flips per DESIGN.md §2.1 "cream on accent". */
+          const ink = 'invert' in t ? t.invert : undefined;
+          return (
+            <a
+              key={t.title}
+              href={t.href}
+              className={`flex flex-col min-h-[112px] lg:min-h-0 border-t-4 p-4 lg:py-6 outline-2 outline-offset-2 hover:outline active:outline ${ink ? '' : 'bg-[#14141f]'}`}
+              style={{ borderTopColor: t.accent, outlineColor: t.accent, ...(ink ? { backgroundColor: 'fill' in t ? t.fill : t.accent } : {}) }}
+            >
+              <span className="flex items-start justify-between gap-4">
+                <span className="font-['Work_Sans'] font-black uppercase text-[17px] sm:text-xl leading-none tracking-tight" style={{ color: ink ?? '#f5f1e8' }}>{t.title}</span>
+                <span className="shrink-0 text-xl leading-none" style={{ color: ink ?? t.accent }} aria-hidden="true">→</span>
+              </span>
+              <span className="text-sm mt-2 leading-snug" style={{ color: ink ?? '#a8a195' }}>{t.blurb}</span>
+            </a>
+          );
+        })}
       </nav>
 
       {/* Search — filters the sections below */}
