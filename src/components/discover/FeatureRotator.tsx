@@ -115,7 +115,7 @@ export function FeatureRotator({
               <span className="relative">
                 <span className="inline-block bg-[#0a0a14] px-2 py-1 -ml-2 font-['IBM_Plex_Mono'] font-medium text-[11px] tracking-[0.3em] uppercase text-[#d4af37] mb-3">{s.eyebrow}</span>
                 <span className="block font-['Work_Sans'] font-black uppercase text-[#f5f1e8] text-xl sm:text-2xl leading-tight tracking-tight">{s.title}</span>
-                {s.blurb && <span className="block text-[#f5f1e8]/85 text-sm sm:text-base mt-3 leading-relaxed line-clamp-2">{s.blurb}</span>}
+                {s.blurb && <span className="text-[#f5f1e8]/85 text-sm sm:text-base mt-3 leading-relaxed line-clamp-2">{s.blurb}</span>}
                 <span className="block mt-4 text-[#d4af37] font-semibold text-sm">{s.cta ?? 'Open'} →</span>
               </span>
             </a>
