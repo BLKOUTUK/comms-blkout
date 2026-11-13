@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { PublicLayout } from '@/components/layout/PublicLayout';
 import { YouTubeEmbed } from '@/components/discover/YouTubeEmbed';
 import { SocialMediaFeed } from '@/components/discover/SocialMediaFeed';
@@ -12,12 +12,18 @@ import { FeaturedEventsWidget } from '@/components/discover/FeaturedEventsWidget
 import { LearningWidget } from '@/components/discover/LearningWidget';
 import { PlaygroundWidget } from '@/components/discover/PlaygroundWidget';
 import { BoroughDoorsWidget } from '@/components/discover/BoroughDoorsWidget';
+import { FeatureRotator, type FeatureSlide } from '@/components/discover/FeatureRotator';
+import FoundationLayer from '@/components/foundation/FoundationLayer';
+import { supabase, isSupabaseConfigured } from '@/lib/supabase';
 import { Search } from 'lucide-react';
+
+const VOICES_URL = 'https://voices.blkoutuk.cloud';
 
 /* Dated "now" cards: each shows only between `from` and `until` (UTC), so nothing
    stale lingers (the Icons Quiz sat here for two weeks after it ended). Add the next
    campaign here with its end date. */
-const NOW_CARDS = [
+type NowCard = { from: string; until: string; label: string; title: string; blurb: string; cta: string; href: string; image?: string; focus?: string };
+const NOW_CARDS: readonly NowCard[] = [
   {
     from: '2026-11-13T09:07:00Z', until: '2026-12-01T00:00:00Z',
     label: 'New on Voices · 13 Nov',
@@ -25,8 +31,18 @@ const NOW_CARDS = [
     blurb: "Five justices rule, unanimously, that Trinidad and Tobago's laws criminalising gay men cannot stand.",
     cta: 'Read it',
     href: 'https://voices.blkoutuk.com/articles/jason-jones-wins-at-the-privy-council?utm_source=discover&utm_medium=web&utm_campaign=now-card',
+    image: 'https://raw.githubusercontent.com/BLKOUTUK/commons/main/public/voices/jason-jones-privy-council-hero.jpg',
+    focus: '92% 25%',
   },
-] as const;
+];
+
+/* Explore: the lasting things worth a visit, rotating under the tiles. Add Ten Years,
+   Liberation and the latest Drop here once their addresses are confirmed. */
+const EXPLORE: FeatureSlide[] = [
+  { key: 'hub', eyebrow: 'BLKOUTHUB', title: 'Where we meet online', blurb: 'Our members-first community platform: forums, groups, events.', href: 'https://blkouthub.com', image: '/images/blkouthub_logo.png', fit: 'contain', cta: 'Visit the Hub' },
+  { key: 'oomf', eyebrow: 'Play · OOMF', title: "We're the heroes we've been waiting for", blurb: 'Put yourself in the story: an interactive Afrofuturist comic.', href: 'https://oomf.blkoutuk.com/', image: 'https://blkoutuk.com/images/theory-of-change/the%20oomf%20crew.jpg', focus: '50% 20%', cta: 'Play' },
+  { key: 'commons', eyebrow: 'The Commons', title: 'Shared ground, shared ambition', blurb: 'Where Black queer men co-create the digital world we deserve.', href: 'https://commons.blkoutuk.com/', image: '/images/foundation/joy-08.jpg', focus: '50% 30%', cta: 'Step in' },
+];
 
 const GATEWAY = [
   { title: "What's on", blurb: 'Gatherings, all checked', href: 'https://events.blkoutuk.com', accent: '#ffe600' },
@@ -62,6 +78,37 @@ export function DiscoverPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const now = Date.now();
   const nowCards = NOW_CARDS.filter(c => now >= Date.parse(c.from) && now < Date.parse(c.until));
+  const [live, setLive] = useState<FeatureSlide[]>([]);
+
+  // Fill the Now box from what we already publish: newest Voices piece, next BLKOUT-run
+  // event, this week's top news story. Each source fails quietly on its own.
+  useEffect(() => {
+    let cancelled = false;
+    const today = new Date().toISOString().split('T')[0];
+    const voices = fetch(`${VOICES_URL}/api/articles`).then(r => r.json()).then(d => {
+      const a = d?.success && Array.isArray(d.data) ? d.data[0] : null;
+      return a ? [{ key: `voices-${a.id}`, eyebrow: 'New on Voices', title: a.title, blurb: a.excerpt ?? undefined, href: `https://voices.blkoutuk.com/articles/${a.slug}`, image: a.hero_image ?? null, cta: 'Read it' }] : [];
+    }).catch(() => []);
+    const event = isSupabaseConfigured()
+      ? Promise.resolve(supabase.from('events').select('id, title, date, location, image_url').eq('status', 'approved').gte('date', today).ilike('organizer', '%blkout%').order('date', { ascending: true }).limit(1))
+          .then(({ data }) => {
+            const e = data?.[0];
+            if (!e) return [];
+            const day = new Date(`${e.date}T00:00:00Z`).toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', timeZone: 'UTC' });
+            return [{ key: `event-${e.id}`, eyebrow: `Next BLKOUT event · ${day}`, title: e.title, blurb: e.location ?? undefined, href: `https://events.blkoutuk.com/e/${e.id}`, image: e.image_url ?? null, cta: 'Find out more' }];
+          }).catch(() => [])
+      : Promise.resolve([]);
+    const news = fetch('https://news.blkoutuk.cloud/api/top-stories?period=week&limit=1').then(r => r.json()).then(d => {
+      const n = d?.data?.topStories?.[0];
+      return n ? [{ key: `news-${n.id}`, eyebrow: 'This week in news', title: n.title, blurb: n.source_name ? `via ${n.source_name} · vote on the week's stories` : undefined, href: 'https://news.blkoutuk.com', image: n.featured_image ?? null, cta: 'See the week' }] : [];
+    }).catch(() => []);
+    Promise.all([voices, event, news]).then(parts => { if (!cancelled) setLive(parts.flat() as FeatureSlide[]); });
+    return () => { cancelled = true; };
+  }, []);
+
+  const manualSlides: FeatureSlide[] = nowCards.map(c => ({ key: c.href, eyebrow: c.label, title: c.title, blurb: c.blurb, href: c.href, image: c.image ?? null, focus: c.focus, cta: c.cta }));
+  // A dated card about a Voices piece replaces that piece's automatic slide
+  const nowSlides = [...manualSlides, ...live.filter(l => !manualSlides.some(m => m.href.split('?')[0] === l.href))];
 
   const visible = (id: string) => {
     const section = SECTIONS.find(s => s.id === id);
@@ -73,8 +120,12 @@ export function DiscoverPage() {
       {/* GATEWAY — the page people land on from every social bio (blkoutuk.com/now).
           Phone first: who we are in one line, what's on now, then one tap to anywhere. */}
       {/* Hero + Now: stacked on phones; side by side on desktop so the hero's right half isn't empty */}
-      <div className={`-mt-4 sm:mt-0 mb-4 grid gap-4 ${nowCards.length ? 'lg:grid-cols-[3fr_2fr]' : ''}`}>
+      <div className={`-mt-4 sm:mt-0 mb-4 grid gap-4 ${nowSlides.length ? 'lg:grid-cols-[3fr_2fr]' : ''}`}>
         <section className="relative overflow-hidden bg-[#0a0a14] border-b-4 border-[#d4af37]">
+          {/* Real community photography (BLKOUT's own events), kept low behind the words */}
+          {/* Desktop only: on phones the Now box's image sits directly below, and a photo behind the words muddies them */}
+          <FoundationLayer src="/images/foundation/joy-07.jpg" anchor="60% 35%" opacity={0.9} className="hidden sm:block !left-[50%]" />
+          <div className="hidden sm:block absolute inset-y-0 left-[50%] right-0 pointer-events-none bg-gradient-to-r from-[#0a0a14] via-[#0a0a14]/40 to-transparent" />
           <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(ellipse_at_85%_0%,rgba(74,25,66,0.45),transparent_60%)]" />
           <div className="relative px-4 py-5 sm:py-7">
             <p className="font-['IBM_Plex_Mono'] font-medium text-[11px] tracking-[0.3em] uppercase text-[#d4af37] mb-3">
@@ -84,32 +135,17 @@ export function DiscoverPage() {
             <p aria-hidden="true" className="hidden sm:block font-['Work_Sans'] font-black uppercase leading-[0.85] tracking-[-0.04em] text-[#f5f1e8] text-[clamp(3.5rem,6vw,4.5rem)]">
               BLKOUT<span className="text-[#d4af37]">.</span>
             </p>
-            <h1 className="font-['Fraunces'] italic text-[#d4af37] text-2xl sm:text-3xl leading-tight sm:mt-4">
+            <h1 className="font-['Fraunces'] italic text-[#d4af37] text-2xl sm:text-3xl leading-tight sm:mt-4 sm:max-w-[48%]">
               The Black Queer Men's Liberation Collective
             </h1>
-            <p className="text-[#f5f1e8]/85 text-base sm:text-lg mt-2 max-w-xl">
+            <p className="text-[#f5f1e8]/85 text-base sm:text-lg mt-2 max-w-xl sm:max-w-[46%]">
               Gatherings, dialogue and community-owned tech for Black gay, bi and trans men in the UK. Member-owned.
             </p>
           </div>
         </section>
 
-        {/* NOW — dated cards that switch themselves on and off; the whole card is the link */}
-        {nowCards.length > 0 && (
-          <section aria-label="On now" className="grid gap-3">
-            {nowCards.map(c => (
-              <a
-                key={c.href}
-                href={c.href}
-                className="group flex flex-col justify-start bg-[#14141f] border-l-4 border-[#d4af37] pl-3 pr-4 py-5 sm:py-7 outline-2 outline-offset-0 hover:outline active:outline outline-[#d4af37]"
-              >
-                <p className="font-['IBM_Plex_Mono'] font-medium text-[11px] tracking-[0.3em] uppercase text-[#d4af37] mb-2">{c.label}</p>
-                <p className="font-['Work_Sans'] font-black uppercase text-[#f5f1e8] text-xl sm:text-2xl leading-tight tracking-tight">{c.title}</p>
-                <p className="text-[#a8a195] text-sm sm:text-base mt-2">{c.blurb}</p>
-                <p className="mt-2 text-[#d4af37] font-semibold text-sm group-hover:underline">{c.cta} →</p>
-              </a>
-            ))}
-          </section>
-        )}
+        {/* NOW — dated cards plus live slides (Voices, next BLKOUT event, news), rotating */}
+        {nowSlides.length > 0 && <FeatureRotator label="On now" slides={nowSlides} />}
       </div>
 
       {/* ONE TAP — each tile wears its section's colour (DESIGN.md §2.2); the whole tile is the link */}
@@ -134,6 +170,12 @@ export function DiscoverPage() {
           );
         })}
       </nav>
+
+      {/* EXPLORE — lasting features, rotating */}
+      <div className="mb-10">
+        <p className="font-['IBM_Plex_Mono'] font-medium text-[11px] tracking-[0.3em] uppercase text-[#d4af37] mb-2">Explore</p>
+        <FeatureRotator label="Explore BLKOUT" slides={EXPLORE} intervalMs={7000} threeUpOnDesktop className="lg:bg-transparent" />
+      </div>
 
       {/* Search — filters the sections below */}
       <div className="mb-8">
