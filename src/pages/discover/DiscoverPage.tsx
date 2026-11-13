@@ -53,7 +53,7 @@ const GATEWAY = [
   { title: 'Voices', blurb: 'Essays and stories from us', href: 'https://voices.blkoutuk.com', accent: '#00a86b' },
   { title: 'News', blurb: 'The week, voted up by the community', href: 'https://news.blkoutuk.com', accent: '#9b4dca' },
   { title: 'Watch', blurb: 'Films and shorts on YouTube', href: 'https://www.youtube.com/@blkoutuk', accent: '#ff1493' },
-  { title: 'Meet AIvor', blurb: 'Our guide to the whole platform', href: 'https://blkoutuk.com/intro', accent: '#5b9bd5' },
+  { title: 'AIvor', blurb: 'Meet our guide to the whole platform', href: 'https://blkoutuk.com/intro', accent: '#5b9bd5' },
   { title: 'Newsletter', blurb: 'Once a month, in your inbox', href: '/preferences', accent: '#d4af37', invert: '#0a0a14' },
   { title: 'Join', blurb: 'Become a member‑owner', href: 'https://blkoutuk.com/governance', accent: '#e31e24', invert: '#f5f1e8', fill: '#a3151a' },
 ] as const;
@@ -123,15 +123,15 @@ export function DiscoverPage() {
       {/* GATEWAY — the page people land on from every social bio (blkoutuk.com/now).
           Phone first: who we are in one line, what's on now, then one tap to anywhere. */}
       {/* Hero + Now: stacked on phones; side by side on desktop so the hero's right half isn't empty */}
-      <div className={`-mt-4 sm:mt-0 mb-4 grid gap-4 ${nowSlides.length ? 'lg:grid-cols-[3fr_2fr]' : ''}`}>
+      <div className={`mb-16 sm:mb-24 grid gap-4 lg:gap-8 ${nowSlides.length ? 'lg:grid-cols-[3fr_2fr]' : ''}`}>
         <section className="relative overflow-hidden bg-[#0a0a14] border-b-4 border-[#d4af37]">
           {/* Real community photography (BLKOUT's own events), kept low behind the words */}
           {/* Desktop only: on phones the Now box's image sits directly below, and a photo behind the words muddies them */}
           <FoundationLayer src="/images/foundation/joy-07.jpg" anchor="60% 35%" opacity={0.9} className="hidden sm:block !left-[50%]" />
           <div className="hidden sm:block absolute inset-y-0 left-[50%] right-0 pointer-events-none bg-gradient-to-r from-[#0a0a14] via-[#0a0a14]/40 to-transparent" />
           <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(ellipse_at_85%_0%,rgba(74,25,66,0.45),transparent_60%)]" />
-          <div className="relative px-4 py-5 sm:py-7">
-            <p className="font-['IBM_Plex_Mono'] font-medium text-[11px] tracking-[0.3em] uppercase text-[#d4af37] mb-3">
+          <div className="relative px-6 py-8 sm:py-12">
+            <p className="font-['IBM_Plex_Mono'] font-medium text-[11px] tracking-[0.3em] uppercase text-[#d4af37] mb-4 sm:mb-5">
               Discover <span className="text-[#d4af37]">·</span> start here
             </p>
             {/* The header already carries the wordmark; on phones the tagline leads so the tiles reach the first screen */}
@@ -141,7 +141,7 @@ export function DiscoverPage() {
             <h1 className="font-['Fraunces'] italic text-[#d4af37] text-2xl sm:text-3xl leading-tight sm:mt-4 sm:max-w-[48%]">
               The Black Queer Men's Liberation Collective
             </h1>
-            <p className="text-[#f5f1e8]/85 text-base sm:text-lg mt-2 max-w-xl sm:max-w-[46%]">
+            <p className="text-[#f5f1e8]/85 text-base sm:text-lg mt-4 leading-relaxed max-w-xl sm:max-w-[46%]">
               Gatherings, dialogue and community-owned tech for Black gay, bi and trans men in the UK. Member-owned.
             </p>
           </div>
@@ -152,7 +152,7 @@ export function DiscoverPage() {
       </div>
 
       {/* ONE TAP — each tile wears its section's colour (DESIGN.md §2.2); the whole tile is the link */}
-      <nav aria-label="Go to" className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-10">
+      <nav aria-label="Go to" className="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-5 mb-16 sm:mb-24">
         {GATEWAY.map(t => {
           /* Action tiles (newsletter, join) are inverted: filled in their accent so they stand out
              from the navigation tiles. Text flips per DESIGN.md §2.1 "cream on accent". */
@@ -161,28 +161,29 @@ export function DiscoverPage() {
             <a
               key={t.title}
               href={t.href}
-              className={`flex flex-col min-h-[112px] lg:min-h-0 border-t-4 p-4 lg:py-6 outline-2 outline-offset-2 hover:outline active:outline ${ink ? '' : 'bg-[#14141f]'}`}
+              className={`flex flex-col min-h-[136px] lg:min-h-0 border-t-4 p-6 lg:py-8 outline-2 outline-offset-2 hover:outline active:outline ${ink ? '' : 'bg-[#14141f]'}`}
               style={{ borderTopColor: t.accent, outlineColor: t.accent, ...(ink ? { backgroundColor: 'fill' in t ? t.fill : t.accent } : {}) }}
             >
-              <span className="flex items-start justify-between gap-4">
-                <span className="font-['Work_Sans'] font-black uppercase text-[17px] sm:text-xl leading-none tracking-tight" style={{ color: ink ?? '#f5f1e8' }}>{t.title}</span>
+              <span className="flex items-start justify-between gap-2 sm:gap-4">
+                <span className="font-['Work_Sans'] font-black uppercase text-[16px] sm:text-xl leading-none tracking-tight" style={{ color: ink ?? '#f5f1e8' }}>{t.title}</span>
                 <span className="shrink-0 text-xl leading-none" style={{ color: ink ?? t.accent }} aria-hidden="true">→</span>
               </span>
-              <span className="text-sm mt-2 leading-snug" style={{ color: ink ?? '#a8a195' }}>{t.blurb}</span>
+              <span className="text-sm mt-3 leading-relaxed" style={{ color: ink ?? '#a8a195' }}>{t.blurb}</span>
             </a>
           );
         })}
       </nav>
 
       {/* EXPLORE — lasting features, rotating */}
-      <div className="mb-10">
-        <p className="font-['IBM_Plex_Mono'] font-medium text-[11px] tracking-[0.3em] uppercase text-[#d4af37] mb-2">Explore</p>
+      {/* Bottom margin is less than the 64/96 rhythm because the dots row beneath the cards adds ~44px */}
+      <div className="mb-5 sm:mb-14">
+        <p className="font-['IBM_Plex_Mono'] font-medium text-[11px] tracking-[0.3em] uppercase text-[#d4af37] mb-4">Explore</p>
         <FeatureRotator label="Explore BLKOUT" slides={EXPLORE} intervalMs={7000} threeUpOnDesktop className="lg:bg-transparent" />
       </div>
 
       {/* Search — filters the sections below */}
-      <div className="mb-8">
-        <label htmlFor="discover-search" className="block font-['IBM_Plex_Mono'] font-medium text-[11px] tracking-[0.3em] uppercase text-[#d4af37] mb-2">
+      <div className="mb-16 sm:mb-24">
+        <label htmlFor="discover-search" className="block font-['IBM_Plex_Mono'] font-medium text-[11px] tracking-[0.3em] uppercase text-[#d4af37] mb-4">
           Everything else <span className="text-[#d4af37]">·</span> search
         </label>
         <div className="relative">

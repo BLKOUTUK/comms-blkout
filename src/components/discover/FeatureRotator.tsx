@@ -90,7 +90,7 @@ export function FeatureRotator({
               role="group"
               aria-roledescription="slide"
               aria-label={`${i + 1} of ${slides.length}: ${s.title}`}
-              className={`relative flex w-full ${threeUpOnDesktop ? 'lg:w-[calc((100%-1.5rem)/3)] lg:bg-[#14141f]' : ''} h-full shrink-0 snap-start flex-col justify-end min-h-[300px] border-l-4 border-[#d4af37] pl-3 pr-4 pt-5 ${threeUpOnDesktop ? 'pb-6' : 'pb-12'} outline-2 -outline-offset-2 hover:outline focus-visible:outline outline-[#ffd700]`}
+              className={`relative flex w-full ${threeUpOnDesktop ? 'lg:w-[calc((100%-1.5rem)/3)] lg:bg-[#14141f]' : ''} h-full shrink-0 snap-start flex-col justify-end min-h-[340px] border-l-4 border-[#d4af37] pl-5 pr-6 pt-6 ${threeUpOnDesktop ? 'pb-7' : 'pb-14'} outline-2 -outline-offset-2 hover:outline focus-visible:outline outline-[#ffd700]`}
             >
               {s.fit === 'contain' && (
                 <span className="absolute inset-0 bg-[radial-gradient(ellipse_at_20%_10%,rgba(74,25,66,0.6),transparent_65%)]" aria-hidden="true" />
@@ -104,7 +104,7 @@ export function FeatureRotator({
                     onError={() => setBroken(b => ({ ...b, [s.key]: true }))}
                     style={s.fit === 'contain' ? undefined : { objectPosition: s.focus ?? '50% 30%' }}
                     className={s.fit === 'contain'
-                      ? 'absolute left-1/2 -translate-x-1/2 top-5 h-24 w-24 object-contain'
+                      ? 'absolute left-1/2 -translate-x-1/2 top-7 h-24 w-24 object-contain'
                       : 'absolute inset-0 w-full h-full object-cover'}
                   />
                   {s.fit !== 'contain' && (
@@ -113,10 +113,10 @@ export function FeatureRotator({
                 </>
               )}
               <span className="relative">
-                <span className="inline-block bg-[#0a0a14] px-2 py-1 -ml-2 font-['IBM_Plex_Mono'] font-medium text-[11px] tracking-[0.3em] uppercase text-[#d4af37] mb-1">{s.eyebrow}</span>
+                <span className="inline-block bg-[#0a0a14] px-2 py-1 -ml-2 font-['IBM_Plex_Mono'] font-medium text-[11px] tracking-[0.3em] uppercase text-[#d4af37] mb-3">{s.eyebrow}</span>
                 <span className="block font-['Work_Sans'] font-black uppercase text-[#f5f1e8] text-xl sm:text-2xl leading-tight tracking-tight">{s.title}</span>
-                {s.blurb && <span className="block text-[#f5f1e8]/85 text-sm sm:text-base mt-2 line-clamp-2">{s.blurb}</span>}
-                <span className="block mt-2 text-[#d4af37] font-semibold text-sm">{s.cta ?? 'Open'} →</span>
+                {s.blurb && <span className="block text-[#f5f1e8]/85 text-sm sm:text-base mt-3 leading-relaxed line-clamp-2">{s.blurb}</span>}
+                <span className="block mt-4 text-[#d4af37] font-semibold text-sm">{s.cta ?? 'Open'} →</span>
               </span>
             </a>
           );
@@ -142,7 +142,7 @@ export function FeatureRotator({
         // Row of cards: controls sit in their own row below, not inside a card
         const step = (d: number) => { setStopped(true); go((index + d + slides.length) % slides.length); };
         return (
-          <div className={`flex items-center justify-center gap-2 bg-[#0a0a14] pt-2 ${slides.length <= 3 ? 'lg:hidden' : ''}`}>
+          <div className={`flex items-center justify-center gap-2 bg-[#0a0a14] pt-4 ${slides.length <= 3 ? 'lg:hidden' : ''}`}>
             <button type="button" onClick={() => step(-1)} aria-label="Previous" className="hidden lg:flex h-10 w-10 items-center justify-center border border-[#d4af37]/40 text-[#d4af37] hover:text-[#ffd700] hover:border-[#ffd700]">←</button>
             <div className="flex items-center">{dots}</div>
             <button type="button" onClick={() => step(1)} aria-label="Next" className="hidden lg:flex h-10 w-10 items-center justify-center border border-[#d4af37]/40 text-[#d4af37] hover:text-[#ffd700] hover:border-[#ffd700]">→</button>
