@@ -138,8 +138,9 @@ export function DiscoverPage() {
   };
 
   const beamOn = now < Date.parse(BEAM_DAY.until);
-  const fundOn = !!BEAM_DAY.crowdfunderUrl && now < Date.parse(BEAM_DAY.crowdfunderCloses);
-  const beamBtn = "inline-flex items-center min-h-[48px] px-5 font-['Work_Sans'] font-black uppercase text-sm sm:text-base tracking-tight outline-2 outline-offset-2 outline-[#ffd700] hover:outline focus-visible:outline";
+  const fundOpen = now < Date.parse(BEAM_DAY.crowdfunderCloses);
+  const fundOn = !!BEAM_DAY.crowdfunderUrl && fundOpen;
+  const beamBtn = "flex sm:inline-flex items-center justify-between sm:justify-start gap-3 min-h-[48px] px-5 font-['Work_Sans'] font-black uppercase text-sm sm:text-base tracking-tight outline-2 outline-offset-2 outline-[#ffd700] hover:outline focus-visible:outline";
   const beamFill = `${beamBtn} bg-[#d4af37] text-[#0a0a14]`;
   const beamLine = `${beamBtn} border-2 border-[#d4af37] text-[#f5f1e8]`;
 
@@ -148,9 +149,9 @@ export function DiscoverPage() {
       {/* JOSEPH BEAM DAY — first thing on the page while it is ahead of us */}
       {beamOn && (
         <section aria-labelledby="beam-day" className="mb-10 sm:mb-14 grid lg:grid-cols-[3fr_2fr] bg-[#14141f] border-t-4 border-[#d4af37]">
-          <div className="flex flex-col justify-center p-6 sm:p-10">
+          <div className="min-w-0 flex flex-col justify-center p-6 sm:p-10">
             <p className="font-['IBM_Plex_Mono'] font-medium text-[11px] tracking-[0.3em] uppercase text-[#d4af37] mb-4">
-              Mon 28 Dec <span aria-hidden="true">·</span> Croydon{fundOn && <> <span aria-hidden="true">·</span> Crowdfunder open</>}
+              <span className="whitespace-nowrap">Mon 28 Dec <span aria-hidden="true">·</span> Croydon</span>{fundOn && <>{' '}<span className="block sm:inline whitespace-nowrap"><span aria-hidden="true" className="hidden sm:inline">· </span>Crowdfunder open</span></>}
             </p>
             <h2 id="beam-day" className="font-['Work_Sans'] font-black uppercase leading-[0.9] tracking-[-0.03em] text-[#f5f1e8] text-[clamp(2.5rem,7vw,4.25rem)]">
               Joseph Beam Day<span className="text-[#d4af37]">.</span>
@@ -158,15 +159,15 @@ export function DiscoverPage() {
             <p className="font-['Fraunces'] italic text-[#d4af37] text-xl sm:text-2xl leading-snug mt-4 max-w-xl">
               An alternative Black queer Christmas, with room at the table for every generation.
             </p>
-            {fundOn && (
+            {fundOpen && (
               <p className="text-[#f5f1e8]/85 text-base sm:text-lg leading-relaxed mt-4 max-w-xl">
-                £25 sets a place: a seat, a meal, a gift and a ride home. We're raising £2,500 by Mon 7 Dec.
+                £25 sets a place: a seat, a meal, a gift and a ride home. {fundOn ? "We're raising £2,500 by Mon 7 Dec." : 'Our crowdfunder opens shortly.'}
               </p>
             )}
-            <div className="mt-6 flex flex-wrap gap-3">
-              {fundOn && <a href={BEAM_DAY.crowdfunderUrl} className={beamFill}>Back the crowdfunder →</a>}
-              <a href={BEAM_DAY.page} className={fundOn ? beamLine : beamFill}>About the day →</a>
-              <a href={`${BEAM_DAY.page}#join`} className={beamLine}>Lend a hand →</a>
+            <div className="mt-6 flex flex-col sm:flex-row sm:flex-wrap gap-3">
+              {fundOn && <a href={BEAM_DAY.crowdfunderUrl} className={beamFill}>Back the crowdfunder <span aria-hidden="true">→</span></a>}
+              <a href={BEAM_DAY.page} className={fundOn ? beamLine : beamFill}>About the day <span aria-hidden="true">→</span></a>
+              <a href={`${BEAM_DAY.page}#join`} className={beamLine}>Lend a hand <span aria-hidden="true">→</span></a>
             </div>
           </div>
           <img src="/images/beam-day-room.jpg" alt="A room full of Black queer men, seated and listening, at a BLKOUT gathering" className="w-full h-56 sm:h-72 lg:h-full object-cover" style={{ objectPosition: '50% 62%' }} />
