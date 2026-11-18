@@ -45,6 +45,16 @@ const NOW_CARDS: readonly NowCard[] = [
   },
 ];
 
+/* Joseph Beam Day: the film and reels send people to blkoutuk.com/now, so the day leads this
+   page until it has happened. The crowdfunder button and its line appear only once
+   `crowdfunderUrl` is filled in, and only until it closes: never a placeholder link. */
+const BEAM_DAY = {
+  until: '2026-12-29T00:00:00Z',
+  page: 'https://commons.blkoutuk.com/beam-day',
+  crowdfunderUrl: '',
+  crowdfunderCloses: '2026-12-08T00:00:00Z',
+};
+
 /* Explore: the lasting things worth a visit, rotating under the tiles. Addresses come from
    the sites' own sitemaps (blkoutuk.com/sitemap.xml etc.); swap the drop when a new one lands. */
 const EXPLORE: FeatureSlide[] = [
@@ -127,8 +137,41 @@ export function DiscoverPage() {
     return section ? matchesSearch(section.keywords, searchQuery) : true;
   };
 
+  const beamOn = now < Date.parse(BEAM_DAY.until);
+  const fundOn = !!BEAM_DAY.crowdfunderUrl && now < Date.parse(BEAM_DAY.crowdfunderCloses);
+  const beamBtn = "inline-flex items-center min-h-[48px] px-5 font-['Work_Sans'] font-black uppercase text-sm sm:text-base tracking-tight outline-2 outline-offset-2 outline-[#ffd700] hover:outline focus-visible:outline";
+  const beamFill = `${beamBtn} bg-[#d4af37] text-[#0a0a14]`;
+  const beamLine = `${beamBtn} border-2 border-[#d4af37] text-[#f5f1e8]`;
+
   return (
     <PublicLayout>
+      {/* JOSEPH BEAM DAY — first thing on the page while it is ahead of us */}
+      {beamOn && (
+        <section aria-labelledby="beam-day" className="mb-10 sm:mb-14 grid lg:grid-cols-[3fr_2fr] bg-[#14141f] border-t-4 border-[#d4af37]">
+          <div className="flex flex-col justify-center p-6 sm:p-10">
+            <p className="font-['IBM_Plex_Mono'] font-medium text-[11px] tracking-[0.3em] uppercase text-[#d4af37] mb-4">
+              Mon 28 Dec <span aria-hidden="true">·</span> Croydon{fundOn && <> <span aria-hidden="true">·</span> Crowdfunder open</>}
+            </p>
+            <h2 id="beam-day" className="font-['Work_Sans'] font-black uppercase leading-[0.9] tracking-[-0.03em] text-[#f5f1e8] text-[clamp(2.5rem,7vw,4.25rem)]">
+              Joseph Beam Day<span className="text-[#d4af37]">.</span>
+            </h2>
+            <p className="font-['Fraunces'] italic text-[#d4af37] text-xl sm:text-2xl leading-snug mt-4 max-w-xl">
+              An alternative Black queer Christmas, with room at the table for every generation.
+            </p>
+            {fundOn && (
+              <p className="text-[#f5f1e8]/85 text-base sm:text-lg leading-relaxed mt-4 max-w-xl">
+                £25 sets a place: a seat, a meal, a gift and a ride home. We're raising £2,500 by Mon 7 Dec.
+              </p>
+            )}
+            <div className="mt-6 flex flex-wrap gap-3">
+              {fundOn && <a href={BEAM_DAY.crowdfunderUrl} className={beamFill}>Back the crowdfunder →</a>}
+              <a href={BEAM_DAY.page} className={fundOn ? beamLine : beamFill}>About the day →</a>
+              <a href={`${BEAM_DAY.page}#join`} className={beamLine}>Lend a hand →</a>
+            </div>
+          </div>
+          <img src="/images/beam-day-room.jpg" alt="A room full of Black queer men, seated and listening, at a BLKOUT gathering" className="w-full h-56 sm:h-72 lg:h-full object-cover" style={{ objectPosition: '50% 62%' }} />
+        </section>
+      )}
       {/* GATEWAY — the page people land on from every social bio (blkoutuk.com/now).
           Phone first: who we are in one line, what's on now, then one tap to anywhere. */}
       {/* Hero + Now: stacked on phones; side by side on desktop so the hero's right half isn't empty */}
