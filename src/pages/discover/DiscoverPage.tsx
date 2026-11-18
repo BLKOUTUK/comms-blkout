@@ -51,7 +51,7 @@ const NOW_CARDS: readonly NowCard[] = [
 const BEAM_DAY = {
   until: '2026-12-29T00:00:00Z',
   page: 'https://commons.blkoutuk.com/beam-day',
-  crowdfunderUrl: '',
+  crowdfunderUrl: 'https://commons.blkoutuk.com/set-a-place',
   crowdfunderCloses: '2026-12-08T00:00:00Z',
 };
 
