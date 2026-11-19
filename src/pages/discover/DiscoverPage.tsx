@@ -151,13 +151,13 @@ export function DiscoverPage() {
         <section aria-labelledby="beam-day" className="mb-10 sm:mb-14 grid lg:grid-cols-[3fr_2fr] bg-[#14141f] border-t-4 border-[#d4af37]">
           <div className="min-w-0 flex flex-col justify-center p-6 sm:p-10">
             <p className="font-['IBM_Plex_Mono'] font-medium text-[11px] tracking-[0.3em] uppercase text-[#d4af37] mb-4">
-              <span className="whitespace-nowrap">Mon 28 Dec <span aria-hidden="true">·</span> Croydon</span>{fundOn && <>{' '}<span className="block sm:inline whitespace-nowrap"><span aria-hidden="true" className="hidden sm:inline">· </span>Crowdfunder open</span></>}
+              <span className="block sm:inline whitespace-nowrap">Joseph Beam Day<span aria-hidden="true" className="hidden sm:inline"> · </span></span><span className="whitespace-nowrap">Mon 28 Dec <span aria-hidden="true">·</span> Croydon</span>{fundOn && <>{' '}<span className="block sm:inline whitespace-nowrap"><span aria-hidden="true" className="hidden sm:inline">· </span>Crowdfunder open</span></>}
             </p>
             <h2 id="beam-day" className="font-['Work_Sans'] font-black uppercase leading-[0.9] tracking-[-0.03em] text-[#f5f1e8] text-[clamp(2.5rem,7vw,4.25rem)]">
-              Joseph Beam Day<span className="text-[#d4af37]">.</span>
+              A Day In The Life<span className="text-[#d4af37]">.</span>
             </h2>
             <p className="font-['Fraunces'] italic text-[#d4af37] text-xl sm:text-2xl leading-snug mt-4 max-w-xl">
-              An alternative Black queer Christmas, with room at the table for every generation.
+              Lunch, play and a White Party: a holiday nobody has to edit themselves for, with room at the table for every generation.
             </p>
             {fundOpen && (
               <p className="text-[#f5f1e8]/85 text-base sm:text-lg leading-relaxed mt-4 max-w-xl">
