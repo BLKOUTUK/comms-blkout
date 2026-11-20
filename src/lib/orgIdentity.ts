@@ -49,6 +49,11 @@ export const ORG_IDENTITY = {
       value:
         'Not VAT registered · not at Companies House — a form asking for a Companies House number has the wrong entity type',
     },
+    {
+      label: 'Corporation tax',
+      value:
+        'Registered with HMRC 18 Aug 2026 · taxed as a company under the normal rules (HMRC letter, 15 Oct 2026) · UTR held by the Secretary, not shown here',
+    },
   ] as IdentityFact[],
 
   officers: [
@@ -66,7 +71,7 @@ export const ORG_IDENTITY = {
     {
       label: 'AGM',
       value:
-        'End October 2026 — date set at the September board. All directors stand down at the first AGM (Rule 70).',
+        'Wednesday 25 November 2026, 7pm, online. All directors stand down at the first AGM (Rule 70).',
     },
     { label: 'First anniversary', value: '24 November 2026' },
     { label: 'Joseph Beam Day', value: '28 December 2026 — membership opens' },
