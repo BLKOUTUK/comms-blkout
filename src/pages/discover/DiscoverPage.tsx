@@ -24,6 +24,16 @@ const VOICES_URL = 'https://voices.blkoutuk.cloud';
 type NowCard = { from: string; until: string; label: string; title: string; blurb: string; cta: string; href: string; image?: string; focus?: string };
 const NOW_CARDS: readonly NowCard[] = [
   {
+    from: '2026-11-21T00:00:00Z', until: '2026-12-29T00:00:00Z',
+    label: 'Tickets · Mon 28 Dec · Croydon',
+    title: 'A Day in the Life: Joseph Beam Day',
+    blurb: "Lunch at Ivor's Table, an afternoon in The Play Parlour, and Club Frolic, our White Party. Hosted by Black queer men, for Black queer men. From pay what you can.",
+    cta: 'Book your place',
+    href: 'https://blkoutuk.com/shop?utm_source=discover&utm_medium=web&utm_campaign=beam-day#beam-day',
+    image: 'https://commons.blkoutuk.com/set-a-place-assets/beam-day-email-table.jpg',
+    focus: '50% 30%',
+  },
+  {
     from: '2026-11-13T09:07:00Z', until: '2026-12-01T00:00:00Z',
     label: 'New on Voices · 13 Nov',
     title: 'Jason Jones wins at the Privy Council',
