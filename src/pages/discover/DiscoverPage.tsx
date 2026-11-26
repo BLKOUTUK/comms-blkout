@@ -185,7 +185,7 @@ export function DiscoverPage() {
               </div>
             </div>
           </div>
-          <div className="relative bg-[#0a0a14] flex items-center">
+          <div className="relative bg-[#14141f] flex items-center lg:p-6">
             <video
               className="w-full aspect-square object-cover"
               src="https://commons.blkoutuk.com/beam-day-assets/a-day-in-the-life-title-1x1.mp4"
