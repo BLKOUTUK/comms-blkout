@@ -51,8 +51,15 @@ const NOW_CARDS: readonly NowCard[] = [
 const BEAM_DAY = {
   until: '2026-12-29T00:00:00Z',
   page: 'https://commons.blkoutuk.com/beam-day',
+  tickets: 'https://www.zeffy.com/en-GB/ticketing/a-day-in-the-life-joseph-beam-day--2026',
   crowdfunderUrl: 'https://commons.blkoutuk.com/set-a-place',
-  crowdfunderCloses: '2026-12-08T00:00:00Z',
+  crowdfunderCloses: '2026-12-14T00:00:00Z', // Set a place formally closes Sun 13 Dec (Rob, 24 Nov)
+};
+/* Living in the Life: the membership funnel's first door. `essay` stays empty until the
+   landing page is live (commons.blkoutuk.com/living-in-the-life), so no button ever 404s. */
+const LITL = {
+  film: 'https://youtu.be/781gzzyNYh4',
+  essay: '',
 };
 
 /* Explore: the lasting things worth a visit, rotating under the tiles. Addresses come from
@@ -151,7 +158,7 @@ export function DiscoverPage() {
         <section aria-labelledby="beam-day" className="mb-10 sm:mb-14 grid lg:grid-cols-[3fr_2fr] bg-[#14141f] border-t-4 border-[#d4af37]">
           <div className="min-w-0 flex flex-col justify-center p-6 sm:p-10">
             <p className="font-['IBM_Plex_Mono'] font-medium text-[11px] tracking-[0.3em] uppercase text-[#d4af37] mb-4">
-              <span className="block sm:inline whitespace-nowrap">Joseph Beam Day<span aria-hidden="true" className="hidden sm:inline"> · </span></span><span className="whitespace-nowrap">Mon 28 Dec <span aria-hidden="true">·</span> Croydon</span>{fundOn && <>{' '}<span className="block sm:inline whitespace-nowrap"><span aria-hidden="true" className="hidden sm:inline">· </span>Crowdfunder open</span></>}
+              <span className="block sm:inline whitespace-nowrap">Joseph Beam Day<span aria-hidden="true" className="hidden sm:inline"> · </span></span><span className="whitespace-nowrap">Mon 28 Dec <span aria-hidden="true">·</span> Croydon</span>{fundOn && <>{' '}<span className="block sm:inline whitespace-nowrap"><span aria-hidden="true" className="hidden sm:inline">· </span>Set a place open to Sun 13 Dec</span></>}
             </p>
             <h2 id="beam-day" className="font-['Work_Sans'] font-black uppercase leading-[0.9] tracking-[-0.03em] text-[#f5f1e8] text-[clamp(2.5rem,7vw,4.25rem)]">
               A Day In The Life<span className="text-[#d4af37]">.</span>
@@ -161,16 +168,24 @@ export function DiscoverPage() {
             </p>
             {fundOpen && (
               <p className="text-[#f5f1e8]/85 text-base sm:text-lg leading-relaxed mt-4 max-w-xl">
-                £25 sets a place: a seat, a meal, a gift and a ride home. {fundOn ? "We're raising £2,500 by Mon 7 Dec." : 'Our crowdfunder opens shortly.'}
+                £25 sets a place for a man the holidays forget: a seat, a meal, a gift and help getting home safely. {fundOn ? "We're raising £2,500 by Sun 13 Dec." : ''}
               </p>
             )}
             <div className="mt-6 flex flex-col sm:flex-row sm:flex-wrap gap-3">
-              {fundOn && <a href={BEAM_DAY.crowdfunderUrl} className={beamFill}>Back the crowdfunder <span aria-hidden="true">→</span></a>}
-              <a href={BEAM_DAY.page} className={fundOn ? beamLine : beamFill}>About the day <span aria-hidden="true">→</span></a>
-              <a href={`${BEAM_DAY.page}#join`} className={beamLine}>Lend a hand <span aria-hidden="true">→</span></a>
+              {fundOn && <a href={BEAM_DAY.crowdfunderUrl} className={beamFill}>Set a place <span aria-hidden="true">→</span></a>}
+              <a href={BEAM_DAY.tickets} className={fundOn ? beamLine : beamFill}>Book your ticket <span aria-hidden="true">→</span></a>
+            </div>
+            <p className="text-[#f5f1e8]/70 text-sm mt-3">Pay what you can tickets are available, from £0, on trust. <a href={BEAM_DAY.page} className="underline decoration-[#d4af37] underline-offset-4 hover:text-[#f5f1e8]">About the day</a></p>
+            <div className="mt-8 pt-6 border-t border-[#f5f1e8]/15">
+              <p className="font-['IBM_Plex_Mono'] font-medium text-[11px] tracking-[0.3em] uppercase text-[#d4af37] mb-2">Living in the Life</p>
+              <p className="font-['Fraunces'] italic text-[#f5f1e8] text-lg sm:text-xl leading-snug max-w-xl">“Black men loving Black men is the revolutionary act.” Why it still is, and what we build next.</p>
+              <div className="mt-4 flex flex-col sm:flex-row sm:flex-wrap gap-3">
+                {LITL.essay && <a href={LITL.essay} className={beamLine}>Read the essay <span aria-hidden="true">→</span></a>}
+                <a href={LITL.film} className={beamLine}>Watch the film <span aria-hidden="true">→</span></a>
+              </div>
             </div>
           </div>
-          <img src="/images/beam-day-room.jpg" alt="A room full of Black queer men, seated and listening, at a BLKOUT gathering" className="w-full h-56 sm:h-72 lg:h-full object-cover" style={{ objectPosition: '50% 62%' }} />
+          <img src="/images/beam-day-arrival.jpg" alt="Illustration: two Black men embrace, laughing, at the door of a party" className="w-full h-72 sm:h-96 lg:h-full object-cover" style={{ objectPosition: '45% 35%' }} />
         </section>
       )}
       {/* GATEWAY — the page people land on from every social bio (blkoutuk.com/now).
