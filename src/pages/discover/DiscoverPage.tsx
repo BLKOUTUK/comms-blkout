@@ -185,7 +185,20 @@ export function DiscoverPage() {
               </div>
             </div>
           </div>
-          <img src="/images/beam-day-arrival.jpg" alt="Illustration: two Black men embrace, laughing, at the door of a party" className="w-full h-72 sm:h-96 lg:h-full object-cover" style={{ objectPosition: '45% 35%' }} />
+          <div className="relative bg-[#0a0a14] flex items-center">
+            <video
+              className="w-full aspect-square object-cover"
+              src="https://commons.blkoutuk.com/beam-day-assets/a-day-in-the-life-title-1x1.mp4"
+              poster="https://commons.blkoutuk.com/beam-day-assets/a-day-in-the-life-cover-1x1.jpg"
+              autoPlay
+              muted
+              loop
+              playsInline
+              controls
+              preload="metadata"
+              aria-label="A Day In The Life, the title film for Joseph Beam Day: Eat, Play, Dance, Monday 28 December, Croydon"
+            />
+          </div>
         </section>
       )}
       {/* GATEWAY — the page people land on from every social bio (blkoutuk.com/now).
