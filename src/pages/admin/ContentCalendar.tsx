@@ -84,6 +84,17 @@ function Thumb({ row }: { row: ContentRow }) {
       </span>
     );
   }
+  // Films (Reels) are mp4s: an <img> can't draw them, so show the film's own frame instead.
+  if (/\.(mp4|mov|m4v|webm)(\?|$)/i.test(url)) {
+    return (
+      <a href={url} target="_blank" rel="noreferrer" title="Film: open to watch"
+         className="relative w-10 h-10 rounded overflow-hidden border border-gray-200 shrink-0 bg-black block">
+        <video src={`${url}#t=2`} muted playsInline preload="metadata"
+               className="w-full h-full object-cover" />
+        <span className="absolute inset-0 flex items-center justify-center text-white text-[10px] font-bold drop-shadow">▶</span>
+      </a>
+    );
+  }
   return (
     <img src={url} alt="" loading="lazy"
          className="w-10 h-10 rounded object-cover border border-gray-200 shrink-0" />
